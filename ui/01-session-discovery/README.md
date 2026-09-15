@@ -2,81 +2,96 @@
 
 ## Statut
 
-**UI initialement validée, parcours actuellement en révision suite à la séparation skills / rôles de session.**
+**VALIDÉ — 15 septembre 2026**
 
-Ce document décrit la maquette `index.html` située dans ce même dossier.
+`index.html` est la référence visuelle validée de cet écran. Ce README est sa référence fonctionnelle et technique pour les agents de codage.
 
 ## Objectif
 
-Écran d’accueil du device sur le LAN. Le device se rend disponible avec ses skills activées. Les Masters peuvent découvrir les devices disponibles et les affecter à une session.
+Écran d’accueil local d’un device MultiCam. Il montre son identité, sa disponibilité réseau et les skills supportées par cette implémentation. Si le skill `controller` est activé, il donne également accès aux sessions détectées et à la création d’une session.
 
-L’accès direct à une session détectée depuis ce device est réservé au cas où l’utilisateur souhaite devenir `Controller/Master`.
+L’interface opérateur doit rester concise : les explications d’architecture comme « skills annoncées aux Masters » appartiennent à la documentation, pas à l’écran.
 
-## Principes UI
-
-- Bootstrap 5.x à jour.
-- Bootswatch **Quartz**.
-- Font Awesome.
-- jQuery autorisé.
-- Interface conçue au-dessus de la preview caméra native lorsqu’elle existe.
-- Dans Cordova Android : `cordova-plugin-camera-preview` avec `toBack:true`, WebView transparente et surfaces semi-transparentes.
-
-## Skills : règle d’architecture
-
-Voir également `docs/SKILLS-AND-ROLES.md`.
-
-Il faut impérativement distinguer :
-
-1. `supportedSkills` : skills réellement implémentées par le code de ce client ;
-2. `enabledSkills` : sous-ensemble activé localement par l’utilisateur ;
-3. `sessionRoles` : rôles effectivement attribués au device dans une session.
-
-### Android V1
-
-L’application Android doit supporter dans son code :
-
-- `controller` ;
-- `capture` ;
-- `storage`.
-
-L’utilisateur peut activer/désactiver localement ces skills.
-
-### Autres implémentations
-
-Une autre application MultiCam peut exposer un sous-ensemble différent. Exemple : un client Raspberry Pi destiné au stockage peut n’implémenter que `storage`.
-
-Les agents de codage ne doivent donc jamais supposer que tous les clients disposent des trois skills.
-
-## Structure
+## UI validée
 
 ### Header
 
-- MultiCam ;
-- nom du device (`Cam 07` dans la maquette) ;
+- nom de l’application `MultiCam` ;
+- nom local du device affiché en permanence (`Cam 07` dans la maquette) ;
 - menu hamburger.
 
-### Disponibilité du device
+### Disponibilité
 
-L’accueil indique que le device est disponible sur le réseau et affiche de manière synthétique ses `enabledSkills`.
+Le device affiche son état `Disponible sur le réseau`.
 
-Ces badges sont informatifs. La modification des skills activées appartient aux paramètres du device.
+Les trois skills supportées par l’application Android V1 sont toujours représentées par des badges :
 
-### Sessions disponibles
+- `Capture` : Font Awesome `fa-video` ;
+- `Storage` : Font Awesome `fa-hard-drive` ;
+- `Master` / `controller` : Font Awesome `fa-sliders`.
 
-Les sessions LAN peuvent être affichées pour permettre à un utilisateur autorisé de rejoindre une session **comme Master**.
+Ces icônes constituent la convention UI à réutiliser sur les autres écrans.
 
-Ce n’est plus le mécanisme normal permettant à une Capture ou un Storage de s’ajouter à une session.
+Une skill activée est affichée normalement. Une skill supportée mais désactivée reste visible, mais grisée. Il est donc possible d’avoir zéro skill activée sans masquer les capacités que cette version de l’application sait fournir.
+
+Les badges de l’accueil sont en lecture seule. Il ne doit pas y avoir de bouton de modification rapide des skills sur cet écran.
+
+### Paramètres
+
+La modification de `enabledSkills` se fait exclusivement depuis `Paramètres`, accessible par le menu hamburger.
+
+### Sessions
+
+La zone `Sessions disponibles`, son bouton de rafraîchissement et les sessions détectées ne sont visibles que si le skill `controller` est activé localement.
+
+Chaque session détectée propose l’action `Rejoindre`.
+
+`Rejoindre` signifie ici rejoindre la session comme Master/Controller. Une Capture ou un Storage ne se joint pas lui-même à une session depuis cette liste.
 
 ### Nouvelle session
 
-`Nouvelle session` crée une session dont ce device devient nécessairement Controller/Master.
+Le bouton `Nouvelle session` n’est visible que si le skill `controller` est activé. La création d’une session fait de ce device un Master de cette session.
 
-### Menu secondaire
+### Sans skill Controller
 
-- Historique des sessions ;
-- Paramètres du device / skills activées.
+Si `controller` est désactivé :
 
-## Modèle minimal du device
+- aucune liste de sessions ;
+- aucun bouton `Nouvelle session` ;
+- le device reste disponible sur le LAN selon ses autres skills activées ;
+- si aucune skill n’est activée, les skills supportées restent simplement affichées grisées.
+
+## Architecture skills
+
+Voir également `docs/SKILLS-AND-ROLES.md`.
+
+Le code doit distinguer strictement :
+
+1. `supportedSkills` : capacités réellement implémentées par ce client ;
+2. `enabledSkills` : sous-ensemble que l’utilisateur autorise ce device à fournir/annoncer ;
+3. `sessionRoles` : rôles attribués au device dans une session donnée.
+
+### Android V1
+
+Cette implémentation supporte dans son code :
+
+```json
+["controller", "capture", "storage"]
+```
+
+Cela ne signifie pas que les trois sont obligatoirement activées.
+
+### Autres clients
+
+Ne jamais déduire les skills depuis le type de matériel. Une implémentation Raspberry Pi peut par exemple déclarer uniquement :
+
+```json
+["storage"]
+```
+
+L’UI doit afficher uniquement les `supportedSkills` déclarées par l’implémentation courante.
+
+## Modèle minimal
 
 ```json
 {
@@ -88,44 +103,42 @@ Ce n’est plus le mécanisme normal permettant à une Capture ou un Storage de 
 }
 ```
 
+`enabledSkills` peut être un tableau vide.
+
 ## Découverte réseau
 
-- mDNS / Bonjour en priorité ;
-- identité basée sur `deviceId`, jamais sur l’adresse IP ;
-- le device annonce ses skills supportées et activées ;
-- un Master peut découvrir les devices disponibles sur le LAN.
+- fonctionnement LAN sans backend Internet ;
+- mDNS/Bonjour en mécanisme principal de découverte ;
+- identité persistante basée sur `deviceId`, jamais sur l’adresse IP ;
+- l’annonce réseau doit permettre au Master de connaître au minimum l’identité du device ainsi que ses skills supportées et activées.
 
-## Affectation à une session
+Une Capture ou un Storage disponible sur le LAN attend qu’un Master l’ajoute à une session. Le bouton `Rejoindre` de cet écran concerne uniquement le parcours Controller/Master.
 
-Pour `capture` et `storage`, le principe retenu est désormais :
+## Navigation de référence
 
-- le device se rend disponible sur le LAN ;
-- le Master le découvre ;
-- le Master l’ajoute à sa session et lui attribue les rôles autorisés par ses `enabledSkills`.
+- `Rejoindre` → écran 02 en mode accès à une session existante ;
+- `Nouvelle session` → écran 02 en mode création ;
+- `Paramètres` → écran 15 lorsqu’il sera conçu ;
+- `Historique` → écran 16 lorsqu’il sera conçu.
 
-Le device ne doit pas nécessiter une manipulation locale systématique pour rejoindre la session : cela serait impraticable avec une quinzaine de tablettes.
+Les écrans non encore conçus ne doivent pas être inventés par l’agent pour compléter artificiellement la navigation.
 
-Le détail du mécanisme d’invitation/affectation sera finalisé avec l’écran Master des devices.
+## Contraintes UI / Cordova
 
-## Accès Controller/Master
+- Bootstrap 5.x / Bootswatch Quartz ;
+- Font Awesome ;
+- jQuery autorisé ;
+- priorité mobile/tablette Android ;
+- interface exploitable à partir d’environ 320 px CSS ;
+- la maquette HTML utilise une vidéo de fond pour simuler la preview ;
+- dans l’application réelle, la preview caméra est native via `cordova-plugin-camera-preview` avec WebView transparente et `toBack:true` ;
+- les surfaces Quartz doivent conserver leur transparence au-dessus de la preview.
 
-Un autre Controller peut rejoindre une session existante volontairement.
+## Invariants pour l’implémentation
 
-- accès protégé par PIN 4 chiffres ;
-- ce parcours est distinct de l’affectation Capture/Storage par le Master.
-
-## Responsive
-
-Priorité Android tablette/téléphone. Exploitable à partir d’environ 320 px CSS.
-
-## Contraintes Camera Preview
-
-- Ne pas rendre `html`, `body` ou la WebView opaques dans l’application réelle.
-- Conserver la perception de la preview sous les cards.
-- La preview réelle reste gérée nativement par le plugin.
-
-## Règle agents de codage
-
-`index.html` est la référence visuelle et ce README la référence fonctionnelle de cet écran.
-
-Ne pas confondre `supportedSkills`, `enabledSkills` et `sessionRoles`. Ne jamais permettre à l’utilisateur ou à un Master d’activer un rôle que le code du client ne déclare pas comme supporté.
+- Zéro `enabledSkills` est autorisé.
+- Une skill non présente dans `supportedSkills` ne doit jamais pouvoir être activée.
+- Désactiver `controller` masque toute l’UI de gestion/création des sessions sur cet écran.
+- Les skills supportées restent visibles même lorsqu’elles sont désactivées.
+- Les icônes Capture/Storage/Master validées doivent être conservées de manière cohérente dans l’ensemble de l’application.
+- Ne pas ajouter de texte pédagogique ou technique à l’interface lorsqu’il n’aide pas directement l’opérateur ; placer ces explications dans les README.
