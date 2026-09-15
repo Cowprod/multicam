@@ -1,197 +1,182 @@
 # MultiCam — Plan de vol UI V1
 
-**Dernière mise à jour : 11 septembre 2026**
+**Dernière mise à jour : 16 septembre 2026**
 
-Ce document sert de point de reprise après interruption. Il indique ce qui est validé, ce qui est en cours et l’ordre de conception restant.
-
-Chaque écran validé doit produire :
+Ce document sert de point de reprise après interruption. Chaque écran validé doit avoir :
 
 - `index.html` : maquette visuelle de référence ;
-- `README.md` : spécification UI + technique associée.
+- `README.md` : spécification UI + technique pour les agents de codage.
 
 ---
 
-# État global du projet
+# État actuel
 
-## Architecture / règles métier
+## Écrans validés
 
-La phase de conception fonctionnelle est largement avancée : rôles `Controller/Master`, `Capture`, `Storage`, sessions, Takes, ARM, START synchronisé, STOP_PENDING, recovery, stockage, transferts, SHA-256, réplication, suppression, GPS, télémétrie et manifests JSON ont déjà été définis.
+- **01 — Accueil / Découverte des sessions : ✅ VALIDÉ**
+  - `ui/01-session-discovery/`
+- **02 — Création / accès Master à une session : ✅ VALIDÉ**
+  - `ui/02-master-session/`
+- **03 — Session / Vue Master : ✅ VALIDÉ**
+  - `ui/03-master-session/`
+- **05 — Préparation / Réglages du Take : ✅ VALIDÉ**
+  - `ui/05-take-preparation/`
 
-## Qualification technique Cordova
+## Prochaine étape immédiate
 
-Les tests mono-device ont permis de valider une grande partie de la pile :
+**Écran 06 — ARM / Contrôle de préparation.**
 
-- permissions Android ;
-- batterie ;
-- Insomnia ;
-- GPS ;
-- File ;
-- orientation ;
-- luminosité ;
-- mDNS/Bonjour ;
-- Camera Preview ;
-- REC vidéo via `cordova-plugin-camera-preview` master GitHub avec permissions Android 13 corrigées ;
-- snapshot hors REC.
-
-Point caméra particulier déjà identifié : `takeSnapshot()` n’est pas exploitable pendant REC sur le Samsung de test ; une piste native de capture de preview type PixelCopy a été travaillée dans le lab de référence.
-
-## UI
-
-- **Écran 01 : VALIDÉ et archivé dans le repo.**
-- **Écran 02 : BROUILLON VISUEL DÉFINI, mais pas encore validé ni archivé.**
-- Tous les autres écrans restent à concevoir.
-
-### Prochaine étape immédiate
-
-**Reprendre l’écran 02 — Entrer dans une session / définir les rôles**, ajuster la maquette, la valider, puis créer :
-
-```text
-ui/02-session-roles/
-├── index.html
-└── README.md
-```
+Une ancienne maquette existe dans `ui/06-arm/`, mais elle doit être reprise avant validation car elle suppose encore que tous les devices doivent être READY pour permettre le START, alors que l'architecture retient qu'une Capture en ERROR ne bloque pas nécessairement le START global.
 
 ---
 
-# Écrans
+# Décisions structurantes déjà validées
 
-## 01 — Accueil / Découverte des sessions
+## 01 — Accueil / Découverte
 
-**Statut : ✅ VALIDÉ**
+- nom du device toujours visible ;
+- affichage des skills supportées ;
+- skill désactivée affichée en grisé ;
+- modification des skills uniquement depuis Paramètres ;
+- sans skill Controller/Master : masquer sessions disponibles et Nouvelle session ;
+- avec skill Controller/Master : afficher sessions détectées + Nouvelle session ;
+- action session : `Rejoindre` ;
+- icônes : Capture `fa-video`, Storage `fa-hard-drive`, Master `fa-sliders`.
 
-Dossier : `ui/01-session-discovery/`
+## 02 — Création / accès Master
 
-Fonctions :
+- nom de session obligatoire à la création ;
+- PIN Master aléatoire à 4 chiffres ;
+- création : nom + bouton Créer uniquement ;
+- le device créateur devient Master et entre directement dans la session ;
+- rejoindre une session existante : nom de session + 4 cases PIN ;
+- validation automatique à la saisie du 4e chiffre ;
+- PIN incorrect : effacement + message bref + focus première case ;
+- les devices Capture/Storage ne se joignent pas eux-mêmes ici.
 
-- nom du device local ;
-- découverte des sessions LAN via mDNS/Bonjour ;
-- rejoindre une session ;
-- rejoindre par code / QR ;
-- créer une nouvelle session ;
-- accès secondaire à l'historique et aux paramètres du device.
+## 03 — Session / Vue Master
 
-Décision UI importante : l’accueil reste volontairement léger ; les anciennes sessions ne sont pas affichées directement sur l’écran principal.
-
----
-
-## 02 — Entrer dans une session / Définir les rôles
-
-**Statut : 🟠 BROUILLON À REPRENDRE / VALIDER**
-
-Une première maquette a été définie mais n’a pas été validée définitivement.
-
-Un seul écran doit couvrir deux contextes.
-
-### Création d'une session
-
-- saisir/valider le nom de la session ;
-- le device créateur est obligatoirement `Controller/Master` ;
-- activer en plus `Capture` et/ou `Storage` si le device possède ces capabilities ;
-- génération automatique du PIN Master 4 chiffres lors de la création.
-
-### Rejoindre une session existante
-
-- afficher le nom de la session ;
-- choisir les rôles actifs du device parmi ses capabilities ;
-- rôles possibles : `Capture`, `Storage`, `Controller/Master` ;
-- si `Controller/Master` est demandé : saisie obligatoire du PIN 4 chiffres ;
-- un device Capture-only ne s'ajoute pas automatiquement à un Take.
-
-### Brouillon UI déjà proposé
-
-- trois cards/choix : `Controller/Master`, `Capture`, `Storage` ;
-- en création : Master coché et imposé ;
-- Capture cochée par défaut ;
-- Storage optionnel ;
-- en mode rejoindre : Master facultatif ;
-- champ PIN visible uniquement si Master est demandé.
-
-**À faire maintenant : reprendre cette maquette et décider si cette représentation des rôles est validée.**
-
----
-
-## 03 — Session / Vue Master des devices
-
-**Statut : ⚪ À CONCEVOIR**
-
-Écran principal d'une session lorsque le device est Master.
-
-Fonctions prévues :
-
-- liste des devices découverts/rejoints ;
-- nom, rôles, état de connexion ;
-- batterie + éclair si charge ;
-- stockage libre ;
-- éventuel niveau Wi-Fi si disponible ;
-- erreurs/warnings visibles ;
-- sélectionner les Captures qui participeront au prochain Take ;
-- sélectionner les Storage attendus ;
-- accès aux réglages du Take ;
-- accès à la création/lancement du prochain Take.
-
-Les devices Capture-only ne rejoignent jamais seuls un Take : le Master les sélectionne ici ou dans l'écran de préparation du Take.
-
----
-
-## 04 — Configuration d'un device dans la session
-
-**Statut : ⚪ À CONCEVOIR**
-
-Écran ou panneau d'édition d'un device hors REC.
-
-Fonctions :
-
-- nom humain du device ;
-- rôle/fonction dans la session ;
-- tags multiples (`gauche`, `guitare`, `plan serré`, etc.) ;
-- overrides propres au device lorsque nécessaire ;
-- choix du volume de stockage local si plusieurs volumes sont disponibles ;
-- politique de conservation/suppression locale si override autorisé.
-
-Pas de modification accessoire pendant un Take actif.
-
----
+- PIN Master visible en permanence en V1 ;
+- barre secondaire compacte sous le header : état session + PIN ;
+- liste des devices membres de session ;
+- liste des devices disponibles sur le LAN ;
+- ajout d'un device initié par le Master ;
+- rôles attribuables uniquement parmi les skills supportées + activées + annoncées ;
+- édition des rôles via modal ;
+- préparation du prochain Take depuis cet écran.
 
 ## 05 — Préparation / Réglages du Take
 
-**Statut : ⚪ À CONCEVOIR**
+### Sélections
 
-Configuration globale du prochain Take avec héritage du précédent.
+Premier Take :
 
-Réglages V1 prévus :
+- aucune Capture sélectionnée par défaut ;
+- aucun Storage sélectionné par défaut.
 
-- Captures participantes ;
-- Storage attendus ;
-- résolution `HD / Full HD / 4K` ;
-- qualité `Éco / Normal / Haute` ;
-- caméra avant/arrière ;
-- audio ON/OFF ;
-- orientation Paysage/Portrait ;
-- GPS `Off / Éco / Normal / Précis` ;
-- countdown ;
-- transfert automatique ;
-- suppression locale après réplication validée ;
-- paramètres globaux de preview ;
-- overrides par Capture lorsque prévus.
+Takes suivants :
 
-Valeurs par défaut actées :
+- reprise des Captures du Take précédent ;
+- reprise des Storage du Take précédent ;
+- reprise des réglages ;
+- reprise des overrides par Capture.
+
+Actions de groupe séparées par type :
+
+- Captures : Toutes / Aucune ;
+- Storage : Tous / Aucun.
+
+ARM :
+
+- au moins une Capture requise ;
+- aucun Storage requis ;
+- sans Storage : warning + accordéon Transfert visible mais désactivé.
+
+### Réglages globaux
+
+Tous restent sur l'écran 05 sous forme d'accordéons, un seul ouvert à la fois.
+
+Vidéo :
+
+- HD / Full HD / 4K ;
+- Éco / Normal / Haute ;
+- caméra Arrière / Avant ;
+- Paysage / Portrait.
+
+Audio :
+
+- Activé / Désactivé.
+
+GPS :
+
+- Off / Éco / Normal / Précis.
+
+Countdown :
+
+- 0 / 3 / 5 / 10 s.
+
+Transfert :
+
+- Transfert automatique ON/OFF ;
+- Suppression locale après réplication validée ON/OFF.
+
+Valeurs par défaut du premier Take :
 
 - Full HD ;
-- qualité Haute ;
+- Haute ;
 - caméra arrière ;
-- audio ON ;
 - Paysage ;
+- audio ON ;
 - GPS Normal ;
+- countdown 5 s ;
 - transfert automatique ON ;
-- suppression automatique locale après transfert validé ON.
+- suppression locale après réplication validée ON.
+
+### Overrides par Capture
+
+- accessibles via crayon ;
+- crayon visible même si Capture non sélectionnée, mais grisé/inactif ;
+- actif uniquement sur une Capture sélectionnée ;
+- overrides autorisés : Vidéo / Audio / GPS ;
+- Countdown et Transfert restent globaux ;
+- mécanique `Hériter` par bloc ;
+- si `Hériter` est désactivé, afficher les réglages spécifiques ;
+- ne proposer dans l'override que les valeurs réellement supportées par le device ;
+- si Capture désélectionnée puis resélectionnée dans le même Take, conserver ses overrides.
+
+### Compatibilité / best effort
+
+Les réglages globaux du Take ne sont pas limités au dénominateur commun des Captures.
+
+Si un device ne supporte pas un réglage global :
+
+- appliquer automatiquement la meilleure valeur compatible ;
+- afficher un warning indicatif sur l'icône du réglage concerné ;
+- appui sur l'icône = détail du fallback, ex. `Full HD indisponible → HD` ;
+- afficher les warnings sur toutes les Captures, même non sélectionnées, afin d'aider au choix ;
+- les warnings de liste comparent les capacités du device aux réglages globaux du Take, pas à ses overrides.
 
 ---
 
+# Écrans à poursuivre
+
+## 04 — Configuration détaillée d'un device
+
+**Statut : ⚪ À CONCEVOIR / priorité secondaire**
+
+Fonctions possibles :
+
+- nom humain ;
+- tags/fonctions ;
+- volume de stockage local préféré ;
+- paramètres locaux persistants ;
+- autres réglages hors Take.
+
+Ne pas y dupliquer les overrides de Take déjà gérés dans l'écran 05.
+
 ## 06 — ARM / Contrôle de préparation
 
-**Statut : ⚪ À CONCEVOIR**
-
-Écran de validation juste avant START.
+**Statut : 🟠 BROUILLON À REPRENDRE**
 
 Pour chaque Capture sélectionnée :
 
@@ -200,175 +185,133 @@ Pour chaque Capture sélectionnée :
 - `WARNING` ;
 - `ERROR`.
 
-Vérifications : caméra, micro si audio activé, permissions, stockage, configuration applicable et espace disponible.
+Vérifications prévues :
 
-Une Capture en ERROR est clairement signalée mais **ne bloque pas le START global**.
+- caméra ;
+- micro si audio activé ;
+- permissions ;
+- stockage ;
+- configuration applicable ;
+- espace disponible.
 
----
+Point à intégrer dans la prochaine maquette : une Capture en ERROR est clairement signalée mais ne bloque pas automatiquement le START global.
 
 ## 07 — Countdown / START synchronisé
 
-**Statut : ⚪ À CONCEVOIR**
+**Statut : 🟠 BROUILLON À REPRENDRE**
 
 - countdown visible sur Masters et Captures concernées ;
-- affichage du Take à démarrer ;
-- synchronisation par instant absolu futur corrigé par offsets d'horloge ;
-- pas de beep par défaut.
-
-Peut être intégré visuellement à l'écran Live si cela simplifie le parcours.
-
----
+- instant absolu futur synchronisé ;
+- correction par offsets d'horloge ;
+- pas de beep/vibration par défaut.
 
 ## 08 — Live / Recording
 
-**Statut : ⚪ À CONCEVOIR — écran central du projet**
+**Statut : 🟠 BROUILLON À REPRENDRE**
 
-Vue Master pendant REC.
-
-Fonctions :
+Vue Master pendant REC :
 
 - état global du Take ;
 - timer ;
 - mosaïque des Captures ;
-- previews JPEG périodiques ;
-- état de chaque Capture ;
-- batterie + charge ;
-- espace/durée estimée restante ;
-- alertes visibles ;
-- device déconnecté / reconnecté ;
-- ajout/retrait d'une Capture pendant le Take ;
-- ajout/retrait d'un Storage pendant le Take ;
-- bouton STOP.
+- previews périodiques ;
+- batterie / charge ;
+- espace disponible ;
+- alertes ;
+- reconnexion ;
+- STOP.
 
-Pendant REC : aucun transfert média entrant/sortant sur un device qui enregistre ; previews, commandes, GPS et télémétrie continuent.
-
----
+Pendant REC, pas de transfert média entrant/sortant sur un device qui enregistre ; previews, commandes, GPS et télémétrie continuent.
 
 ## 09 — STOP_PENDING
 
 **Statut : ⚪ À CONCEVOIR**
 
-- compte à rebours d'environ 10 s ;
-- `Annuler` disponible aux Masters ;
-- `Forcer l'arrêt` uniquement pour le Take Owner ;
-- à expiration : STOP propre des Captures encore actives.
+- délai d'environ 10 s ;
+- Annuler disponible aux Masters ;
+- Forcer l'arrêt uniquement pour le Take Owner ;
+- probablement modal/overlay plutôt qu'écran autonome.
 
-Probablement modal/overlay plutôt qu'écran autonome.
-
----
-
-## 10 — Take arrêté / Traitements en cours
+## 10 — Take arrêté / traitements
 
 **Statut : ⚪ À CONCEVOIR**
 
 État `STOPPED` avant `COMPLETE` :
 
 - hash SHA-256 ;
-- transferts en attente/en cours ;
+- transferts ;
 - vérifications Storage ;
 - files FIFO ;
-- Storage absent ;
-- progression globale ;
-- bouton `Take suivant` immédiatement disponible.
+- erreurs ;
+- progression ;
+- Take suivant disponible sans attendre COMPLETE.
 
-Un nouveau REC suspend les transferts/hash qui chargeraient une Capture active.
-
----
-
-## 11 — Gestion des transferts / Storage
+## 11 — Gestion transferts / Storage
 
 **Statut : ⚪ À CONCEVOIR**
 
 - espace libre ;
 - médias attendus ;
-- état taille + SHA-256 ;
+- taille + SHA-256 ;
 - pending/error/success ;
 - Storage disparu ;
 - retrait explicite d'un Storage attendu après STOP ;
-- aucun ajout de nouveau Storage après STOP ;
-- pas de transfert Storage -> Storage en V1.
-
----
+- pas de Storage -> Storage en V1.
 
 ## 12 — Gestion distante des médias
 
 **Statut : ⚪ À CONCEVOIR**
 
-- lister les médias présents sur Captures/Storage ;
+- inventaire médias Captures/Storage ;
 - état de réplication ;
 - sélection multiple ;
-- sélectionner un Take entier ;
-- suppression distante avec confirmation explicite.
+- sélection d'un Take entier ;
+- suppression distante avec confirmation.
 
-Pas de suppression automatique sur les Storage.
-
----
-
-## 13 — Écran Capture-only / Attente
+## 13 — Capture-only / attente
 
 **Statut : ⚪ À CONCEVOIR**
 
 États : disponible, sélectionnée, ARMING/READY/WARNING/ERROR, countdown, RECORDING, STOPPED, offline/reconnexion.
 
-Pendant REC : écran maintenu actif, luminosité réduite, orientation verrouillée, sortie volontaire bloquée autant que possible.
-
-Si tous les Masters disparaissent pendant un Take, STOP local d'urgence accessible.
-
----
-
-## 14 — Storage-only / État du stockage
+## 14 — Storage-only
 
 **Statut : ⚪ À CONCEVOIR**
 
-Vue minimale : session, espace libre, files de transfert, activité, erreurs et état réseau.
-
----
+Vue minimale : session, espace libre, file de transfert, activité, erreurs, état réseau.
 
 ## 15 — Paramètres du device
 
 **Statut : ⚪ À CONCEVOIR**
 
-- nom du device ;
-- informations matériel/app ;
-- capabilities détectées ;
-- volume de stockage préféré ;
-- paramètres locaux autorisés hors session ;
-- diagnostics utiles.
-
-Le `deviceId` reste généré automatiquement et persistant.
-
----
+- nom ;
+- infos matériel/app ;
+- skills supportées / activées ;
+- stockage préféré ;
+- diagnostics.
 
 ## 16 — Historique des sessions
 
-**Statut : ⚪ À CONCEVOIR — priorité basse V1**
-
-Accessible depuis le menu de l'accueil. L'historique ne doit pas encombrer l'accueil principal.
-
----
+**Statut : ⚪ À CONCEVOIR — priorité basse**
 
 ## 17 — Rejoindre par code / QR
 
-**Statut : ⚪ À CONCEVOIR**
-
-Fallback à mDNS/Bonjour : scanner un QR ou saisir un code/identifiant puis passer vers l'écran 02 de choix des rôles.
+**Statut : ⚪ À CONCEVOIR — fallback découverte LAN**
 
 ---
 
 # Ordre de travail
 
-## Séquence principale
-
 ```text
 01 ✅
 ↓
-02 🟠  ← NOUS SOMMES ICI
+02 ✅
 ↓
-03
+03 ✅
 ↓
-05
+05 ✅
 ↓
-06
+06 🟠  ← PROCHAINE ÉTAPE
 ↓
 07 / 08
 ↓
@@ -379,18 +322,14 @@ Fallback à mDNS/Bonjour : scanner un QR ou saisir un code/identifiant puis pass
 11 / 12
 ```
 
-## Écrans spécialisés à compléter ensuite
-
-```text
-04, 13, 14, 15, 16, 17
-```
+Écrans secondaires ensuite : `04, 13, 14, 15, 16, 17`.
 
 ---
 
 # Convention de suivi
 
-- `✅ VALIDÉ` : HTML + README archivés dans le repo.
-- `🟠 BROUILLON` : maquette discutée mais pas encore validée.
-- `⚪ À CONCEVOIR` : pas encore travaillé.
+- `✅ VALIDÉ` : HTML + README archivés dans le repo ;
+- `🟠 BROUILLON` : une maquette existe mais doit être reprise/validée ;
+- `⚪ À CONCEVOIR` : non travaillé ou pas suffisamment défini.
 
-Toute décision UI structurante ou changement d'ordre doit être reporté ici afin de pouvoir reprendre le projet sans dépendre de l'historique ChatGPT.
+Toute décision UI structurante doit être reportée ici pour permettre une reprise sans dépendre de l'historique ChatGPT.
