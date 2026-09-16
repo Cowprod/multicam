@@ -1,1 +1,35 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MultiCam — Countdown</title><link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.7/dist/quartz/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet"><style>html,body{height:100%;margin:0;background:#111827;color:#fff}.preview{position:fixed;inset:0}.preview video{width:100%;height:100%;object-fit:cover}.veil{position:fixed;inset:0;background:rgba(0,0,0,.48);backdrop-filter:blur(2px)}.shell{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}.glass{background:rgba(17,24,39,.55)!important;border:1px solid rgba(255,255,255,.2)!important;backdrop-filter:blur(12px)}.count{font-size:8rem;line-height:1;font-weight:800;text-shadow:0 4px 30px #000}.muted{color:rgba(255,255,255,.7)}</style></head><body><div class="preview"><video autoplay muted loop playsinline><source src="../assets/02B31CAD-F08A-4DB5-9021-9EDAA6A945C7.mp4" type="video/mp4"></video></div><div class="veil"></div><main class="shell text-center"><div class="badge text-bg-success mb-3">2/2 CAPTURES READY</div><div class="small text-uppercase muted">Interview Studio A · Take 001</div><div class="fw-bold fs-3 mb-4">START synchronisé</div><div class="count" id="count">5</div><div class="muted mt-3">Démarrage du REC</div><a href="../06-arm/" class="btn btn-outline-light glass mt-5"><i class="fa-solid fa-xmark me-2"></i>Annuler</a></main><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script>$(function(){let n=5;const t=setInterval(function(){n--;if(n>0){$('#count').text(n)}else{clearInterval(t);$('#count').text('REC');setTimeout(function(){location.href='../08-live-recording/'},500)}},1000)})</script></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MultiCam — Countdown Master</title>
+<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.7/dist/quartz/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+<style>
+html,body{height:100%;margin:0;background:#111827;color:#fff}.shell{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}.muted{color:rgba(255,255,255,.68)}.count{font-size:clamp(8rem,38vw,18rem);font-weight:800;line-height:.9;letter-spacing:-.06em}.cancel{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translateX(-50%);min-width:160px}.view-links{position:fixed;top:12px;right:12px}.view-links a{font-size:.78rem}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="small text-uppercase muted mb-2">Interview Studio A</div>
+  <div class="fw-semibold fs-4 mb-4">Take 001</div>
+  <div class="count" id="count">5</div>
+  <button class="btn btn-outline-light cancel" id="cancel"><i class="fa-solid fa-xmark me-2"></i>Annuler</button>
+</main>
+<div class="view-links btn-group btn-group-sm"><a class="btn btn-light active" href="./">Master</a><a class="btn btn-outline-light" href="capture.html">Capture</a><a class="btn btn-outline-light" href="storage.html">Storage</a></div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(function(){
+  const target=Date.now()+5000;
+  const timer=setInterval(function(){
+    const remain=Math.max(0,target-Date.now());
+    const n=Math.ceil(remain/1000);
+    if(remain<=0){clearInterval(timer);location.href='../08-live-recording/';return;}
+    $('#count').text(n);
+  },80);
+  $('#cancel').on('click',function(){location.href='../06-arm/';});
+});
+</script>
+</body>
+</html>
