@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MultiCam — Countdown Capture</title>
+<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.7/dist/quartz/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+<style>
+html,body{height:100%;margin:0;background:#111827;color:#fff}.shell{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}.muted{color:rgba(255,255,255,.68)}.count{font-size:clamp(8rem,38vw,18rem);font-weight:800;line-height:.9;letter-spacing:-.06em}.view-links{position:fixed;top:12px;right:12px}.view-links a{font-size:.78rem}.incident{display:none;max-width:520px}.incident .icon{font-size:5rem}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div id="countdownView">
+    <div class="small text-uppercase muted mb-2">Interview Studio A</div>
+    <div class="fw-semibold fs-4 mb-4">Take 001</div>
+    <div class="count" id="count">5</div>
+  </div>
+  <div class="incident" id="incidentView">
+    <div class="icon text-danger mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div class="fw-bold fs-3 mb-2">Capture écartée</div>
+    <div class="muted">Caméra indisponible</div>
+  </div>
+</main>
+<div class="view-links btn-group btn-group-sm"><a class="btn btn-outline-light" href="./">Master</a><a class="btn btn-light active" href="capture.html">Capture</a><a class="btn btn-outline-light" href="storage.html">Storage</a></div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(function(){
+  const target=Date.now()+5000;
+  const timer=setInterval(function(){
+    const remain=Math.max(0,target-Date.now());
+    const n=Math.ceil(remain/1000);
+    if(remain<=0){clearInterval(timer);location.href='../08-live-recording/';return;}
+    $('#count').text(n);
+  },80);
+});
+</script>
+</body>
+</html>
