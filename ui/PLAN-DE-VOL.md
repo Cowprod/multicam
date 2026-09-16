@@ -21,12 +21,14 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
   - `ui/03-master-session/`
 - **05 — Préparation / Réglages du Take : ✅ VALIDÉ**
   - `ui/05-take-preparation/`
+- **06 — ARM / Contrôle de préparation : ✅ VALIDÉ**
+  - `ui/06-arm/`
 
 ## Prochaine étape immédiate
 
-**Écran 06 — ARM / Contrôle de préparation.**
+**Écran 07 — Countdown / START synchronisé.**
 
-Une ancienne maquette existe dans `ui/06-arm/`, mais elle doit être reprise avant validation car elle suppose encore que tous les devices doivent être READY pour permettre le START, alors que l'architecture retient qu'une Capture en ERROR ne bloque pas nécessairement le START global.
+Une ancienne maquette existe dans `ui/07-countdown/`, mais elle doit être reprise selon les règles ARM/REC désormais validées.
 
 ---
 
@@ -156,6 +158,39 @@ Si un device ne supporte pas un réglage global :
 - afficher les warnings sur toutes les Captures, même non sélectionnées, afin d'aider au choix ;
 - les warnings de liste comparent les capacités du device aux réglages globaux du Take, pas à ses overrides.
 
+## 06 — ARM / Contrôle de préparation
+
+- ARM démarre automatiquement à l'entrée ;
+- écran en lecture seule ; retour vers 05 pour modifier le Take ;
+- retour annule l'ARM en cours ;
+- seuls les devices sélectionnés sont affichés ;
+- ordre identique à l'écran 05 ;
+- un device multi-rôle n'apparaît qu'une fois ;
+- ordre des skills : Capture puis Storage ;
+- états portés par l'icône de skill et sa couleur ;
+- pas de texte READY/WARNING/ERROR dans la liste principale ;
+- clic opérateur sur l'icône = accordéon de détail ;
+- aucun accordéon ne s'ouvre automatiquement ;
+- plusieurs incidents sont affichés séparément ;
+- timeout de réponse ARM : 5 s, sans compte à rebours visible ;
+- état et récupération pilotés automatiquement par WebSocket ;
+- pas de bouton Retry ;
+- seuil warning stockage local/Storage : 1 Go libre ;
+- contrôle Capture : caméra, audio, permissions, stockage, réglages appliqués, synchronisation ;
+- contrôle Storage : connexion, espace libre, accès volume, capacité de recevoir les transferts ;
+- synchronisation estimée par échanges horodatés ; objectif pratique V1 ~ ±50 ms ;
+- READY et WARNING sont démarrables ;
+- ERROR sur une Capture ne bloque pas les autres ;
+- incident Storage non bloquant pour REC ;
+- REC activable dès qu'au moins une Capture est READY ou WARNING ;
+- tout incident au moment de REC ouvre une modal `Annuler / Continuer REC` ;
+- la modal se met à jour en temps réel ;
+- si tous les incidents disparaissent pendant qu'elle est ouverte, fermeture automatique + lancement immédiat de REC ;
+- Capture ARMING au REC : peut rejoindre si READY avant le top, sinon écartée ;
+- Capture reconnectée + READY avant le top : réintégration automatique possible ;
+- bouton REC fixe en bas ;
+- countdown > 0 → écran 07 ; countdown = 0 → écran 08 directement.
+
 ---
 
 # Écrans à poursuivre
@@ -176,25 +211,12 @@ Ne pas y dupliquer les overrides de Take déjà gérés dans l'écran 05.
 
 ## 06 — ARM / Contrôle de préparation
 
-**Statut : 🟠 BROUILLON À REPRENDRE**
+**Statut : ✅ VALIDÉ**
 
-Pour chaque Capture sélectionnée :
+Référence :
 
-- `ARMING` ;
-- `READY` ;
-- `WARNING` ;
-- `ERROR`.
-
-Vérifications prévues :
-
-- caméra ;
-- micro si audio activé ;
-- permissions ;
-- stockage ;
-- configuration applicable ;
-- espace disponible.
-
-Point à intégrer dans la prochaine maquette : une Capture en ERROR est clairement signalée mais ne bloque pas automatiquement le START global.
+- `ui/06-arm/index.html`
+- `ui/06-arm/README.md`
 
 ## 07 — Countdown / START synchronisé
 
@@ -203,7 +225,13 @@ Point à intégrer dans la prochaine maquette : une Capture en ERROR est clairem
 - countdown visible sur Masters et Captures concernées ;
 - instant absolu futur synchronisé ;
 - correction par offsets d'horloge ;
-- pas de beep/vibration par défaut.
+- pas de beep/vibration par défaut ;
+- une Capture ARMING peut encore entrer si elle devient READY avant le top ;
+- une Capture toujours ARMING au top est exclue ;
+- une Capture déconnectée/ERROR avant le top est exclue, les autres continuent ;
+- reconnexion + READY avant le top permet la réintégration ;
+- alerte dismissable locale sur chaque Master en cas d'incident pendant countdown ;
+- **reste à décider** : comportement si aucune Capture ne reste démarrable avant le top.
 
 ## 08 — Live / Recording
 
@@ -311,9 +339,11 @@ Vue minimale : session, espace libre, file de transfert, activité, erreurs, ét
 ↓
 05 ✅
 ↓
-06 🟠  ← PROCHAINE ÉTAPE
+06 ✅
 ↓
-07 / 08
+07 🟠  ← PROCHAINE ÉTAPE
+↓
+08
 ↓
 09
 ↓
