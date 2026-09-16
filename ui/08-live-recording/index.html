@@ -21,7 +21,7 @@
 
     <article class="card glass rounded-4 cam" data-name="Cam 05" data-src="../assets/02B31CAD-F08A-4DB5-9021-9EDAA6A945C7.mp4" data-type="video/mp4" data-battery="23%" data-storage="9 Go" data-network="Wi-Fi" data-state="warning"><video autoplay muted loop playsinline preload="auto"><source src="../assets/02B31CAD-F08A-4DB5-9021-9EDAA6A945C7.mp4" type="video/mp4"></video><div class="cam-top"><span class="badge text-bg-danger"><i class="fa-solid fa-circle me-1"></i>REC</span><i class="fa-solid fa-battery-quarter text-warning" title="Batterie faible"></i></div><div class="cam-info"><div class="fw-semibold">Cam 05</div><div class="status-icons tiny"><span class="text-warning"><i class="fa-solid fa-battery-quarter me-1"></i>23%</span><span><i class="fa-solid fa-hard-drive me-1"></i>9 Go</span></div></div></article>
 
-    <article class="card glass rounded-4 cam offline" data-name="Cam 06" data-src="../assets/68C14382-0DCA-4536-AE49-FAD30FFADD90.mp4" data-type="video/mp4" data-battery="76%" data-storage="21 Go" data-network="Ethernet" data-state="offline"><video muted playsinline preload="auto" class="offline-demo"><source src="../assets/68C14382-0DCA-4536-AE49-FAD30FFADD90.mp4" type="video/mp4"></video><div class="cam-top"><span class="badge text-bg-secondary"><i class="fa-solid fa-link-slash me-1"></i>Déconnecté</span><i class="fa-solid fa-triangle-exclamation text-danger"></i></div><div class="cam-info"><div class="fw-semibold">Cam 06</div><div class="status-icons tiny"><span><i class="fa-solid fa-battery-three-quarters me-1"></i>76%</span><span><i class="fa-solid fa-hard-drive me-1"></i>21 Go</span></div></div></article>
+    <article class="card glass rounded-4 cam offline" data-name="Cam 06" data-src="../assets/68C14382-0DCA-4536-AE49-FAD30FFADD90.mp4" data-type="video/mp4" data-battery="76%" data-storage="21 Go" data-network="Ethernet" data-state="offline"><video autoplay muted playsinline preload="auto" class="offline-demo"><source src="../assets/68C14382-0DCA-4536-AE49-FAD30FFADD90.mp4" type="video/mp4"></video><div class="cam-top"><span class="badge text-bg-secondary"><i class="fa-solid fa-link-slash me-1"></i>Déconnecté</span><i class="fa-solid fa-triangle-exclamation text-danger"></i></div><div class="cam-info"><div class="fw-semibold">Cam 06</div><div class="status-icons tiny"><span><i class="fa-solid fa-battery-three-quarters me-1"></i>76%</span><span><i class="fa-solid fa-hard-drive me-1"></i>21 Go</span></div></div></article>
 
     <article class="card glass rounded-4 cam local" data-name="Cam 07" data-src="../assets/7E8CAC2B-2A91-419E-9D9C-5C50D1539757.mp4" data-type="video/mp4" data-battery="100%" data-storage="38 Go" data-network="Wi-Fi" data-state="ok"><video autoplay muted loop playsinline preload="auto"><source src="../assets/7E8CAC2B-2A91-419E-9D9C-5C50D1539757.mp4" type="video/mp4"></video><div class="cam-top"><span class="badge text-bg-danger"><i class="fa-solid fa-circle me-1"></i>REC</span><i class="fa-solid fa-circle-check text-success"></i></div><div class="cam-info"><div class="fw-semibold">Cam 07</div><div class="status-icons tiny"><span><i class="fa-solid fa-battery-full me-1"></i>100%</span><span><i class="fa-solid fa-hard-drive me-1"></i>38 Go</span></div></div></article>
   </section>
@@ -48,11 +48,21 @@ $(function(){
 
   $('.offline-demo').each(function(){
     const video=this;
-    const freeze=function(){
-      try{video.currentTime=Math.min(1,video.duration||1);}catch(e){}
-      setTimeout(function(){video.pause();},120);
+    let frozen=false;
+    const freezeAfterVisibleFrame=function(){
+      if(frozen) return;
+      frozen=true;
+      setTimeout(function(){
+        video.pause();
+      },900);
     };
-    if(video.readyState>=2) freeze(); else video.addEventListener('loadeddata',freeze,{once:true});
+    video.addEventListener('playing',freezeAfterVisibleFrame,{once:true});
+    const p=video.play();
+    if(p && p.catch) p.catch(function(){
+      video.addEventListener('canplay',function(){
+        video.play().then(freezeAfterVisibleFrame).catch(function(){});
+      },{once:true});
+    });
   });
 
   const deviceModal=new bootstrap.Modal(document.getElementById('deviceModal'));
