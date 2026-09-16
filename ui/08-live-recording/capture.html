@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MultiCam — REC Capture</title>
+<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.7/dist/quartz/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+<style>
+html,body{height:100%;margin:0;background:#05070b;color:#fff;overflow:hidden}.preview{position:fixed;inset:0}.preview video{width:100%;height:100%;object-fit:cover}.veil{position:fixed;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,.08) 30%,rgba(0,0,0,.10) 62%,rgba(0,0,0,.78))}.shell{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:18px 16px max(16px,env(safe-area-inset-bottom))}.muted{color:rgba(255,255,255,.72)}.glass{background:rgba(17,24,39,.48)!important;border:1px solid rgba(255,255,255,.18)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.rec-dot{width:16px;height:16px;border-radius:50%;background:#ff3b30;display:inline-block;box-shadow:0 0 0 5px rgba(255,59,48,.18)}.rec-title{font-size:clamp(2rem,10vw,4.2rem);font-weight:800;letter-spacing:.03em}.timer{font-size:clamp(2.1rem,12vw,4.8rem);font-weight:800;font-variant-numeric:tabular-nums;text-shadow:0 3px 18px rgba(0,0,0,.7)}.center{flex:1;display:flex;align-items:center;justify-content:center;text-align:center}.statusbar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}.statusbar::-webkit-scrollbar{display:none}.pill{white-space:nowrap;border-radius:999px;padding:.48rem .72rem;font-size:.82rem}.emergency{display:none;margin-top:10px;min-height:52px;font-weight:700}.modal-content{background:rgba(15,20,30,.98);border:1px solid rgba(255,255,255,.18)}
+</style>
+</head>
+<body>
+<div class="preview"><video autoplay muted loop playsinline preload="auto"><source src="../assets/7E8CAC2B-2A91-419E-9D9C-5C50D1539757.mp4" type="video/mp4"></video></div>
+<div class="veil"></div>
+<main class="shell">
+  <header class="d-flex align-items-start justify-content-between gap-3">
+    <div><div class="small text-uppercase muted">Interview Studio A</div><div class="fw-semibold fs-4">Take 001</div></div>
+    <div class="text-end"><div class="fw-semibold">Cam 07</div><div class="small text-success"><i class="fa-solid fa-circle-check me-1"></i>Enregistrement local</div></div>
+  </header>
+
+  <section class="center"><div><div class="d-flex align-items-center justify-content-center gap-3 mb-3"><span class="rec-dot"></span><span class="rec-title">REC</span></div><div class="timer" id="timer">00:03:42</div></div></section>
+
+  <div class="statusbar">
+    <div class="pill glass"><i class="fa-solid fa-video text-success me-1"></i>Capture</div>
+    <div class="pill glass"><i class="fa-solid fa-microphone text-success me-1"></i>Audio</div>
+    <div class="pill glass"><i class="fa-solid fa-location-dot text-success me-1"></i>GPS</div>
+    <div class="pill glass"><i class="fa-solid fa-hard-drive text-success me-1"></i>38 Go</div>
+    <div class="pill glass"><i class="fa-solid fa-battery-full text-success me-1"></i>100%</div>
+    <div class="pill glass"><i class="fa-solid fa-wifi text-success me-1"></i>Wi-Fi</div>
+  </div>
+
+  <button class="btn btn-danger w-100 emergency" id="emergencyStop" data-bs-toggle="modal" data-bs-target="#emergencyModal"><i class="fa-solid fa-stop me-2"></i>STOP local d'urgence</button>
+</main>
+
+<div class="modal fade" id="emergencyModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4"><div class="modal-header border-0"><h5 class="modal-title">Arrêter cette Capture ?</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body pt-0">Le STOP local n'arrête que Cam 07. Cette Capture ne pourra pas redémarrer dans le même Take.</div><div class="modal-footer border-0"><button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-danger"><i class="fa-solid fa-stop me-2"></i>Confirmer STOP</button></div></div></div></div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(function(){
+  let s=222;
+  setInterval(function(){s++;const h=String(Math.floor(s/3600)).padStart(2,'0'),m=String(Math.floor((s%3600)/60)).padStart(2,'0'),x=String(s%60).padStart(2,'0');$('#timer').text(h+':'+m+':'+x)},1000);
+  if(new URLSearchParams(location.search).get('nomaster')==='1') $('#emergencyStop').show();
+});
+</script>
+</body>
+</html>
