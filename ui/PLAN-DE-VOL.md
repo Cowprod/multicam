@@ -27,19 +27,12 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
   - `ui/07-countdown/`
 - **08 — Live / Recording : ✅ VALIDÉ**
   - `ui/08-live-recording/`
+- **09 — Take arrêté / traitements : ✅ VALIDÉ**
+  - `ui/09-take-stopped/`
 
 ## Prochaine étape immédiate
 
-**Écran 09 — Take arrêté / traitements.**
-
-Le flux historique `STOP_PENDING` est supprimé. Le STOP validé est désormais :
-
-```text
-STOP
-→ confirmation
-→ arrêt synchronisé immédiat
-→ écran Take arrêté / traitements
-```
+**Écran 10 — Gestion transferts / Storage.**
 
 ---
 
@@ -76,7 +69,8 @@ STOP
 - ajout d'un device initié par le Master ;
 - rôles attribuables uniquement parmi les skills supportées + activées + annoncées ;
 - édition des rôles via modal ;
-- préparation du prochain Take depuis cet écran.
+- préparation du prochain Take depuis cet écran ;
+- les Takes passés doivent désormais être accessibles depuis la Session, du plus récent au plus ancien, y compris s'ils sont encore en transfert ou en erreur.
 
 ## 05 — Préparation / Réglages du Take
 
@@ -251,6 +245,28 @@ Si un device ne supporte pas un réglage global :
 
 Référence détaillée : `ui/08-live-recording/README.md`.
 
+## 09 — Take arrêté / traitements
+
+- arrivée directe sur cet écran après le STOP global ;
+- interface non technique : états simples et barres de progression ;
+- pas de progression globale du Take ;
+- une carte par Capture ;
+- les destinations Storage sont visibles directement dans chaque carte ;
+- une barre distincte par Storage attendu ;
+- afficher volume transféré / volume total + pourcentage ;
+- une réplication terminée reste visible à `100 % / Terminé` ;
+- Capture hors ligne : `En attente de Cam XX`, avec destinations toujours visibles ;
+- erreur sur une destination : état `Erreur` + bouton `Réessayer` sur cette destination ;
+- pas de retrait d'un Storage attendu en V1 ;
+- avec Storage : Take `Terminé` quand toutes les réplications attendues sont terminées et vérifiées ;
+- sans Storage : fichiers conservés sur les Captures, Take `Terminé` après finalisation locale ;
+- suppression locale après réplication invisible pour l'opérateur ;
+- bouton `Préparer le Take suivant` fixe en bas ;
+- le Take suivant peut être préparé même si le précédent transfère encore ou comporte une erreur ;
+- depuis la Session, les Takes passés restent consultables du plus récent au plus ancien.
+
+Référence détaillée : `ui/09-take-stopped/README.md`.
+
 ---
 
 # Écrans à poursuivre
@@ -302,29 +318,26 @@ Références :
 
 ## 09 — Take arrêté / traitements
 
-**Statut : ⚪ À CONCEVOIR**
+**Statut : ✅ VALIDÉ**
 
-État `STOPPED` avant `COMPLETE` :
+Références :
 
-- hash SHA-256 ;
-- transferts ;
-- vérifications Storage ;
-- files FIFO ;
-- erreurs ;
-- progression ;
-- Take suivant disponible sans attendre COMPLETE.
+- `ui/09-take-stopped/index.html` ;
+- `ui/09-take-stopped/README.md`.
 
 ## 10 — Gestion transferts / Storage
 
 **Statut : ⚪ À CONCEVOIR**
 
+À préciser :
+
+- vue globale des transferts sur le device Storage ;
 - espace libre ;
-- médias attendus ;
-- taille + SHA-256 ;
-- pending/error/success ;
-- Storage disparu ;
-- retrait explicite d'un Storage attendu après STOP ;
-- pas de Storage -> Storage en V1.
+- Takes actifs / en attente / terminés ;
+- progression par source ;
+- erreurs et reprise ;
+- plusieurs sessions simultanées ;
+- aucun Storage → Storage en V1.
 
 ## 11 — Gestion distante des médias
 
@@ -385,9 +398,11 @@ Vue minimale : session, espace libre, file de transfert, activité, erreurs, ét
 ↓
 08 ✅
 ↓
-09  ← PROCHAINE ÉTAPE
+09 ✅
 ↓
-10 / 11
+10  ← PROCHAINE ÉTAPE
+↓
+11
 ```
 
 Écrans secondaires ensuite : `04, 12, 13, 14, 15, 16`.
