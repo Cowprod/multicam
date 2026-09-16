@@ -1,1 +1,106 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MultiCam — ARM Take 001</title><link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.7/dist/quartz/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet"><style>:root{--g:rgba(17,24,39,.48);--gs:rgba(17,24,39,.72);--b:rgba(255,255,255,.2);--m:rgba(255,255,255,.68)}html,body{min-height:100%;margin:0;background:#111827;color:#fff}.preview{position:fixed;inset:0;z-index:0}.preview video{width:100%;height:100%;object-fit:cover}.vig{position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,.28),rgba(0,0,0,.08) 35%,rgba(0,0,0,.62));pointer-events:none}.shell{position:relative;z-index:2;max-width:760px;margin:auto;padding:14px 12px 24px}.glass{background:var(--g)!important;border:1px solid var(--b)!important;backdrop-filter:blur(10px)}.strong{background:var(--gs)!important}.muted{color:var(--m)}.device{min-height:74px}.state{min-width:78px}.mainbtn{min-height:56px;font-size:1.05rem;font-weight:700}.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style></head><body><div class="preview"><video autoplay muted loop playsinline><source src="../assets/02B31CAD-F08A-4DB5-9021-9EDAA6A945C7.mp4" type="video/mp4"></video></div><div class="vig"></div><main class="shell"><header class="d-flex align-items-center gap-3 mb-3"><a href="../05-take-preparation/" class="btn btn-outline-light glass"><i class="fa-solid fa-arrow-left"></i></a><div class="flex-grow-1"><div class="small text-uppercase muted">Interview Studio A · Take 001</div><div class="fw-bold fs-4">ARM</div></div><span class="badge text-bg-warning">PRÉPARATION</span></header><section class="card glass strong rounded-4 mb-3"><div class="card-body p-3"><div class="fw-semibold">Contrôle des Captures</div><div class="small muted mt-1">Caméra, encodeur, permissions, stockage et configuration sont vérifiés avant START.</div></div></section><div class="vstack gap-2 mb-3"><section class="card glass rounded-4 device"><div class="card-body p-3 d-flex align-items-center gap-3"><i class="fa-solid fa-camera fs-4"></i><div class="flex-grow-1"><div class="fw-semibold">Cam 07</div><div class="small muted">Full HD · Haute · Audio ON</div></div><span class="badge text-bg-success state"><i class="fa-solid fa-check me-1"></i>READY</span></div></section><section class="card glass rounded-4 device"><div class="card-body p-3 d-flex align-items-center gap-3"><i class="fa-solid fa-camera fs-4"></i><div class="flex-grow-1"><div class="fw-semibold">Cam 03</div><div class="small muted">Full HD · Haute · Audio ON</div></div><span class="badge text-bg-warning state" id="cam03"><i class="fa-solid fa-spinner spin me-1"></i>ARMING</span></div></section></div><div class="small text-uppercase muted mb-2">Storage sélectionné</div><section class="card glass rounded-4 device mb-3"><div class="card-body p-3 d-flex align-items-center gap-3"><i class="fa-solid fa-hard-drive fs-4"></i><div class="flex-grow-1"><div class="fw-semibold">Raspberry Storage</div><div class="small muted">412 Go libres · destination prête</div></div><span class="badge text-bg-success">READY</span></div></section><section class="card glass strong rounded-4 mb-3"><div class="card-body p-3 d-flex justify-content-between align-items-center"><div><div class="small text-uppercase muted">Synchronisation</div><div class="fw-semibold" id="summary">1/2 Captures READY</div></div><i class="fa-solid fa-clock-rotate-left fs-3 text-warning" id="summaryIcon"></i></div></section><a href="../07-countdown/" class="btn btn-success w-100 mainbtn disabled" id="start"><i class="fa-solid fa-play me-2"></i>START · Countdown 5 s</a></main><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script>setTimeout(function(){$('#cam03').removeClass('text-bg-warning').addClass('text-bg-success').html('<i class="fa-solid fa-check me-1"></i>READY');$('#summary').text('2/2 Captures READY');$('#summaryIcon').removeClass('fa-clock-rotate-left text-warning').addClass('fa-circle-check text-success');$('#start').removeClass('disabled')},1800);</script></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MultiCam — ARM Take 001</title>
+<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.7/dist/quartz/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+<style>
+:root{--g:rgba(17,24,39,.48);--gs:rgba(17,24,39,.72);--b:rgba(255,255,255,.2);--m:rgba(255,255,255,.68)}
+html,body{min-height:100%;margin:0;background:#111827;color:#fff}.preview{position:fixed;inset:0;z-index:0}.preview video{width:100%;height:100%;object-fit:cover}.vig{position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,.28),rgba(0,0,0,.08) 35%,rgba(0,0,0,.66));pointer-events:none}.shell{position:relative;z-index:2;max-width:760px;margin:auto;padding:14px 12px 108px}.glass{background:var(--g)!important;border:1px solid var(--b)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.strong{background:var(--gs)!important}.muted{color:var(--m)}.device{overflow:hidden}.device-main{min-height:78px}.skill-state{border:0;background:transparent;padding:.42rem;font-size:1.28rem;line-height:1}.skill-state.text-success,.skill-state.text-warning,.skill-state.text-danger{opacity:1}.skill-state.text-secondary{opacity:.75}.detail-panel{border-top:1px solid rgba(255,255,255,.10);background:rgba(8,12,20,.22)}.detail-row{min-height:42px;border-bottom:1px solid rgba(255,255,255,.07)}.detail-row:last-child{border-bottom:0}.detail-icon{width:26px;text-align:center}.skill-block+.skill-block{border-top:1px solid rgba(255,255,255,.10)}.skill-title{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}.rec-dock{position:fixed;z-index:5;left:0;right:0;bottom:0;padding:10px 12px max(10px,env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(8,12,20,.98),rgba(8,12,20,.86),rgba(8,12,20,0));}.rec-inner{max-width:760px;margin:auto}.mainbtn{min-height:58px;font-size:1.08rem;font-weight:700}.modal-content{background:rgba(20,24,35,.97);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.2)}.incident-device{border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.045)}.incident-icons .btn{border:0;background:transparent;font-size:1.25rem;padding:.28rem .45rem}.incident-detail{border-top:1px solid rgba(255,255,255,.09)}.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="preview"><video autoplay muted loop playsinline><source src="../assets/02B31CAD-F08A-4DB5-9021-9EDAA6A945C7.mp4" type="video/mp4"></video></div><div class="vig"></div>
+<main class="shell">
+<header class="d-flex align-items-center gap-3 mb-3"><a href="../05-take-preparation/" class="btn btn-outline-light glass"><i class="fa-solid fa-arrow-left"></i></a><div class="flex-grow-1"><div class="small text-uppercase muted">Interview Studio A</div><div class="fw-bold fs-4">Take 001 · ARM</div><div class="small muted">Countdown 5 s</div></div></header>
+
+<div class="small text-uppercase muted mb-2">Devices du Take</div>
+<div class="vstack gap-2">
+
+<section class="card glass rounded-4 device" data-device="Cam 07">
+  <div class="device-main card-body p-3 d-flex align-items-center gap-3">
+    <i class="fa-solid fa-tablet-screen-button fs-4"></i>
+    <div class="flex-grow-1"><div class="fw-semibold">Cam 07</div><div class="small muted">100% · 38 Go libres</div></div>
+    <div class="d-flex align-items-center gap-1">
+      <button class="skill-state text-success" type="button" data-bs-toggle="collapse" data-bs-target="#cam07Capture" aria-label="Détail Capture Cam 07"><i class="fa-solid fa-video"></i></button>
+    </div>
+  </div>
+  <div class="collapse detail-panel" id="cam07Capture">
+    <div class="skill-block p-3"><div class="skill-title muted mb-2"><i class="fa-solid fa-video me-2"></i>Capture</div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-camera"></i></span><span class="flex-grow-1">Caméra</span><span class="small muted">Prête</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-microphone"></i></span><span class="flex-grow-1">Audio</span><span class="small muted">Prêt</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-key"></i></span><span class="flex-grow-1">Permissions</span><span class="small muted">OK</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-hard-drive"></i></span><span class="flex-grow-1">Stockage local</span><span class="small muted">38 Go</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-sliders"></i></span><span class="flex-grow-1">Réglages appliqués</span><span class="small muted">OK</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-clock"></i></span><span class="flex-grow-1">Synchronisation</span><span class="small muted">Stable · 6 ms</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="card glass rounded-4 device" data-device="Cam 03">
+  <div class="device-main card-body p-3 d-flex align-items-center gap-3">
+    <i class="fa-solid fa-tablet-screen-button fs-4"></i>
+    <div class="flex-grow-1"><div class="fw-semibold">Cam 03</div><div class="small muted">76% · 820 Mo libres</div></div>
+    <div class="d-flex align-items-center gap-1">
+      <button class="skill-state text-warning" type="button" data-bs-toggle="collapse" data-bs-target="#cam03Capture" aria-label="Détail Capture Cam 03"><i class="fa-solid fa-video"></i></button>
+    </div>
+  </div>
+  <div class="collapse detail-panel" id="cam03Capture">
+    <div class="skill-block p-3"><div class="skill-title muted mb-2"><i class="fa-solid fa-video me-2"></i>Capture</div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-camera"></i></span><span class="flex-grow-1">Caméra</span><span class="small muted">Prête</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-microphone"></i></span><span class="flex-grow-1">Audio</span><span class="small muted">Prêt</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-key"></i></span><span class="flex-grow-1">Permissions</span><span class="small muted">OK</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-warning"><i class="fa-solid fa-hard-drive"></i></span><span class="flex-grow-1">Stockage local</span><span class="small text-warning">820 Mo · seuil &lt; 1 Go</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-sliders"></i></span><span class="flex-grow-1">Réglages appliqués</span><span class="small muted">OK</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-warning"><i class="fa-solid fa-clock"></i></span><span class="flex-grow-1">Synchronisation</span><span class="small text-warning">Dispersion 34 ms</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="card glass rounded-4 device" data-device="Raspberry Storage">
+  <div class="device-main card-body p-3 d-flex align-items-center gap-3">
+    <i class="fa-solid fa-server fs-4"></i>
+    <div class="flex-grow-1"><div class="fw-semibold">Raspberry Storage</div><div class="small muted">412 Go libres</div></div>
+    <div class="d-flex align-items-center gap-1">
+      <button class="skill-state text-danger" type="button" data-bs-toggle="collapse" data-bs-target="#raspStorage" aria-label="Détail Storage Raspberry"><i class="fa-solid fa-hard-drive"></i></button>
+    </div>
+  </div>
+  <div class="collapse detail-panel" id="raspStorage">
+    <div class="skill-block p-3"><div class="skill-title muted mb-2"><i class="fa-solid fa-hard-drive me-2"></i>Storage</div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-link"></i></span><span class="flex-grow-1">Connexion</span><span class="small muted">OK</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-success"><i class="fa-solid fa-database"></i></span><span class="flex-grow-1">Espace libre</span><span class="small muted">412 Go</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-danger"><i class="fa-solid fa-folder-open"></i></span><span class="flex-grow-1">Accès volume</span><span class="small text-danger">Volume en lecture seule</span></div>
+      <div class="detail-row d-flex align-items-center gap-2"><span class="detail-icon text-danger"><i class="fa-solid fa-cloud-arrow-down"></i></span><span class="flex-grow-1">Réception transferts</span><span class="small text-danger">Indisponible</span></div>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+
+<div class="rec-dock"><div class="rec-inner"><button type="button" class="btn btn-danger w-100 mainbtn" id="recButton"><i class="fa-solid fa-circle me-2"></i>REC</button></div></div>
+
+<div class="modal fade" id="incidentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content rounded-4"><div class="modal-header border-0"><div><div class="small text-uppercase muted">Incidents avant REC</div><h5 class="modal-title">Continuer avec ces incidents ?</h5></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body pt-0"><div class="vstack gap-2">
+  <div class="incident-device"><div class="p-3 d-flex align-items-center"><div class="flex-grow-1 fw-semibold">Cam 03</div><div class="incident-icons"><button type="button" class="text-warning" data-bs-toggle="collapse" data-bs-target="#incidentCam03"><i class="fa-solid fa-video"></i></button></div></div><div class="collapse incident-detail px-3 pb-3" id="incidentCam03"><div class="small text-warning">Stockage local sous 1 Go.</div><div class="small text-warning">Synchronisation moins stable : dispersion 34 ms.</div></div></div>
+  <div class="incident-device"><div class="p-3 d-flex align-items-center"><div class="flex-grow-1 fw-semibold">Raspberry Storage</div><div class="incident-icons"><button type="button" class="text-danger" data-bs-toggle="collapse" data-bs-target="#incidentRasp"><i class="fa-solid fa-hard-drive"></i></button></div></div><div class="collapse incident-detail px-3 pb-3" id="incidentRasp"><div class="small text-danger">Volume en lecture seule : Storage écarté des transferts tant que l'incident persiste.</div></div></div>
+</div></div><div class="modal-footer border-0"><button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-danger" id="continueRec"><i class="fa-solid fa-circle me-2"></i>Continuer REC</button></div></div></div></div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(function(){
+  const incidentModal=new bootstrap.Modal(document.getElementById('incidentModal'));
+  const hasIncidents=true;
+  const countdownSeconds=5;
+  function startRec(){
+    if(countdownSeconds===0){ window.location.href='../08-live-recording/'; }
+    else { window.location.href='../07-countdown/'; }
+  }
+  $('#recButton').on('click',function(){ if(hasIncidents) incidentModal.show(); else startRec(); });
+  $('#continueRec').on('click',startRec);
+});
+</script>
+</body>
+</html>
