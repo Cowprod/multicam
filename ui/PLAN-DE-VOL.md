@@ -32,7 +32,12 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
 
 ## Prochaine étape immédiate
 
-**Écran 10 — Gestion transferts / Storage.**
+Les anciens écrans 10 et 11 sont retirés du flux V1 :
+
+- la vue Storage persistante déjà définie dans `07-countdown/storage.html` couvre le suivi des transferts ;
+- aucune interface de gestion distante des médias n'est prévue pour l'instant.
+
+Prochaine étape à choisir parmi les écrans secondaires encore utiles.
 
 ---
 
@@ -70,7 +75,7 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
 - rôles attribuables uniquement parmi les skills supportées + activées + annoncées ;
 - édition des rôles via modal ;
 - préparation du prochain Take depuis cet écran ;
-- les Takes passés doivent désormais être accessibles depuis la Session, du plus récent au plus ancien, y compris s'ils sont encore en transfert ou en erreur.
+- les Takes passés doivent être accessibles depuis la Session, du plus récent au plus ancien, y compris s'ils sont encore en transfert ou en erreur.
 
 ## 05 — Préparation / Réglages du Take
 
@@ -267,6 +272,20 @@ Référence détaillée : `ui/08-live-recording/README.md`.
 
 Référence détaillée : `ui/09-take-stopped/README.md`.
 
+## Organisation des données sur les Storage
+
+Organisation V1 retenue :
+
+```text
+<racine-storage>/
+└── <session>/
+    └── <take>/
+        ├── médias…
+        └── fichiers JSON associés…
+```
+
+Les médias et leurs JSON associés sont donc regroupés physiquement par Session puis par Take sur chaque Storage. La gestion/administration avancée de ces médias sera traitée ultérieurement.
+
 ---
 
 # Écrans à poursuivre
@@ -327,39 +346,27 @@ Références :
 
 ## 10 — Gestion transferts / Storage
 
-**Statut : ⚪ À CONCEVOIR**
+**Statut : RETIRÉ DU PLAN V1**
 
-À préciser :
-
-- vue globale des transferts sur le device Storage ;
-- espace libre ;
-- Takes actifs / en attente / terminés ;
-- progression par source ;
-- erreurs et reprise ;
-- plusieurs sessions simultanées ;
-- aucun Storage → Storage en V1.
+Pas d'écran séparé : la vue Storage persistante déjà validée dans `ui/07-countdown/storage.html` couvre ce besoin.
 
 ## 11 — Gestion distante des médias
 
-**Statut : ⚪ À CONCEVOIR**
+**Statut : REPORTÉ APRÈS V1**
 
-- inventaire médias Captures/Storage ;
-- état de réplication ;
-- sélection multiple ;
-- sélection d'un Take entier ;
-- suppression distante avec confirmation.
+Pas d'interface dédiée pour l'instant. Les médias et JSON associés sont accessibles sur les Storage selon l'arborescence Session / Take définie ci-dessus.
 
 ## 12 — Capture-only / attente
 
-**Statut : ⚪ À CONCEVOIR**
+**Statut : ⚪ À RÉÉVALUER**
 
-États : disponible, sélectionnée, ARMING/READY/WARNING/ERROR, countdown, RECORDING, STOPPED, offline/reconnexion.
+Une grande partie de ses états est déjà couverte par les vues Capture des écrans 07 et 08.
 
 ## 13 — Storage-only
 
-**Statut : ⚪ À CONCEVOIR**
+**Statut : ⚪ À RÉÉVALUER**
 
-Vue minimale : session, espace libre, file de transfert, activité, erreurs, état réseau.
+La vue Storage persistante de l'écran 07 couvre déjà une grande partie de ce besoin.
 
 ## 14 — Paramètres du device
 
@@ -400,12 +407,8 @@ Vue minimale : session, espace libre, file de transfert, activité, erreurs, ét
 ↓
 09 ✅
 ↓
-10  ← PROCHAINE ÉTAPE
-↓
-11
+à choisir parmi les écrans secondaires encore utiles
 ```
-
-Écrans secondaires ensuite : `04, 12, 13, 14, 15, 16`.
 
 ---
 
@@ -413,6 +416,8 @@ Vue minimale : session, espace libre, file de transfert, activité, erreurs, ét
 
 - `✅ VALIDÉ` : HTML + README archivés dans le repo ;
 - `🟠 BROUILLON` : une maquette existe mais doit être reprise/validée ;
-- `⚪ À CONCEVOIR` : non travaillé ou pas suffisamment défini.
+- `⚪ À CONCEVOIR` : non travaillé ou pas suffisamment défini ;
+- `RETIRÉ DU PLAN V1` : besoin déjà couvert par un autre écran ;
+- `REPORTÉ APRÈS V1` : fonctionnalité conservée comme piste mais hors périmètre courant.
 
 Toute décision UI structurante doit être reportée ici pour permettre une reprise sans dépendre de l'historique ChatGPT.
