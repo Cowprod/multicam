@@ -25,12 +25,21 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
   - `ui/06-arm/`
 - **07 — Countdown / START synchronisé : ✅ VALIDÉ**
   - `ui/07-countdown/`
+- **08 — Live / Recording : ✅ VALIDÉ**
+  - `ui/08-live-recording/`
 
 ## Prochaine étape immédiate
 
-**Écran 08 — Live / Recording.**
+**Écran 09 — Take arrêté / traitements.**
 
-Une ancienne maquette existe dans `ui/08-live-recording/`, mais elle doit être reprise selon les règles désormais validées sur les vues Master, Capture et Storage.
+Le flux historique `STOP_PENDING` est supprimé. Le STOP validé est désormais :
+
+```text
+STOP
+→ confirmation
+→ arrêt synchronisé immédiat
+→ écran Take arrêté / traitements
+```
 
 ---
 
@@ -107,17 +116,11 @@ Vidéo :
 - caméra Arrière / Avant ;
 - Paysage / Portrait.
 
-Audio :
+Audio : Activé / Désactivé.
 
-- Activé / Désactivé.
+GPS : Off / Éco / Normal / Précis.
 
-GPS :
-
-- Off / Éco / Normal / Précis.
-
-Countdown :
-
-- 0 / 3 / 5 / 10 s.
+Countdown : 0 / 3 / 5 / 10 s.
 
 Transfert :
 
@@ -156,8 +159,8 @@ Si un device ne supporte pas un réglage global :
 
 - appliquer automatiquement la meilleure valeur compatible ;
 - afficher un warning indicatif sur l'icône du réglage concerné ;
-- appui sur l'icône = détail du fallback, ex. `Full HD indisponible → HD` ;
-- afficher les warnings sur toutes les Captures, même non sélectionnées, afin d'aider au choix ;
+- appui sur l'icône = détail du fallback ;
+- afficher les warnings sur toutes les Captures, même non sélectionnées ;
 - les warnings de liste comparent les capacités du device aux réglages globaux du Take, pas à ses overrides.
 
 ## 06 — ARM / Contrôle de préparation
@@ -219,8 +222,34 @@ Si un device ne supporte pas un réglage global :
 - après REC, résumé de réplication par devices, ex. `2/4 reçus` ;
 - device reçu = tous ses clips attendus reçus et vérifiés ;
 - progression détaillée par device puis clips, via WebSocket ;
-- dès que la taille finale est connue, progression basée sur les octets, ex. `1,8 / 2,6 Go · 69%` ;
+- dès que la taille finale est connue, progression basée sur les octets ;
 - badges : Complet `bg-success`, Transfert `bg-warning`, Erreur `bg-danger`.
+
+## 08 — Live / Recording
+
+- vue Master : timer global unique + mosaïque permanente des Captures ;
+- grille adaptative et positions de Captures stables durant tout le Take ;
+- preview distante par JPEG périodique ~1 fps, pas de flux vidéo continu ;
+- vignette : nom, état, batterie, espace local ;
+- le contour coloré indique uniquement le device local ;
+- si le Master est aussi Capture, la preview locale sert de fond à l'UI Master ;
+- WARNING/ERROR restent localisés à la vignette concernée ;
+- clic vignette → grande modal unique avec preview, fonctions actives et détail incident ;
+- déconnexion : dernière preview figée, grisée/assombrie, position conservée ;
+- reconnexion automatique : retour couleur + reprise previews ;
+- Storage du Take affichés sous la mosaïque : nom, état, espace libre, réseau ;
+- pas de progression d'anciens Takes sur la vue Master REC ;
+- STOP fixe en bas ; confirmation puis arrêt synchronisé immédiat ;
+- `STOP_PENDING` supprimé ;
+- Capture REC : preview locale plein écran, gros REC, timer, états locaux uniquement ;
+- si zéro Master connecté : afficher `Aucun Master connecté` + STOP local d'urgence avec confirmation ;
+- STOP local d'urgence = uniquement la Capture locale, sans redémarrage dans le même Take ;
+- aucun transfert média entrant/sortant sur un device en RECORDING ;
+- contrôle, télémétrie, GPS et previews restent autorisés ;
+- transferts automatiquement repris après STOP ;
+- Storage-only non-recording peut continuer d'autres transferts.
+
+Référence détaillée : `ui/08-live-recording/README.md`.
 
 ---
 
@@ -262,32 +291,16 @@ Références :
 
 ## 08 — Live / Recording
 
-**Statut : 🟠 BROUILLON À REPRENDRE**
+**Statut : ✅ VALIDÉ**
 
-Vue Master pendant REC :
+Références :
 
-- état global du Take ;
-- timer ;
-- mosaïque des Captures ;
-- previews périodiques ;
-- batterie / charge ;
-- espace disponible ;
-- alertes ;
-- reconnexion ;
-- STOP.
+- `ui/08-live-recording/index.html` — Master ;
+- `ui/08-live-recording/capture.html` — Capture ;
+- `ui/07-countdown/storage.html` — Storage, vue persistante multi-Take ;
+- `ui/08-live-recording/README.md`.
 
-Pendant REC, pas de transfert média entrant/sortant sur un device qui enregistre ; previews, commandes, GPS et télémétrie continuent.
-
-## 09 — STOP_PENDING
-
-**Statut : ⚪ À CONCEVOIR**
-
-- délai d'environ 10 s ;
-- Annuler disponible aux Masters ;
-- Forcer l'arrêt uniquement pour le Take Owner ;
-- probablement modal/overlay plutôt qu'écran autonome.
-
-## 10 — Take arrêté / traitements
+## 09 — Take arrêté / traitements
 
 **Statut : ⚪ À CONCEVOIR**
 
@@ -301,7 +314,7 @@ Pendant REC, pas de transfert média entrant/sortant sur un device qui enregistr
 - progression ;
 - Take suivant disponible sans attendre COMPLETE.
 
-## 11 — Gestion transferts / Storage
+## 10 — Gestion transferts / Storage
 
 **Statut : ⚪ À CONCEVOIR**
 
@@ -313,7 +326,7 @@ Pendant REC, pas de transfert média entrant/sortant sur un device qui enregistr
 - retrait explicite d'un Storage attendu après STOP ;
 - pas de Storage -> Storage en V1.
 
-## 12 — Gestion distante des médias
+## 11 — Gestion distante des médias
 
 **Statut : ⚪ À CONCEVOIR**
 
@@ -323,19 +336,19 @@ Pendant REC, pas de transfert média entrant/sortant sur un device qui enregistr
 - sélection d'un Take entier ;
 - suppression distante avec confirmation.
 
-## 13 — Capture-only / attente
+## 12 — Capture-only / attente
 
 **Statut : ⚪ À CONCEVOIR**
 
 États : disponible, sélectionnée, ARMING/READY/WARNING/ERROR, countdown, RECORDING, STOPPED, offline/reconnexion.
 
-## 14 — Storage-only
+## 13 — Storage-only
 
 **Statut : ⚪ À CONCEVOIR**
 
 Vue minimale : session, espace libre, file de transfert, activité, erreurs, état réseau.
 
-## 15 — Paramètres du device
+## 14 — Paramètres du device
 
 **Statut : ⚪ À CONCEVOIR**
 
@@ -345,11 +358,11 @@ Vue minimale : session, espace libre, file de transfert, activité, erreurs, ét
 - stockage préféré ;
 - diagnostics.
 
-## 16 — Historique des sessions
+## 15 — Historique des sessions
 
 **Statut : ⚪ À CONCEVOIR — priorité basse**
 
-## 17 — Rejoindre par code / QR
+## 16 — Rejoindre par code / QR
 
 **Statut : ⚪ À CONCEVOIR — fallback découverte LAN**
 
@@ -370,16 +383,14 @@ Vue minimale : session, espace libre, file de transfert, activité, erreurs, ét
 ↓
 07 ✅
 ↓
-08 🟠  ← PROCHAINE ÉTAPE
+08 ✅
 ↓
-09
+09  ← PROCHAINE ÉTAPE
 ↓
-10
-↓
-11 / 12
+10 / 11
 ```
 
-Écrans secondaires ensuite : `04, 13, 14, 15, 16, 17`.
+Écrans secondaires ensuite : `04, 12, 13, 14, 15, 16`.
 
 ---
 
