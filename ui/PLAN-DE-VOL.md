@@ -23,12 +23,14 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
   - `ui/05-take-preparation/`
 - **06 — ARM / Contrôle de préparation : ✅ VALIDÉ**
   - `ui/06-arm/`
+- **07 — Countdown / START synchronisé : ✅ VALIDÉ**
+  - `ui/07-countdown/`
 
 ## Prochaine étape immédiate
 
-**Écran 07 — Countdown / START synchronisé.**
+**Écran 08 — Live / Recording.**
 
-Une ancienne maquette existe dans `ui/07-countdown/`, mais elle doit être reprise selon les règles ARM/REC désormais validées.
+Une ancienne maquette existe dans `ui/08-live-recording/`, mais elle doit être reprise selon les règles désormais validées sur les vues Master, Capture et Storage.
 
 ---
 
@@ -191,6 +193,35 @@ Si un device ne supporte pas un réglage global :
 - bouton REC fixe en bas ;
 - countdown > 0 → écran 07 ; countdown = 0 → écran 08 directement.
 
+## 07 — Countdown / START synchronisé
+
+- countdown lancé immédiatement à l'ouverture ;
+- top piloté par un instant cible absolu commun avec correction d'offset d'horloge ;
+- affichage `5 · 4 · 3 · 2 · 1`, sans `0`, puis passage direct en REC ;
+- countdown strictement visuel, sans son ni vibration ;
+- vue Master : fond sombre, session + Take + chiffre géant + bouton Annuler ;
+- tous les Masters connectés affichent le countdown ;
+- n'importe quel Master peut annuler pour tout le Take ;
+- vue Capture : preview locale plein écran, session/Take/device + états locaux uniquement ;
+- une Capture non-Master ne voit jamais l'état des autres devices ;
+- une Capture écartée affiche une erreur locale + cause ;
+- une Capture redevenue READY avant le top peut réintégrer le départ ;
+- aucun message d'incident/réintégration n'est affiché aux Masters pendant ces quelques secondes ;
+- si aucune Capture ne reste démarrable avant le top : annulation automatique + retour ARM ;
+- perte de tous les Masters pendant countdown : le top déjà programmé est conservé ;
+- après démarrage sans Master : STOP local d'urgence sur chaque Capture, avec confirmation ;
+- le STOP local n'arrête que la Capture concernée ;
+- une Capture stoppée localement ne peut pas redémarrer dans le même Take ;
+- vue Storage : multi-session / multi-Take, groupée par session ;
+- sessions et Takes triés par activité récente / chrono décroissante ;
+- Storage affiche état Take synchronisé : Préparation, ARM, Countdown, REC, Transfert, Complet, Erreur ;
+- countdown Storage en badge compact puis `REC 00:00` et timer indépendant par Take ;
+- après REC, résumé de réplication par devices, ex. `2/4 reçus` ;
+- device reçu = tous ses clips attendus reçus et vérifiés ;
+- progression détaillée par device puis clips, via WebSocket ;
+- dès que la taille finale est connue, progression basée sur les octets, ex. `1,8 / 2,6 Go · 69%` ;
+- badges : Complet `bg-success`, Transfert `bg-warning`, Erreur `bg-danger`.
+
 ---
 
 # Écrans à poursuivre
@@ -220,18 +251,14 @@ Référence :
 
 ## 07 — Countdown / START synchronisé
 
-**Statut : 🟠 BROUILLON À REPRENDRE**
+**Statut : ✅ VALIDÉ**
 
-- countdown visible sur Masters et Captures concernées ;
-- instant absolu futur synchronisé ;
-- correction par offsets d'horloge ;
-- pas de beep/vibration par défaut ;
-- une Capture ARMING peut encore entrer si elle devient READY avant le top ;
-- une Capture toujours ARMING au top est exclue ;
-- une Capture déconnectée/ERROR avant le top est exclue, les autres continuent ;
-- reconnexion + READY avant le top permet la réintégration ;
-- alerte dismissable locale sur chaque Master en cas d'incident pendant countdown ;
-- **reste à décider** : comportement si aucune Capture ne reste démarrable avant le top.
+Références :
+
+- `ui/07-countdown/index.html` — Master ;
+- `ui/07-countdown/capture.html` — Capture ;
+- `ui/07-countdown/storage.html` — Storage ;
+- `ui/07-countdown/README.md`.
 
 ## 08 — Live / Recording
 
@@ -341,9 +368,9 @@ Vue minimale : session, espace libre, file de transfert, activité, erreurs, ét
 ↓
 06 ✅
 ↓
-07 🟠  ← PROCHAINE ÉTAPE
+07 ✅
 ↓
-08
+08 🟠  ← PROCHAINE ÉTAPE
 ↓
 09
 ↓
