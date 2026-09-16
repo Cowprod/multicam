@@ -7,32 +7,42 @@
 <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.7/dist/quartz/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
 <style>
-html,body{height:100%;margin:0;background:#111827;color:#fff}.shell{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}.muted{color:rgba(255,255,255,.68)}.count{font-size:clamp(8rem,38vw,18rem);font-weight:800;line-height:.9;letter-spacing:-.06em}.view-links{position:fixed;top:12px;right:12px}.view-links a{font-size:.78rem}.incident{display:none;max-width:520px}.incident .icon{font-size:5rem}
+html,body{height:100%;margin:0;background:#111827;color:#fff;overflow:hidden}.preview{position:fixed;inset:0}.preview video{width:100%;height:100%;object-fit:cover}.veil{position:fixed;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55),rgba(0,0,0,.15) 28%,rgba(0,0,0,.12) 65%,rgba(0,0,0,.72))}.shell{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;padding:18px}.muted{color:rgba(255,255,255,.72)}.glass{background:rgba(17,24,39,.42)!important;border:1px solid rgba(255,255,255,.18)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.count-wrap{flex:1;display:flex;align-items:center;justify-content:center;text-align:center}.count{font-size:clamp(8rem,40vw,19rem);font-weight:800;line-height:.85;letter-spacing:-.06em;text-shadow:0 4px 28px rgba(0,0,0,.8)}.statusbar{display:flex;gap:8px;overflow-x:auto;padding-bottom:max(2px,env(safe-area-inset-bottom));scrollbar-width:none}.statusbar::-webkit-scrollbar{display:none}.status-pill{white-space:nowrap;border-radius:999px;padding:.45rem .7rem;font-size:.82rem}.incident{display:none;position:fixed;inset:0;z-index:5;background:#111827;align-items:center;justify-content:center;text-align:center;padding:30px}.incident .icon{font-size:5rem}
 </style>
 </head>
 <body>
-<main class="shell">
-  <div id="countdownView">
-    <div class="small text-uppercase muted mb-2">Interview Studio A</div>
-    <div class="fw-semibold fs-4 mb-4">Take 001</div>
-    <div class="count" id="count">5</div>
-  </div>
-  <div class="incident" id="incidentView">
-    <div class="icon text-danger mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
-    <div class="fw-bold fs-3 mb-2">Capture écartée</div>
-    <div class="muted">Caméra indisponible</div>
+<div class="preview"><video autoplay muted loop playsinline preload="auto"><source src="../assets/02B31CAD-F08A-4DB5-9021-9EDAA6A945C7.mp4" type="video/mp4"></video></div>
+<div class="veil"></div>
+<main class="shell" id="countdownView">
+  <header class="d-flex align-items-start justify-content-between gap-3">
+    <div><div class="small text-uppercase muted">Interview Studio A</div><div class="fw-semibold fs-4">Take 001</div></div>
+    <div class="text-end"><div class="fw-semibold">Cam 03</div><div class="small text-success"><i class="fa-solid fa-video me-1"></i>Prête</div></div>
+  </header>
+
+  <div class="count-wrap"><div class="count" id="count">5</div></div>
+
+  <div class="statusbar">
+    <div class="status-pill glass"><i class="fa-solid fa-video text-success me-1"></i>Capture</div>
+    <div class="status-pill glass"><i class="fa-solid fa-microphone text-success me-1"></i>Audio</div>
+    <div class="status-pill glass"><i class="fa-solid fa-location-dot text-success me-1"></i>GPS</div>
+    <div class="status-pill glass"><i class="fa-solid fa-hard-drive text-success me-1"></i>38 Go</div>
+    <div class="status-pill glass"><i class="fa-solid fa-battery-three-quarters text-success me-1"></i>76%</div>
+    <div class="status-pill glass"><i class="fa-solid fa-wifi text-success me-1"></i>Wi-Fi</div>
   </div>
 </main>
-<div class="view-links btn-group btn-group-sm"><a class="btn btn-outline-light" href="./">Master</a><a class="btn btn-light active" href="capture.html">Capture</a><a class="btn btn-outline-light" href="storage.html">Storage</a></div>
+
+<div class="incident" id="incidentView">
+  <div><div class="icon text-danger mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="small text-uppercase muted mb-2">Interview Studio A · Take 001</div><div class="fw-bold fs-3 mb-2">Capture écartée</div><div class="muted">Caméra indisponible</div></div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 $(function(){
   const target=Date.now()+5000;
   const timer=setInterval(function(){
     const remain=Math.max(0,target-Date.now());
-    const n=Math.ceil(remain/1000);
     if(remain<=0){clearInterval(timer);location.href='../08-live-recording/';return;}
-    $('#count').text(n);
+    $('#count').text(Math.ceil(remain/1000));
   },80);
 });
 </script>
