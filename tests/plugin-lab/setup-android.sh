@@ -22,16 +22,30 @@ add_plugin cordova-plugin-device cordova-plugin-device
 add_plugin cordova-plugin-android-permissions cordova-plugin-android-permissions
 add_plugin cordova-plugin-file cordova-plugin-file
 add_plugin cordova-plugin-x-socialsharing cordova-plugin-x-socialsharing
-add_plugin https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#master cordova-plugin-camera-preview
+
+# CameraPreview doit être patché AVANT que Cordova copie ses sources natives dans platforms/android.
+# On le réinstalle donc proprement à chaque itération du lab.
+if npx cordova plugin ls | grep -q '^cordova-plugin-camera-preview '; then
+  npx cordova plugin rm cordova-plugin-camera-preview
+fi
+npx cordova plugin add https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git#master
+python3 pixelcopy-patch/apply_pixelcopy_patch.py .
+# Force Cordova à recopier le plugin désormais patché dans la plateforme Android.
+npx cordova prepare android
 
 # Réinstallation volontaire : les évolutions récupérées par git pull sont ainsi prises en compte.
 if npx cordova plugin ls | grep -q '^cordova-plugin-multicam-saf '; then
   npx cordova plugin rm cordova-plugin-multicam-saf
 fi
 npx cordova plugin add ./local-plugins/cordova-plugin-multicam-saf
-
-python3 pixelcopy-patch/apply_pixelcopy_patch.py .
 npx cordova prepare android
+
+echo "=== Vérification PixelCopy natif ==="
+grep -q 'CAPTURE_PREVIEW_SURFACE_ACTION' platforms/android/app/src/main/java/com/mbppower/CameraPreview.java || {
+  echo "ERREUR: le patch PixelCopy n'a pas été copié dans platforms/android"
+  exit 1
+}
+echo "PixelCopy natif présent dans la plateforme Android"
 
 echo "=== Plugins ==="
 npx cordova plugin ls
