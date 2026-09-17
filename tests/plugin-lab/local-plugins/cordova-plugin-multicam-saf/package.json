@@ -1,0 +1,11 @@
+{
+  "name": "cordova-plugin-multicam-saf",
+  "version": "0.1.0",
+  "description": "Local Cordova SAF helper for MultiCam qualification lab",
+  "cordova": {
+    "id": "cordova-plugin-multicam-saf",
+    "platforms": ["android"]
+  },
+  "keywords": ["cordova", "android", "saf", "storage"],
+  "license": "UNLICENSED"
+}
