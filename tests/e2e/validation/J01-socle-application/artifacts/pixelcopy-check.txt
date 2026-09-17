@@ -3,4 +3,3 @@ app/pixelcopy-patch version applique au commit 3e5d768934b78e142c369e67f0234a618
 grep CAPTURE_PREVIEW_SURFACE_ACTION CameraPreview.java: 2
 grep capturePreviewSurface CameraPreview.java: 8
 grep capturePreviewSurface CameraActivity.java: 1
-grep PixelCopy.request CameraActivity.java: 1

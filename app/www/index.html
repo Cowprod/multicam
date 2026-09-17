@@ -14,13 +14,19 @@
 <!-- Reserve : preview camera native quelques jalons plus tard (J09). WebView transparente, toBack. -->
 <div class="vig"></div>
 <main class="shell">
-<header class="d-flex align-items-center gap-3 mb-3">
+<header class="d-flex align-items-center gap-3 mb-3 position-relative">
   <div class="rounded-4 glass d-flex align-items-center justify-content-center" style="width:46px;height:46px"><i class="fa-solid fa-video"></i></div>
   <div class="flex-grow-1">
     <div class="fw-bold fs-4">MultiCam</div>
     <div id="deviceName" class="small muted">…</div>
   </div>
-  <button id="menuButton" class="btn btn-outline-light glass icon" type="button"><i class="fa-solid fa-bars"></i></button>
+  <button id="menuButton" class="btn btn-outline-light glass icon" type="button" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+  <div id="menu" class="card glass strong rounded-4 menu">
+    <div class="card-body p-2">
+      <button id="navHistory" class="btn btn-link text-light text-decoration-none w-100 text-start" type="button"><i class="fa-solid fa-clock-rotate-left me-2"></i>Historique</button>
+      <button id="navSettings" class="btn btn-link text-light text-decoration-none w-100 text-start" type="button"><i class="fa-solid fa-gear me-2"></i>Paramètres</button>
+    </div>
+  </div>
 </header>
 
 <section class="card glass strong rounded-4 mb-3">
@@ -42,13 +48,6 @@
   </div>
   <div id="lanList" class="vstack gap-3"></div>
 </section>
-
-<div id="menu" class="card glass strong rounded-4 mt-3 menu">
-  <div class="card-body p-2">
-    <button id="navHistory" class="btn btn-link text-light text-decoration-none w-100 text-start" type="button"><i class="fa-solid fa-clock-rotate-left me-2"></i>Historique</button>
-    <button id="navSettings" class="btn btn-link text-light text-decoration-none w-100 text-start" type="button"><i class="fa-solid fa-gear me-2"></i>Paramètres</button>
-  </div>
-</div>
 
 <div id="newSession" class="card glass strong rounded-4 mt-4">
   <div class="card-body p-2">

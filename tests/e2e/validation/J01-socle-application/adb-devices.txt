@@ -1,5 +1,5 @@
 # MultiCam — devices adb
-# date=2026-09-17T12:32:20Z
+# date=2026-09-17T14:45:33Z
 R9ZT40ALLSN state=device ro.product.manufacturer=samsung ro.product.model=SM-A226B ro.build.version.release=13 ro.build.version.sdk=33
 c0d8514d7d87 state=device ro.product.manufacturer=Xiaomi ro.product.model=24075RP89G ro.build.version.release=16 ro.build.version.sdk=36
 # --- devices ignores (offline/unauthorized) ---

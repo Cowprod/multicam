@@ -14,8 +14,9 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
 .cap{font-size:.76rem;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.13);border-radius:999px;padding:.3rem .55rem}
 .cap.off{opacity:.38;filter:grayscale(1);background:rgba(255,255,255,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:#45d483}
-.menu{display:none}
+.menu{display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:10;width:260px}
 .menu.open{display:block}
+.menu .btn{white-space:nowrap}
 .mainbtn{min-height:54px;font-size:1.05rem;font-weight:600}
 .empty-state{padding:.9rem 1rem;border:1px dashed rgba(255,255,255,.22);border-radius:.75rem;color:var(--m);font-size:.9rem;text-align:center}
 .toastbox{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:20;max-width:80vw;display:none}

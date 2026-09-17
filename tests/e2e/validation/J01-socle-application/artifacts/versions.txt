@@ -1,13 +1,10 @@
 # MultiCam — versions environnement J01
-date=2026-09-17T12:32:30Z
+date=2026-09-17T14:47:20Z
 node=v23.10.0
 npm=11.7.0
 java=openjdk version "17.0.17" 2025-10-21
 adb=Android Debug Bridge version 1.0.41
-gradle=Gradle 9.3.0
+gradle=8.14.2 (wrapper)
 cordova_cli=13.0.0
 cordova_android=15.1.0
 android_sdk=/Users/eimbernon/android
-  platform=android-34
-  platform=android-35
-  platform=android-36

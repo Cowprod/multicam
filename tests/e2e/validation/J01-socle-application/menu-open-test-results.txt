@@ -1,0 +1,23 @@
+# MultiCam — menu-open-test (J01) — resultats
+# Script: tests/e2e/menu-open-test.sh
+# Regle: l'etat ouvert d'un element interactif doit etre exerce (tap) et verifie geometriquement.
+# Espace de coordonnees: arbre UiAutomator (= input tap).
+date=2026-09-17T14:47:07Z
+
+## Verification 1 — menu FERME apres force-stop+lancement (items absents de l'arbre)
+R9ZT40ALLSN: absent OK
+c0d8514d7d87: absent OK
+
+## Verification 2 — tap sur bouton (aria-label 'Menu') -> conteneur menu expose
+## Verification 3 — items Historique / Paramètres presents
+## Verification 4 — geometrie: top<=25%H ET bord droit>=82%W (ancre haut-droit)
+
+R9ZT40ALLSN (portrait)  : OK conteneur=(315,275)->(1049,650) WxH=1080x2208 top=1 right=1
+c0d8514d7d87 (portrait)  : OK conteneur=(436,135)->(785,314)  WxH=800x1340  top=1 right=1
+c0d8514d7d87 (paysage)   : OK conteneur=(812,138)->(1160,318) WxH=1340x800  top=1 right=1
+
+## Verification 5 — pixels differents (ferme vs ouvert) dans la zone header droite
+# Methode: sips cropTmp -> BMP, cmp. Evidence complémentaire au dump a11y.
+R9ZT40ALLSN zone 40%x40% offsetX=60% : 441282 / 416016 octets BMP differents
+c0d8514d7d87 zone 40%x40% offsetX=60% : 167217 / 171520 octets BMP differents
+c0d8514d7d87 paysage 40%x40% offsetX=60% : 140886 / 171520 octets BMP differents
