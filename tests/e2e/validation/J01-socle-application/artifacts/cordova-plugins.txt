@@ -1,0 +1,1 @@
+cordova-plugin-camera-preview 0.14.0 "cordova-plugin-camera-preview"

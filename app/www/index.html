@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data: blob: file:; media-src 'self' data: blob: file:; font-src 'self' data:">
+<title>MultiCam — Accueil device</title>
+<link href="vendor/bootstrap-quartz.min.css" rel="stylesheet">
+<link href="vendor/fontawesome/css/all.min.css" rel="stylesheet">
+<link href="css/app.css" rel="stylesheet">
+</head>
+<body>
+<div class="root">
+<!-- Reserve : preview camera native quelques jalons plus tard (J09). WebView transparente, toBack. -->
+<div class="vig"></div>
+<main class="shell">
+<header class="d-flex align-items-center gap-3 mb-3">
+  <div class="rounded-4 glass d-flex align-items-center justify-content-center" style="width:46px;height:46px"><i class="fa-solid fa-video"></i></div>
+  <div class="flex-grow-1">
+    <div class="fw-bold fs-4">MultiCam</div>
+    <div id="deviceName" class="small muted">…</div>
+  </div>
+  <button id="menuButton" class="btn btn-outline-light glass icon" type="button"><i class="fa-solid fa-bars"></i></button>
+</header>
+
+<section class="card glass strong rounded-4 mb-3">
+  <div class="card-body p-3">
+    <div class="d-flex align-items-center gap-2 mb-3"><span class="dot"></span><span class="fw-semibold">Disponible sur le réseau</span></div>
+    <div id="skillBadges" class="d-flex flex-wrap gap-2"></div>
+  </div>
+</section>
+
+<section id="recentArea" class="mb-3">
+  <div class="small text-uppercase muted mb-2">Sessions récentes</div>
+  <div id="recentList" class="vstack gap-2"></div>
+</section>
+
+<section id="masterArea" class="flex-grow-1">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="small text-uppercase muted">Sessions disponibles</div>
+    <button id="refresh" class="btn btn-outline-light glass icon" type="button" aria-label="Actualiser"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+  <div id="lanList" class="vstack gap-3"></div>
+</section>
+
+<div id="menu" class="card glass strong rounded-4 mt-3 menu">
+  <div class="card-body p-2">
+    <button id="navHistory" class="btn btn-link text-light text-decoration-none w-100 text-start" type="button"><i class="fa-solid fa-clock-rotate-left me-2"></i>Historique</button>
+    <button id="navSettings" class="btn btn-link text-light text-decoration-none w-100 text-start" type="button"><i class="fa-solid fa-gear me-2"></i>Paramètres</button>
+  </div>
+</div>
+
+<div id="newSession" class="card glass strong rounded-4 mt-4">
+  <div class="card-body p-2">
+    <button id="createSession" class="btn btn-success w-100 mainbtn" type="button"><i class="fa-solid fa-plus me-2"></i>Nouvelle session</button>
+  </div>
+</div>
+</main>
+
+<div id="toast" class="toastbox" role="status" aria-live="polite">
+</div>
+</div>
+
+<script src="cordova.js"></script>
+<script src="js/state/config.js"></script>
+<script src="js/native/device.js"></script>
+<script src="js/native/pixelcopy.js"></script>
+<script src="js/net/transport.js"></script>
+<script src="js/ui/home.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Installed platforms:
+  android 15.1.0
+Available platforms:
+  browser
+  electron
+  ios

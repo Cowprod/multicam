@@ -1,0 +1,24 @@
+{
+  "name": "multicam",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Application Cordova Android MultiCam — captation video multi-device sur LAN",
+  "scripts": {
+    "build:android": "cordova build android",
+    "run:android": "cordova run android"
+  },
+  "devDependencies": {
+    "cordova": "^13.0.0",
+    "cordova-android": "^15.1.0",
+    "cordova-plugin-camera-preview": "github:cordova-plugin-camera-preview/cordova-plugin-camera-preview#3e5d768934b78e142c369e67f0234a618706500c",
+    "xcode": "^3.0.1"
+  },
+  "cordova": {
+    "platforms": [
+      "android"
+    ],
+    "plugins": {
+      "cordova-plugin-camera-preview": {}
+    }
+  }
+}
