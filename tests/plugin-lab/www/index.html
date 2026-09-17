@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: blob: file:; media-src 'self' data: blob: file:;">
+  <title>MultiCam Qualification Lab</title>
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<div id="versionBanner" class="version-banner">MultiCam Qualification Lab — v0.10.0</div>
+<main class="app">
+  <header class="header"><div><h1>Qualification V1</h1><p id="deviceLine" class="device">Initialisation…</p></div><span id="readyBadge" class="badge badge-wait">ATTENTE</span></header>
+  <section id="previewShell" class="preview-shell"><div id="previewPlaceholder" class="preview-placeholder"><div class="camera-icon">CAM</div><div>Zone de preview caméra</div></div></section>
+  <section class="test-card">
+    <div class="eyebrow">Test 1 — PixelCopy pendant REC</div><h2 class="section-title">Endurance à ~1 image/s</h2>
+    <label class="field-label" for="durationSelect">Durée d'enregistrement</label>
+    <select id="durationSelect" class="select-input"><option value="60">1 minute</option><option value="180" selected>3 minutes</option><option value="300">5 minutes</option></select>
+    <div class="status-row"><div><div class="eyebrow">État</div><div id="statusText" class="status-text">Prêt</div></div><div id="countdown" class="countdown">03:00</div></div>
+    <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+    <div id="stepText" class="step-text">REC continu + une capture PixelCopy par seconde. Le JSON ne conserve que 3 JPEG témoins pour rester léger.</div>
+    <button id="testButton" class="primary-button" type="button" disabled>LANCER TEST PIXELCOPY</button>
+  </section>
+  <section id="liveStats" class="stats-card hidden"><div class="stat"><span>OK</span><strong id="snapOk">0</strong></div><div class="stat"><span>KO</span><strong id="snapKo">0</strong></div><div class="stat"><span>Sans callback</span><strong id="snapPending">0</strong></div></section>
+  <section class="test-card"><div class="eyebrow">Test 2 — Stockage Android / SAF</div><h2 class="section-title">Dossier externe / microSD</h2><div id="safStatus" class="step-text">Aucun dossier SAF sélectionné.</div><button id="chooseSafButton" class="secondary-button" type="button">CHOISIR UN DOSSIER</button><button id="testSafButton" class="secondary-button top-gap" type="button" disabled>TESTER ÉCRITURE + SUPPRESSION</button></section>
+  <section id="resultCard" class="result-card hidden"><h2 id="resultTitle">Résultat</h2><div id="resultBody"></div><div class="result-actions three"><button id="exportButton" class="secondary-button" type="button">EXPORTER DIAGNOSTIC</button><button id="mailButton" class="secondary-button" type="button">ENVOYER LOG PAR MAIL</button><button id="rerunButton" class="secondary-button" type="button">RELANCER</button></div></section>
+  <details class="technical"><summary>Détails techniques</summary><pre id="technicalLog"></pre></details>
+</main>
+<script src="cordova.js"></script><script src="js/index.js"></script>
+</body></html>
