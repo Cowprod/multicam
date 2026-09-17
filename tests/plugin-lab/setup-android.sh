@@ -41,3 +41,6 @@ npx cordova build android
 
 echo "=== APK ==="
 echo "platforms/android/app/build/outputs/apk/debug/app-debug.apk"
+
+echo "=== Installation / lancement sur le device Android connecté ==="
+npx cordova run android --device
