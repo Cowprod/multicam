@@ -2,7 +2,7 @@
 
 ## Statut
 
-**VALIDÉ — 15 septembre 2026**
+**VALIDÉ — mis à jour le 17 septembre 2026**
 
 `index.html` est la référence visuelle de cet écran. Ce README est la référence fonctionnelle et technique pour les agents de codage.
 
@@ -18,11 +18,11 @@ Il sert à :
 - voir les devices disponibles sur le LAN ;
 - ajouter un device à la session ;
 - définir ou modifier les rôles de session d'un device ;
-- accéder à la préparation du prochain Take.
+- consulter les Takes précédents ;
+- accéder à un Take passé ;
+- préparer le prochain Take.
 
 ## Hiérarchie fonctionnelle
-
-Ne pas confondre :
 
 - **Session** : conteneur global ;
 - **Take** : cycle de captation ;
@@ -40,33 +40,64 @@ Le header affiche :
 - nom de la session ;
 - menu secondaire.
 
-Sous le header, une barre fine de contexte regroupe les badges de session :
+Sous le header, une barre fine de contexte regroupe :
 
 - état de la session, ex. `OUVERTE` ;
 - PIN Master V1, ex. `PIN 4281`.
 
-Cette barre évite de laisser les badges flotter visuellement dans le header.
-
 ### PIN Master
 
-En V1, le PIN est affiché en permanence dans la vue Master afin qu'il reste récupérable même si le Master créateur rencontre un problème.
+En V1, le PIN est affiché en permanence dans la vue Master. Il est persistant pour une session et reste identique lorsqu'une ancienne session est reprise.
 
-Le PIN sert à autoriser un autre Controller à rejoindre la session comme Master via l'écran 02.
+Le PIN autorise un autre Controller à rejoindre la session comme Master via l'écran 02.
+
+## Reprise d'une ancienne session
+
+Une session ouverte depuis l'historique ou depuis les sessions récentes recharge sa configuration persistée :
+
+- même `sessionId` ;
+- même nom ;
+- même PIN Master ;
+- mêmes devices membres ;
+- mêmes rôles de session.
+
+La présence réseau est ensuite réévaluée en temps réel. Un ancien device actuellement absent reste membre de la session mais apparaît `Déconnecté`. Il n'est pas supprimé automatiquement de la configuration.
 
 ## Prochain Take
 
 La card `Prochain Take` affiche au minimum :
 
-- numéro technique du prochain Take ;
+- numéro du prochain Take ;
 - état de préparation ;
 - état REC courant ;
 - action `Préparer Take XXX`.
 
-L'action mène à l'écran 05.
+Le numéro est la suite des Takes existants de la session. L'action mène à l'écran 05.
+
+## Takes précédents
+
+La Session contient la liste de ses Takes, du plus récent au plus ancien.
+
+Chaque ligne affiche au minimum :
+
+- numéro du Take ;
+- état utile à l'opérateur ;
+- éventuellement heure ou information courte d'activité ;
+- chevron indiquant l'accès au détail.
+
+États représentatifs :
+
+- terminé ;
+- transfert en cours ;
+- erreur de réplication.
+
+Un Take reste accessible même après sa fin, pendant un transfert ou en cas d'erreur.
+
+Un appui sur un Take ouvre l'écran 09 correspondant. L'écran 15 Historique ne duplique pas cette liste : il ouvre d'abord la Session 03.
 
 ## Devices dans la session
 
-Chaque device membre de la session affiche au minimum :
+Chaque device membre affiche au minimum :
 
 - nom ;
 - état de connexion ;
@@ -75,7 +106,7 @@ Chaque device membre de la session affiche au minimum :
 - rôles actifs dans cette session ;
 - action d'édition.
 
-Les rôles affichés sont des `sessionRoles`, et non les `enabledSkills` globales du device.
+Les rôles affichés sont des `sessionRoles`, pas les `enabledSkills` globales.
 
 ## Devices disponibles sur le LAN
 
@@ -84,98 +115,53 @@ Cette section présente les devices détectés qui ne sont pas encore membres de
 Pour chaque device :
 
 - nom ;
-- skills activées/annoncées disponibles pour cette session ;
+- skills activées/annoncées disponibles ;
 - bouton `Ajouter`.
 
-La découverte réseau reste basée sur l'identité persistante `deviceId`, jamais sur l'adresse IP.
+La découverte réseau repose sur le `deviceId`, jamais sur l'adresse IP.
 
-## Ajout d'un device
+## Ajout / modification d'un device
 
-Cliquer sur `Ajouter` ouvre une modal.
+`Ajouter` ou le crayon ouvre une modal.
 
-La modal doit proposer uniquement les rôles correspondant aux skills :
+La modal ne propose que les rôles correspondant aux skills :
 
-- supportées par cette implémentation ;
-- activées localement sur le device ;
+- supportées par l'implémentation ;
+- activées localement ;
 - annoncées au Master.
 
-Exemples :
+Au moins un rôle doit être conservé/sélectionné.
 
-- `capture,storage` → choix Capture + Storage ;
-- `storage` → choix Storage uniquement ;
-- `controller,capture` → choix Master/Controller + Capture.
+Le Master ne doit jamais attribuer un rôle non annoncé par le device.
 
-Au moins un rôle doit être sélectionné pour ajouter le device.
-
-### Règle importante
-
-Le Master ne doit jamais pouvoir attribuer un rôle que le device n'a pas annoncé comme disponible.
-
-## Modification des rôles
-
-L'icône crayon sur un device déjà membre ouvre la même logique d'édition.
-
-- rôles actuels pré-cochés ;
-- au moins un rôle conservé ;
-- sauvegarde immédiate de la configuration de session ;
-- l'UI doit être synchronisée vers les autres Masters connectés.
-
-Le rôle de participation au prochain Take est une notion distincte : il sera géré dans l'écran 05.
+Les modifications sont synchronisées vers les autres Masters connectés.
 
 ## Retrait d'un device
 
-La maquette prévoit une action de retrait pour les devices de session.
+La maquette prévoit une action de retrait. Le Master courant ne doit pas se retirer lui-même si cela rend l'état incohérent.
 
-Le Master courant ne doit pas se retirer lui-même par cette action si cela rendrait l'état de session incohérent.
-
-Le comportement définitif de retrait pendant un Take actif doit suivre les règles du cycle Take et ne doit pas être inventé à partir de cette maquette.
-
-## Données minimales
-
-Exemple conceptuel :
-
-```json
-{
-  "sessionId": "uuid-session",
-  "name": "Interview Studio A",
-  "status": "open",
-  "masterPin": "4281",
-  "devices": [
-    {
-      "deviceId": "uuid-cam07",
-      "name": "Cam 07",
-      "enabledSkills": ["controller", "capture", "storage"],
-      "sessionRoles": ["controller", "capture"],
-      "connected": true,
-      "batteryPercent": 100,
-      "freeStorageBytes": 40802189312
-    }
-  ]
-}
-```
-
-Le PIN réel doit venir de l'état de session et non être codé en dur.
+Le comportement pendant un Take actif suit les règles du cycle Take et ne doit pas être inventé à partir de cet écran.
 
 ## Mise à jour temps réel
 
-L'écran Master doit être alimenté par les événements LAN de la session :
+L'écran reçoit notamment :
 
-- arrivée/disparition d'un device disponible ;
+- arrivée/disparition de devices LAN ;
 - connexion/déconnexion ;
-- mise à jour de télémétrie ;
-- modification de rôles ;
-- ajout/retrait d'un device ;
+- télémétrie ;
+- changement de rôles ;
+- ajout/retrait ;
 - changement d'état de session ;
-- changement d'état du prochain Take.
+- changement d'état des Takes et transferts.
 
-Les Masters connectés doivent converger vers le même état de session.
+Les Masters connectés doivent converger vers le même état.
 
 ## Navigation
 
 - maison → accueil 01 ;
 - `Préparer Take` → écran 05 ;
-- ajout/édition device → modal locale ;
-- menu secondaire : réservé aux fonctions de session qui seront définies plus tard.
+- Take précédent → écran 09 ;
+- ajout/édition device → modal locale.
 
 ## UI
 
@@ -183,14 +169,15 @@ Les Masters connectés doivent converger vers le même état de session.
 - Font Awesome ;
 - jQuery autorisé ;
 - priorité mobile/tablette Android ;
-- fond vidéo uniquement pour simuler la preview dans les maquettes ;
-- limiter les explications visibles à ce qui aide réellement l'opérateur.
+- fond vidéo dans la maquette pour simuler la preview ;
+- conserver une interface opérateur concise.
 
 ## Invariants pour l'agent de codage
 
-- `enabledSkills` et `sessionRoles` sont distincts.
-- Un device ne peut recevoir qu'un rôle correspondant à une skill annoncée comme activée.
-- L'ajout d'un device est initié par le Master.
-- Le PIN Master V1 reste visible dans la vue Master.
-- Le choix des participants au prochain Take ne se fait pas ici : il se fait dans l'écran 05.
-- Ne pas réintroduire de texte pédagogique type `Session = ... Take = ...` dans l'UI finale ; conserver ces notions dans la documentation.
+- `enabledSkills` et `sessionRoles` sont distincts ;
+- un device ne reçoit qu'un rôle correspondant à une skill activée/annoncée ;
+- l'ajout d'un device est initié par un Master ;
+- le PIN Master reste visible et persistant pour la session ;
+- un device absent lors d'une reprise reste membre mais déconnecté ;
+- les Takes historiques restent accessibles depuis la Session ;
+- le choix des participants au prochain Take se fait dans l'écran 05.
