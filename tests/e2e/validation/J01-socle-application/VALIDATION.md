@@ -6,7 +6,7 @@
 |---|---|
 | Jalon | J01 — Socle application Cordova réel |
 | Date / heure | 2026-09-17 14:27–14:47 (heure locale), 12:27–12:47 UTC |
-| Commit Git testé | voir `artifacts/commit.txt` (modification menu intégrée au commit testé) |
+| Commit Git testé | `ee59e8420bbb06908489f7a9e2ff5312f652d608` (voir `artifacts/commit.txt`) |
 | Verdict | **PASS** |
 
 ## Devices testés
