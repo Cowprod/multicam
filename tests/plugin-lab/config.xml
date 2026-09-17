@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="fr.emmanuel.multicampluginlab" version="0.10.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>MultiCam Camera Lab</name>
+    <description>Qualification ciblee du REC de cordova-plugin-camera-preview master.</description>
+    <author>MultiCam</author>
+    <content src="index.html" />
+    <access origin="*" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="AndroidXEnabled" value="true" />
+    <preference name="android-targetSdkVersion" value="36" />
+    <platform name="android">
+        <preference name="AndroidLaunchMode" value="singleTop" />
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+            <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+        </config-file>
+    </platform>
+    <plugin name="cordova-plugin-multicam-saf" spec="file:local-plugins/cordova-plugin-multicam-saf" />
+</widget>
