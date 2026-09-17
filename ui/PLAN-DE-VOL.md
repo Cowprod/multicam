@@ -1,6 +1,6 @@
 # MultiCam — Plan de vol UI V1
 
-**Dernière mise à jour : 16 septembre 2026**
+**Dernière mise à jour : 17 septembre 2026**
 
 Ce document sert de point de reprise après interruption. Chaque écran validé doit avoir :
 
@@ -29,6 +29,8 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
   - `ui/08-live-recording/`
 - **09 — Take arrêté / traitements : ✅ VALIDÉ**
   - `ui/09-take-stopped/`
+- **14 — Paramètres du device : ✅ VALIDÉ**
+  - `ui/14-device-settings/`
 
 ## Prochaine étape immédiate
 
@@ -37,7 +39,7 @@ Les anciens écrans 10 et 11 sont retirés du flux V1 :
 - la vue Storage persistante déjà définie dans `07-countdown/storage.html` couvre le suivi des transferts ;
 - aucune interface de gestion distante des médias n'est prévue pour l'instant.
 
-Prochaine étape à choisir parmi les écrans secondaires encore utiles.
+Les écrans 12 et 13 restent à réévaluer car une grande partie de leurs besoins est déjà couverte. Les prochains écrans distincts potentiels sont 15 — Historique des sessions et 16 — Rejoindre par code / QR.
 
 ---
 
@@ -272,6 +274,21 @@ Référence détaillée : `ui/08-live-recording/README.md`.
 
 Référence détaillée : `ui/09-take-stopped/README.md`.
 
+## 14 — Paramètres du device
+
+- écran local accessible quel que soit le rôle courant du device ;
+- nom du device modifiable et persistant ;
+- activation/désactivation locale des skills supportées : Capture, Storage, Master ;
+- choix d'un emplacement de stockage local, avec emplacement Android par défaut utilisable sans configuration ;
+- bouton `Changer` pour sélectionner à terme un autre emplacement autorisé, notamment carte SD ;
+- vérification réelle de l'accès en écriture au stockage ;
+- autorisations visibles et actionnables : caméra, micro, localisation, notifications, stockage ;
+- possibilité d'ouvrir les réglages Android de l'application ou de localisation si nécessaire ;
+- informations appareil en lecture seule : constructeur, modèle, Android/SDK, version Cordova/app, réseau, batterie, espace libre ;
+- Insomnia, orientation, luminosité et Zeroconf restent des mécanismes internes, pas des réglages opérateur.
+
+Référence détaillée : `ui/14-device-settings/README.md`.
+
 ## Organisation des données sur les Storage
 
 Organisation V1 retenue :
@@ -292,17 +309,9 @@ Les médias et leurs JSON associés sont donc regroupés physiquement par Sessio
 
 ## 04 — Configuration détaillée d'un device
 
-**Statut : ⚪ À CONCEVOIR / priorité secondaire**
+**Statut : RETIRÉ / ABSORBÉ PAR 14**
 
-Fonctions possibles :
-
-- nom humain ;
-- tags/fonctions ;
-- volume de stockage local préféré ;
-- paramètres locaux persistants ;
-- autres réglages hors Take.
-
-Ne pas y dupliquer les overrides de Take déjà gérés dans l'écran 05.
+Les paramètres locaux persistants du device sont désormais couverts par l'écran 14. Les réglages propres au Take restent dans l'écran 05.
 
 ## 06 — ARM / Contrôle de préparation
 
@@ -370,13 +379,12 @@ La vue Storage persistante de l'écran 07 couvre déjà une grande partie de ce 
 
 ## 14 — Paramètres du device
 
-**Statut : ⚪ À CONCEVOIR**
+**Statut : ✅ VALIDÉ**
 
-- nom ;
-- infos matériel/app ;
-- skills supportées / activées ;
-- stockage préféré ;
-- diagnostics.
+Références :
+
+- `ui/14-device-settings/index.html` ;
+- `ui/14-device-settings/README.md`.
 
 ## 15 — Historique des sessions
 
@@ -407,7 +415,9 @@ La vue Storage persistante de l'écran 07 couvre déjà une grande partie de ce 
 ↓
 09 ✅
 ↓
-à choisir parmi les écrans secondaires encore utiles
+14 ✅
+↓
+15 / 16 ou réévaluation 12 / 13
 ```
 
 ---
