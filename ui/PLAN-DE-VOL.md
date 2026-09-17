@@ -31,15 +31,20 @@ Ce document sert de point de reprise après interruption. Chaque écran validé 
   - `ui/09-take-stopped/`
 - **14 — Paramètres du device : ✅ VALIDÉ**
   - `ui/14-device-settings/`
+- **15 — Historique / Reprise de session : ✅ VALIDÉ**
+  - `ui/15-session-history/`
 
 ## Prochaine étape immédiate
 
-Les anciens écrans 10 et 11 sont retirés du flux V1 :
+**La conception des écrans UI V1 est terminée et figée.**
 
-- la vue Storage persistante déjà définie dans `07-countdown/storage.html` couvre le suivi des transferts ;
-- aucune interface de gestion distante des médias n'est prévue pour l'instant.
+- 10 : retiré, la vue Storage persistante couvre le suivi des transferts ;
+- 11 : reporté après V1, pas de gestion distante des médias ;
+- 12 : retiré, une Capture hors Take reste simplement en attente ;
+- 13 : retiré, la vue Storage persistante de l'écran 07 suffit ;
+- 16 : retiré de la V1, pas de QR/code ; découverte LAN par mDNS.
 
-Les écrans 12 et 13 restent à réévaluer car une grande partie de leurs besoins est déjà couverte. Les prochains écrans distincts potentiels sont 15 — Historique des sessions et 16 — Rejoindre par code / QR.
+La suite du plan global consiste à reprendre le POC Cordova existant comme base technique, identifier précisément les briques déjà validées/réutilisables et compléter uniquement les qualifications techniques encore manquantes avant l'implémentation de la V1.
 
 ---
 
@@ -51,9 +56,12 @@ Les écrans 12 et 13 restent à réévaluer car une grande partie de leurs besoi
 - affichage des skills supportées ;
 - skill désactivée affichée en grisé ;
 - modification des skills uniquement depuis Paramètres ;
-- sans skill Controller/Master : masquer sessions disponibles et Nouvelle session ;
-- avec skill Controller/Master : afficher sessions détectées + Nouvelle session ;
-- action session : `Rejoindre` ;
+- sans skill Controller/Master : masquer sessions disponibles, sessions récentes et Nouvelle session ;
+- avec skill Controller/Master : afficher sessions détectées + quatre sessions récentes + Nouvelle session ;
+- chaque session récente est un bouton/carte affichant uniquement son nom et ouvre directement la Session 03 correspondante ;
+- Historique ouvre l'écran 15 ;
+- Paramètres ouvre l'écran 14 ;
+- action session LAN : `Rejoindre` ;
 - icônes : Capture `fa-video`, Storage `fa-hard-drive`, Master `fa-sliders`.
 
 ## 02 — Création / accès Master
@@ -77,7 +85,10 @@ Les écrans 12 et 13 restent à réévaluer car une grande partie de leurs besoi
 - rôles attribuables uniquement parmi les skills supportées + activées + annoncées ;
 - édition des rôles via modal ;
 - préparation du prochain Take depuis cet écran ;
-- les Takes passés doivent être accessibles depuis la Session, du plus récent au plus ancien, y compris s'ils sont encore en transfert ou en erreur.
+- liste visuelle des Takes passés dans la Session, du plus récent au plus ancien, y compris transfert en cours ou erreur ;
+- clic sur un Take passé → écran 09 correspondant ;
+- reprise d'une ancienne session : conserver le même PIN, les mêmes devices membres et leurs rôles ;
+- à la reprise, un ancien device absent du LAN reste membre mais apparaît déconnecté, comme après une déconnexion normale.
 
 ## 05 — Préparation / Réglages du Take
 
@@ -289,6 +300,20 @@ Référence détaillée : `ui/09-take-stopped/README.md`.
 
 Référence détaillée : `ui/14-device-settings/README.md`.
 
+## 15 — Historique / Reprise de session
+
+- l'historique est uniquement un pont vers une Session existante ;
+- chaque carte affiche nom de session, dernière activité et nombre de Takes ;
+- toute la carte est cliquable ;
+- ouverture → écran 03 de cette Session ;
+- reprise avec même PIN Master, mêmes devices membres et mêmes rôles ;
+- devices actuellement absents affichés déconnectés dans l'écran 03 ;
+- la liste des Takes n'est pas dupliquée dans l'historique : elle reste dans la Session 03 ;
+- depuis 03, un Take existant ouvre 09 et le prochain Take peut être préparé normalement ;
+- accueil 01 : raccourci direct vers les quatre sessions les plus récentes, nom uniquement.
+
+Référence détaillée : `ui/15-session-history/README.md`.
+
 ## Organisation des données sur les Storage
 
 Organisation V1 retenue :
@@ -305,53 +330,13 @@ Les médias et leurs JSON associés sont donc regroupés physiquement par Sessio
 
 ---
 
-# Écrans à poursuivre
+# Écrans complémentaires / retirés
 
 ## 04 — Configuration détaillée d'un device
 
 **Statut : RETIRÉ / ABSORBÉ PAR 14**
 
-Les paramètres locaux persistants du device sont désormais couverts par l'écran 14. Les réglages propres au Take restent dans l'écran 05.
-
-## 06 — ARM / Contrôle de préparation
-
-**Statut : ✅ VALIDÉ**
-
-Référence :
-
-- `ui/06-arm/index.html`
-- `ui/06-arm/README.md`
-
-## 07 — Countdown / START synchronisé
-
-**Statut : ✅ VALIDÉ**
-
-Références :
-
-- `ui/07-countdown/index.html` — Master ;
-- `ui/07-countdown/capture.html` — Capture ;
-- `ui/07-countdown/storage.html` — Storage ;
-- `ui/07-countdown/README.md`.
-
-## 08 — Live / Recording
-
-**Statut : ✅ VALIDÉ**
-
-Références :
-
-- `ui/08-live-recording/index.html` — Master ;
-- `ui/08-live-recording/capture.html` — Capture ;
-- `ui/07-countdown/storage.html` — Storage, vue persistante multi-Take ;
-- `ui/08-live-recording/README.md`.
-
-## 09 — Take arrêté / traitements
-
-**Statut : ✅ VALIDÉ**
-
-Références :
-
-- `ui/09-take-stopped/index.html` ;
-- `ui/09-take-stopped/README.md`.
+Les paramètres locaux persistants du device sont couverts par l'écran 14. Les réglages propres au Take restent dans l'écran 05.
 
 ## 10 — Gestion transferts / Storage
 
@@ -367,36 +352,25 @@ Pas d'interface dédiée pour l'instant. Les médias et JSON associés sont acce
 
 ## 12 — Capture-only / attente
 
-**Statut : ⚪ À RÉÉVALUER**
+**Statut : RETIRÉ DU PLAN V1**
 
-Une grande partie de ses états est déjà couverte par les vues Capture des écrans 07 et 08.
+Pas d'écran distinct : une Capture hors d'un Take reste simplement en attente. Les états actifs sont déjà couverts par les vues Capture des écrans 07 et 08.
 
 ## 13 — Storage-only
 
-**Statut : ⚪ À RÉÉVALUER**
+**Statut : RETIRÉ DU PLAN V1**
 
-La vue Storage persistante de l'écran 07 couvre déjà une grande partie de ce besoin.
-
-## 14 — Paramètres du device
-
-**Statut : ✅ VALIDÉ**
-
-Références :
-
-- `ui/14-device-settings/index.html` ;
-- `ui/14-device-settings/README.md`.
-
-## 15 — Historique des sessions
-
-**Statut : ⚪ À CONCEVOIR — priorité basse**
+Pas d'écran distinct : la vue Storage persistante de `ui/07-countdown/storage.html` couvre le besoin Storage-only.
 
 ## 16 — Rejoindre par code / QR
 
-**Statut : ⚪ À CONCEVOIR — fallback découverte LAN**
+**Statut : RETIRÉ DU PLAN V1**
+
+Pas de QR ni de code de découverte en V1. Les devices s'annoncent et se découvrent sur le LAN via mDNS. Les Capture/Storage sont ajoutés par un Master. Le PIN à 4 chiffres de l'écran 02 reste le mécanisme d'autorisation permettant à un autre Controller de rejoindre une session comme Master.
 
 ---
 
-# Ordre de travail
+# Ordre UI V1 final
 
 ```text
 01 ✅
@@ -414,10 +388,17 @@ Références :
 08 ✅
 ↓
 09 ✅
-↓
-14 ✅
-↓
-15 / 16 ou réévaluation 12 / 13
+
+Écrans transversaux :
+14 ✅ Paramètres device
+15 ✅ Historique / reprise de session
+
+04 retiré → 14
+10 retiré → vue Storage 07
+11 reporté après V1
+12 retiré → état d'attente existant
+13 retiré → vue Storage 07
+16 retiré → mDNS uniquement en V1
 ```
 
 ---
@@ -427,7 +408,7 @@ Références :
 - `✅ VALIDÉ` : HTML + README archivés dans le repo ;
 - `🟠 BROUILLON` : une maquette existe mais doit être reprise/validée ;
 - `⚪ À CONCEVOIR` : non travaillé ou pas suffisamment défini ;
-- `RETIRÉ DU PLAN V1` : besoin déjà couvert par un autre écran ;
+- `RETIRÉ DU PLAN V1` : besoin déjà couvert par un autre écran ou volontairement exclu ;
 - `REPORTÉ APRÈS V1` : fonctionnalité conservée comme piste mais hors périmètre courant.
 
 Toute décision UI structurante doit être reportée ici pour permettre une reprise sans dépendre de l'historique ChatGPT.
