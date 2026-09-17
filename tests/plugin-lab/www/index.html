@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-<div id="versionBanner" class="version-banner">MultiCam Qualification Lab — v0.10.0</div>
+<div id="versionBanner" class="version-banner">MultiCam Qualification Lab — v0.10.1</div>
 <main class="app">
   <header class="header"><div><h1>Qualification V1</h1><p id="deviceLine" class="device">Initialisation…</p></div><span id="readyBadge" class="badge badge-wait">ATTENTE</span></header>
   <section id="previewShell" class="preview-shell"><div id="previewPlaceholder" class="preview-placeholder"><div class="camera-icon">CAM</div><div>Zone de preview caméra</div></div></section>
@@ -25,8 +25,8 @@
   </section>
   <section id="liveStats" class="stats-card hidden"><div class="stat"><span>OK</span><strong id="snapOk">0</strong></div><div class="stat"><span>KO</span><strong id="snapKo">0</strong></div><div class="stat"><span>Sans callback</span><strong id="snapPending">0</strong></div></section>
   <section class="test-card"><div class="eyebrow">Test 2 — Stockage Android / SAF</div><h2 class="section-title">Dossier externe / microSD</h2><div id="safStatus" class="step-text">Aucun dossier SAF sélectionné.</div><button id="chooseSafButton" class="secondary-button" type="button">CHOISIR UN DOSSIER</button><button id="testSafButton" class="secondary-button top-gap" type="button" disabled>TESTER ÉCRITURE + SUPPRESSION</button></section>
-  <section id="resultCard" class="result-card hidden"><h2 id="resultTitle">Résultat</h2><div id="resultBody"></div><div class="result-actions three"><button id="exportButton" class="secondary-button" type="button">EXPORTER DIAGNOSTIC</button><button id="mailButton" class="secondary-button" type="button">ENVOYER LOG PAR MAIL</button><button id="rerunButton" class="secondary-button" type="button">RELANCER</button></div></section>
+  <section id="resultCard" class="result-card hidden"><h2 id="resultTitle">Résultat</h2><div id="resultBody"></div><div class="result-actions three"><button id="exportButton" class="secondary-button" type="button">EXPORTER DIAGNOSTIC</button><button id="mailButton" class="secondary-button" type="button">PARTAGER LE LOG</button><button id="rerunButton" class="secondary-button" type="button">RELANCER</button></div></section>
   <details class="technical"><summary>Détails techniques</summary><pre id="technicalLog"></pre></details>
 </main>
-<script src="cordova.js"></script><script src="js/index.js"></script>
+<script src="cordova.js"></script><script src="js/index.js"></script><script src="js/mail-fix.js"></script>
 </body></html>
