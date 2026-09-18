@@ -1,0 +1,86 @@
+[J03] ===== device c0d8514d7d87 =====
+[J03] MACIP=192.168.92.184 PUB_HOST=mcmacpeer.local. PUB_DID=demo-mac-peer-0001
+[J03:SCR] SCR-01 OK   annonce MDNS_ADVERTISE_START
+[J03:SCR] SCR-01 OK   identite config deviceName=Nord J3
+[J03:SCR] SCR-01 OK   enregistree ready (registeredName)
+[J03:SCR] SCR-01 OK   chemin API modern (registerServiceInfoCallback)
+[J03:SCR] SCR-01 OK   endpoint /health demarre sur 45101
+[J03:SCR] SCR-01 OK   decouverte browser demarree
+[J03:SCR] SCR-01 OK   auto-filtre : self absent de sa propre table
+[J03:SCR] SCR-01 OK   aucune erreur registerException au boot
+[J03:SCR] SCR-02 OK   table peers vide au démarrage ()
+[J03:SCR] SCR-02 OK   aucun peer avant publication
+[J03:SCR] SCR-03 OK   publication dns-sd -P enregistrée sur le Mac
+[J03:SCR] SCR-03 OK   serviceMacPeer trouvé (NSD)
+[J03:SCR] SCR-03 OK   résolution DNS-SD du pair (host=192.168.92.184 port=45101)
+[J03:SCR] SCR-03 OK   peer ajouté avec TXT (dname/supported/enabled/ver) + endpoint
+[J03:SCR] SCR-04 OK   table = 1 peer (rows=1)
+[J03:SCR] SCR-04 OK   aucun doublon de peer (deviceId unique)
+./mdns-test.sh: line 95: 96653 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-05 OK   cycle perte/retrouvé (serviceLost puis found) même deviceId
+[J03:SCR] SCR-05 OK   pas de doublon après re-publication (table=peers=1)
+./mdns-test.sh: line 95: 96697 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-06 OK   perte par serviceLost (source primaire)
+[J03:SCR] SCR-06 OK   table vide après perte
+[J03:SCR] SCR-07 OK   cycle 1 : convergé 1 peer
+./mdns-test.sh: line 95: 96743 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-07 OK   cycle 2 : convergé 1 peer
+./mdns-test.sh: line 95: 96769 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-07 OK   cycle 3 : convergé 1 peer
+./mdns-test.sh: line 95: 96790 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+./mdns-test.sh: line 95: 96813 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+./mdns-test.sh: line 95: 96828 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+./mdns-test.sh: line 95: 96841 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-07 OK   aucun doublon sur 3 cycles publication/perte
+./mdns-test.sh: line 95: 96864 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-08 OK   déclencheur reannounce nom journalisé
+[J03:SCR] SCR-08 OK   config deviceName=Nord J3 persistée
+[J03:SCR] SCR-08 OK   reannounce effectif (unregister/register)
+./mdns-test.sh: line 252: 97070 Terminated: 15          dns-sd -L "$DEFAULT_NAME" _multicam._tcp. local. > "$OUT/$s-08-mac-lookup.log" 2>&1
+[J03:SCR] SCR-08 OK   annonce renommée Nord J3 résolue côté Mac (did corrélé)
+[J03:SCR] SCR-09 OK   déclencheur reannounce skill journalisé
+[J03:SCR] SCR-09 OK   reannounce suite skill ok
+[J03:SCR] SCR-09 OK   config enabledSkills contient storage
+./mdns-test.sh: line 284: 97463 Terminated: 15          dns-sd -B _multicam._tcp. local. > "$OUT/$s-10-mac-browse.log" 2>&1
+[J03:SCR] SCR-10 OK   après controller=off, l'annonce reste visible côté Mac (indépendante du rôle)
+[J03:SCR] SCR-10 OK   /health toujours joignable après controller=off
+./mdns-test.sh: line 297: 97678 Terminated: 15          dns-sd -B _multicam._tcp. local. > "$OUT/$s-10b-mac-browse.log" 2>&1
+[J03:SCR] SCR-10b OK   enabledSkills=[] : l'appareil annonce toujours
+./mdns-test.sh: line 303: 97687 Terminated: 15          dns-sd -L "$DEFAULT_NAME" _multicam._tcp. local. > "$OUT/$s-10b-mac-lookup.log" 2>&1
+[J03:SCR] SCR-10b OK   TXT sans attribut enabled (règle enabledSkills=[] omis)
+[J03:SCR] SCR-11 OK   NET_CHANGED journalisé après bascule Wi-Fi
+[J03:SCR] SCR-11 OK   reannounce réseau (stop reason=network_change)
+[J03:SCR] SCR-11 OK   aucune race de registration (pas de registerException)
+[J03:SCR] SCR-11 OK   reconvergence avec le pair après reconnect
+[J03:SCR] SCR-11 OK   pas de double enregistrement (ADVERTISE_READY=0)
+./mdns-test.sh: line 95: 97878 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-12 OK   GET /health ok:true
+[J03:SCR] SCR-12 OK   deviceId identique à config (7fbf88be-ef45-4653-b010-ec29c1c35884)
+[J03:SCR] SCR-12 OK   deviceName identique à config
+[J03:SCR] SCR-12 OK   version présente
+[J03:SCR] SCR-12 OK   HEALTH_REQUEST journalisé (status=200)
+[J03:SCR] SCR-12 OK   autre route -> 404
+[J03:SCR] SCR-13 OK   carte réseau reflète l'état réel (text="Annonce mDNS active · Nord J3 · port 45101")
+[J03:SCR] SCR-13 OK   compteur '1' périphérique détecté
+[J03:SCR] SCR-13 OK   carte du pair UiPeer affichée
+[J03:SCR] SCR-13 OK   endpoint affiché (text="192.168.92.184:45101")
+./mdns-test.sh: line 95: 98112 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-13 OK   état vide réel quand aucun pair
+./mdns-test.sh: line 382: 98247 Terminated: 15          dns-sd -B _multicam._tcp. local. > "$OUT/$s-14-mac-browse.log" 2>&1
+[J03:SCR] SCR-14 OK   l'instance _multicam._tcp. 'Nord J3' visible d'un client mDNS tiers (Mac)
+./mdns-test.sh: line 385: 98259 Terminated: 15          dns-sd -L "$DEFAULT_NAME" _multicam._tcp. local. > "$OUT/$s-14-mac-lookup.log" 2>&1
+[J03:SCR] SCR-14 OK   résolution Mac: did/port corrélés ( enabled=capture,storage,controller supported=capture,storage,controller did=7fbf88be-ef45-4653-b010-ec29c1c35884 ver=0.1.0 sver=1 dname=Nord\ J3 )
+[J03:SCR] SCR-15 OK   relance 1 : reconvergence avec le pair
+[J03:SCR] SCR-15 OK   relance 1 : aucune erreur registration
+[J03:SCR] SCR-15 OK   relance 1 : deviceId stable
+./mdns-test.sh: line 95: 98294 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-15 OK   relance 2 : reconvergence avec le pair
+[J03:SCR] SCR-15 OK   relance 2 : aucune erreur registration
+[J03:SCR] SCR-15 OK   relance 2 : deviceId stable
+./mdns-test.sh: line 95: 98378 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03:SCR] SCR-15 OK   relance 3 : reconvergence avec le pair
+[J03:SCR] SCR-15 OK   relance 3 : aucune erreur registration
+[J03:SCR] SCR-15 OK   relance 3 : deviceId stable
+./mdns-test.sh: line 95: 98443 Terminated: 15          dns-sd -P "$sd_i" "_multicam._tcp." "" 45101 "$PUB_HOST" "$MACIP" did="$PUB_DID" dname="$sd_d" "$@" > "$OUT/$s-publisher-$sd_i.log" 2>&1
+[J03] ===== fin device c0d8514d7d87 (rc=0) =====
+[J03] RESULTAT GLOBAL rc=0

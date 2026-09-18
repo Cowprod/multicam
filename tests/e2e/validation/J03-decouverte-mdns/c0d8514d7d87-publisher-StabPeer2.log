@@ -1,0 +1,5 @@
+Registering Service StabPeer2._multicam._tcp. host mcmacpeer.local. port 45101 TXT did=demo-mac-peer-0001 dname=StabPeer2 supported=capture enabled=capture ver=0.9.9 sver=1
+DATE: ---Fri 18 Sep 2026---
+16:21:38.514  ...STARTING...
+16:21:39.196  Got a reply for record mcmacpeer.local.: Name now registered and active
+16:21:39.196  Got a reply for service StabPeer2._multicam._tcp.local.: Name now registered and active

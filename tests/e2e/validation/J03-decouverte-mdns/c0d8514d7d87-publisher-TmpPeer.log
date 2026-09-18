@@ -1,0 +1,5 @@
+Registering Service TmpPeer._multicam._tcp. host mcmacpeer.local. port 45101 TXT did=demo-mac-peer-0001 dname=TmpPeer supported=capture ver=0.9.9 sver=1
+DATE: ---Fri 18 Sep 2026---
+16:15:04.992  ...STARTING...
+16:15:05.674  Got a reply for record mcmacpeer.local.: Name now registered and active
+16:15:05.674  Got a reply for service TmpPeer._multicam._tcp.local.: Name now registered and active

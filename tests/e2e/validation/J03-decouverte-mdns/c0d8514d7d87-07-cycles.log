@@ -1,0 +1,6 @@
+09-18 16:15:00.472 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=MacPeer3b type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-18 16:15:00.481 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=demo-mac-peer-0001 result=OK host=192.168.92.184 port=45101 service=MacPeer3b", source: https://localhost/js/net/discovery.js (73)
+09-18 16:15:00.481 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_FOUND deviceId=demo-mac-peer-0001 name=MacPeerCycle3 supported=[capture] enabled=[capture] version=0.9.9 endpoint=192.168.92.184:45101", source: https://localhost/js/net/discovery.js (73)
+09-18 16:15:00.482 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE found peers=1 rows=[{"deviceId":"demo-mac-peer-0001","name":"MacPeerCycle3","supported":["capture"],"enabled":["capture"],"version":"0.9.9","endpoint":"192.168.92.184:45101","state":"online","firstSeen":1789740900478,"lastSeen":1789740900478}]", source: https://localhost/js/net/discovery.js (73)
+09-18 16:15:01.459 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_LOST deviceId=demo-mac-peer-0001 reason=serviceLost service=MacPeer3b", source: https://localhost/js/net/discovery.js (73)
+09-18 16:15:01.460 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE lost peers=0 rows=[]", source: https://localhost/js/net/discovery.js (73)

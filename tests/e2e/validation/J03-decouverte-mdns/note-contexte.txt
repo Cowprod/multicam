@@ -1,0 +1,4 @@
+Contexte J03 (cahier de validation)
+- Pair mDNS = Mac (mDNSResponder Apple) publiant _multicam._tcp. via dns-sd -P.
+- Android x Android physique : PARTIAL (retarde, MOF passif, non faux-PASS).
+- EXCLU: 61d54bba7d91 (install echec: Failure [INSTALL_FAILED_USER_RESTRICTED: Install)

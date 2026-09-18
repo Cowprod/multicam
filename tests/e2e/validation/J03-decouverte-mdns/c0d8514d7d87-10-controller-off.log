@@ -1,0 +1,4 @@
+09-18 16:17:05.431 24461 24461 I chromium: [INFO:CONSOLE:200] "SKILL_SET skill=controller enabled=0 result=OK", source: https://localhost/js/state/config.js (200)
+09-18 16:17:05.431 24461 24461 I chromium: [INFO:CONSOLE:68] "MDNS_REANNOUNCE_TRIGGER reason=skill_change skill=controller enabled=0", source: https://localhost/js/ui/settings.js (68)
+09-18 16:17:05.499 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_REANNOUNCE deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 deviceName=Nord J3 result=OK", source: https://localhost/js/net/discovery.js (73)
+09-18 16:17:06.241 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_ADVERTISE_READY deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 registeredName=Nord J3 port=45101 serviceType=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)

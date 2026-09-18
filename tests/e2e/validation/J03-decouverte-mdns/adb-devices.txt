@@ -1,0 +1,4 @@
+List of devices attached
+61d54bba7d91           device usb:2-1.2 product:flare_eea model:24075RP89G device:flare transport_id:7
+c0d8514d7d87           device usb:2-1.1 product:flare_eea model:24075RP89G device:flare transport_id:4
+

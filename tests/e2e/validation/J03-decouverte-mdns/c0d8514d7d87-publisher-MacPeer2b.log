@@ -1,0 +1,5 @@
+Registering Service MacPeer2b._multicam._tcp. host mcmacpeer.local. port 45101 TXT did=demo-mac-peer-0001 dname=MacPeerCycle2 supported=capture enabled=capture ver=0.9.9 sver=1
+DATE: ---Fri 18 Sep 2026---
+16:14:53.860  ...STARTING...
+16:14:54.601  Got a reply for record mcmacpeer.local.: Name now registered and active
+16:14:54.601  Got a reply for service MacPeer2b._multicam._tcp.local.: Name now registered and active

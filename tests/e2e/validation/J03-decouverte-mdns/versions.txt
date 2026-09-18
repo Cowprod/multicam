@@ -1,0 +1,4 @@
+adb: Android Debug Bridge version 1.0.41
+node: v23.10.0
+cordova(local): 13.0.0
+mac_ip: 192.168.92.184

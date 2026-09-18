@@ -1,0 +1,3 @@
+Performing Streamed Install
+adb: failed to install /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/../../app/platforms/android/app/build/outputs/apk/debug/app-debug.apk: Failure [INSTALL_FAILED_USER_RESTRICTED: Install canceled by user]
+

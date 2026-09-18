@@ -1,0 +1,4 @@
+deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884
+deviceName=Nord J3
+enabled=capture,storage,controller,
+ip=192.168.92.192

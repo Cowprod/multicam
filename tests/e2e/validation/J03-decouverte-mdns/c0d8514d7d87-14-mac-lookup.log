@@ -1,0 +1,7 @@
+Lookup Nord J3._multicam._tcp..local.
+DATE: ---Fri 18 Sep 2026---
+16:21:11.169  ...STARTING...
+16:21:11.171  Nord\032J3._multicam._tcp.local. can be reached at Android_4RCTKHXS.local.:45101 (interface 15) Flags: 1
+ enabled=capture,storage,controller supported=capture,storage,controller did=7fbf88be-ef45-4653-b010-ec29c1c35884 ver=0.1.0 sver=1 dname=Nord\ J3
+16:21:11.171  Nord\032J3._multicam._tcp.local. can be reached at Android_4RCTKHXS.local.:45101 (interface 15)
+ enabled=capture,storage,controller supported=capture,storage,controller did=7fbf88be-ef45-4653-b010-ec29c1c35884 ver=0.1.0 sver=1 dname=Nord\ J3

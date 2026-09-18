@@ -1,0 +1,2 @@
+09-18 16:14:22.867 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_LOST deviceId=demo-mac-peer-0001 reason=serviceLost service=MacPeer2", source: https://localhost/js/net/discovery.js (73)
+09-18 16:14:22.867 24461 24461 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE lost peers=0 rows=[]", source: https://localhost/js/net/discovery.js (73)
