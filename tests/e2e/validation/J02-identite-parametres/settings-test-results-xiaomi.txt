@@ -1,0 +1,36 @@
+[J02] ===== device c0d8514d7d87 =====
+[J02] c0d8514d7d87 OK   R1 config.json cree a la premiere execution (CONFIG_INIT source=created)
+[J02] c0d8514d7d87 OK   R2 deviceId UUID v4 cree (7fbf88be-ef45-4653-b010-ec29c1c35884)
+[J02] c0d8514d7d87 OK   R3 deviceId stable apres force-stop/relance (7fbf88be-ef45-4653-b010-ec29c1c35884)
+[J02] c0d8514d7d87 OK   R14 ecriture reelle stockage par defaut OK (STORAGE_WRITE mode=internal ok=1 bytes=35 path=file:///storage/emulated/0/Android/data/fr.emmanuel.multicam/files/", source: https://localhost/js/ui/settings.js (199))
+[J02] c0d8514d7d87 OK   R14 destination par defaut = interne
+[J02] c0d8514d7d87 OK   R12 etats de permissions reels lus (PERM_CAMERA state=NOT_REQUESTED PERM_MIC state=NOT_REQUESTED PERM_NOTIFICATIONS state=NOT_REQUESTED PERM_LOCATION state=NOT_REQUESTED )
+[J02] c0d8514d7d87 OK   R4 nom edite et affiche (Cam Nord)
+[J02] c0d8514d7d87 OK   R4 DEVICE_NAME_SET journalise
+[J02] c0d8514d7d87 OK   R20 accueil reflete le nom immediatement (Cam Nord)
+[J02] c0d8514d7d87 OK   R5 nom persiste apres redemarrage (Cam Nord)
+[J02] c0d8514d7d87 OK   R5 config.json deviceName=Cam Nord
+[J02] c0d8514d7d87 OK   R3 deviceId toujours stable (7fbf88be-ef45-4653-b010-ec29c1c35884)
+[J02] c0d8514d7d87 OK   R6 Capture desactivee (enabled=[storage,controller,])
+[J02] c0d8514d7d87 OK   R6 Capture reactivee (enabled=[storage,controller,capture,])
+[J02] c0d8514d7d87 OK   R8 enabledSkills=[] atteint
+[J02] c0d8514d7d87 OK   R9 les 3 badges supportes restent visibles
+[J02] c0d8514d7d87 OK   R10 UI Master masquee (recentArea/masterArea/newSession absents)
+[J02] c0d8514d7d87 OK   R7 enabled=[capture] persiste apres redemarrage
+[J02] c0d8514d7d87 OK   R7 UI Master toujours masquee
+[J02] c0d8514d7d87 OK   R11 hook debug : skill non supportee rejetee (TEST_HOOK result=REJECTED reason=unsupported_skill:gps", source: https://localhost/js/main.js (28))
+[J02] c0d8514d7d87 OK   R11 config.json inchangee apres rejet
+[J02] c0d8514d7d87 OK   R13 interaction permissions exercee (PERM_CAMERA request_result=GRANTED PERM_MIC request_result=GRANTED PERM_LOCATION request_result=GRANTED PERM_NOTIFICATIONS request_result=GRANTED )
+[J02] c0d8514d7d87 OK   R13 au moins une permission accordee via l'UI
+[J02] c0d8514d7d87 OK   R15 dossier SAF selectionne (SAF_SELECTED uri=content://com.android.externalstorage.documents/tree/primary%3ADocuments write=1 read=1", source: https://localhost/js/ui/settings.js (231))
+[J02] c0d8514d7d87 OK   R15 nom de dossier resolu (SAF_TREE_NAME uri=content://com.android.externalstorage.documents/tree/primary%3ADocuments name=Documents", source: https://localhost/js/ui/settings.js (233))
+[J02] c0d8514d7d87 OK   R15 config.json storage.mode=saf
+[J02] c0d8514d7d87 OK   R16 ecriture SAF reelle creation+ecriture+suppression OK (STORAGE_WRITE mode=saf ok=1 bytes=38 deleteOk=1 elapsedMs=118 uri=content://com.android.externalstorage.documents/tree/primary%3ADocuments", source: https://localhost/js/ui/settings.js (195))
+[J02] c0d8514d7d87 OK   R17 stockage SAF persiste apres redemarrage
+[J02] c0d8514d7d87 OK   R17 chemin affiche=Documents
+[J02] c0d8514d7d87 OK   R18 ecriture SAF reussie apres redemarrage (acces persistant validé)
+[J02] c0d8514d7d87 OK   R19 journal STORAGE_RESET mode=internal
+[J02] c0d8514d7d87 OK   R19 config.json revenu au stockage par defaut
+[J02] c0d8514d7d87 OK   R19 ecriture interne revalidee apres retour
+[J02] ===== fin device c0d8514d7d87 (rc=0) =====
+[J02] RESULTAT GLOBAL rc=0

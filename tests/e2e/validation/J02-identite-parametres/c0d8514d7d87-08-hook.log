@@ -1,0 +1,8 @@
+09-18 09:15:10.677  6363  6363 I chromium: [INFO:CONSOLE:128] "CONFIG_INIT source=loaded deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 schema=1 deviceName=Cam Nord enabledSkills=[capture] storage=internal", source: https://localhost/js/state/config.js (128)
+09-18 09:15:10.677  6363  6363 I chromium: [INFO:CONSOLE:11] "APP_BOOT app=MultiCam version=0.1.0 deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 deviceName=Cam Nord supportedSkills=[capture,storage,controller] enabledSkills=[capture] storage=internal", source: https://localhost/js/main.js (11)
+09-18 09:15:10.678  6363  6363 I chromium: [INFO:CONSOLE:41] "APP_BOOT platform=Android model=24075RP89G android=16 sdk=36", source: https://localhost/js/main.js (41)
+09-18 09:15:10.679  6363  6363 I chromium: [INFO:CONSOLE:48] "PIXELCOPY_READY method=1", source: https://localhost/js/main.js (48)
+09-18 09:15:10.682  6363  6363 I chromium: [INFO:CONSOLE:55] "HOME_RENDER deviceName=Cam Nord controllerEnabled=0 recentSessions=0 lanSessions=0", source: https://localhost/js/main.js (55)
+09-18 09:15:10.686  6363  6363 I chromium: [INFO:CONSOLE:24] "TEST_HOOK skill=gps intentExtra=mcTestSkill", source: https://localhost/js/main.js (24)
+09-18 09:15:10.687  6363  6363 I chromium: [INFO:CONSOLE:190] "SKILL_SET skill=gps enabled=1 result=REJECTED_UNSUPPORTED", source: https://localhost/js/state/config.js (190)
+09-18 09:15:10.690  6363  6363 I chromium: [INFO:CONSOLE:28] "TEST_HOOK result=REJECTED reason=unsupported_skill:gps", source: https://localhost/js/main.js (28)

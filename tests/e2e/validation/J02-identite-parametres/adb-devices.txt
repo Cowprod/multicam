@@ -1,0 +1,4 @@
+List of devices attached
+R9ZT40ALLSN            device usb:64-1.2.4.2 product:a22xnseea model:SM_A226B device:a22x transport_id:6
+c0d8514d7d87           device usb:2-1.1 product:flare_eea model:24075RP89G device:flare transport_id:4
+

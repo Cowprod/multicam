@@ -1,0 +1,5 @@
+09-18 09:07:58.261 20269 20269 I chromium: [INFO:CONSOLE:128] "CONFIG_INIT source=loaded deviceId=6d7d08cf-b8ae-4719-8eb4-1165025c7a8f schema=1 deviceName=Cam Nord enabledSkills=[capture] storage=internal", source: https://localhost/js/state/config.js (128)
+09-18 09:07:58.261 20269 20269 I chromium: [INFO:CONSOLE:11] "APP_BOOT app=MultiCam version=0.1.0 deviceId=6d7d08cf-b8ae-4719-8eb4-1165025c7a8f deviceName=Cam Nord supportedSkills=[capture,storage,controller] enabledSkills=[capture] storage=internal", source: https://localhost/js/main.js (11)
+09-18 09:07:58.262 20269 20269 I chromium: [INFO:CONSOLE:41] "APP_BOOT platform=Android model=SM-A226B android=13 sdk=33", source: https://localhost/js/main.js (41)
+09-18 09:07:58.262 20269 20269 I chromium: [INFO:CONSOLE:48] "PIXELCOPY_READY method=1", source: https://localhost/js/main.js (48)
+09-18 09:07:58.263 20269 20269 I chromium: [INFO:CONSOLE:55] "HOME_RENDER deviceName=Cam Nord controllerEnabled=0 recentSessions=0 lanSessions=0", source: https://localhost/js/main.js (55)

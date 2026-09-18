@@ -1,0 +1,1 @@
+{ "schemaVersion": 1, "deviceId": "6d7d08cf-b8ae-4719-8eb4-1165025c7a8f", "deviceName": "Cam 07", "supportedSkills": [ "capture", "storage", "controller" ], "enabledSkills": [ "capture", "storage", "controller" ], "storage": { "mode": "internal", "treeUri": null, "displayName": null }}
