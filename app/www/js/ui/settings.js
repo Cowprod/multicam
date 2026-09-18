@@ -65,6 +65,8 @@
         var checked = el.checked;
         global.MultiCamConfig.setSkill(skill, checked).then(function () {
           showToast(skill + (checked ? " activée" : " désactivée"));
+          console.log("MDNS_REANNOUNCE_TRIGGER reason=skill_change skill=" + skill + " enabled=" + (checked ? 1 : 0));
+          global.MultiCamNet.reannounce && global.MultiCamNet.reannounce();
         }).catch(function (err) {
           el.checked = !checked; // rejeté (skill non supportée) : on ne modifie pas l'état.
           showToast("Skill non supportée : " + skill);
@@ -274,6 +276,23 @@
     });
   }
 
+  function renderMdnsInfo() {
+    var grid = byId("mdnsInfo");
+    if (!grid) return;
+    var st = global.MultiCamNet.status ? global.MultiCamNet.status() : { enabled: false };
+    var net = global.MultiCamDevice ? global.MultiCamDevice.networkType() : null;
+    var rows = [];
+    rows.push(["Service (DNS-SD)", st.serviceType || "—"]);
+    rows.push(["Annonce/état", (st.running && st.advertising) ? "Active" : (st.running ? "Démarrage…" : "Inactive")]);
+    rows.push(["Nom annoncé (NSD)", st.registeredName ? esc(st.registeredName) : "—"]);
+    rows.push(["Chemin NSD (API)", (st.nsdPath ? st.nsdPath : "—") + (st.sdk ? " · SDK " + st.sdk : "")]);
+    rows.push(["Port service santé", st.healthPort ? String(st.healthPort) : "—"]);
+    rows.push(["IP locale", st.ipv4 ? esc(st.ipv4) : "…"]);
+    rows.push(["Type réseau", (net || "—")]);
+    rows.push(["Périphériques détectés", String(st.peers || 0)]);
+    grid.innerHTML = rows.map(function (r) { return "<div>" + r[0] + "</div><div>" + r[1] + "</div>"; }).join("");
+  }
+
   function bind(cfg) {
     byId("deviceNameInput").value = cfg.deviceName;
     byId("headerName").textContent = cfg.deviceName;
@@ -290,6 +309,8 @@
           btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Enregistrer';
         }, 900);
         showToast("Nom enregistré");
+        console.log("MDNS_REANNOUNCE_TRIGGER reason=name_change name=" + input.value.trim());
+        global.MultiCamNet.reannounce && global.MultiCamNet.reannounce();
       }).catch(function (err) {
         showToast(String(err && err.message ? err.message : err));
       });
@@ -338,11 +359,11 @@
       }, D.permission[p.perm]);
     });
 
-    if (hasDiagnostic()) {
+if (hasDiagnostic()) {
       byId("btnOpenLocation").addEventListener("click", function () {
         global.cordova.plugins.diagnostic.switchToLocationSettings(function () {
           console.log("DIAG open_location_settings=1");
-        }, function (e) { console.log("DIAG open_location_settings error=" + e); });
+        }, function (e) { console.log("DIAG open_app_settings error=" + e); });
       });
       byId("btnOpenAppSettings").addEventListener("click", function () {
         global.cordova.plugins.diagnostic.switchToSettings(function () {
@@ -352,6 +373,14 @@
     } else {
       byId("btnOpenLocation").disabled = true;
       byId("btnOpenAppSettings").disabled = true;
+    }
+
+    var netRef = byId("btnRefreshNet");
+    if (netRef) {
+      netRef.addEventListener("click", function () {
+        renderMdnsInfo();
+        showToast("Réseau actualisé");
+      });
     }
   }
 
@@ -365,6 +394,14 @@
       renderDeviceInfo();
       refreshPermissions(cfg);
       bind(cfg);
+      if (global.MultiCamNet && global.MultiCamNet.start) {
+        global.MultiCamNet.start().then(function () {
+          renderMdnsInfo();
+          console.log("SETTINGS_NET ready=1 mdns=" + (global.MultiCamNet.status().running ? "1" : "0"));
+        });
+      } else {
+        renderMdnsInfo();
+      }
     }).catch(function (e) {
       console.log("SETTINGS_ERROR " + e);
     });

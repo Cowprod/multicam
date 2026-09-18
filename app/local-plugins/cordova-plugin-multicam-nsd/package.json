@@ -1,0 +1,11 @@
+{
+  "name": "cordova-plugin-multicam-nsd",
+  "version": "0.1.0",
+  "description": "MultiCam J03: mDNS/DNS-SD via Android NsdManager + minimal GET /health LAN endpoint.",
+  "cordova": {
+    "id": "cordova-plugin-multicam-nsd",
+    "platforms": ["android"]
+  },
+  "keywords": ["cordova", "android", "nsd", "mdns", "multicast", "discovery"],
+  "engines": { "cordovaDependencies": { "0.1.0": { "cordova": ">=9.0.0" } } }
+}

@@ -54,6 +54,7 @@ add_local_plugin() {
 }
 add_local_plugin cordova-plugin-multicam-saf local-plugins/cordova-plugin-multicam-saf
 add_local_plugin cordova-plugin-multicam-platform local-plugins/cordova-plugin-multicam-platform
+add_local_plugin cordova-plugin-multicam-nsd local-plugins/cordova-plugin-multicam-nsd
 
 npx cordova prepare android
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-multicam-nsd" version="0.1.0">
+  <name>MultiCam NSD</name>
+  <description>mDNS/DNS-SD (NsdManager) advertising + service-info discovery + minimal GET /health LAN endpoint for MultiCam peer discovery (J03).</description>
+  <js-module src="www/MultiCamNsd.js" name="MultiCamNsd"><clobbers target="MultiCamNsd" /></js-module>
+
+  <platform name="android">
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="MultiCamNsd"><param name="android-package" value="fr.emmanuel.multicam.nsd.MultiCamNsd" /></feature>
+    </config-file>
+    <source-file src="src/android/MultiCamNsd.java" target-dir="app/src/main/java/fr/emmanuel/multicam/nsd" />
+    <source-file src="src/android/HealthServer.java" target-dir="app/src/main/java/fr/emmanuel/multicam/nsd" />
+
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="android.permission.INTERNET" />
+      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+      <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    </config-file>
+
+    <!-- Access reseau local Android 17 / API 37 (future). N'apparait PAS sur API 36 :
+         la permission n'existe pas avant API 37 et ne doit pas etre demandee inutilement. -->
+    <!-- config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+    </config-file -->
+
+    <preference name="MDNS_SERVICE_TYPE" default="_multicam._tcp." />
+    <preference name="MDNS_DEFAULT_PORT" default="45101" />
+    <preference name="MDNS_USE_MULTICAST_LOCK" default="false" />
+  </platform>
+</plugin>
