@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-multicam-platform" version="0.1.0">
+  <name>MultiCam Platform</name>
+  <description>MultiCam native helpers: StatFs free space, IPv4/network type, debug-only intent extras (test hook).</description>
+  <js-module src="www/MultiCamPlatform.js" name="MultiCamPlatform"><clobbers target="MultiCamPlatform" /></js-module>
+  <platform name="android">
+    <config-file target="res/xml/config.xml" parent="/*"><feature name="MultiCamPlatform"><param name="android-package" value="fr.emmanuel.multicam.platform.MultiCamPlatform" /></feature></config-file>
+    <source-file src="src/android/MultiCamPlatform.java" target-dir="app/src/main/java/fr/emmanuel/multicam/platform" />
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+      <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+      <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+      <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    </config-file>
+  </platform>
+</plugin>

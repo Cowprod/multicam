@@ -1,0 +1,11 @@
+{
+  "name": "cordova-plugin-multicam-platform",
+  "version": "0.1.0",
+  "description": "MultiCam native platform helpers (StatFs free space, IPv4/network type, debug-only intent extras test hook)",
+  "cordova": {
+    "id": "cordova-plugin-multicam-platform",
+    "platforms": ["android"]
+  },
+  "keywords": ["cordova", "android", "platform", "statfs"],
+  "license": "UNLICENSED"
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data: blob: file:; media-src 'self' data: blob: file:; font-src 'self' data:">
+<title>MultiCam — Paramètres du device</title>
+<link href="vendor/bootstrap-quartz.min.css" rel="stylesheet">
+<link href="vendor/fontawesome/css/all.min.css" rel="stylesheet">
+<link href="css/app.css" rel="stylesheet">
+<link href="css/settings.css" rel="stylesheet">
+</head>
+<body>
+<div class="root">
+<div class="vig"></div>
+<main class="shell">
+  <header class="card glass strong rounded-4 mb-2">
+    <div class="card-body p-3 d-flex align-items-center gap-3">
+      <a href="index.html" class="btn btn-sm btn-outline-light" aria-label="Accueil" id="backHome"><i class="fa-solid fa-chevron-left"></i></a>
+      <div class="flex-grow-1">
+        <div id="headerName" class="small muted">…</div>
+        <div class="fw-bold fs-4">Paramètres du device</div>
+      </div>
+      <i class="fa-solid fa-gear fs-4 muted"></i>
+    </div>
+  </header>
+
+  <div class="section-title">Identité</div>
+  <section class="card glass rounded-4">
+    <div class="card-body p-3">
+      <label class="form-label" for="deviceNameInput">Nom du device</label>
+      <div class="input-group">
+        <input class="form-control" id="deviceNameInput" maxlength="40">
+        <button class="btn btn-primary" id="saveName"><i class="fa-solid fa-check me-1"></i>Enregistrer</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-title">Skills actives</div>
+  <section class="card glass rounded-4" id="skills"></section>
+
+  <div class="section-title">Stockage local</div>
+  <section class="card glass rounded-4">
+    <div class="card-body p-3">
+      <div class="d-flex align-items-start gap-3">
+        <i class="fa-solid fa-folder-open fs-4 text-info mt-1"></i>
+        <div class="flex-grow-1">
+          <div class="fw-semibold mb-1">Emplacement courant</div>
+          <div class="path" id="storagePath">…</div>
+          <div class="small muted mt-2" id="storageFree"><i class="fa-solid fa-hard-drive me-1"></i>…</div>
+          <div class="small muted" id="storageWriteTest"><i class="fa-solid fa-circle-info me-1"></i>…</div>
+        </div>
+        <div class="d-grid gap-2 text-end">
+          <button class="btn btn-outline-light btn-action" id="btnChangeDir"><i class="fa-solid fa-folder-open me-1"></i>Changer</button>
+          <button class="btn btn-sm btn-outline-light" id="btnTestWrite" disabled><i class="fa-solid fa-pen-to-square me-1"></i>Tester</button>
+        </div>
+      </div>
+      <div class="mt-2 text-end">
+        <a href="#" id="btnResetStorage" class="small link-secondary text-decoration-none"><i class="fa-solid fa-rotate-left me-1"></i>Revenir au stockage par défaut</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-title">Autorisations</div>
+  <section class="card glass rounded-4" id="permissions"></section>
+
+  <div class="section-title">Informations appareil</div>
+  <section class="card glass rounded-4"><div class="card-body p-3"><div class="info-grid" id="deviceInfo"></div></div></section>
+
+  <div class="section-title">Diagnostic</div>
+  <section class="card glass rounded-4"><div class="card-body p-3 d-grid gap-2">
+    <button class="btn btn-outline-light" id="btnOpenLocation"><i class="fa-solid fa-location-crosshairs me-2"></i>Ouvrir les réglages de localisation</button>
+    <button class="btn btn-outline-light" id="btnOpenAppSettings"><i class="fa-solid fa-mobile-screen-button me-2"></i>Ouvrir les réglages de l'application</button>
+  </div></section>
+</main>
+<div id="toast" class="toastbox" role="status" aria-live="polite"></div>
+</div>
+
+<script src="cordova.js"></script>
+<script src="js/state/config.js"></script>
+<script src="js/native/device.js"></script>
+<script src="js/native/platform.js"></script>
+<script src="js/native/saf.js"></script>
+<script src="js/native/storage.js"></script>
+<script src="js/ui/settings.js"></script>
+</body>
+</html>

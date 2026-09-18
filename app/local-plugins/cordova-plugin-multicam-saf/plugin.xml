@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-multicam-saf" version="0.2.0">
+  <name>MultiCam SAF</name>
+  <js-module src="www/MultiCamSaf.js" name="MultiCamSaf"><clobbers target="MultiCamSaf" /></js-module>
+  <platform name="android">
+    <config-file target="res/xml/config.xml" parent="/*"><feature name="MultiCamSaf"><param name="android-package" value="fr.emmanuel.multicam.saf.MultiCamSaf" /></feature></config-file>
+    <source-file src="src/android/MultiCamSaf.java" target-dir="app/src/main/java/fr/emmanuel/multicam/saf" />
+  </platform>
+</plugin>

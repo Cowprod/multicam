@@ -1,0 +1,15 @@
+/* MultiCam — styles écran 14 (Paramètres du device), maquette validée ui/14-device-settings. */
+
+.section-title{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--m);margin:18px 6px 8px}
+.rowline{padding:.9rem 1rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:1rem}
+.rowline:last-child{border-bottom:0}
+.permission-ok{color:#5ee7a2}
+.permission-warn{color:#ffd166}
+.permission-ko{color:#f87171}
+.info-grid{display:grid;grid-template-columns:1fr auto;gap:.5rem 1rem;font-size:.92rem}
+.info-grid div:nth-child(odd){color:var(--m)}
+.form-switch .form-check-input{width:2.7em;height:1.45em}
+.path{font-size:.82rem;word-break:break-all;color:var(--m)}
+.btn-action{min-width:110px}
+@media(max-width:520px){.btn-action{min-width:auto}.rowline{padding:.8rem .85rem}}
+.permission-state{font-size:.82rem;color:var(--m)}

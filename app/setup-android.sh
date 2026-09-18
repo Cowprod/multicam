@@ -10,6 +10,23 @@ if ! npx cordova platform ls | grep -q '^  android '; then
   npx cordova platform add android@15.1.0
 fi
 
+# Plugins registry qualifies (installation rappelée à chaque itération via npm install).
+add_plugin() {
+  name="$1"
+  id="$2"
+  if npx cordova plugin ls | grep -q "^$id "; then
+    echo "=== deja installe: $id ==="
+  else
+    echo "=== installation: $name ==="
+    npx cordova plugin add "$name"
+  fi
+}
+add_plugin cordova-plugin-device cordova-plugin-device
+add_plugin cordova-plugin-file cordova-plugin-file
+add_plugin cordova-plugin-battery-status cordova-plugin-battery-status
+add_plugin cordova-plugin-network-information cordova-plugin-network-information
+add_plugin cordova.plugins.diagnostic cordova.plugins.diagnostic
+
 # Installation du plugin caméra à un commit upstream validé (pas de master mouvant).
 if npx cordova plugin ls | grep -q '^cordova-plugin-camera-preview '; then
   npx cordova plugin rm cordova-plugin-camera-preview
@@ -24,6 +41,19 @@ python3 pixelcopy-patch/apply_pixelcopy_patch.py .
 mkdir -p "$CAMERA_PLATFORM_DIR"
 cp plugins/cordova-plugin-camera-preview/src/android/CameraPreview.java "$CAMERA_PLATFORM_DIR/CameraPreview.java"
 cp plugins/cordova-plugin-camera-preview/src/android/CameraActivity.java "$CAMERA_PLATFORM_DIR/CameraActivity.java"
+
+# Plugins locaux MultiCam (sources prises depuis app/local-plugins).
+add_local_plugin() {
+  id="$1"
+  path="$2"
+  if npx cordova plugin ls | grep -q "^$id "; then
+    npx cordova plugin rm "$id"
+  fi
+  echo "=== installation locale: $id ==="
+  npx cordova plugin add "$path"
+}
+add_local_plugin cordova-plugin-multicam-saf local-plugins/cordova-plugin-multicam-saf
+add_local_plugin cordova-plugin-multicam-platform local-plugins/cordova-plugin-multicam-platform
 
 npx cordova prepare android
 

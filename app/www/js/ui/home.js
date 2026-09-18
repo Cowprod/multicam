@@ -70,7 +70,16 @@
   }
 
   function bindStubs() {
-    ["navHistory", "navSettings", "createSession"].forEach(function (id) {
+    var nv = byId("navSettings");
+    if (nv) {
+      nv.addEventListener("click", function () {
+        var menu = byId("menu");
+        if (menu) menu.classList.remove("open");
+        // Écran 14 réel (J02) : navigation vers la page Paramètres.
+        global.location.href = "settings.html";
+      });
+    }
+    ["navHistory", "createSession"].forEach(function (id) {
       var n = byId(id);
       if (n) {
         n.addEventListener("click", function () {

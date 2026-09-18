@@ -1,0 +1,11 @@
+{
+  "name": "cordova-plugin-multicam-saf",
+  "version": "0.2.0",
+  "description": "MultiCam production SAF plugin (write/delete qualified in plugin-lab + getTreeName extension for J02)",
+  "cordova": {
+    "id": "cordova-plugin-multicam-saf",
+    "platforms": ["android"]
+  },
+  "keywords": ["cordova", "android", "saf", "storage"],
+  "license": "UNLICENSED"
+}
