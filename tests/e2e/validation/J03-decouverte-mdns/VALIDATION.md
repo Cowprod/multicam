@@ -7,7 +7,7 @@
 | Jalon | J03 — Découverte LAN : paire phare, table de pairs et endpoint /health (ancien transport « T ») |
 | Date / heure campaign 1 | 2026-09-18 15:30–16:10 (heure locale) |
 | Date / heure campaign 2 (Android×3) | 2026-09-20 09:27–10:05 (heure locale) |
-| Commit Git testé | voir `commit.txt` + apk-sha256.txt — contenu `app/` dont l'APK installé est issu |
+| Commit Git testé | **Implementation exacte campaign 2 : `5df8321`** (contenu `app/` dont l'APK installé est issu, vérifié byte-for-byte) ; campaign 1 : `commit.txt` (`42fcadb`, baseline d'origine) + apk-sha256.txt |
 | Scripts de validation | `tests/e2e/mdns-test.sh` (campaign 1) puis `tests/e2e/mdns3-test.sh` (campaign 2, 3 devices) |
 | Verdict campaign 1 | **PASS** — réservation Android↔Android (second device bloqué à l'install USB) |
 | Verdict campaign 2 | **PASS** (3 devices physiques) — **réservation Android↔Android levée** |
@@ -19,6 +19,20 @@
 assertion en échec** (`latency3.txt`, `inventory-final3.txt`, logs par scénario et par device).
 La réservation PARTIAL de la campaign 1 (échange Android↔Android, `MDNS_PEER_UPDATED` en place,
 bascule multi-pairs) est **levée** : tout est désormais démontré entre 3 vrais devices.
+
+### Exactitude de la traçabilité produit (reconstruite après validation)
+
+Le binaire ayant obtenu le rc=0 final (APK `6b65ecc1…56b2`) était issu d'un fichier natif
+**non commité** au moment du run. La chaîne a été verrouillée **sans modifier le comportement
+et sans rerun** (preuves ci-dessous) :
+
+| Preuve | Vérification |
+|---|---|
+| Unique diff produit vs `42fcadb` | `git status/porcelain` : un seul fichier, `app/local-plugins/cordova-plugin-multicam-nsd/src/android/MultiCamNsd.java` (re-annonce en deux temps, retry découverte 1500 ms, `scheduleDiscoveryRefresh`) |
+| Sources plugins == sources compilées | `app/platforms/android/…/nsd/MultiCamNsd.java` **byte-for-byte identique** au plugin (sha `38ffaa18a893…01a8` des 2 copies) |
+| Source effectivement compilée | horodatages : plugin 21:17:07, copie plateformes 21:17:21, APK 21:17:24 (compilation de ce contenu) |
+| APK embarque ce code | dex de l'APK : symboles `reannouncePending`, `pendingReannounceCb`, `scheduleDiscoveryRefresh`, `DISCOVERY_REFRESH_MS` présents |
+| Commité = testé | le contenu ci-dessus est commité exactement → **implementation testée = `5df8321`** ; `42fcadb` reste le baseline J03 d'origine (campaign 1) |
 
 ### Devices (sér. → deviceId → nom → IP)
 
@@ -72,8 +86,13 @@ de façon inconditionnelle — `discovery.js` `handleServiceUpdated`). Au-delà 
    hôte stable), complété par la table **fraîche** de l'émetteur (D1 en S10) et le gate
    `ADVERTISE_READY` (ré-annonce froide ~154 s au cycle 1 de S11). Aucune assertion non liée
    affaiblie (S1–S9, S12 inchangés et tous PASS).
-4. **Produit inchangé** : aucune modification de code application pendant cette campaign ; l'APK
-   testé est le binaire `6b65ecc1…56b2` (recette inspectée, `grep capturePreviewSurface` + SHA).
+4. **Produit inchangé pendant la campaign / traçabilité verrouillée** : aucune modification
+   de code application n'a été apportée pendant la campaign ; le binaire testé
+   (`6b65ecc1…56b2`) intègre le fichier natif NSD **déjà modifié** (re-annonce en deux temps,
+   retry + refresh découverte) dont le contenu exact est commité **après** le run sous
+   `5df8321` (sources plugin/plateformes byte-for-byte, compile→APK 3 s, symboles présents
+   dans le dex) — le code commité est donc exactement le code du binaire validé,
+   aucune reconstruction nécessaire.
 
 ### Preuves (campaign 2, dans ce dossier)
 
@@ -236,7 +255,8 @@ Nord\032J3._multicam._tcp.local.  can be reached at Android_77GP3MRI.local.:4510
 ## Verdict
 
 **PASS** — campaign 1 sur le build du commit référencé dans `commit.txt` (SHA-256 APK
-`c1b4b1…beac6b`), campaign 2 sur l'APK `6b65ecc1…56b2` (identique sur les 3 devices) : découverte
+`c1b4b1…beac6b`), campaign 2 sur l'implementation **`5df8321`** (APK `6b65ecc1…56b2`,
+identique sur les 3 devices) : découverte
 LAN mDNS/DNS-SD opérationnelle (paire phare, resolve, table de pairs stagée par deviceId, perte
 primaire, re-convergence sans doublon, redémarrage réseau sans race), identité strictement par
 `deviceId`, annonce conforme (TXT strict, re-annonces sur renommage/skills, indépendante du rôle,
