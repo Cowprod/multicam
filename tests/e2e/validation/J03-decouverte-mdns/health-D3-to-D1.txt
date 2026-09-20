@@ -1,0 +1,60 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"d275fd07-8efa-4ad0-8063-e254c1fcc6f0","deviceName":"NordEtoile","version":"0.1.0"}

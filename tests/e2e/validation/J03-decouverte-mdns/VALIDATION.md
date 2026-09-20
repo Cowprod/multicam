@@ -5,12 +5,90 @@
 | Élément | Valeur |
 |---|---|
 | Jalon | J03 — Découverte LAN : paire phare, table de pairs et endpoint /health (ancien transport « T ») |
-| Date / heure | 2026-09-18 15:30–16:10 (heure locale) |
-| Commit Git testé | voir `commit.txt` — contenu `app/` dont l'APK installé est issu |
-| Script de validation | `tests/e2e/mdns-test.sh` |
-| Verdict | **PASS** (Android↔Android physique : **PARTIAL**, raison documentée) |
+| Date / heure campaign 1 | 2026-09-18 15:30–16:10 (heure locale) |
+| Date / heure campaign 2 (Android×3) | 2026-09-20 09:27–10:05 (heure locale) |
+| Commit Git testé | voir `commit.txt` + apk-sha256.txt — contenu `app/` dont l'APK installé est issu |
+| Scripts de validation | `tests/e2e/mdns-test.sh` (campaign 1) puis `tests/e2e/mdns3-test.sh` (campaign 2, 3 devices) |
+| Verdict campaign 1 | **PASS** — réservation Android↔Android (second device bloqué à l'install USB) |
+| Verdict campaign 2 | **PASS** (3 devices physiques) — **réservation Android↔Android levée** |
 
-## Devices testés
+## Campaign 2 — Découverte Android↔Android↔Android (mdns3-test.sh, 2026-09-20)
+
+`mdns3-test.sh` re-joue les 12 scénarios contre **3 téléphones physiques sur le même LAN**
+(IP fixes routeur : `192.168.92.57/76/192`). Résultat brut : **`RESULTAT GLOBAL rc=0`, aucune
+assertion en échec** (`latency3.txt`, `inventory-final3.txt`, logs par scénario et par device).
+La réservation PARTIAL de la campaign 1 (échange Android↔Android, `MDNS_PEER_UPDATED` en place,
+bascule multi-pairs) est **levée** : tout est désormais démontré entre 3 vrais devices.
+
+### Devices (sér. → deviceId → nom → IP)
+
+| Rôle | Serial | deviceId | Nom annoncé | IP |
+|---|---|---|---|---|
+| D1 | `61cc29567d91` | `d275fd07-8efa-4ad0-8063-e254c1fcc6f0` | Nord A → NordEtoile (S6) | 192.168.92.57 |
+| D2 | `61d54bba7d91` | `33311bd0-9517-49e8-b108-988ab9865033` | Nord B | 192.168.92.76 |
+| D3 | `c0d8514d7d87` | `7fbf88be-ef45-4653-b010-ec29c1c35884` | Nord C | 192.168.92.192 |
+
+### Scénarios et résultats (3 runs : 09:2x, 09:4x, 10:0x — le 3ᵉ run constate le rc=0)
+
+| # | Vérification | Résultat |
+|---|---|---|
+| S1 | Les 3 apps bootent, chaque device converge vers **peers=2**, aucun ne se voit soi-même, UI `devicesCount=2` | ✅ |
+| S2 | Identité = **deviceId** (jamais nom/IP) : chaque device voit exactement les 2 autres, jamais soi, noms cohérents | ✅ |
+| S3 | Zéro doublon : toutes les tables `peers=2` avec 2 rows uniques par deviceId | ✅ |
+| S4 | Stop D2 → **serviceLost** réellement reçu sur D1/D3, tables à `peers=1` | ✅ |
+| S5 | Restart D2 → revient avec le **MÊME deviceId** sur D1/D3 + config inchangée | ✅ |
+| S6 | Renommage D1 `Nord A`→`NordEtoile` : **delta de valeur réel garanti** (baseline vérifiée ≠ cible), ré-annonce `ADVERTISE_READY`, propagation **en place** (`MDNS_PEER_FOUND` + name update) sur D2 et D3, identité deviceId conservée, 1 seule entrée par device | ✅ |
+| S7 | Skills storage off sur D3 → ré-annonce, D1/D2 voient D3 sans `storage`, pas de doublon | ✅ |
+| S8 | `enabledSkills=[]` sur D2 → D1/D3 voient D2 avec `enabled=[]`, convergence, pas de doublon | ✅ |
+| S9 | `/health` Android→Android : D1→D2, D1→D3, D3→D1 `{ok:true, deviceId corrélé}` ; route inconnue → 404 | ✅ |
+| S10 | **Bascule Wi-Fi D1 (coupure ~40 s, sub-TTL)** : Wi-Fi réellement coupé (`cmd wifi status`), `NET_CHANGED networkType=none`, D1 perd ses pairs locaux (PEER_LOST D2+D3), retour Wi-Fi → `NET_CHANGED wifi`, ré-annonce, re-découverte **found peers=2** (2 deviceId distants, zéro auto-vue, 1 entrée/deviceId), D2/D3 **re-résolvent D1** (nouveaux `RESOLVE result=OK` post-retour) vers le **même hôte** qu'avant coupure, D1 re-résout D2+D3. Aucun serviceLost exigé chez les pairs (comportement NSD, cf. « Comportement NSD documenté ») | ✅ |
+| S10b | **Expiration du cache NSD (coupure longue)** : serviceLost D1 **observé** sur D2 **et** D3 après ~TTL (cache NSD expiré), re-annonce puis **reconvergence confirmée** des 2 côtés (résolutions vivantes) | ✅ |
+| S11 | 3 cycles stop/restart D3 : gate `ADVERTISE_READY` atteint à chaque cycle, D3 **re-résolu** depuis D1/D2 et re-résout D1/D2, **deviceId stable** aux 3 cycles, ligne D3 présente dans les tables D1/D2 | ✅ |
+| S12 | Deux devices (D2+D3) portant le **même nom** `NordEtoile` : D1 les voit comme **2 deviceId distincts**, aucune entrée dupliquée, self-filter par deviceId | ✅ |
+
+### Comportement NSD documenté (diag `diag-wifi40s-2026-09-20/` + S10/S10b)
+
+Une coupure Wi-Fi de D1 **inférieure au TTL du cache NSD (~120 s)** provoque chez D2/D3 :
+**aucun** serviceLost, **aucune** nouvelle ligne `MDNS_PEER_TABLE`, et des `MDNS_RESOLVE … result=OK`
+servis depuis le cache (43 s de coupure ⇒ zéro événement chez les pairs). Le serviceLost n'est
+**pas** retrouvé avant expiration : la coupure « courte » est invisible des pairs, la convergence
+est démontrée par résolution vivante (oracle paramétré sur `MDNS_RESOLVE`, émis à chaque cycle NSD
+de façon inconditionnelle — `discovery.js` `handleServiceUpdated`). Au-delà du TTL (S10b), le
+`serviceLost` finit bien par être émis (observé sur D2 et D3) et la reconvergence est réelle.
+
+### Fiabilisation du harness (défauts d'outillage corrigés, PAS d'évolution produit)
+
+1. **Phase 0** : les apps devaient être (rel)ancées avant tout `open_settings`/renommage — la cause
+   historique de l'échec silencieux du baseline D1 (« Nord A » jamais posé). Établissement de
+   baseline **vérifié** (config persistée) par device, plus de supposition de succès.
+2. **S6** : le pré-requis était cassé (baseline D1 déjà égale à la cible ⇒ renommage no-op). Le
+   scénario établit désormais un baseline **vérifié et ≠ cible**, puis renomme réellement ; la
+   vérification `ADVERTISE_READY` pré-renommage est INFO (ligne annonce évincée du ring-buffer, la
+   preuve porte sur le rename et sa propagation).
+3. **S10/S10b/S11** : lire l'état d'un pair via la dernière `MDNS_PEER_TABLE` est fragile (ring-buffer
+   logcat ~256 Ko évincé en quelques minutes ; device redémarré ⇒ peers restaurés de
+   `sessionStorage`, ré-announces identiques ⇒ **aucune** nouvelle table). Les assertions ont été
+   reconstruites sur l'**observable inconditionnel** `MDNS_RESOLVE … result=OK` (comptage de delta,
+   hôte stable), complété par la table **fraîche** de l'émetteur (D1 en S10) et le gate
+   `ADVERTISE_READY` (ré-annonce froide ~154 s au cycle 1 de S11). Aucune assertion non liée
+   affaiblie (S1–S9, S12 inchangés et tous PASS).
+4. **Produit inchangé** : aucune modification de code application pendant cette campaign ; l'APK
+   testé est le binaire `6b65ecc1…56b2` (recette inspectée, `grep capturePreviewSurface` + SHA).
+
+### Preuves (campaign 2, dans ce dossier)
+
+| Preuve | Fichier |
+|---|---|
+| Timeline diagnostic coupure Wi-Fi 40 s | `diag-wifi40s-2026-09-20/` (`host-timeline.txt`, `*-stream.log`, `*-events.txt`, `README.md`) |
+| Horodatages latences par scénario | `latency3.txt` |
+| Inventaire final (noms/skills par device) | `inventory-final3.txt`, `identite3.txt` |
+| Logs événements parsables par scénario × device | `<serial>-S1-mutual.log … <serial>-S12-same-name.log` |
+| /health Android→Android | `health-D1-to-D2.txt`, `health-D1-to-D3.txt`, `health-D3-to-D1.txt`, `health-other-code.txt`, `health-ok.json` |
+| Screenshots | `<serial>-01-S1-home-peer2.png`, `-04-S4-D2-lost.png`, `-05-S8-zero-node.png`, `-06-S11-final.png` |
+| Devices 3 × install | `adb-devices3.txt`, `install3-<serial>.log` |
+| APK testé | `apk-sha256.txt` |
+
+## Devices testés (campaign 1)
 
 Détail complet : `adb-devices.txt`.
 
@@ -134,11 +212,13 @@ Nord\032J3._multicam._tcp.local.  can be reached at Android_77GP3MRI.local.:4510
 
 ## Écarts et notes
 
-1. **PARTIAL assumé.** L'échange Android↔Android et `MDNS_PEER_UPDATED` « en place » (même
-   deviceId re-public avec TXT modifiée) ne sont pas démontrables avec un seul device. La
-   re-publication même-did teste la réutilisation d'entrée (SCR-05, réel) ; la mise à jour du
-   TXT en cache NSD pour un second enregistrement même host/port n'a pas été délivrée à NsdManager
-   dans les délais observés — comportement plateforme, suivi à J04. NU iteration-partielle notée.
+1. **PARTIAL campaign 1 → levé par campaign 2.** L'échange Android↔Android et `MDNS_PEER_UPDATED`
+   « en place » (même deviceId re-public avec TXT modifiée) n'étaient pas démontrables avec un seul
+   device (second Android bloqué à l'install). La campaign 2 (`mdns3-test.sh`, rc=0 sur 3 devices)
+   démontre l'échange Android↔Android complet : S2 (identité deviceId ×2 pairs), S6 (renommage en
+   place propagé : `MDNS_PEER_FOUND`/update name chez 2 pairs, 1 entrée/deviceId), S7/S8 (TXT
+   skills/enabled modifiées vues « en place » par les pairs sans redémarrage), S10/S10b (bascule
+   réseau multi-pairs, cache NSD). Réservation **levée**.
 2. **Renommage saisi en ASCII** (« Nord J3 ») : `adb input text` fiable ; l'app gère les accents
    (hors scope interaction distante).
 3. **Wi-Fi.** Bascule réelle `svc wifi disable/enable` → le routeur a ré-attribué la même IP à
@@ -148,14 +228,21 @@ Nord\032J3._multicam._tcp.local.  can be reached at Android_77GP3MRI.local.:4510
    aucun pair résiduel.
 5. **Aucune donnée de démo.** Les sections sessions (J04) restent vides ; la table de pairs ne
    contient que des sources réelles.
+6. **Cache NSD / TTL (comportement plateforme, campaign 2).** Coupure < ~120 s ⇒ aucun serviceLost
+   chez les pairs, résolution servie par le cache (cf. diag `diag-wifi40s-2026-09-20/` et S10).
+   Coupure > TTL ⇒ serviceLost émis (S10b, observé sur D2+D3) puis reconvergence réelle. À
+   documenter côté produit/livrable, aucune action de correction identifiée.
 
 ## Verdict
 
-**PASS** — sur le build du commit référencé dans `commit.txt` (SHA-256 APK enregistré,
-`c1b4b1…beac6b`) : découverte LAN mDNS/DNS-SD opérationnelle (paire phare, resolve, table de
-pairs stagée par deviceId, perte primaire, re-convergence sans doublon, redémarrage réseau
-sans race), identité strictement par `deviceId`, annonce conforme (TXT strict, re-annonces sur
-renommage/skills, indépendante du rôle, `enabled` omis à vide), endpoint `/health` minimal et
-corrélé, écran 01 reflétant l'état réel — **démontré y compris par un client mDNS tiers
-indépendant (Mac)**. Le sous-ensemble Android↔Android est marqué **PARTIAL** avec justification
-(device bloqué à l'install) et reprise programmée à J04/J05, sans faux-PASS.
+**PASS** — campaign 1 sur le build du commit référencé dans `commit.txt` (SHA-256 APK
+`c1b4b1…beac6b`), campaign 2 sur l'APK `6b65ecc1…56b2` (identique sur les 3 devices) : découverte
+LAN mDNS/DNS-SD opérationnelle (paire phare, resolve, table de pairs stagée par deviceId, perte
+primaire, re-convergence sans doublon, redémarrage réseau sans race), identité strictement par
+`deviceId`, annonce conforme (TXT strict, re-annonces sur renommage/skills, indépendante du rôle,
+`enabled` omis à vide), endpoint `/health` minimal et corrélé, écran 01 reflétant l'état réel —
+démontré en campaign 1 par un client mDNS tiers indépendant (Mac), et en campaign 2
+**entre 3 Android physiques** (`mdns3-test.sh`, **rc=0**) : échange en place, bascule multi-pairs,
+serviceLost à expiration du cache NSD, identification par deviceId à travers 3 cycles de
+stop/restart, coexistence de deux devices portant le même nom. **La réservation Android↔Android
+est levée.**

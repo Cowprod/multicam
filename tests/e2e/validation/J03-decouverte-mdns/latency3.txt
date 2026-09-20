@@ -1,0 +1,133 @@
+[LAT] S5 restart-D2 revu (vue  did ) : 5 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 311 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 311 s
+[LAT] S7 storage-off propagé (vue  did ) [TIMEOUT] : 313 s
+[LAT] S7 storage-off propagé (vue  did ) [TIMEOUT] : 322 s
+[LAT] S8 zero-skill propagé (vue  did ) [TIMEOUT] : 312 s
+[LAT] S8 zero-skill propagé (vue  did ) [TIMEOUT] : 313 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 0 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 0 s
+[LAT] S5 restart-D2 revu (vue  did ) [TIMEOUT] : 205 s
+[LAT] S5 restart-D2 revu (vue  did ) [TIMEOUT] : 207 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 312 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 311 s
+[LAT] S7 storage-off propagé (vue  did ) [TIMEOUT] : 315 s
+[LAT] S7 storage-off propagé (vue  did ) [TIMEOUT] : 326 s
+[LAT] S8 zero-skill propagé (vue  did ) [TIMEOUT] : 314 s
+[LAT] S5 restart-D2 revu (vue  did ) : 5 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 1 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) [TIMEOUT] : 315 s
+[LAT] S7 storage-off propagé (vue  did ) [TIMEOUT] : 326 s
+[LAT] S8 zero-skill propagé (vue  did ) [TIMEOUT] : 314 s
+[LAT] S8 zero-skill propagé (vue  did ) [TIMEOUT] : 314 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 0 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 0 s
+[LAT] S10 wifi-on D1 revu (vue  did ) [TIMEOUT] : 315 s
+[LAT] S5 restart-D2 revu (vue  did ) : 5 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 233 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 233 s
+[LAT] S7 storage-off propagé (vue  did ) : 1 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 1 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 0 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 0 s
+[LAT] S10 wifi-on D1 revu (vue  did ) [TIMEOUT] : 209 s
+[LAT] S10 wifi-on D1 revu (vue  did ) [TIMEOUT] : 209 s
+[LAT] S11 cycle1 D3 revu (vue  did ) : 5 s
+[LAT] S11 cycle1 D3 revu (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 revu (vue  did ) : 5 s
+[LAT] S11 cycle2 D3 revu (vue  did ) : 1 s
+[LAT] S11 cycle3 D3 revu (vue  did ) : 6 s
+[LAT] S11 cycle3 D3 revu (vue  did ) : 0 s
+[LAT] S12 D2 renommé (vue  did ) : 0 s
+[LAT] S12 D3 renommé (vue  did ) : 10 s
+[LAT] S12 D3 voit D2 (même nom) (vue  did ) : 0 s
+[LAT] S5 restart-D2 revu (vue  did ) : 5 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 124 s
+[LAT] S6 rename-D1 propagé (vue  did ) [TIMEOUT] : 123 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 1 s
+[LAT] S10 wifi-off D1 perdu (vue  did ) : 0 s
+[LAT] S10 wifi-on D1 revu (vue  did ) [TIMEOUT] : 210 s
+[LAT] S10 wifi-on D1 revu (vue  did ) [TIMEOUT] : 209 s
+[LAT] S11 cycle1 D3 revu (vue  did ) [TIMEOUT] : 154 s
+[LAT] S11 cycle1 D3 revu (vue  did ) : 1 s
+[LAT] S11 cycle2 D3 revu (vue  did ) : 5 s
+[LAT] S11 cycle2 D3 revu (vue  did ) : 0 s
+[LAT] S11 cycle3 D3 revu (vue  did ) : 5 s
+[LAT] S11 cycle3 D3 revu (vue  did ) : 0 s
+[LAT] S12 D2 renommé (vue  did ) : 0 s
+[LAT] S12 D3 renommé (vue  did ) : 11 s
+[LAT] S12 D3 voit D2 (même nom) (vue  did ) : 0 s
+[LAT] S5 restart-D2 revu (vue  did ) : 5 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) : 0 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) : 1 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 5 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 0 s
+[LAT] S11 cycle1 D3 revu (vue  did ) [TIMEOUT] : 154 s
+[LAT] S11 cycle1 D3 revu (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 revu (vue  did ) : 5 s
+[LAT] S11 cycle2 D3 revu (vue  did ) : 0 s
+[LAT] S11 cycle3 D3 revu (vue  did ) : 5 s
+[LAT] S11 cycle3 D3 revu (vue  did ) : 0 s
+[LAT] S12 D2 renommé (vue  did ) : 0 s
+[LAT] S12 D3 renommé (vue  did ) : 11 s
+[LAT] S12 D3 voit D2 (même nom) (vue  did ) : 0 s
+[LAT] S5 restart-D2 revu (vue  did ) : 5 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) [TIMEOUT] : 155 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) [TIMEOUT] : 154 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 1 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) : 1 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 5 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 0 s
+[LAT] S11 cycle1 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle1 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle3 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle3 D3 (table) (vue  did ) : 1 s
+[LAT] S12 D2 renommé (vue  did ) : 0 s
+[LAT] S12 D3 renommé (vue  did ) : 11 s
+[LAT] S12 D3 voit D2 (même nom) (vue  did ) : 0 s
+[LAT] S5 restart-D2 revu (vue  did ) : 6 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) [TIMEOUT] : 155 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) [TIMEOUT] : 155 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 5 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 0 s
+[LAT] S11 cycle1 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle1 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 (table) (vue  did ) : 1 s
+[LAT] S11 cycle3 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle3 D3 (table) (vue  did ) : 0 s
+[LAT] S12 D2 renommé (vue  did ) : 0 s
+[LAT] S12 D3 renommé (vue  did ) : 10 s
+[LAT] S12 D3 voit D2 (même nom) (vue  did ) : 1 s

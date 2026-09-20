@@ -1,0 +1,7 @@
+datetime host: 2026-09-20 00:57:55  epoch: 1789858675
+device time check: 
+host 00:57:56 deviceD1 Sun Sep 20 00:57:56 CEST 2026 deviceD2 Sun Sep 20 00:57:56 CEST 2026 deviceD3 Sun Sep 20 00:57:56 CEST 2026 2>/dev/null
+T1 wifi-disable host=00:57:59
+T2 wifi-off-state-check host=00:58:42 wifi_status=Wifi is disabled
+T3 wifi-enable host=00:58:42
+T4 capture-end host=00:59:22

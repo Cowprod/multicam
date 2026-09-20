@@ -1,0 +1,60 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 102
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord J3","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","deviceName":"Nord C","version":"0.1.0"}

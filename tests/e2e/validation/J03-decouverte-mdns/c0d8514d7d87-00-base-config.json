@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "deviceId": "7fbf88be-ef45-4653-b010-ec29c1c35884",
+  "deviceName": "Nord C",
+  "supportedSkills": [
+    "capture",
+    "storage",
+    "controller"
+  ],
+  "enabledSkills": [
+    "capture",
+    "controller",
+    "storage"
+  ],
+  "storage": {
+    "mode": "internal",
+    "treeUri": null,
+    "displayName": null
+  }
+}

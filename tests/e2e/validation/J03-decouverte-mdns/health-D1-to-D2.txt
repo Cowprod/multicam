@@ -1,0 +1,60 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Cam 07","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"NordEtoile","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 101
+Connection: close
+
+{"ok":true,"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","deviceName":"Nord B","version":"0.1.0"}

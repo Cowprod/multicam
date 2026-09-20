@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "deviceId": "33311bd0-9517-49e8-b108-988ab9865033",
+  "deviceName": "Nord B",
+  "supportedSkills": [
+    "capture",
+    "storage",
+    "controller"
+  ],
+  "enabledSkills": [
+    "capture",
+    "storage",
+    "controller"
+  ],
+  "storage": {
+    "mode": "internal",
+    "treeUri": null,
+    "displayName": null
+  }
+}
