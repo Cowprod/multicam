@@ -1,0 +1,90 @@
+[J03-3] devices: 61cc29567d91 / 61d54bba7d91 / c0d8514d7d87
+[J03-3:SCR]  OK   3 deviceId distincts
+[J03-3] Phase 0 — baseline (noms 'Nord A/B/C', skills pleines)
+[J03-3:SCR]  OK   Phase 0 : D1 baseline 'Nord A' vérifié
+[J03-3:SCR]  OK   Phase 0 : D2 baseline 'Nord B' vérifié
+[J03-3:SCR]  OK   Phase 0 : D3 baseline 'Nord C' vérifié
+[J03-3:SCR] S1 OK   les 3 apps démarrées (relance complète)
+[J03-3:SCR] S1 OK   chaque appareil converge vers peers=2
+[J03-3:SCR] S1 OK   aucun appareil ne se voit lui-même en peer
+[J03-3:SCR] S1 OK   UI compteur 2 périphériques (D1)
+[J03-3:SCR] S2 OK   identité peers = deviceId (2 autres, jamais soi, noms cohérents)
+[J03-3:SCR] S3 OK   aucune table ne contient de doublon (toutes peers=2, 2 rows uniques)
+[J03-3:SCR] S4 OK   perte D2 vue (serviceLost) et tables D1/D3 à peers=1
+[J03-3:SCR] S5 OK   D2 revient avec le MÊME deviceId (33311bd0-9517-49e8-b108-988ab9865033) sur D1/D3
+[J03-3:SCR] S5 OK   deviceId D2 inchangé côté config
+[J03-3:SCR] S6 INFO  S6 baseline courant D1 = 'Nord A' (cible rename = 'NordEtoile')
+[J03-3:SCR] S6 OK   S6 pré : baseline D1 persisté = 'Nord A'
+[J03-3:SCR] S6 INFO  S6 pré : baseline annoncé non revisitable (éviction buffer, vérifié au rename)
+[J03-3:SCR] S6 INFO  61d54bba7d91 : baseline 'Nord A' pas encore vu (fenêtre NSD)
+[J03-3:SCR] S6 INFO  c0d8514d7d87 : baseline 'Nord A' pas encore vu (fenêtre NSD)
+[J03-3:SCR] S6 INFO  S6 renommage réel : 'Nord A' → 'NordEtoile' (delta de valeur garanti)
+[J03-3:SCR] S6 OK   D1 renommé 'NordEtoile'
+[J03-3:SCR] S6 OK   config D1 = NordEtoile persistée
+[J03-3:SCR] S6 OK   D1 a ré-annoncé 'NordEtoile' (ADVERTISE_READY)
+[J03-3:SCR] S6 OK   61d54bba7d91 a découvert l'instance 'NordEtoile'
+[J03-3:SCR] S6 OK   61d54bba7d91 voit D1 sous 'NordEtoile' (même deviceId)
+[J03-3:SCR] S6 OK   61d54bba7d91 : une seule entrée pour D1 (pas de doublon)
+[J03-3:SCR] S6 OK   c0d8514d7d87 a découvert l'instance 'NordEtoile'
+[J03-3:SCR] S6 OK   c0d8514d7d87 voit D1 sous 'NordEtoile' (même deviceId)
+[J03-3:SCR] S6 OK   c0d8514d7d87 : une seule entrée pour D1 (pas de doublon)
+[J03-3:SCR] S6 OK   renommage propagé aux 2 pairs, identité deviceId conservée
+[J03-3:SCR] S7 OK   D3 a ré-annoncé le changement de skills (ADVERTISE_READY)
+[J03-3:SCR] S7 OK   D3 config storage=off persisté
+[J03-3:SCR] S7 OK   61cc29567d91 voit D3 sans storage
+[J03-3:SCR] S7 OK   61d54bba7d91 voit D3 sans storage
+[J03-3:SCR] S7 OK   changement de skills propagé à D1/D2 sans doublon
+[J03-3:SCR] S8 OK   D2 config enabledSkills=[] persisté
+[J03-3:SCR] S8 OK   61cc29567d91 voit D2 avec enabled=[]
+[J03-3:SCR] S8 OK   c0d8514d7d87 voit D2 avec enabled=[]
+[J03-3:SCR] S8 OK   enabledSkills=[] propagé (2 pairs convergent, pas de doublon)
+[J03-3:SCR] S9 OK   D1→D2 /health ok:true + deviceId corrélé
+[J03-3:SCR] S9 OK   D1→D3 /health ok:true + deviceId corrélé
+[J03-3:SCR] S9 OK   D3→D1 /health ok:true + deviceId corrélé
+[J03-3:SCR] S9 OK   D1→D2 /other → 404
+[J03-3:SCR] S10 OK   S10 état de référence : 2 pairs résolus par device (résolution vivante)
+[J03-3:SCR] S10 OK   D1 : Wi-Fi réellement désactivé (cmd wifi status)
+[J03-3:SCR] S10 OK   D1 : NET_CHANGED none (interface coupée)
+[J03-3:SCR] S10 OK   D1 a perdu ses pairs locaux (PEER_LOST D2+D3 côté D1)
+[J03-3:SCR] S10 OK   D1 : Wi-Fi revenu (NET_CHANGED wifi)
+[J03-3:SCR] S10 OK   D1 : ré-annonce ADVERTISE_READY (NordEtoile)
+[J03-3:SCR] S10 OK   D1 : re-découverte complète (table found peers=2)
+[J03-3:SCR] S10 OK   D1 : aucune auto-vue (self-filter)
+[J03-3:SCR] S10 OK   D1 : une seule entrée par deviceId distant (D2=1, D3=1)
+[J03-3:SCR] S10 OK   61d54bba7d91 : re-résolution D1 après retour Wi-Fi (RESOLVE deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0)
+[J03-3:SCR] S10 OK   c0d8514d7d87 : re-résolution D1 après retour Wi-Fi (RESOLVE deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0)
+[J03-3:SCR] S10 OK   D1 résolu vers le même hôte qu'avant coupure (pas de doublon d'hôte/deviceId)
+[J03-3:SCR] S10 OK   D1 : re-résolution de D2 et D3 après retour Wi-Fi
+[J03-3:SCR] S10 OK   reconvergence Wi-Fi (sub-TTL) : résolutions vivantes + table D1 fraîche + hôtes stables
+[J03-3:SCR] S10b OK   S10b état de référence : résolutions vivantes
+[J03-3:SCR] S10b OK   expiration NSD observée : serviceLost D1 reçu sur D2 et D3 (cache NSD expiré)
+[J03-3:SCR] S10b OK   61d54bba7d91 a re-vu D1 après expiration (reconvergence)
+[J03-3:SCR] S10b OK   c0d8514d7d87 a re-vu D1 après expiration (reconvergence)
+[J03-3:SCR] S10b OK   S10b : convergence finale après coupure longue (résolutions vivantes des 2 côtés)
+[J03-3:SCR] S11 OK   cycle 1 : D3 ré-annoncé (ADVERTISE_READY Nord C)
+[J03-3:SCR] S11 OK   cycle 1 : D3 re-résolu depuis D1/D2 et re-résout D1/D2 (deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884)
+[J03-3:SCR] S11 INFO  61cc29567d91 : ligne D3 présente dans la table (cycle1)
+[J03-3:SCR] S11 INFO  61d54bba7d91 : ligne D3 présente dans la table (cycle1)
+[J03-3:SCR] S11 OK   cycle 1 : convergence (deviceId D3 ré-identifié par résolution)
+[J03-3:SCR] S11 OK   cycle 1 : deviceId D3 stable
+[J03-3:SCR] S11 OK   cycle 2 : D3 ré-annoncé (ADVERTISE_READY Nord C)
+[J03-3:SCR] S11 OK   cycle 2 : D3 re-résolu depuis D1/D2 et re-résout D1/D2 (deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884)
+[J03-3:SCR] S11 INFO  61cc29567d91 : ligne D3 présente dans la table (cycle2)
+[J03-3:SCR] S11 INFO  61d54bba7d91 : ligne D3 présente dans la table (cycle2)
+[J03-3:SCR] S11 OK   cycle 2 : convergence (deviceId D3 ré-identifié par résolution)
+[J03-3:SCR] S11 OK   cycle 2 : deviceId D3 stable
+[J03-3:SCR] S11 OK   cycle 3 : D3 ré-annoncé (ADVERTISE_READY Nord C)
+[J03-3:SCR] S11 OK   cycle 3 : D3 re-résolu depuis D1/D2 et re-résout D1/D2 (deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884)
+[J03-3:SCR] S11 INFO  61cc29567d91 : ligne D3 présente dans la table (cycle3)
+[J03-3:SCR] S11 INFO  61d54bba7d91 : ligne D3 présente dans la table (cycle3)
+[J03-3:SCR] S11 OK   cycle 3 : convergence (deviceId D3 ré-identifié par résolution)
+[J03-3:SCR] S11 OK   cycle 3 : deviceId D3 stable
+[J03-3:SCR] S12 OK   D1 voit D2 et D3 (2 deviceId distincts) alors qu'ils partagent le nom 'NordEtoile'
+[J03-3:SCR] S12 OK   pas de doublon malgré noms identiques
+[J03-3:SCR] S12 OK   1 seule entrée par deviceId (mêmes noms)
+[J03-3:SCR] S12 OK   D3 voit D2 (même nom, self-filter par deviceId)
+[J03-3:SCR] S12 OK   coexistence de deux devices portant le même NOM (identité = deviceId)
+61cc29567d91 deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 name=Nord A enabled=[capture,storage,controller,]
+61d54bba7d91 deviceId=33311bd0-9517-49e8-b108-988ab9865033 name=Nord B enabled=[capture,storage,controller,]
+c0d8514d7d87 deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 name=Nord C enabled=[capture,controller,storage,]
+[J03-3] RESULTAT GLOBAL rc=0 (3 devices: 61cc29567d91 61d54bba7d91 c0d8514d7d87)

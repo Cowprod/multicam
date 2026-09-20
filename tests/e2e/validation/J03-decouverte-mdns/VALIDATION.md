@@ -70,7 +70,9 @@ de clore J03. Même APK testé (SHA-256 `6b65ecc1…56b2`, implementation `5df83
 Résultat brut : **`RESULTAT GLOBAL rc=0`** sur les 3 mêmes devices (D1 `61cc29567d91`,
 D2 `61d54bba7d91`, D3 `c0d8514d7d87` ; logs frais `*-S1-*.log … *-S12-same-name.log`,
 `latency3.txt`, `inventory-final3.txt`, screenshots `61cc29567d91-01/04/05/06`, `61d54bba7d91-02`,
-`c0d8514d7d87-03`). Aucun `ECHEC`, aucun `PARTIAL`.
+`c0d8514d7d87-03`). Aucun `ECHEC`, aucun `PARTIAL`. Sortie brute complète du harness archivée :
+`mdns3-campaign3-run.log` (ligne finale `RESULTAT GLOBAL rc=0 (3 devices: 61cc29567d91
+61d54bba7d91 c0d8514d7d87)`, 90 lignes, toutes `OK`/`INFO`, aucune ligne `[ECHEC]` ni `PARTIAL`).
 
 **Prérequis infra levé (hors produit)** : le `adb install -r` de campagne 3 était bloqué sur D1 par
 la boîte de dialogue Play Protect « Envoyer les applis inconnues » (`PlayProtectDialogsActivity`).
@@ -147,6 +149,7 @@ de façon inconditionnelle — `discovery.js` `handleServiceUpdated`). Au-delà 
 |---|---|
 | Timeline diagnostic coupure Wi-Fi 40 s | `diag-wifi40s-2026-09-20/` + `diag-targeted40s-2026-09-20/` (`host-timeline.txt`, `*-stream.log`, `*-events.txt`, `README.md`) |
 | Horodatages latences par scénario | `latency3.txt` (régénéré campaigns 2 & 3) |
+| Résultat brut harness (campaign 3) | `mdns3-campaign3-run.log` (`RESULTAT GLOBAL rc=0`, 0 `ECHEC`, 0 `PARTIAL`, 90 lignes OK/INFO, 3 devices) |
 | Inventaire final (noms/skills par device) | `inventory-final3.txt`, `identite3.txt` |
 | Logs événements parsables par scénario × device | `<serial>-S1-mutual.log … <serial>-S12-same-name.log` (régénérés campaign 3) |
 | /health Android→Android | `health-D1-to-D2.txt`, `health-D1-to-D3.txt`, `health-D3-to-D1.txt`, `health-other-code.txt`, `health-ok.json` |
