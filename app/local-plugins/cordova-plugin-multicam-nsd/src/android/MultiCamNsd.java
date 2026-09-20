@@ -75,6 +75,12 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
     private NsdServiceInfo regInfo;
     private NsdManager.RegistrationListener regListener;
     private String registeredName = "";
+    /* unregisterService() est asynchrone : une re-registration immédiate lèverait
+     * "listener already in use" (race avérée sur MIUI). La ré-annonce se fait donc en
+     * deux temps : on demande l'unregistration, puis registerService dans
+     * onServiceUnregistered. */
+    private boolean reannouncePending = false;
+    private CallbackContext pendingReannounceCb;
 
     /* Discovery. */
     private NsdManager.DiscoveryListener discoveryListener;
@@ -170,6 +176,16 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
         /* Start discovery. */
         buildDiscoveryListener();
         startDiscovery();
+        if (!discoveryRunning) {
+            /* Conflit "listener already in use" (daemon encore marqué après un
+             * arrêt brutal) : nouvelle tentative peu après. */
+            mainHandler.postDelayed(new Runnable() {
+                @Override public void run() {
+                    if (running) startDiscovery();
+                }
+            }, 1500);
+        }
+        scheduleDiscoveryRefresh();
 
         /* Network receiver. */
         startNetReceiver();
@@ -188,18 +204,29 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
         buildIdentity(cfg);
         lastCfg = cfg;
         healthServer.updateIdentity(buildHealthIdentity());
-        try { nsdManager.unregisterService(regListener); } catch (Exception ignored) {}
-        registerService(buildServiceInfo(deviceName, healthPort, cfg));
-        JSONObject data = new JSONObject();
-        data.put("deviceId", localDid).put("deviceName", deviceName);
-        sendEvent("reannounced", data);
-        cb.success();
+        reannouncePending = true;
+        pendingReannounceCb = cb;
+        try {
+            nsdManager.unregisterService(regListener);
+        } catch (Exception e) {
+            /* Pas de service enregistré : la (re-)registration peut se faire immédiatement. */
+            reannouncePending = false;
+            pendingReannounceCb = null;
+            registerService(buildServiceInfo(deviceName, healthPort, cfg));
+            JSONObject data = new JSONObject();
+            data.put("deviceId", localDid).put("deviceName", deviceName);
+            sendEvent("reannounced", data);
+            cb.success();
+        }
+        /* Sinon : la (re-)registration est déclenchée dans onServiceUnregistered,
+         * une fois l'unregistration asynchrone réellement terminée (pas de race). */
     }
 
     private void doStop() {
         if (!running) return;
         running = false;
         stopNetReceiver();
+        cancelDiscoveryRefresh();
         stopDiscovery();
         try { nsdManager.unregisterService(regListener); } catch (Exception ignored) {}
         if (healthServer != null) healthServer.stop();
@@ -222,7 +249,21 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
             @Override public void onRegistrationFailed(NsdServiceInfo s, int code) {
                 sendError("registerFailed", code, s != null ? s.getServiceName() : null);
             }
-            @Override public void onServiceUnregistered(NsdServiceInfo s) {}
+            @Override public void onServiceUnregistered(NsdServiceInfo s) {
+                registeredName = "";
+                if (reannouncePending) {
+                    reannouncePending = false;
+                    try {
+                        registerService(buildServiceInfo(deviceName, healthPort, lastCfg));
+                    } catch (Exception e) {
+                        sendError("registerException", -1, e.getMessage());
+                    }
+                    JSONObject d = new JSONObject();
+                    try { d.put("deviceId", localDid).put("deviceName", deviceName); } catch (Exception ignored) {}
+                    sendEvent("reannounced", d);
+                    if (pendingReannounceCb != null) { pendingReannounceCb.success(); pendingReannounceCb = null; }
+                }
+            }
             @Override public void onUnregistrationFailed(NsdServiceInfo s, int code) {
                 sendError("unregisterFailed", code, null);
             }
@@ -316,11 +357,52 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
     }
 
     private void startDiscovery() {
+        if (discoveryRunning) return;
+        discoveryRunning = true;
         try {
             nsdManager.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
         } catch (Exception e) {
+            discoveryRunning = false;
             sendError("discoverException", -1, e.getMessage());
         }
+    }
+
+    /* Refresh périodique de la découverte : oblige le NsdManager local à re-énumérer
+     * les instances (renommage/méta données) sans dépendre des caches des autres.
+     * Ne repose PAS sur stop+start synchrones (conflit "listener already in use") :
+     * re-tente l'arrêt puis des relances espacées jusqu'à succès. */
+    private static final long DISCOVERY_REFRESH_MS = 25000;
+    private final Runnable discoveryRefreshScheduler = new Runnable() {
+        private int attempt = 0;
+        @Override public void run() {
+            if (!running) return;
+            stopDiscovery();
+            attempt = 0;
+            mainHandler.postDelayed(new Runnable() {
+                @Override public void run() {
+                    if (!running) return;
+                    startDiscovery();
+                    if (discoveryRunning) {
+                        attempt = 0;
+                        try { sendEvent("discoveryRefresh", new JSONObject()); } catch (Exception ignored) {}
+                        mainHandler.postDelayed(discoveryRefreshScheduler, DISCOVERY_REFRESH_MS);
+                    } else if (attempt < 5) {
+                        attempt++;
+                        mainHandler.postDelayed(this, 1000);
+                    } else {
+                        attempt = 0;
+                        mainHandler.postDelayed(discoveryRefreshScheduler, DISCOVERY_REFRESH_MS);
+                    }
+                }
+            }, 400);
+        }
+    };
+    private void scheduleDiscoveryRefresh() {
+        mainHandler.removeCallbacks(discoveryRefreshScheduler);
+        mainHandler.postDelayed(discoveryRefreshScheduler, DISCOVERY_REFRESH_MS);
+    }
+    private void cancelDiscoveryRefresh() {
+        mainHandler.removeCallbacks(discoveryRefreshScheduler);
     }
 
     /* Modern path (API 34+): per-service callback for live updates. */
@@ -482,16 +564,15 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
         long now = System.currentTimeMillis();
         if (now - lastRestartMs < 4500) return;
         lastRestartMs = now;
-        /* Redemarrage de la DECOUVERTE uniquement. On ne de/en-registre PAS le
-         * service : unregisterService est asynchrone et une re-registration
-         * immediate race ("listener already in use"). Apres changement de
-         * reseau, NsdManager re-annonce lui-meme l'adresse mise a jour du
-         * service enregistre ; les pairs la re-resolvent via serviceUpdated. */
+        /* Redemarrage de la DECOUVERTE + RE-ENREGISTREMENT du service : apres
+         * une coupure Wi-Fi l'annonce mDNS peut rester muette pour les pairs
+         * (adresse/resolution perdue). La re-registration est differee via
+         * onServiceUnregistered (race "listener already in use" evitee). */
         stopDiscovery();
         startDiscovery();
-        JSONObject d = new JSONObject();
-        try { d.put("reason", "network_change"); } catch (Exception ignored) {}
-        sendEvent("reannounced", d);
+        try {
+            doReannounce(lastCfg, null);
+        } catch (Exception ignored) {}
     }
 
     private void stopDiscovery() {
@@ -586,10 +667,13 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
         sendEvent("nsdPath", d);
     }
 
-    /* Un service decouvert qui porte notre propre nom = notre propre annonce. */
+    /* Un service découvert qui porte notre propre NOM D'INSTANCE DNS-SD = notre propre annonce.
+     * NB : on compare uniquement registeredName (nom d'instance assigné par NSD), JAMAIS le nom
+     * d'affichage deviceName : deux appareils peuvent légitimement partager un même (d)name — la
+     * suppression d'un peer "identique" se décide exclusivement par deviceId (emitServiceUpdated). */
     private boolean isSelfName(String name) {
         if (name == null) return false;
-        return name.equals(registeredName) || name.equals(deviceName);
+        return name.equals(registeredName);
     }
 
     /* ---------- helpers ---------- */
