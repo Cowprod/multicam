@@ -729,3 +729,162 @@ Il ne prétend pas inventer les réponses historiques qui ne sont plus accessibl
 
 Lorsqu’une ancienne décision n’apparaît pas ici et n’est pas présente dans les fichiers de référence, elle doit être considérée comme **non récupérée**, et non reconstruite par supposition.
 
+
+
+---
+
+## 30. J04 — Sessions + second Master : décisions d’architecture
+
+**Date de consolidation : 20 septembre 2026**
+
+Cette section fige les décisions prises avant l’implémentation du jalon J04.  
+Les points explicitement marqués **À CONFIRMER** ne doivent pas être tranchés implicitement par l’agent.
+
+### 30.1 Périmètre J04
+
+J04 couvre uniquement :
+
+- création d’une session réelle ;
+- `sessionId` persistant ;
+- nom de session ;
+- PIN Master à 4 chiffres ;
+- découverte d’une session sur le LAN ;
+- second Controller/Master rejoignant la session via l’écran 02 ;
+- persistance locale de l’identité de session ;
+- synchronisation minimale entre Masters ;
+- reprise après kill/restart ;
+- écran 03 comme vue réelle de session.
+
+Restent hors J04 :
+
+- membres Capture/Storage et `sessionRoles` : J05 ;
+- Takes : J06 et suivants ;
+- ARM, synchronisation d’horloge, countdown, REC, preview, STOP, transferts : jalons ultérieurs.
+
+### 30.2 Séparation des briques
+
+Décision d’architecture retenue :
+
+- J03 conserve `cordova-plugin-multicam-nsd` pour la découverte device et `/health` ;
+- J04 utilise un plugin Cordova séparé, cible : `cordova-plugin-multicam-session` ;
+- ne pas étendre silencieusement `HealthServer.java` en serveur de session.
+
+### 30.3 Service réseau J04
+
+Cible retenue :
+
+- port de base session : **45102** ;
+- fallback sur les ports suivants en cas d’occupation, selon le même principe que le serveur J03 ;
+- type DNS-SD session distinct : **`_multicam-session._tcp.`** ;
+- le PIN ne doit jamais apparaître dans le TXT DNS-SD.
+
+Le TXT de session reste minimal et peut contenir les métadonnées nécessaires à la découverte, notamment :
+
+- `sessionId` ;
+- nom de session ;
+- `masterDeviceId` / device annonceur ;
+- port effectif ;
+- version de protocole/application.
+
+Ne pas y placer d’état volumineux ni de secret.
+
+### 30.4 Découverte ≠ liveness
+
+Le comportement Android observé et validé en J03 impose la règle suivante :
+
+> Une résolution mDNS/DNS-SD réussie n’est pas une preuve suffisante de joignabilité.
+
+En particulier, le cache NSD Android peut continuer à résoudre un peer pendant une coupure réseau sub-TTL.
+
+Donc :
+
+- mDNS/DNS-SD sert à **découvrir** une session ;
+- la joignabilité réelle d’un Master/session est déterminée par un échange applicatif HTTP ;
+- l’UI ne doit jamais afficher “connecté” sur la seule base d’un resolve NSD ;
+- disparition réseau et appartenance persistante à une session sont deux notions distinctes.
+
+### 30.5 Transport J04
+
+Pour J04 :
+
+- transport applicatif : **HTTP** ;
+- synchronisation par short-poll, cible initiale **~2 s** ;
+- heartbeat / vérification de joignabilité applicative ;
+- WebSocket reporté à J05, où la propagation temps réel des rôles/membres devient réellement nécessaire.
+
+Le code J04 doit éviter de coupler le modèle de session au transport afin de permettre cette évolution.
+
+### 30.6 Identité et modèle minimal de session
+
+Principes retenus :
+
+- `sessionId` persistant ;
+- généré aléatoirement avec une source cryptographique ;
+- jamais dérivé de l’IP, du nom de device ou de l’adresse réseau ;
+- format cible J04 : identifiant alphanumérique court (8 caractères proposé) ;
+- nom de session défini à la création ;
+- pas de renommage de session dans J04 ;
+- PIN Master de 4 chiffres ;
+- PIN utilisable en clair sur le LAN de confiance V1 ;
+- cette absence de protection cryptographique doit être documentée comme limitation ;
+- PIN jamais publié dans DNS-SD.
+
+Le modèle J04 ne doit pas pré-créer de structures fonctionnelles de J05/J06 telles que `members`, `sessionRoles` ou `takes` si elles ne sont pas encore utilisées.
+
+### 30.7 Cycle de vie d’une session
+
+Décision fonctionnelle :
+
+Une session est destinée à contenir plusieurs Takes au cours du temps, mais pour simplifier J04 on introduit un état explicite :
+
+- `open` ;
+- `closed`.
+
+L’écran 03 comporte une action explicite **« Terminer la session »**.
+
+Terminer une session :
+
+- passe la session à `closed` ;
+- arrête son annonce réseau ;
+- refuse les nouveaux joins ;
+- conserve son `sessionId`, son nom, son PIN et ses données persistées ;
+- conserve la session dans les sessions récentes / historique ;
+- ne supprime pas la session.
+
+Important :
+
+- naviguer de l’écran 03 vers l’écran 01 **ne termine pas** la session ;
+- le cycle de vie réseau ne doit pas dépendre de l’écran actuellement affiché ;
+- en J04, une session `closed` n’est pas réouvrable ;
+- la possibilité de réouvrir ultérieurement une ancienne session sera ajoutée dans un jalon ultérieur.
+
+### 30.8 Join et liveness
+
+Le protocole exact sera détaillé pendant l’implémentation, mais J04 doit au minimum disposer d’un échange explicite de join, avec :
+
+- `sessionId` ;
+- PIN ;
+- `deviceId` ;
+- nom du device ;
+- endpoint du Master rejoignant si nécessaire.
+
+Le PIN erroné doit être rejeté sans modifier la session.
+
+La présence d’un Master dans la session est persistante ; son état connecté/déconnecté est dérivé du heartbeat / polling HTTP, pas du seul mDNS.
+
+### 30.9 Points encore À CONFIRMER avant implémentation
+
+Deux décisions structurantes restent volontairement ouvertes :
+
+1. **Comportement après restart**  
+   À confirmer entre :
+   - retour à l’écran 01 avec la session restaurée dans « Sessions récentes » ;
+   - ouverture automatique de l’écran 03 de la session restaurée.
+
+2. **Autorité / second Master en J04**  
+   À confirmer entre :
+   - Master créateur = autorité/host, second Master = copie synchronisée, sans failover automatique en J04 ;
+   - architecture masterless/multi-autorité dès J04.
+
+L’agent ne doit pas commencer l’implémentation tant que ces deux choix ne sont pas explicitement tranchés.
+
