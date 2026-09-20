@@ -823,7 +823,8 @@ Principes retenus :
 - jamais dérivé de l’IP, du nom de device ou de l’adresse réseau ;
 - format cible J04 : identifiant alphanumérique court (8 caractères proposé) ;
 - nom de session défini à la création ;
-- pas de renommage de session dans J04 ;
+- nom de session modifiable ensuite par n’importe quel Master ;
+- en cas de modifications concurrentes, la valeur portant la modification la plus récente gagne à la resynchronisation ;
 - PIN Master de 4 chiffres ;
 - PIN utilisable en clair sur le LAN de confiance V1 ;
 - cette absence de protection cryptographique doit être documentée comme limitation ;
