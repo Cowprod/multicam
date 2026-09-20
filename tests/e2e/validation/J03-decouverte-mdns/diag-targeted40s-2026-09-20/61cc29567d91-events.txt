@@ -1,0 +1,81 @@
+09-20 18:20:13.426  8851  8851 I chromium: [INFO:CONSOLE:128] "CONFIG_INIT source=loaded deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 schema=1 deviceName=Nord A enabledSkills=[capture,storage,controller] storage=internal", source: https://localhost/js/state/config.js (128)
+09-20 18:20:13.427  8851  8851 I chromium: [INFO:CONSOLE:11] "APP_BOOT app=MultiCam version=0.1.0 deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 deviceName=Nord A supportedSkills=[capture,storage,controller] enabledSkills=[capture,storage,controller] storage=internal", source: https://localhost/js/main.js (11)
+09-20 18:20:13.428  8851  8851 I chromium: [INFO:CONSOLE:41] "APP_BOOT platform=Android model=24075RP89G android=16 sdk=36", source: https://localhost/js/main.js (41)
+09-20 18:20:13.443  8851  8851 I chromium: [INFO:CONSOLE:55] "HOME_RENDER deviceName=Nord A controllerEnabled=1 recentSessions=0 lanSessions=0", source: https://localhost/js/main.js (55)
+09-20 18:20:13.907  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_ADVERTISE_START deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 name=Nord A supported=[capture,storage,controller] enabled=[capture,storage,controller] serviceType=_multicam._tcp. port=45101", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.908  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_NSD_PATH path=modern sdk=36", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.914  8851  8851 I chromium: [INFO:CONSOLE:73] "HEALTH_SERVER_START port=45101", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.916  8851  8851 I chromium: [INFO:CONSOLE:73] "NET_CHANGED networkType=wifi ipv4=192.168.92.57", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.921  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_DISCOVERY_START serviceType=_multicam._tcp. nsdPath=modern", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.921  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=Nord C type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.921  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=Nord A type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.922  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=Nord B type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.924  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 result=OK host=192.168.92.192 port=45101 service=Nord C", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.924  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_FOUND deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 name=Nord C supported=[capture,storage,controller] enabled=[capture,controller,storage] version=0.1.0 endpoint=192.168.92.192:45101", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.925  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE found peers=1 rows=[{"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","name":"Nord C","supported":["capture","storage","controller"],"enabled":["capture","controller","storage"],"version":"0.1.0","endpoint":"192.168.92.192:45101","state":"online","firstSeen":1789921213922,"lastSeen":1789921213922}]", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.937  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=33311bd0-9517-49e8-b108-988ab9865033 result=OK host=192.168.92.76 port=45101 service=Nord B", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.938  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_FOUND deviceId=33311bd0-9517-49e8-b108-988ab9865033 name=Nord B supported=[capture,storage,controller] enabled=[capture,storage,controller] version=0.1.0 endpoint=192.168.92.76:45101", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:13.978  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE found peers=2 rows=[{"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","name":"Nord B","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.76:45101","state":"online","firstSeen":1789921213926,"lastSeen":1789921213926},{"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","name":"Nord C","supported":["capture","storage","controller"],"enabled":["capture","controller","storage"],"version":"0.1.0","endpoint":"192.168.92.192:45101","state":"online","firstSeen":1789921213922,"lastSeen":1789921213922}]", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:14.411  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_ADVERTISE_READY deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 registeredName=Nord A port=45101 serviceType=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:15.778  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 result=OK host=192.168.92.192 port=45101 service=Nord C", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:15.928  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=33311bd0-9517-49e8-b108-988ab9865033 result=OK host=192.168.92.76 port=45101 service=Nord B", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:29.943  1666  4478 E SystemServiceRegistry: 	at com.android.server.wifi.WifiServiceImpl.handleShellCommand(WifiServiceImpl.java:6253)
+09-20 18:20:29.966  1666  4478 I WifiService: setWifiEnabled package=com.android.shell uid=2000 enable=false isPrivileged=true
+09-20 18:20:30.046  1666  4484 E SystemServiceRegistry: 	at com.android.server.wifi.WifiServiceImpl.handleShellCommand(WifiServiceImpl.java:6253)
+09-20 18:20:30.086  1666  2853 E AmlMiuiWifiServiceImp: setSARLimit enter
+09-20 18:20:30.086  1666  2853 E AmlMiuiWifiServiceImp: Can not set SAR limitation
+09-20 18:20:30.095  1666  2853 E AmlMiuiWifiServiceImp: Can not set SAR limitation-HostAPH
+09-20 18:20:30.160  1666  1939 I WifiService: releaseMulticastLock uid=1000 lockTag=NsdService
+09-20 18:20:30.174  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_LOST deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 reason=serviceLost service=Nord C", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:30.174  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE lost peers=1 rows=[{"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","name":"Nord B","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.76:45101","state":"online","firstSeen":1789921213926,"lastSeen":1789921215927}]", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:30.174  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_LOST deviceId=33311bd0-9517-49e8-b108-988ab9865033 reason=serviceLost service=Nord B", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:30.174  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE lost peers=0 rows=[]", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:30.192  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_LOST_UNMAPPED service=Nord B", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:30.200  1666  4455 I WifiService: releaseMulticastLock uid=10142 lockTag=MdnsServiceBrowserImpl
+09-20 18:20:30.218  1666  2859 W WifiService: Attempt to retrieve WifiConfiguration with invalid scanResult List
+09-20 18:20:30.219  1666  2859 E WifiService: Attempt to retrieve passpoint with invalid scanResult List
+09-20 18:20:30.220  1666  4484 W WifiService: Attempt to retrieve OsuProviders with invalid scanResult List
+09-20 18:20:30.250  8851  8851 I chromium: [INFO:CONSOLE:73] "NET_CHANGED networkType=none ipv4=?", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:30.250  1666  4455 W WifiService: Attempt to retrieve WifiConfiguration with invalid scanResult List
+09-20 18:20:30.252  1666  4455 E WifiService: Attempt to retrieve passpoint with invalid scanResult List
+09-20 18:20:30.252  1666  4455 W WifiService: Attempt to retrieve OsuProviders with invalid scanResult List
+09-20 18:20:31.747  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_ERROR code=discoverException nativeCode=-1 detail=listener already in use", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:31.748  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_DISCOVERY_STOP serviceType=_multicam._tcp. reason=app_stop", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:31.753  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_REANNOUNCE deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 deviceName=Nord A result=OK", source: https://localhost/js/net/discovery.js (73)
+09-20 18:20:31.994  1666  2859 W WifiService: Attempt to retrieve WifiConfiguration with invalid scanResult List
+09-20 18:20:31.996  1666  4484 E WifiService: Attempt to retrieve passpoint with invalid scanResult List
+09-20 18:20:31.997  1666  2861 W WifiService: Attempt to retrieve OsuProviders with invalid scanResult List
+09-20 18:20:33.044  1666  2861 E SystemServiceRegistry: 	at com.android.server.wifi.WifiServiceImpl.handleShellCommand(WifiServiceImpl.java:6253)
+09-20 18:20:38.888  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_DISCOVERY_START serviceType=_multicam._tcp. nsdPath=modern", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:03.924  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_DISCOVERY_STOP serviceType=_multicam._tcp. reason=app_stop", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:04.328  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_DISCOVERY_START serviceType=_multicam._tcp. nsdPath=modern", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:12.954  1666  2861 E SystemServiceRegistry: 	at com.android.server.wifi.WifiServiceImpl.handleShellCommand(WifiServiceImpl.java:6253)
+09-20 18:21:12.957  1666  2861 I WifiService: setWifiEnabled package=com.android.shell uid=2000 enable=true isPrivileged=true
+09-20 18:21:13.120  1666  1666 W Binder  : 	at com.android.server.wifi.global.AmlMiuiWifiServiceImp$1.onReceive(AmlMiuiWifiServiceImp.java:238)
+09-20 18:21:15.236  1666  4478 E AmlMiuiWifiServiceImp: setSARLimit enter
+09-20 18:21:15.315  1666  1939 I WifiService: acquireMulticastLock uid=1000 lockTag=NsdService
+09-20 18:21:15.378  8851  8851 I chromium: [INFO:CONSOLE:73] "NET_CHANGED networkType=wifi ipv4=192.168.92.57", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.381  1666  4455 I WifiService: acquireMulticastLock uid=10142 lockTag=MdnsServiceBrowserImpl
+09-20 18:21:15.532  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=Nord B type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.536  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=33311bd0-9517-49e8-b108-988ab9865033 result=OK host=192.168.92.76 port=45101 service=Nord B", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.536  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_FOUND deviceId=33311bd0-9517-49e8-b108-988ab9865033 name=Nord B supported=[capture,storage,controller] enabled=[capture,storage,controller] version=0.1.0 endpoint=192.168.92.76:45101", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.536  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE found peers=1 rows=[{"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","name":"Nord B","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.76:45101","state":"online","firstSeen":1789921275533,"lastSeen":1789921275533}]", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.550  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=Nord C type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.562  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 result=OK host=192.168.92.192 port=45101 service=Nord C", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.562  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_FOUND deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 name=Nord C supported=[capture,storage,controller] enabled=[capture,controller,storage] version=0.1.0 endpoint=192.168.92.192:45101", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.563  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_PEER_TABLE found peers=2 rows=[{"deviceId":"33311bd0-9517-49e8-b108-988ab9865033","name":"Nord B","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.76:45101","state":"online","firstSeen":1789921275533,"lastSeen":1789921275533},{"deviceId":"7fbf88be-ef45-4653-b010-ec29c1c35884","name":"Nord C","supported":["capture","storage","controller"],"enabled":["capture","controller","storage"],"version":"0.1.0","endpoint":"192.168.92.192:45101","state":"online","firstSeen":1789921275558,"lastSeen":1789921275558}]", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:15.932  1666  4496 I WifiService: releaseMulticastLock uid=10142 lockTag=MdnsServiceBrowserImpl
+09-20 18:21:15.936  1666  3502 I WifiService: acquireMulticastLock uid=10142 lockTag=MdnsServiceBrowserImpl
+09-20 18:21:15.942  1666  2853 I WifiService: releaseMulticastLock uid=10142 lockTag=MdnsServiceBrowserImpl
+09-20 18:21:15.948  1666  2853 I WifiService: acquireMulticastLock uid=10142 lockTag=MdnsServiceBrowserImpl
+09-20 18:21:15.953  1666  1939 E NsdService: id 6548 for 4 has no client mapping
+09-20 18:21:16.195  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_ADVERTISE_READY deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 registeredName=Nord A port=45101 serviceType=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:16.888  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_ERROR code=discoverException nativeCode=-1 detail=listener already in use", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:16.889  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_DISCOVERY_STOP serviceType=_multicam._tcp. reason=app_stop", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:16.895  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_REANNOUNCE deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 deviceName=Nord A result=OK", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:17.849  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_ADVERTISE_READY deviceId=d275fd07-8efa-4ad0-8063-e254c1fcc6f0 registeredName=Nord A port=45101 serviceType=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:29.736  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_DISCOVERY_START serviceType=_multicam._tcp. nsdPath=modern", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:30.093  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=Nord C type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:30.095  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_SERVICE_FOUND service=Nord B type=_multicam._tcp.", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:30.103  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=7fbf88be-ef45-4653-b010-ec29c1c35884 result=OK host=192.168.92.192 port=45101 service=Nord C", source: https://localhost/js/net/discovery.js (73)
+09-20 18:21:30.104  8851  8851 I chromium: [INFO:CONSOLE:73] "MDNS_RESOLVE deviceId=33311bd0-9517-49e8-b108-988ab9865033 result=OK host=192.168.92.76 port=45101 service=Nord B", source: https://localhost/js/net/discovery.js (73)

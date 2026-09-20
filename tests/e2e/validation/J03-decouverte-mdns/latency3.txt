@@ -131,3 +131,24 @@
 [LAT] S12 D2 renommé (vue  did ) : 0 s
 [LAT] S12 D3 renommé (vue  did ) : 10 s
 [LAT] S12 D3 voit D2 (même nom) (vue  did ) : 1 s
+[LAT] S5 restart-D2 revu (vue  did ) : 5 s
+[LAT] S5 restart-D2 revu (vue  did ) : 0 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) [TIMEOUT] : 154 s
+[LAT] S6 pré baseline Nord-A propagé (vue  did ) [TIMEOUT] : 154 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S6 rename-D1 propagé (vue  did ) : 0 s
+[LAT] S7 storage-off propagé (vue  did ) : 1 s
+[LAT] S7 storage-off propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S8 zero-skill propagé (vue  did ) : 0 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 5 s
+[LAT] S10b reconvergence D1 post-expiration (vue  did ) : 0 s
+[LAT] S11 cycle1 D3 (table) (vue  did ) : 1 s
+[LAT] S11 cycle1 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle2 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle3 D3 (table) (vue  did ) : 0 s
+[LAT] S11 cycle3 D3 (table) (vue  did ) : 0 s
+[LAT] S12 D2 renommé (vue  did ) : 0 s
+[LAT] S12 D3 renommé (vue  did ) : 11 s
+[LAT] S12 D3 voit D2 (même nom) (vue  did ) : 0 s

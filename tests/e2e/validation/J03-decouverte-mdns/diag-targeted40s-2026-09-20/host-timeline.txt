@@ -1,0 +1,11 @@
+datetime host: 2026-09-20 18:20:25  epoch: 1789921225
+device time check:
+host 18:20:25 device61cc29567d91 Sun Sep 20 18:20:25 CEST 2026
+host 18:20:25 device61d54bba7d91 Sun Sep 20 18:20:25 CEST 2026
+host 18:20:25 devicec0d8514d7d87 Sun Sep 20 18:20:25 CEST 2026
+T1 wifi-disable host=18:20:29
+T2 wifi-off-state-check host=18:20:29 wifi_status=Wifi is disabled
+cut-from-T1=18:20:29 wifi=disabled (wifi was off for diagnostic window)
+now=18:21:12
+T3 wifi-enable host=18:21:12
+T4 capture-end host=18:21:42
