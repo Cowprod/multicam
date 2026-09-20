@@ -872,19 +872,48 @@ Le PIN erroné doit être rejeté sans modifier la session.
 
 La présence d’un Master dans la session est persistante ; son état connecté/déconnecté est dérivé du heartbeat / polling HTTP, pas du seul mDNS.
 
-### 30.9 Points encore À CONFIRMER avant implémentation
+### 30.9 Décisions finales avant implémentation J04
 
-Deux décisions structurantes restent volontairement ouvertes :
+Les décisions suivantes sont désormais figées :
 
-1. **Comportement après restart**  
-   À confirmer entre :
-   - retour à l’écran 01 avec la session restaurée dans « Sessions récentes » ;
-   - ouverture automatique de l’écran 03 de la session restaurée.
+1. **Comportement après restart**
+   - après restart de l’application, retour à l’écran 01 ;
+   - la session persistée réapparaît dans « Sessions récentes » ;
+   - aucune ouverture automatique forcée de l’écran 03.
 
-2. **Autorité / second Master en J04**  
-   À confirmer entre :
-   - Master créateur = autorité/host, second Master = copie synchronisée, sans failover automatique en J04 ;
-   - architecture masterless/multi-autorité dès J04.
+2. **Autorité des Masters**
+   - dès qu’un Controller rejoint une session avec le bon PIN, il devient un **Master à autorité complète** ;
+   - tous les Masters ont exactement les mêmes droits ;
+   - aucune notion de propriétaire, Master principal, Master secondaire ou host privilégié ;
+   - toute action disponible pour un Master est disponible pour tous les Masters.
 
-L’agent ne doit pas commencer l’implémentation tant que ces deux choix ne sont pas explicitement tranchés.
+3. **Fermeture de session**
+   - n’importe quel Master peut utiliser « Terminer la session » ;
+   - la fermeture concerne la session entière ;
+   - il n’est pas nécessaire de conserver fonctionnellement « qui a fermé » la session ;
+   - les Masters hors ligne doivent apprendre l’état `closed` à leur retour ;
+   - `closed` est terminal pour J04 : une ancienne copie locale `open` ne peut pas réouvrir la session ;
+   - lors d’un conflit `open` / `closed`, `closed` gagne toujours.
+
+4. **Nom de session**
+   - le nom de session peut être modifié après création ;
+   - tous les Masters peuvent le modifier ;
+   - en cas de modifications concurrentes hors ligne, la modification la plus récente gagne lors de la resynchronisation.
+
+5. **PIN**
+   - le PIN à 4 chiffres est immuable pendant toute la vie de la session ;
+   - il ne peut pas être changé par un Master ;
+   - il n’est jamais publié dans DNS-SD.
+
+6. **Multi-Master J04**
+   - J04 doit donc être conçu comme un véritable modèle multi-Master à autorité équivalente ;
+   - chaque Master persiste une copie de l’état de session ;
+   - la synchronisation doit converger après reconnexion ;
+   - le modèle de conflit minimal J04 doit supporter au moins :
+     - `closed` prioritaire sur `open` ;
+     - nom : dernière modification la plus récente gagne ;
+     - PIN immuable ;
+     - liste des Masters fusionnée par `deviceId` sans doublon.
+
+Ces décisions remplacent les options précédemment marquées « À CONFIRMER ».
 
