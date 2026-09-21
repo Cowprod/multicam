@@ -1,0 +1,28 @@
+{
+  "name": "com.multicam.poc.wsserver",
+  "displayName": "C2Test",
+  "version": "1.0.0",
+  "description": "MultiCam POC: isolated qualification app for cordova-websocket-server@1.1.0 (C2). No MultiCam business logic.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "MultiCam POC",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "cordova-android": "15.1.0",
+    "cordova-plugin-add-swift-support": "2.0.2",
+    "cordova-websocket-server": "1.1.0"
+  },
+  "cordova": {
+    "platforms": [
+      "android"
+    ],
+    "plugins": {
+      "cordova-websocket-server": {}
+    }
+  }
+}

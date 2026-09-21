@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.multicam.poc.wsserver" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>C2Test</name>
+    <description>
+        MultiCam POC: qualify cordova-websocket-server@1.1.0 on Android.
+        Isolated test app. Contains NO MultiCam business logic.
+    </description>
+    <author email="dev@multicam.poc">MultiCam POC</author>
+    <content src="index.html" />
+
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+
+    <preference name="android-minSdkVersion" value="24" />
+    <preference name="android-targetSdkVersion" value="36" />
+    <preference name="AndroidXEnabled" value="true" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="BackgroundColor" value="#101418" />
+
+    <!-- POC LAN ws:// (cleartext) : required for the standard WebView WebSocket CLIENT.
+         Server side accepts inbound TCP regardless; this flag applies to the
+         WebView/HTTP outbound stacks (C2 WebView client test). No TLS/WSS for this POC. -->
+    <platform name="android">
+        <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge">
+            <attribute name="android:usesCleartextTraffic" value="true" />
+        </edit-config>
+    </platform>
+</widget>

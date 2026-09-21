@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>C2Test</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1>C2 Test — cordova-websocket-server@1.1.0</h1>
+
+    <section class="panel">
+        <h2>Device</h2>
+        <div class="row">
+            <label>Label</label>
+            <input id="device-label" type="text" size="4" placeholder="A">
+            <button id="btn-save-label" type="button">Save</button>
+        </div>
+        <div class="row">
+            <label>UA</label>
+            <span id="ua" class="mono small"></span>
+        </div>
+        <div class="row">
+            <label>IP</label>
+            <span id="ifaces" class="mono small"></span>
+        </div>
+        <button id="btn-refresh-interfaces" type="button">Refresh IPs</button>
+    </section>
+
+    <section class="panel">
+        <h2>Server</h2>
+        <div class="row">
+            <label>Port</label>
+            <input id="server-port" type="text" size="6" value="45102">
+        </div>
+        <div class="row">
+            <button id="btn-server-start" type="button">Start Server</button>
+            <button id="btn-server-stop" type="button">Stop Server</button>
+        </div>
+        <div class="row">
+            <label>Status</label>
+            <span id="server-status" class="mono"></span>
+        </div>
+        <div class="row">
+            <label>Clients</label>
+            <select id="server-conn-list" size="4"></select>
+        </div>
+        <div class="row">
+            <label>Auto-echo (server) </label>
+            <input id="auto-echo" type="checkbox" checked>
+        </div>
+        <div class="row">
+            <label>Heartbeat every 2s </label>
+            <input id="heartbeat" type="checkbox">
+        </div>
+        <div class="row">
+            <span id="server-stats" class="mono small"></span>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Client (standard WebView WebSocket)</h2>
+        <div class="row">
+            <label>Host</label>
+            <input id="client-host" type="text" placeholder="192.168.92.57">
+            <label>Port</label>
+            <input id="client-port" type="text" size="6" value="45102">
+        </div>
+        <div class="row">
+            <button id="btn-client-connect" type="button">Connect</button>
+            <button id="btn-client-disconnect" type="button">Disconnect</button>
+        </div>
+        <div class="row">
+            <label>Status</label>
+            <span id="client-status" class="mono"></span>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Messages</h2>
+        <div class="row">
+            <label>Mode</label>
+            <select id="msg-mode">
+                <option value="client-text">client → server (text)</option>
+                <option value="client-binary">client → server (binary)</option>
+                <option value="server-broadcast-text">server → all (broadcast, JS)</option>
+                <option value="server-broadcast-binary">server → all (broadcast binary)</option>
+                <option value="server-select-text">server → selected client (text)</option>
+                <option value="server-select-binary">server → selected client (binary)</option>
+            </select>
+        </div>
+        <div class="row">
+            <label>Size</label>
+            <select id="msg-size">
+                <option value="tiny">tiny (echo)</option>
+                <option value="50">50 KB</option>
+                <option value="100">100 KB</option>
+                <option value="150">150 KB</option>
+            </select>
+        </div>
+        <div class="row">
+            <button id="btn-send" type="button">Send</button>
+            <span id="send-status" class="small mono"></span>
+        </div>
+        <div class="row">
+            <label>Payload note</label>
+            <span id="payload-note" class="small"></span>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Log</h2>
+        <div class="row">
+            <button id="btn-clear-log" type="button">Clear</button>
+            <label class="small"><input id="auto-scroll" type="checkbox" checked> auto-scroll</label>
+        </div>
+        <pre id="log" class="mono"></pre>
+    </section>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+</body>
+</html>
