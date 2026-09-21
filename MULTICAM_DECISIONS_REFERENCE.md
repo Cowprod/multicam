@@ -766,8 +766,9 @@ Restent hors J04 :
 Décision d’architecture retenue :
 
 - J03 conserve `cordova-plugin-multicam-nsd` pour la découverte device et `/health` ;
-- J04 utilise un plugin Cordova séparé, cible : `cordova-plugin-multicam-session` ;
-- ne pas étendre silencieusement `HealthServer.java` en serveur de session.
+- J04 **ne doit pas introduire de plugin Cordova dédié aux sessions** ;
+- la communication de session doit suivre l’architecture **WebSocket** retenue lors de la conception ;
+- ne pas transformer `HealthServer.java` en serveur de session.
 
 ### 30.3 Service réseau J04
 
@@ -799,7 +800,7 @@ En particulier, le cache NSD Android peut continuer à résoudre un peer pendant
 Donc :
 
 - mDNS/DNS-SD sert à **découvrir** une session ;
-- la joignabilité réelle d’un Master/session est déterminée par un échange applicatif HTTP ;
+- la joignabilité réelle d’un Master/session est déterminée par la couche applicative WebSocket et son heartbeat ;
 - l’UI ne doit jamais afficher “connecté” sur la seule base d’un resolve NSD ;
 - disparition réseau et appartenance persistante à une session sont deux notions distinctes.
 
@@ -807,12 +808,13 @@ Donc :
 
 Pour J04 :
 
-- transport applicatif : **HTTP** ;
-- synchronisation par short-poll, cible initiale **~2 s** ;
-- heartbeat / vérification de joignabilité applicative ;
-- WebSocket reporté à J05, où la propagation temps réel des rôles/membres devient réellement nécessaire.
+- transport applicatif de session : **WebSocket** ;
+- J04 doit utiliser WebSocket dès maintenant pour le join, la synchronisation d’état, le heartbeat/liveness et les événements de session ;
+- **pas de short-poll HTTP** pour remplacer cette architecture ;
+- **pas de nouveau plugin Cordova de session** ;
+- la logique fonctionnelle de session reste dans la couche JavaScript/application.
 
-Le code J04 doit éviter de coupler le modèle de session au transport afin de permettre cette évolution.
+Le code doit conserver une séparation claire entre modèle de session, transport WebSocket et UI.
 
 ### 30.6 Identité et modèle minimal de session
 
@@ -861,7 +863,7 @@ Important :
 
 ### 30.8 Join et liveness
 
-Le protocole exact sera détaillé pendant l’implémentation, mais J04 doit au minimum disposer d’un échange explicite de join, avec :
+Le protocole exact sera détaillé pendant l’implémentation, mais J04 doit au minimum disposer d’un échange explicite de join via WebSocket, avec :
 
 - `sessionId` ;
 - PIN ;
@@ -871,7 +873,7 @@ Le protocole exact sera détaillé pendant l’implémentation, mais J04 doit au
 
 Le PIN erroné doit être rejeté sans modifier la session.
 
-La présence d’un Master dans la session est persistante ; son état connecté/déconnecté est dérivé du heartbeat / polling HTTP, pas du seul mDNS.
+La présence d’un Master dans la session est persistante ; son état connecté/déconnecté est dérivé de la connexion WebSocket et de son heartbeat applicatif, pas du seul mDNS.
 
 ### 30.9 Décisions finales avant implémentation J04
 
