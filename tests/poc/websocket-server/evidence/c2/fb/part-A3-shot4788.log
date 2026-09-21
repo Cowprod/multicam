@@ -1,0 +1,4 @@
+2026-09-21T13:13:25Z === capture forced-advance effective-port=45103 on screen ===
+2026-09-21T13:13:44Z capture state: effective-port=45103 status=listening on :45103 (bind ::, fallback #1)
+2026-09-21T13:13:45Z shot saved partA-effective-45103.png
+2026-09-21T13:13:45Z === end ===

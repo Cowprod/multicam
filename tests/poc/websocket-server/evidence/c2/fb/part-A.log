@@ -1,0 +1,60 @@
+2026-09-21T13:04:43Z  === Part A start — c2-test build e6470947 (fallback) ===
+==============================================================
+== SETUP — fresh process on all devices, autofb=1 persisted 2026-09-21T13:04:43Z
+==============================================================
+2026-09-21T13:04:54Z  autofb persisted on A
+2026-09-21T13:04:57Z  fresh A process up (autofb flag kept for A2/A3)
+==============================================================
+== A1 — normal server stop on 45102 then immediate fallback attempt 2026-09-21T13:04:57Z
+==============================================================
+2026-09-21T13:05:02Z  A1 setup A server: ERROR: \Server already running.\ (effective-port=45102)
+2026-09-21T13:05:02Z  A1 PASS precondition: A binds 45102 (no TIME_WAIT)
+2026-09-21T13:05:04Z  A1 B connected to 45102: OPEN
+2026-09-21T13:05:05Z  A1 A stopped: stopped (was :::45102)
+2026-09-21T13:05:09Z  A1 immediate fallback after stop: effective-port=45102 status=listening on :45102 (bind ::, fallback #0)
+  A1 wall-clock fallback result (ms): 4108
+ean=false\n[13:05:04.369] server stopped\n[13:05:05.593] FALLBACK start base=45102 window=10\n[13:05:05.594] FALLBACK attempt port=45102\n[13:05:05.609] FALLBACK OK port=45102 attemptIdx=0 total=15ms\n[13:05:05.611] FALLBACK summary base=45102 tried=[] total=15ms\n"
+2026-09-21T13:05:13Z  A1 B reconnected to 45102: OPEN
+2026-09-21T13:05:13Z  A1 PASS: client resumes on effective port 45102
+==============================================================
+== A2 — force-stop app on A then immediate relaunch (autofb boot) 2026-09-21T13:05:13Z
+==============================================================
+2026-09-21T13:05:13Z  A2 pre: A currently serving on 45102 (B connected)
+2026-09-21T13:05:14Z  A2 force-stop done (+223ms)
+2026-09-21T13:05:14Z  A2 am start issued
+2026-09-21T13:05:16Z  A2 CDP reattached (+1433ms from launch)
+2026-09-21T13:05:18Z  A2 server listening on effective-port=45102 (+3684ms from am start)
+"[13:05:16.115] C2 POC ready. label=A autofb=true\n[13:05:16.124] AUTO FALLBACK start at boot\n[13:05:16.138] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:05:17.626] FALLBACK start base=45102 window=10\n[13:05:17.628] FALLBACK attempt port=45102\n[13:05:17.665] FALLBACK OK port=45102 attemptIdx=0 total=37ms\n[13:05:17.667] FALLBACK summary base=45102 tried=[] total=37ms\n"
+2026-09-21T13:05:18Z  A2 PASS: app relaunched and rebound on 45102
+2026-09-21T13:05:20Z  A2 B connected to 45102: OPEN
+2026-09-21T13:05:20Z  A2 PASS: remote peer connected to effective port 45102
+==============================================================
+== A3 — repeated forced stop/restart cycles (no TIME_WAIT waiting) 2026-09-21T13:05:20Z
+==============================================================
+2026-09-21T13:05:20Z  A3 cycle #1 — peer connected to current port none
+2026-09-21T13:05:25Z  A3 cycle #2 -> effective-port=45102 (+3644ms)
+"[13:05:23.459] C2 POC ready. label=A autofb=true\n[13:05:23.467] AUTO FALLBACK start at boot\n[13:05:23.480] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:05:24.969] FALLBACK start base=45102 window=10\n[13:05:24.970] FALLBACK attempt port=45102\n[13:05:25.004] FALLBACK OK port=45102 attemptIdx=0 total=34ms\n[13:05:25.005] FALLBACK summary base=45102 tried=[] total=34ms\n"
+2026-09-21T13:05:27Z  A3 cycle #2 — peer connected to current port 45102
+2026-09-21T13:05:32Z  A3 cycle #2 -> effective-port=45102 (+3623ms)
+"[13:05:30.621] C2 POC ready. label=A autofb=true\n[13:05:30.629] AUTO FALLBACK start at boot\n[13:05:30.645] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:05:32.131] FALLBACK start base=45102 window=10\n[13:05:32.136] FALLBACK attempt port=45102\n[13:05:32.180] FALLBACK OK port=45102 attemptIdx=0 total=45ms\n[13:05:32.181] FALLBACK summary base=45102 tried=[] total=45ms\n"
+2026-09-21T13:05:35Z  A3 cycle #3 — peer connected to current port 45102
+2026-09-21T13:05:40Z  A3 cycle #1 -> effective-port=45102 (+3670ms)
+"[13:05:37.785] C2 POC ready. label=A autofb=true\n[13:05:37.793] AUTO FALLBACK start at boot\n[13:05:37.814] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:05:39.295] FALLBACK start base=45102 window=10\n[13:05:39.297] FALLBACK attempt port=45102\n[13:05:39.344] FALLBACK OK port=45102 attemptIdx=0 total=48ms\n[13:05:39.345] FALLBACK summary base=45102 tried=[] total=48ms\n"
+2026-09-21T13:05:42Z  A3 cycle #4 — peer connected to current port 45102
+2026-09-21T13:05:47Z  A3 cycle #1 -> effective-port=45102 (+3710ms)
+"[13:05:45.110] C2 POC ready. label=A autofb=true\n[13:05:45.121] AUTO FALLBACK start at boot\n[13:05:45.137] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:05:46.623] FALLBACK start base=45102 window=10\n[13:05:46.624] FALLBACK attempt port=45102\n[13:05:46.663] FALLBACK OK port=45102 attemptIdx=0 total=39ms\n[13:05:46.664] FALLBACK summary base=45102 tried=[] total=39ms\n"
+2026-09-21T13:05:49Z  A3 cycle #5 — peer connected to current port 45102
+2026-09-21T13:05:54Z  A3 cycle #2 -> effective-port=45102 (+3725ms)
+"[13:05:52.430] C2 POC ready. label=A autofb=true\n[13:05:52.438] AUTO FALLBACK start at boot\n[13:05:52.461] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:05:53.940] FALLBACK start base=45102 window=10\n[13:05:53.942] FALLBACK attempt port=45102\n[13:05:53.977] FALLBACK OK port=45102 attemptIdx=0 total=35ms\n[13:05:53.978] FALLBACK summary base=45102 tried=[] total=35ms\n"
+2026-09-21T13:05:56Z  A3 cycle #6 — peer connected to current port 45102
+2026-09-21T13:06:01Z  A3 cycle #1 -> effective-port=45102 (+3714ms)
+"[13:05:59.657] C2 POC ready. label=A autofb=true\n[13:05:59.665] AUTO FALLBACK start at boot\n[13:05:59.690] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:06:01.167] FALLBACK start base=45102 window=10\n[13:06:01.169] FALLBACK attempt port=45102\n[13:06:01.220] FALLBACK OK port=45102 attemptIdx=0 total=51ms\n[13:06:01.221] FALLBACK summary base=45102 tried=[] total=51ms\n"
+  A3 ports seen over 6 cycles: 45102 45102 45102 45102 45102 45102
+2026-09-21T13:06:03Z  A3 distinct ports used: 45102 
+==============================================================
+== A3 follow-up — after 75s, base 45102 must bind again 2026-09-21T13:06:03Z
+==============================================================
+2026-09-21T13:06:03Z  A3 waiting 75s for TIME_WAIT to expire...
+2026-09-21T13:07:22Z  A3 after wait: rebind base -> effective-port=45102 (waited 79549ms)
+2026-09-21T13:07:22Z  A3 PASS: 45102 reusable after TIME_WAIT — window recovers
+2026-09-21T13:07:22Z  === Part A complete ===

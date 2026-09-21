@@ -33,14 +33,24 @@
         <div class="row">
             <label>Port</label>
             <input id="server-port" type="text" size="6" value="45102">
+            (<input id="fallback-window" type="text" size="3" value="10"> extra ports)
         </div>
         <div class="row">
             <button id="btn-server-start" type="button">Start Server</button>
+            <button id="btn-server-fallback" type="button">Start (fallback)</button>
             <button id="btn-server-stop" type="button">Stop Server</button>
+        </div>
+        <div class="row">
+            <label>Auto start (fallback) at boot </label>
+            <input id="auto-fallback-boot" type="checkbox">
         </div>
         <div class="row">
             <label>Status</label>
             <span id="server-status" class="mono"></span>
+        </div>
+        <div class="row">
+            <label>Effective port</label>
+            <span id="effective-port" class="mono"></span>
         </div>
         <div class="row">
             <label>Clients</label>

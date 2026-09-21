@@ -181,6 +181,80 @@
     updateConnList();
   }
 
+  // ---- server: start with port fallback (Part A qualification) ---------
+  // base = #server-port ; tries base..base+#fallback-window sequentially.
+  // A bind failure surfaces async via the plugin 'onFailure' event (the JS
+  // exec failure cb may also fire); both paths advance to the next port.
+  // Records a deterministic 'FALLBACK' log trail + sets #effective-port.
+  function serverStartFallback() {
+    if (!wsserver) { log('ERROR', 'wsserver plugin not found'); return; }
+    var base = parseInt($('server-port').value, 10);
+    var win = parseInt($('fallback-window').value, 10);
+    if (!(base > 0) || !(win >= 0)) { log('ERROR', 'fallback: bad base/window'); return; }
+    if (win > 50) win = 50;
+    var tried = [];
+    var idx = 0;
+    setText('effective-port', '');
+    setText('server-status', 'fallback starting at ' + base + ' (window ' + win + ')');
+    log('WARN', 'FALLBACK start base=' + base + ' window=' + win);
+    var t0 = Date.now();
+    var attempt = function () {
+      var port = base + idx;
+      if (idx > win) {
+        setText('server-status', 'FAILED: no port in [' + base + ',' + (base + win) + ']');
+        log('ERROR', 'FALLBACK exhausted tried=' + JSON.stringify(tried) + ' total=' + (Date.now() - t0) + 'ms');
+        return;
+      }
+      var ta = Date.now();
+      var settled = false;
+      log('INFO', 'FALLBACK attempt port=' + port);
+      var advance = function (tag) {
+        if (settled) return;          // only one signal per port attempt
+        settled = true;
+        var dt = Date.now() - ta;
+        tried.push(':' + port + '(' + tag + ',' + dt + 'ms)');
+        log('WARN', 'FALLBACK busy port=' + port + ' via=' + tag + ' dt=' + dt + 'ms');
+        idx++;
+        attempt();
+      };
+      wsserver.start(port, {
+        origins: null,
+        protocols: null,
+        tcpNoDelay: true,
+        onOpen: function (conn) {
+          serverConns[conn.uuid] = conn;
+          log('INFO', 'onOpen uuid=' + conn.uuid.substr(0, 8) + '… remote=' + conn.remoteAddr + ' res=' + conn.resource);
+          updateConnList();
+        },
+        onMessage: function (conn, msg) {
+          serverRx++;
+          if (typeof msg === 'string') { onServerText(conn, msg); } else { onServerBinary(conn, msg); }
+          updateStats();
+        },
+        onClose: function (conn, code, reason, wasClean) {
+          delete serverConns[conn.uuid];
+          log('WARN', 'onClose uuid=' + conn.uuid.substr(0, 8) + '… code=' + code + ' reason=' + reason + ' wasClean=' + wasClean);
+          updateConnList();
+        },
+        onFailure: function (addr, p, reason) {
+          if (p !== port) { log('ERROR', 'FALLBACK mismatched onFailure addr=' + addr + ' p=' + p); }
+          advance('onFailure:' + reason);
+        }
+      }, function (addr, port) {
+        settled = true;               // success — do not advance on later 'continue'
+        setText('effective-port', String(port));
+        setText('server-status', 'listening on :' + port + ' (bind ' + addr + ', fallback #' + idx + ')');
+        var dt = Date.now() - t0;
+        log('WARN', 'FALLBACK OK port=' + port + ' attemptIdx=' + idx + ' total=' + dt + 'ms');
+        log('WARN', 'FALLBACK summary base=' + base + ' tried=' + JSON.stringify(tried) + ' total=' + dt + 'ms');
+        updateStats();
+      }, function (err) {
+        advance('execcb:' + JSON.stringify(err));
+      });
+    };
+    attempt();
+  }
+
   function updateConnList() {
     var sel = $('server-conn-list');
     sel.innerHTML = '';
@@ -454,6 +528,7 @@
     };
     $('btn-refresh-interfaces').onclick = refreshInterfaces;
     $('btn-server-start').onclick = serverStart;
+    $('btn-server-fallback').onclick = serverStartFallback;
     $('btn-server-stop').onclick = serverStop;
     $('btn-client-connect').onclick = clientConnect;
     $('btn-client-disconnect').onclick = clientDisconnect;
@@ -466,16 +541,26 @@
     };
     $('server-port').onkeydown = function (e) { if (e.key === 'Enter') serverStart(); };
     $('client-port').onkeydown = function (e) { if (e.key === 'Enter') clientConnect(); };
+    $('auto-fallback-boot').onchange = function () {
+      localStorage.setItem('c2autofb', $('auto-fallback-boot').checked ? '1' : '0');
+      log('INFO', 'auto fallback boot = ' + $('auto-fallback-boot').checked);
+    };
   }
 
   function init() {
     label = localStorage.getItem('c2label') || 'A';
     $('device-label').value = label;
+    var autofb = localStorage.getItem('c2autofb') === '1';
+    $('auto-fallback-boot').checked = autofb;
     setText('ua', navigator.userAgent);
     setText('server-status', 'stopped');
     setText('client-status', 'idle');
-    log('INFO', 'C2 POC ready. label=' + label);
+    log('INFO', 'C2 POC ready. label=' + label + ' autofb=' + autofb);
     refreshInterfaces();
+    if (autofb) {
+      log('INFO', 'AUTO FALLBACK start at boot');
+      setTimeout(serverStartFallback, 1500);
+    }
   }
 
   document.addEventListener('deviceready', function () {

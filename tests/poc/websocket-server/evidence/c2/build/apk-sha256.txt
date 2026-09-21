@@ -1,24 +1,36 @@
-# Patched C2 APK (final — cleartext + CSP + scheme http client-enabled build)
+# Patched C2 APK — builds and SHA-256 register
 
-APK: tests/poc/websocket-server/c2-test/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+APK file: tests/poc/websocket-server/c2-test/platforms/android/app/build/outputs/apk/debug/app-debug.apk
 
-- SHA-256 (final): 607498b60394baf563b886912a904f7e943ab8dcf11949666b0bf61ce3384bd8
-- Build: patched cordova-websocket-server@1.1.0 (C2-1.6.0-compat.patch) + POC app:
+## Current build (Part A — port-fallback POC, deployed on A/B/C)
+
+- SHA-256 (current): e6470947c8c5efa21a74503cb0ce0123697493739cd077c39064f3653be15782
+- Base: patched cordova-websocket-server@1.1.0 (C2-1.6.0-compat.patch) — unchanged from 607498b6:
     * android:usesCleartextTraffic=true (after_prepare hook 010-enable-cleartext.js)
     * CSP connect-src 'self' ws: wss: (index.html)
     * WebView origin http://localhost (scheme/http hostname/localhost) so the
       standard WebView client may open raw ws:// to a LAN IP (an https://localhost
       origin rejects ws:// at the WebSocket constructor as insecure mixed content).
       Verified in APK: res/xml/config.xml scheme=http hostname=localhost
-- Confirmed in final APK:
-    * aapt2 dump xmltree (AndroidManifest.xml) shows
-      A: http://schemas.android.com/apk/res/android:usesCleartextTraffic(0x010104ec)=true
-    * assets/www/index.html contains
-      content="default-src 'self' data: gap: https://ssl.gstatic.com; connect-src 'self' ws: wss:; ..."
-    * patched plugin source present (no dead catch(IOException) around stop()),
-      build compiled it (build logs)
-- Devices A/B/C all install this exact file (installed base.apk SHA-256 matches).
+- JS-only delta (POC front-end, plugin unchanged):
+    * www/js/app.js — serverStartFallback(): sequential tries base..base+window,
+      double-settled-guard (onFailure + executec failure cb), 'FALLBACK' log trail
+      with per-attempt ms timing, #effective-port + #server-status update.
+    * www/index.html — 'Start (fallback)' button, #fallback-window (default 10),
+      #effective-port span, auto-fallback-boot checkbox (localStorage c2autofb).
+    * init() auto-starts fallback at boot when c2autofb==='1' (Part A scenario A2).
+- Confirmed in APK (Part A qualification):
+    * aapt2 dump xmltree AndroidManifest.xml:
+      A: ...:usesCleartextTraffic(0x010104ec)=true
+    * assets/www/index.html: connect-src 'self' ws: wss:
+    * FALLBACK code present (grep 'serverStartFallback' in assets/www/js/app.js: 12 hits)
+    * plugin patch intact — no dead catch(IOException) around stop()
+- Installed base.apk SHA-256 matches this file on A/B/C (verified via pm path + pull).
 
-Previous builds (superseded):
-  - 90d37af662153711ecdab8f4b5726e48360720d0b077ea7642cf8607e63d1fba  (cleartext build, no CSP fix — devices ran this until redeployed)
+## Part A build lineage
+
+- e6470947c8...  Part A fallback build (current) — installed on A/B/C at Part A test start.
+- 607498b60394baf563b886912a904f7e943ab8dcf11949666b0bf61ce3384bd8  C2 final (C2-01..C2-12 evidence)
+- Previous builds (superseded):
+  - 90d37af662153711ecdab8f4b5726e48360720d0b077ea7642cf8607e63d1fba  (cleartext build, no CSP fix)
   - 839d7c98c44003edb9bf69b3a4d6c36665c34030ba163cb998d9a0f31b78daa6  (edit-config variant, pre-cleartext-fix)

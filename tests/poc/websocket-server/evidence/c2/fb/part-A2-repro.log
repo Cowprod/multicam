@@ -1,0 +1,13 @@
+2026-09-21T13:09:45Z  === Part A repro: BOTH clients connected; stop -> immediate rebind ===
+2026-09-21T13:09:51Z  processes up
+2026-09-21T13:09:55Z  A started: ERROR: \Server already running.\
+2026-09-21T13:09:58Z  B=OPEN C=OPEN conns=1ccc74d8…  192.168.92.192d10a3327…  192.168.92.76
+2026-09-21T13:09:59Z  A stopped: stopped (was :::45102)
+2026-09-21T13:09:59Z  tcp/A on :45102 after stop (LE):
+2026-09-21T13:10:03Z  A rebind(plain) after stop (B+C were connected): listening on :45102 (bind ::) (+3166ms)
+2026-09-21T13:10:03Z  REBIND-PLAIN OK on 45102
+2026-09-21T13:10:08Z  A rebind(fallback) after 2nd stop: status=listening on :45102 (bind ::, fallback #0) effective-port=45102
+"[13:09:48.722] C2 POC ready. label=A autofb=true\n[13:09:48.730] AUTO FALLBACK start at boot\n[13:09:48.750] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[13:09:50.233] FALLBACK start base=45102 window=10\n[13:09:50.235] FALLBACK attempt port=45102\n[13:09:50.290] FALLBACK OK port=45102 attemptIdx=0 total=56ms\n[13:09:50.292] FALLBACK summary base=45102 tried=[] total=56ms\n[13:09:52.073] start server port=45102\n[13:09:52.077] start failure cb: \"Server already running.\"\n[13:09:55.538] onOpen uuid=1ccc74d8… remote=192.168.92.192 res=/\n[13:09:55.542] onOpen uuid=d10a3327… remote=192.168.92.76 res=/\n[13:09:58.752] stop server\n[13:09:58.761] onClose uuid=d10a3327… code=1001 reason= wasClean=false\n[13:09:58.765] onClose uuid=1ccc74d8… code=1001 reason= wasClean=false\n[13:09:58.774] server stopped\n[13:09:59.997] start server port=45102\n[13:10:00.009] onStart OK addr=:: port=45102\n[13:10:03.163] stop server\n[13:10:03.200] server stopped\n[13:10:04.259] FALLBACK start base=45102 window=10\n[13:10:04.263] FALLBACK attempt port=45102\n[13:10:04.280] FALLBACK OK port=45102 attemptIdx=0 total=17ms\n[13:10:04.281] FALLBACK summary base=45102 tried=[] total=17ms\n"
+2026-09-21T13:10:08Z  reconnect B to effective port:
+2026-09-21T13:10:12Z  B=OPEN
+2026-09-21T13:10:12Z  === repro end ===
