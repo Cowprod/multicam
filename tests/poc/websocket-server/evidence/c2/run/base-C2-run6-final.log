@@ -1,0 +1,196 @@
+==============================================================
+== C2-01 2026-09-21T12:12:31Z
+==============================================================
+  A server-status: listening on :45102 (bind ::)
+  C2-01 PASS (listening :45102)
+  [OK] C2-01 complete
+
+==============================================================
+== C2-02 2026-09-21T12:12:33Z
+==============================================================
+  B client-status: OPEN
+  C2-02 PASS (B client OPEN)
+  A conn-list: "c76b82bc… 192.168.92.76 #1"
+"[12:12:21.439] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[12:12:31.597] start server port=45102\n[12:12:31.635] onStart OK addr=:: port=45102\n[12:12:33.531] onOpen uuid=c76b82bc… remote=192.168.92.76 res=/"
+  [OK] C2-02 complete
+
+==============================================================
+== C2-03 2026-09-21T12:12:36Z
+==============================================================
+"client-text"
+  --- B log (client->server exchange) ---
+"[12:12:22.416] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::3435:b9ff:fe15:ae75%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.76\"],\"ipv6Addresses\":[\"fe80::f4a2:7ff:fe1b:4701%wlan0\",\"2a01:e0a:127b:ff70:f4a2:7ff:fe1b:4701\",\"2a01:e0a:127b:ff70:e375:e89b:9de:ca47\",\"2a01:e0a:127b:ff70:d8d3:8bc0:b353:fcf4\",\"2a01:e0a:127b:ff70:98aa:574b:badf:4209\",\"2a01:e0a:127b:ff70:3b71:6ea2:9cb1:60b8\"]}}\n[12:12:32.980] client connecting to ws://192.168.92.57:45102\n[12:12:33.055] client OPEN ws://192.168.92.57:45102\n[12:12:35.883] client sends test seq=1 len=18\n[12:12:35.981] client rx text len=142\n[12:12:35.982] client rx ACK echo_of=1 len=18/18 crc=OK (roundtrip OK)"
+  [PASS] 0: roundtrip OK
+  C2-03a PASS (B->A JSON, A auto-echo integrity OK)
+"c76b82bc-c90c-4956-b5bb-5a485103bcbb"
+"server-select-text"
+  --- B log (server->client exchange) ---
+"[12:12:35.981] client rx text len=142\n[12:12:35.982] client rx ACK echo_of=1 len=18/18 crc=OK (roundtrip OK)\n[12:12:37.312] client rx text len=131\n[12:12:37.314] client got test from=A seq=2 len=18/18 crc=OK"
+  [PASS] 0: client got test
+  C2-03b PASS (A->B JSON, B integrity verified)
+  [OK] C2-03 complete
+
+==============================================================
+== C2-04 2026-09-21T12:12:38Z
+==============================================================
+  A conn-list: "c76b82bc… 192.168.92.76,f553b984… 192.168.92.192 #2"
+  C2-04 PASS (2 distinct connections)
+  distinct ids: B present
+  distinct ids: C present
+  [OK] C2-04 complete
+
+==============================================================
+== C2-05 2026-09-21T12:12:41Z
+==============================================================
+"c76b82bc-c90c-4956-b5bb-5a485103bcbb"
+"server-select-text"
+  [PASS] 0: client got test
+  C2-05 PASS (B received)
+  C2-05 PASS (C log unchanged — not received)
+  [OK] C2-05 complete
+
+==============================================================
+== C2-06 2026-09-21T12:12:43Z
+==============================================================
+"server-broadcast-text"
+  [PASS] 0: client got test
+  C2-06 PASS (B received via JS broadcast)
+  [PASS] 0: client got test
+  C2-06 PASS (C received via JS broadcast)
+"[12:12:42.039] server -> selected test seq=3\n[12:12:43.460] server broadcast to 2 conn(s)\n[12:12:43.461] server broadcast test seq=4"
+  [OK] C2-06 complete
+
+==============================================================
+== C2-07 2026-09-21T12:12:44Z
+==============================================================
+  A conn-list after B disconnect: "f553b984… 192.168.92.192 #1"
+  [PASS] 0: onClose
+  C2-07 PASS (A detected onClose)
+  C2-07 PASS (C still listed)
+  C2-07 PASS (B conn removed)
+  C2-07 PASS (B reconnected)
+"client-text"
+  [PASS] 0: roundtrip OK
+  C2-07 PASS (traffic resumed after reconnect)
+  [OK] C2-07 complete
+
+==============================================================
+== C2-08 2026-09-21T12:12:50Z
+==============================================================
+  A server-status: stopped (was :::45102)
+  [PASS] 0: client CLOSE
+  C2-08 PASS (B observed server loss)
+  [PASS] 0: client CLOSE
+  C2-08 PASS (C observed server loss)
+  A server-status after restart: FAILED: Address already in use
+  C2-08 FAIL (restart/bind)
+  [OK] C2-08 complete
+
+==============================================================
+== C2-09 2026-09-21T12:12:55Z
+==============================================================
+reattached A pid=9162
+  A server-status after force-stop restart: FAILED: Address already in use
+  C2-09 FAIL (rebind)
+  [FAIL] 0: not found in log delta: onFailure
+  C2-09 PASS (no bind/rebind error)
+  A conn-list: " #0"
+  C2-09 FAIL (reconnect after force-stop)
+  [OK] C2-09 complete
+
+==============================================================
+== C2-10 2026-09-21T12:13:06Z
+==============================================================
+  B server-status: listening on :45102 (bind ::)
+  C2-10 PASS (A client OPEN to B)
+  B conn-list: "05377284… 192.168.92.57 #1"
+"client-text"
+  [PASS] 0: roundtrip OK
+  C2-10 PASS (A->B server->A JSON OK)
+"05377284-d393-42f8-ae78-5b1457e4d4ce"
+"server-select-text"
+  [PASS] 0: client got test
+  C2-10 PASS (B server -> A client JSON, integrity)
+  [OK] C2-10 complete
+
+==============================================================
+== C2-11 2026-09-21T12:13:13Z
+==============================================================
+  C server-status: listening on :45102 (bind ::)
+  RING LINKS:
+   A server <- " #0"
+   B server <- "05377284… 192.168.92.57 #1"
+   C server <- "474473e3… 192.168.92.76 #1"
+   A client -> OPEN (host "192.168.92.76")
+   B client -> OPEN (host "192.168.92.192")
+   C client -> CLOSED (1006) (host "192.168.92.57")
+  C2-11 link C->A MISSING
+  C2-11 link A->B OK
+  C2-11 link B->C OK
+  C2-11 FAIL
+"client-text"
+  [FAIL] 0: not found in log delta: roundtrip OK
+  C2-11 ring FAIL (C->A)
+"client-text"
+  [PASS] 0: roundtrip OK
+  C2-11 ring exchange A->B->A OK
+"client-text"
+  [PASS] 0: roundtrip OK
+  C2-11 ring exchange B->C->B OK
+  [OK] C2-11 complete
+
+==============================================================
+== PAYLOAD 2026-09-21T12:13:24Z
+==============================================================
+"tiny"
+  [PASS] 0: crc=OK
+  PAYLOAD client->server text tiny: PASS
+""
+"tiny"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text tiny: CHECK/FAIL
+"50"
+  [PASS] 0: crc=OK
+  PAYLOAD client->server text 50: PASS
+""
+"50"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text 50: CHECK/FAIL
+"100"
+  [PASS] 0: crc=OK
+  PAYLOAD client->server text 100: PASS
+""
+"100"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text 100: CHECK/FAIL
+"150"
+  [PASS] 0: crc=OK
+  PAYLOAD client->server text 150: PASS
+""
+"150"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text 150: CHECK/FAIL
+"50"
+  [PASS] 0: client binary VERIFIED
+  PAYLOAD client->server binary 50 (echo): PASS
+""
+"50"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD server->client binary 50: CHECK/FAIL
+"100"
+  [PASS] 0: client binary VERIFIED
+  PAYLOAD client->server binary 100 (echo): PASS
+""
+"100"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD server->client binary 100: CHECK/FAIL
+"150"
+  [PASS] 0: client binary VERIFIED
+  PAYLOAD client->server binary 150 (echo): PASS
+""
+"150"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD server->client binary 150: CHECK/FAIL
+  [OK] PAYLOAD complete
+
+=== BASE PHASE COMPLETE 2026-09-21T12:13:50Z — ring topology active, ready for C2-12 ===

@@ -1,0 +1,196 @@
+==============================================================
+== C2-01 2026-09-21T11:42:20Z
+==============================================================
+  A server-status: "listening on :45102 (bind ::)"
+  C2-01 PASS (listening :45102)
+  [OK] C2-01 complete
+
+==============================================================
+== C2-02 2026-09-21T11:42:22Z
+==============================================================
+  B client-status: "ctor error"
+  C2-02 FAIL (B client: "ctor error")
+  A conn-list: " #0"
+"[11:39:19.383] C2 POC ready. label=A\n[11:39:19.412] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::432:55ff:fe1f:a90f%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.57\"],\"ipv6Addresses\":[\"fe80::ec1f:f4ff:fe07:2d8c%wlan0\",\"2a01:e0a:127b:ff70:ec1f:f4ff:fe07:2d8c\",\"2a01:e0a:127b:ff70:2b92:5f6e:921a:acbe\"]}}\n[11:42:20.922] start server port=45102\n[11:42:20.966] onStart OK addr=:: port=45102"
+  [OK] C2-02 complete
+
+==============================================================
+== C2-03 2026-09-21T11:42:25Z
+==============================================================
+"client-text"
+  --- B log (client->server exchange) ---
+"[11:39:21.149] C2 POC ready. label=B\n[11:39:21.180] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::3435:b9ff:fe15:ae75%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.76\"],\"ipv6Addresses\":[\"fe80::f4a2:7ff:fe1b:4701%wlan0\",\"2a01:e0a:127b:ff70:f4a2:7ff:fe1b:4701\",\"2a01:e0a:127b:ff70:e375:e89b:9de:ca47\",\"2a01:e0a:127b:ff70:d8d3:8bc0:b353:fcf4\",\"2a01:e0a:127b:ff70:98aa:574b:badf:4209\",\"2a01:e0a:127b:ff70:3b71:6ea2:9cb1:60b8\"]}}\n[11:42:22.399] client connecting to ws://192.168.92.57:45102\n[11:42:22.414] WebSocket ctor error: SecurityError: Failed to construct 'WebSocket': An insecure WebSocket connection may not be initiated from a page loaded over HTTPS.\n[11:42:25.475] client not open"
+  [FAIL] 0: not found in log delta: roundtrip OK
+  C2-03a CHECK
+""
+"server-select-text"
+  --- B log (server->client exchange) ---
+"[11:39:21.180] getInterfaces: {\"dummy0\":{\"ipv4Addresses\":[],\"ipv6Addresses\":[\"fe80::3435:b9ff:fe15:ae75%dummy0\"]},\"wlan0\":{\"ipv4Addresses\":[\"192.168.92.76\"],\"ipv6Addresses\":[\"fe80::f4a2:7ff:fe1b:4701%wlan0\",\"2a01:e0a:127b:ff70:f4a2:7ff:fe1b:4701\",\"2a01:e0a:127b:ff70:e375:e89b:9de:ca47\",\"2a01:e0a:127b:ff70:d8d3:8bc0:b353:fcf4\",\"2a01:e0a:127b:ff70:98aa:574b:badf:4209\",\"2a01:e0a:127b:ff70:3b71:6ea2:9cb1:60b8\"]}}\n[11:42:22.399] client connecting to ws://192.168.92.57:45102\n[11:42:22.414] WebSocket ctor error: SecurityError: Failed to construct 'WebSocket': An insecure WebSocket connection may not be initiated from a page loaded over HTTPS.\n[11:42:25.475] client not open"
+  [FAIL] 0: not found in log delta: client got test
+  C2-03b FAIL
+  [OK] C2-03 complete
+
+==============================================================
+== C2-04 2026-09-21T11:42:28Z
+==============================================================
+  A conn-list: " #0"
+  C2-04 FAIL
+  distinct ids: B MISSING
+  distinct ids: C MISSING
+  [OK] C2-04 complete
+
+==============================================================
+== C2-05 2026-09-21T11:42:31Z
+==============================================================
+""
+"server-select-text"
+  [FAIL] 0: not found in log delta: client got test
+  C2-05 FAIL (B did not receive)
+  C2-05 PASS (C log unchanged — not received)
+  [OK] C2-05 complete
+
+==============================================================
+== C2-06 2026-09-21T11:42:32Z
+==============================================================
+"server-broadcast-text"
+  [FAIL] 0: not found in log delta: client got test
+  C2-06 FAIL (B)
+  [FAIL] 0: not found in log delta: client got test
+  C2-06 FAIL (C)
+"[11:42:27.343] no server conns\n[11:42:31.770] no server conns\n[11:42:33.230] no server conns"
+  [OK] C2-06 complete
+
+==============================================================
+== C2-07 2026-09-21T11:42:34Z
+==============================================================
+  A conn-list after B disconnect: " #0"
+  [FAIL] 0: not found in log delta: onClose
+  C2-07 FAIL (no onClose on A)
+  C2-07 FAIL (C dropped)
+  C2-07 PASS (B conn removed)
+  C2-07 FAIL (reconnect)
+"client-text"
+  [FAIL] 0: not found in log delta: roundtrip OK
+  C2-07 FAIL (no traffic after reconnect)
+  [OK] C2-07 complete
+
+==============================================================
+== C2-08 2026-09-21T11:42:40Z
+==============================================================
+  A server-status: "stopped (was :::45102)"
+  [FAIL] 0: not found in log delta: client CLOSE
+  C2-08 CHECK (B close code)
+  [FAIL] 0: not found in log delta: client CLOSE
+  C2-08 CHECK (C close code)
+  A server-status after restart: "listening on :45102 (bind ::)"
+  C2-08 PASS (restart on same port 45102, no bind error)
+  [OK] C2-08 complete
+
+==============================================================
+== C2-09 2026-09-21T11:42:45Z
+==============================================================
+reattached A pid=25612
+  A server-status after force-stop restart: "listening on :45102 (bind ::)"
+  C2-09 PASS (server rebound 45102 after app restart)
+  [FAIL] 0: not found in log delta: onFailure
+  C2-09 PASS (no bind/rebind error)
+  A conn-list: " #0"
+  C2-09 FAIL (reconnect after force-stop)
+  [OK] C2-09 complete
+
+==============================================================
+== C2-10 2026-09-21T11:42:56Z
+==============================================================
+  B server-status: "listening on :45102 (bind ::)"
+  C2-10 FAIL (A client)
+  B conn-list: " #0"
+"client-text"
+  [FAIL] 0: not found in log delta: roundtrip OK
+  C2-10 FAIL (A->B json)
+""
+"server-select-text"
+  [FAIL] 0: not found in log delta: client got test
+  C2-10 FAIL (B->A json)
+  [OK] C2-10 complete
+
+==============================================================
+== C2-11 2026-09-21T11:43:04Z
+==============================================================
+  C server-status: "listening on :45102 (bind ::)"
+  RING LINKS:
+   A server <- " #0"
+   B server <- " #0"
+   C server <- " #0"
+   A client -> "ctor error" (host "192.168.92.76")
+   B client -> "ctor error" (host "192.168.92.192")
+   C client -> "ctor error" (host "192.168.92.57")
+  C2-11 link C->A MISSING
+  C2-11 link A->B MISSING
+  C2-11 link B->C MISSING
+  C2-11 FAIL
+"client-text"
+  [FAIL] 0: not found in log delta: roundtrip OK
+  C2-11 ring FAIL (C->A)
+"client-text"
+  [FAIL] 0: not found in log delta: roundtrip OK
+  C2-11 ring FAIL (A->B)
+"client-text"
+  [FAIL] 0: not found in log delta: roundtrip OK
+  C2-11 ring FAIL (B->C)
+  [OK] C2-11 complete
+
+==============================================================
+== PAYLOAD 2026-09-21T11:43:15Z
+==============================================================
+"tiny"
+  [FAIL] 0: not found in log delta: crc=OK
+  PAYLOAD client->server text tiny: CHECK/FAIL
+""
+"tiny"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text tiny: CHECK/FAIL
+"50"
+  [FAIL] 0: not found in log delta: crc=OK
+  PAYLOAD client->server text 50: CHECK/FAIL
+""
+"50"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text 50: CHECK/FAIL
+"100"
+  [FAIL] 0: not found in log delta: crc=OK
+  PAYLOAD client->server text 100: CHECK/FAIL
+""
+"100"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text 100: CHECK/FAIL
+"150"
+  [FAIL] 0: not found in log delta: crc=OK
+  PAYLOAD client->server text 150: CHECK/FAIL
+""
+"150"
+  [FAIL] 0: not found in log delta: client got test
+  PAYLOAD server->client text 150: CHECK/FAIL
+"50"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD client->server binary 50: CHECK/FAIL
+""
+"50"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD server->client binary 50: CHECK/FAIL
+"100"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD client->server binary 100: CHECK/FAIL
+""
+"100"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD server->client binary 100: CHECK/FAIL
+"150"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD client->server binary 150: CHECK/FAIL
+""
+"150"
+  [FAIL] 0: not found in log delta: client binary VERIFIED
+  PAYLOAD server->client binary 150: CHECK/FAIL
+  [OK] PAYLOAD complete
+
+=== BASE PHASE COMPLETE 2026-09-21T11:43:40Z — ring topology active, ready for C2-12 ===

@@ -1,0 +1,67 @@
+==============================================================
+== ring-phase clean start (force-stop + relaunch all devices) 2026-09-21T12:16:46Z
+==============================================================
+fresh pids A=10395 B=20054 C=22294 ; labels set
+==============================================================
+== C2-11 ring setup 2026-09-21T12:16:58Z
+==============================================================
+A server: listening on :45102 (bind ::)
+C client -> A : OPEN
+B server: listening on :45102 (bind ::)
+A client -> B : OPEN
+C server: listening on :45102 (bind ::)
+B client -> C : OPEN
+==============================================================
+== C2-11 topology 2026-09-21T12:17:14Z
+==============================================================
+  A server <- "d8d37609… 192.168.92.192 #1"
+  B server <- "bb657afd… 192.168.92.57 #1"
+  C server <- "e47527cf… 192.168.92.76 #1"
+  A client -> OPEN (host 192.168.92.76)
+  B client -> OPEN (host 192.168.92.192)
+  C client -> OPEN (host 192.168.92.57)
+  link C->A OK
+  link A->B OK
+  link B->C OK
+  C2-11 PASS (3 devices, each simultaneously server+client)
+==============================================================
+== C2-11 ring exchanges 2026-09-21T12:17:17Z
+==============================================================
+  [PASS] haslog 0
+  (C->A->C)
+  [PASS] haslog 0
+  (A->B->A)
+  [PASS] haslog 0
+  (B->C->B)
+==============================================================
+== PAYLOAD 50/100/150 KB integrity (text & binary, both directions) 2026-09-21T12:17:21Z
+==============================================================
+  [PASS] haslog 0
+  PAYLOAD client->server text tiny: PASS
+  [PASS] haslog 0
+  PAYLOAD server->client text tiny: PASS
+  [PASS] haslog 0
+  PAYLOAD client->server text 50: PASS
+  [PASS] haslog 0
+  PAYLOAD server->client text 50: PASS
+  [PASS] haslog 0
+  PAYLOAD client->server text 100: PASS
+  [PASS] haslog 0
+  PAYLOAD server->client text 100: PASS
+  [PASS] haslog 0
+  PAYLOAD client->server text 150: PASS
+  [PASS] haslog 0
+  PAYLOAD server->client text 150: PASS
+  [PASS] haslog 0
+  PAYLOAD client->server binary 50 (echo): PASS
+  [PASS] haslog 0
+  PAYLOAD server->client binary 50: PASS
+  [PASS] haslog 0
+  PAYLOAD client->server binary 100 (echo): PASS
+  [PASS] haslog 0
+  PAYLOAD server->client binary 100: PASS
+  [PASS] haslog 0
+  PAYLOAD client->server binary 150 (echo): PASS
+  [PASS] haslog 0
+  PAYLOAD server->client binary 150: PASS
+=== RING + PAYLOAD PHASE COMPLETE 2026-09-21T12:17:46Z — ring active, ready for C2-12 ===

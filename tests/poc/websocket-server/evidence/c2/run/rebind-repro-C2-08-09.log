@@ -1,0 +1,26 @@
+2026-09-21T12:06:11Z  === rebind reproduction (C2-08/C2-09) start — ring state may be changed by this run ===
+2026-09-21T12:06:14Z  step1 A server start: listening on :45102 (bind ::)
+2026-09-21T12:06:16Z  step2 B client to A: OPEN
+2026-09-21T12:06:16Z  step2 A conns: 0 client(s)
+2026-09-21T12:06:18Z  step3 A server stop: stopped (was :::45102)
+2026-09-21T12:06:18Z  step4 A rebind immediately after stop (clients were connected):
+2026-09-21T12:06:22Z  step4 A server start (immediate): listening on :45102 (bind ::)
+2026-09-21T12:06:22Z  step4 /proc/net/tcp state (A, port 45102 = 0xB02E):
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                                                     
+   0: 395CA8C0:D860 4C5CA8C0:B02E 01 00000000:00000000 00:00000000 00000000 10285        0 3945262 1 0000000000000000 23 4 31 10 1400                
+2026-09-21T12:06:24Z  step4b A server stopped again: stopped (was :::45102)
+2026-09-21T12:06:24Z  step5 waiting 75s for TCP TIME_WAIT to expire...
+2026-09-21T12:07:39Z  step5 A rebind AFTER TIME_WAIT window:
+2026-09-21T12:07:42Z  step5 A server start (after wait): listening on :45102 (bind ::)
+2026-09-21T12:07:42Z  === rebind reproduction end ===
+2026-09-21T12:08:06Z  === repro2: confirmed-accepted client before stop -> rebind (C2-08/C2-09 root cause) ===
+2026-09-21T12:08:08Z  A start: ERROR: \Server already running.\
+2026-09-21T12:08:13Z  B client: OPEN ; A accepted conns: 0
+2026-09-21T12:08:16Z  A stop: stopped (was :::45102)
+2026-09-21T12:08:16Z  A log delta while stopping:
+"[12:08:13.885] stop server\n[12:08:13.917] server stopped"
+2026-09-21T12:08:20Z  A rebind immediately after stop: listening on :45102 (bind ::)
+2026-09-21T12:08:20Z  A /proc/net/tcp port 0xB02E lines after failed/succeeded bind:
+   0: 395CA8C0:D860 4C5CA8C0:B02E 01 00000000:00000000 00:00000000 00000000 10285        0 3945262 1 0000000000000000 23 4 31 10 1400                
+2026-09-21T12:08:22Z  A final stop: stopped (was :::45102)
+2026-09-21T12:08:22Z  === repro2 end ===

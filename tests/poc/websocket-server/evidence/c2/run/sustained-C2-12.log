@@ -1,0 +1,25 @@
+=== C2-12 sustained run start 2026-09-21T12:17:52Z ===
+server-status A=listening on :45102 (bind ::) B=listening on :45102 (bind ::) C=listening on :45102 (bind ::)
+sleeping 600s (10 min) ...
+duration = 600s
+--- device A ---
+server-stats: rx=301 tx=311 hbSent=300 hbAck=300 conns=1
+client-ish : client rx=308 tx=311 hb=300
+client-status: OPEN
+--- device B ---
+server-stats: rx=311 tx=308 hbSent=300 hbAck=300 conns=1
+client-ish : client rx=301 tx=301 hb=300
+client-status: OPEN
+--- device C ---
+server-stats: rx=301 tx=301 hbSent=300 hbAck=300 conns=1
+client-ish : client rx=311 tx=301 hb=300
+client-status: OPEN
+device port 9223 anomaly-marker-lines (delta): 0
+device port 9224 anomaly-marker-lines (delta): 0
+device port 9225 anomaly-marker-lines (delta): 0
+=== statistics (approximate) ===
+A: rx=301 tx=311 hbSent=300 hbAck=300 conns=1 | client rx=308 tx=311 hb=300 | log hb-rx-lines=1
+B: rx=311 tx=308 hbSent=300 hbAck=300 conns=1 | client rx=301 tx=301 hb=300 | log hb-rx-lines=1
+C: rx=301 tx=301 hbSent=300 hbAck=300 conns=1 | client rx=311 tx=301 hb=300 | log hb-rx-lines=1
+C2-12 PASS (no disconnects/errors over 600s)
+=== C2-12 sustained run end 2026-09-21T12:27:55Z ===

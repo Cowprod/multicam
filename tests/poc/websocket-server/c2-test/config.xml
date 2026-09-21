@@ -18,12 +18,21 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="BackgroundColor" value="#101418" />
 
+    <!-- POC WebView client origin. Cordova's default scheme is https://localhost,
+         from which a raw ws:// to a LAN IP is REJECTED at the WebSocket
+         constructor as insecure mixed content (Chromium: "An insecure WebSocket
+         connection may not be initiated from a page loaded over HTTPS"). Loading
+         the POC page over http://localhost makes the standard WebView client a
+         non-secure context so plain ws:// to the LAN is permitted (plus the
+         cleartext flag below). POC-only; production would set
+         setMixedContentMode/allow rules deliberately. -->
+    <preference name="scheme" value="http" />
+    <preference name="hostname" value="localhost" />
+
     <!-- POC LAN ws:// (cleartext) : required for the standard WebView WebSocket CLIENT.
          Server side accepts inbound TCP regardless; this flag applies to the
-         WebView/HTTP outbound stacks (C2 WebView client test). No TLS/WSS for this POC. -->
-    <platform name="android">
-        <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge">
-            <attribute name="android:usesCleartextTraffic" value="true" />
-        </edit-config>
-    </platform>
+         WebView/HTTP outbound stacks (WebView client test). No TLS/WSS for this POC.
+         Applied via after_prepare hook (edit-config would also pollute res/xml/config.xml
+         with an unbound android: prefix and break aapt2 resource compile). -->
+    <hook type="after_prepare" src="hooks/after_prepare/010-enable-cleartext.js" />
 </widget>

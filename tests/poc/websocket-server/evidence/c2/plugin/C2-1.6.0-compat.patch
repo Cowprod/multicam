@@ -1,0 +1,23 @@
+--- a/src/android/WebSocketServerPlugin.java
++++ b/src/android/WebSocketServerPlugin.java
+@@ -52,8 +52,6 @@
+         if (wsserver != null) {
+             try {
+                 wsserver.stop();
+-            } catch (IOException e) {
+-                Log.e(TAG, e.getMessage(), e);
+             } catch (InterruptedException e) {
+                 Log.e(TAG, e.getMessage(), e);
+             } finally {
+--- a/src/android/WebSocketServerImpl.java
++++ b/src/android/WebSocketServerImpl.java
+@@ -243,9 +243,6 @@
+                 try {
+                     // normally already stopped. just making sure!
+                     this.stop();
+-                } catch (IOException e) {
+-                    // fail silently
+-                    Log.e(WebSocketServerPlugin.TAG, e.getMessage(), e);
+                 } catch (InterruptedException e) {
+                     // fail silently
+                     Log.e(WebSocketServerPlugin.TAG, e.getMessage(), e);

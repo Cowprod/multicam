@@ -13,9 +13,9 @@
   "author": "MultiCam POC",
   "license": "Apache-2.0",
   "devDependencies": {
-    "cordova-android": "15.1.0",
-    "cordova-plugin-add-swift-support": "2.0.2",
-    "cordova-websocket-server": "1.1.0"
+    "cordova-android": "^15.1.0",
+    "cordova-plugin-add-swift-support": "^2.0.2",
+    "cordova-websocket-server": "file:local-plugins/cordova-websocket-server"
   },
   "cordova": {
     "platforms": [

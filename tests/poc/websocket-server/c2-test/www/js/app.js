@@ -329,6 +329,11 @@
     clientWs.onerror = function (ev) {
       log('ERROR', 'client ERROR event');
       setText('client-status', 'error');
+      var ws = clientWs;
+      setTimeout(function () {
+        // a failed socket may not emit 'close'; release it so Connect can be retried
+        if (ws && ws.readyState === WebSocket.CLOSED) clientWs = null;
+      }, 1000);
     };
   }
 
