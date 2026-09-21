@@ -920,3 +920,19 @@ Les décisions suivantes sont désormais figées :
 
 Ces décisions remplacent les options précédemment marquées « À CONFIRMER ».
 
+
+
+### 30.10 Origine WebView et sécurité WebSocket V1
+
+Décision V1 validée :
+
+- l'application Cordova utilise **`http://localhost`** comme origine WebView ;
+- les communications WebSocket LAN utilisent **`ws://`** ;
+- ce choix est accepté pour la V1 dans le modèle de **LAN de confiance** ;
+- `wss://` / TLS / distribution de certificats ne sont pas requis pour la V1 ;
+- un durcissement TLS pourra être étudié ultérieurement si le modèle de menace évolue ;
+- la CSP doit autoriser explicitement `ws:` ;
+- le trafic cleartext Android requis doit être déclaré dans la configuration versionnée ;
+- cette décision s'appuie sur le POC C2 validé physiquement sur 3 Android et sur `tests/poc/websocket-server/PRODUCTION-INTEGRATION.md`.
+
+Le plugin WebSocket retenu pour la V1 reste une brique **générique** d'infrastructure ; aucune logique métier MultiCam ne doit y être ajoutée.
