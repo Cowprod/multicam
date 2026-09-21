@@ -23,3 +23,7 @@ Conventions :
 - **Commit implémentation testé** : SHA dont l'APK a réellement été construit et validé sur les devices physiques.
 - **Commit validation / doc** : commit documentaire éventuel enregistrant ce SHA (distingué dans `VALIDATION.md`).
 - Un jalon n'est clos que si : code commité, critères vérifiés sur devices physiques, dossier de preuve présent, `VALIDATION.md` = `PASS`, écarts documentés.
+
+## Qualification technique en cours
+
+- **POC WebSocket serveur embarqué** : en cours de qualification avant reprise de J04. J04 reste suspendu tant que la brique serveur WebSocket générique n'est pas qualifiée et approuvée humainement.
