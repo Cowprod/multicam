@@ -7,6 +7,12 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
 .root{position:relative;min-height:100vh;overflow:hidden}
 .vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.18),rgba(0,0,0,.03) 35%,rgba(0,0,0,.48))}
 .shell{position:relative;z-index:2;max-width:760px;margin:auto;padding:14px 12px 22px;min-height:100vh;display:flex;flex-direction:column}
+/* J04 · SPA monodocument (décision 30.7) : exactement UN panneau visible.
+ * Chaque écran est une <section class="screen"> de index.html ; par défaut masqué
+ * (display:none), et seulement celle portant .active s'affiche. Sans ces règles,
+ * tous les panneaux se superposent/empilent — défaut constaté en revue visuelle. */
+.screen{display:none}
+.screen.active{display:flex;flex-direction:column}
 .glass{background:var(--g)!important;border:1px solid var(--b)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .strong{background:var(--gs)!important}
 .muted{color:var(--m)}

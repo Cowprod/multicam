@@ -55,7 +55,14 @@
         global.MultiCamSessionCreate.show(appCfg, { mode: "create" });
         break;
       case "join":
-        global.MultiCamSessionCreate.show(appCfg, params || { mode: "join" });
+        /* Le mode join doit être imposé : un appel show('join', {...}) sans
+         * mode reviendrait au formulaire de CRÉATION (session-create.show
+         * bascule setupCreate) — le bloc PIN (#joinArea) resterait masqué et
+         * l'écran afficherait le formulaire de création. Défaut revue visuelle
+         * corrigé : le routeur force le mode. */
+        if (!params) params = {};
+        params.mode = "join";
+        global.MultiCamSessionCreate.show(appCfg, params);
         break;
       case "session":
         global.MultiCamSessionScreen.show(appCfg, params || {});

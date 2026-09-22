@@ -137,6 +137,7 @@
     Array.prototype.forEach.call(btns, function (b) {
       b.addEventListener("click", function () {
         global.MultiCamNav.show("join", {
+          mode: "join",
           sid: b.getAttribute("data-sid"),
           name: b.getAttribute("data-name"),
           host: b.getAttribute("data-host"),
@@ -263,6 +264,11 @@
       }
       if (global.MultiCamSessionStore) {
         global.MultiCamSessionWs.onChanged(function () {
+          /* J04 : toute mutation/convergence de session (join, rename, close,
+           * sync) doit re-rendre AUSSI les sessions récentes — sinon un écran
+           * d'accueil resté affiché garde le badge OUVERTE d'une session fermée
+           * (défaut revue visuelle humaine, corrigé). */
+          renderRecents();
           renderLanSessions();
         });
       }
