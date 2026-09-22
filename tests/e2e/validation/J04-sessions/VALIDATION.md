@@ -1,7 +1,7 @@
 # VALIDATION.md — J04 Sessions + second Master
 
 - Jalon : `docs/PLAN-DEVELOPPEMENT-V1.md` → J04
-- État : **PASS technique — en attente revue humaine** (revue visuelle non effectuée)
+- État : **PASS — accepté en revue humaine**
 - Date campagne : 2026-09-22 (campaign 8 ; refonte visuelle après revue humaine KO 1)
 - Branche : `fix/j04-websocket`
 - Décisions appliquées : `MULTICAM_DECISIONS_REFERENCE.md` §28 (transport WS LAN), §30 (sessions, PIN immuable, fermeture, masters égaux) — architecture inchangée
