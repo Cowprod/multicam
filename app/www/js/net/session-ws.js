@@ -1,11 +1,11 @@
-/* MultiCam — transport WebSocket de session (J04).
+/* MultiCam — transport WebSocket de session (J04 + J05).
  *
  * Séparation stricte (décision 30.5) :
  *   - modèle de session pur          → MultiCamSessionModel (js/state/session-model.js)
  *   - persistance locale             → MultiCamSessionStore (js/state/session-store.js)
  *   - brique serveur générique       → cordova.plugins.wsserver (plugin qualifié C2, AUCUNE
  *     logique MultiCam dans le plugin — décision 30.10)
- *   - TRANSPORT + protocole J04      → ce module (JS, logique applicative)
+ *   - TRANSPORT + protocole J04/J05  → ce module (JS, logique applicative)
  *
  * Responsabilités :
  *   - serveur WebSocket par device avec repli de port 45102..45111 (Partie A :
@@ -13,12 +13,15 @@
  *   - client WebSocket standard vers les autres Masters ;
  *   - enveloppes versionnées {v=1, kind, from, sessionId, ts, seq} ;
  *   - messages : sync (state complet), sync_please, join_req, join_ok, join_nack,
- *     ping/pong (heartbeat/liveness §30.4/30.8) ;
+ *     ping/pong (heartbeat/liveness §30.4/30.8), et depuis J05 :
+ *     member_add, member_update, member_remove (gestion des members/sessionRoles) ;
  *   - broadcast du sharedView (jamais le PIN) aux Masters connectés ;
- *   - convergence par fusion §30.9 (closed>open, LMW nom, PIN immuable, masters par deviceId).
+ *   - convergence par fusion §30.9 + §31 (closed>open, LMW nom, PIN immuable,
+ *     masters par deviceId, members par deviceId avec sessionRoles validés).
  *
- * Journalisation parsable : WS_*, FALLBACK, JOIN_*, SYNC_*, RENAME_*, SESSION_CLOSE_*,
- * PEER_* (voir AGENTS.md — exigence journalisation distribuée).
+ * Journalisation parsable : WS_*, FALLBACK, JOIN_*, SYNC_*, RENAME_*,
+ * SESSION_CLOSE_*, MEMBER_*, PEER_* (voir AGENTS.md — exigence journalisation
+ * distribuée).
  */
 
 (function (global) {
@@ -51,6 +54,25 @@
     for (var i = 0; i < am.length; i++) {
       if (am[i].deviceId !== bm[i].deviceId) return false;
       if ((am[i].endpoint || "") !== (bm[i].endpoint || "")) return false;
+    }
+    /* J05 — membres + tombstones : toute différence sémantique = propagation. */
+    var aMem = a.members || [], bMem = b.members || [];
+    if (aMem.length !== bMem.length) return false;
+    for (var j = 0; j < aMem.length; j++) {
+      var ma = aMem[j], mb = bMem[j];
+      if (ma.deviceId !== mb.deviceId) return false;
+      if (ma.deviceName !== mb.deviceName) return false;
+      if ((ma.enabledSkills || []).join(",") !== (mb.enabledSkills || []).join(",")) return false;
+      if ((ma.sessionRoles || []).join(",") !== (mb.sessionRoles || []).join(",")) return false;
+      if (ma.addedAtMs !== mb.addedAtMs) return false;
+      if (ma.roleUpdatedMs !== mb.roleUpdatedMs) return false;
+    }
+    var ar = a.removedMembers || {}, br = b.removedMembers || {};
+    var ak = Object.keys(ar).sort(), bk = Object.keys(br).sort();
+    if (ak.length !== bk.length) return false;
+    for (var k = 0; k < ak.length; k++) {
+      if (ak[k] !== bk[k]) return false;
+      if ((ar[ak[k]].removedAtMs || 0) !== (br[ak[k]].removedAtMs || 0)) return false;
     }
     return true;
   }
@@ -394,6 +416,13 @@
       case "join_nack":
         handleJoinNack(env);
         break;
+      case "member_add":
+      case "member_update":
+        handleMemberUpsert(env, entry);
+        break;
+      case "member_remove":
+        handleMemberRemove(env, entry);
+        break;
       default:
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
         break;
@@ -442,13 +471,16 @@
       var modelM = model();
       if (!local) {
         /* Copie locale créée à partir du state distant : surtout PAS de PIN —
-         * seul un join_req reconnu en apportera un. */
+         * seul un join_req reconnu en apportera un. Les membres/sessionRoles et
+         * tombstones distants sont conservés (J05). */
         var fresh = modelM.sanitizeSession({
           sessionId: env.sessionId,
           name: remote.name, nameUpdatedMs: remote.nameUpdatedMs, nameByDeviceId: remote.nameByDeviceId,
           state: remote.state, stateUpdatedMs: remote.stateUpdatedMs, stateByDeviceId: remote.stateByDeviceId,
           createdAtMs: remote.createdAtMs, updatedAtMs: remote.updatedAtMs,
-          masters: []
+          masters: [],
+          members: remote.members || [],
+          removedMembers: remote.removedMembers || {}
         });
         /* Sanitize génère un PIN local aléatoire (jamais transmis). */
         return store().save(fresh).then(function () {
@@ -486,7 +518,6 @@
   }
 
   function emitEvents(events, sid, from) {
-    var modelM = model();
     events.forEach(function (e) {
       if (e.type === "close") {
         emit("SESSION_CLOSE_APPLIED sessionId=" + sid + " by=" + (e.byDeviceId || "?"));
@@ -494,6 +525,16 @@
         emit("RENAME_APPLIED sessionId=" + sid + " from=" + e.from + " to=" + e.to + " by=" + e.byDeviceId);
       } else if (e.type === "masterAdded") {
         emit("MASTER_ADDED sessionId=" + sid + " deviceId=" + e.deviceId + " learned_from=" + (from || "?"));
+      } else if (e.type === "memberAdded") {
+        emit("MEMBER_ADDED sessionId=" + sid + " did=" + e.deviceId + " learned_from=" + (from || "?"));
+      } else if (e.type === "memberRolesChanged") {
+        emit("MEMBER_ROLES_CHANGED sessionId=" + sid + " did=" + e.deviceId + " roles=[" + (e.to || []).join(",") + "] learned_from=" + (from || "?"));
+      } else if (e.type === "memberRemoved") {
+        emit("MEMBER_REMOVED sessionId=" + sid + " did=" + e.deviceId + " learned_from=" + (from || "?"));
+      } else if (e.type === "memberRestored") {
+        emit("MEMBER_RESTORED sessionId=" + sid + " did=" + e.deviceId + " learned_from=" + (from || "?"));
+      } else if (e.type === "memberPruned") {
+        emit("MEMBER_PRUNED sessionId=" + sid + " did=" + e.deviceId + " reason=" + (e.reason || "") + " learned_from=" + (from || "?"));
       } else if (e.type === "conflict") {
         emit("SYNC_CONFLICT sessionId=" + sid + " field=" + e.field + " detail=" + (e.detail || ""));
       }
@@ -572,6 +613,93 @@
     state.pendingJoin = { sid: env.sessionId, host: "", port: 0, ok: false, reason: env.reason || "unknown", atMs: nowMs() };
     emit("JOIN_REJECTED sessionId=" + (env.sessionId || "?") + " reason=" + (env.reason || "unknown"));
     notifyChanged();
+  }
+
+  /* ---------- protocole J05 : members/sessionRoles ---------- */
+
+  /* Un autre Master a ajouté ou modifié les rôles d'un membre. L'opération
+   * arrive déjà validée par le modèle de l'émetteur ; on l'applique localement
+   * via les primitives du modèle (fusion deviceId, LMW rôle) puis on propage.
+   * Un rôle non annoncé est impossible à soumettre côté modèle ; on re-vérifie
+   * quand même (défense en profondeur, décision 31 : jamais de rôle forcé). */
+  function handleMemberUpsert(env, entry) {
+    if (!env.sessionId || !env.member || !env.member.deviceId) {
+      emit("MEMBER_DROP kind=" + env.kind + " reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    store().get(env.sessionId).then(function (local) {
+      if (!local) {
+        emit("MEMBER_DROP kind=" + env.kind + " reason=unknown_session sessionId=" + env.sessionId + " from=" + (env.from || "?"));
+        return;
+      }
+      var modelM = model();
+      var member = modelM.cleanMember(env.member);
+      if (!member || member.sessionRoles.length === 0) {
+        emit("MEMBER_REJECT kind=" + env.kind + " sessionId=" + env.sessionId
+          + " did=" + env.member.deviceId + " reason=no_valid_role from=" + (env.from || "?"));
+        return;
+      }
+      /* LMW : les primitives addMember/updateMemberRoles du modèle sont des
+       * upserts idempotents par deviceId ; la dernière synchro (sync) portant le
+       * sharedView complet aura le dernier mot si horodatage concurrent. */
+      var actor = env.from || (member.addedByDeviceId || "");
+      var res;
+      if (env.kind === "member_add") {
+        res = modelM.addMember(local, member, member.sessionRoles, actor);
+      } else {
+        res = modelM.updateMemberRoles(local, member.deviceId, member.sessionRoles, actor);
+      }
+      if (!res.ok) {
+        emit("MEMBER_REJECT kind=" + env.kind + " sessionId=" + env.sessionId
+          + " did=" + member.deviceId + " reason=" + (res.error || "rejected"));
+        return;
+      }
+      if (res.changed) {
+        return store().save(res.session).then(function () {
+          emitEvents(res.events, env.sessionId, env.from);
+          emit("MEMBER_RECEIVED kind=" + env.kind + " sessionId=" + env.sessionId
+            + " did=" + member.deviceId + " roles=[" + member.sessionRoles.join(",") + "] from=" + (env.from || "?"));
+          /* La fusion complète sera également portée par le sync de l'émetteur ;
+           * on ne re-broadcast pas ici pour éviter un écho (le sync arrive). */
+          notifyChanged();
+        });
+      }
+      emit("MEMBER_NOOP kind=" + env.kind + " sessionId=" + env.sessionId + " did=" + member.deviceId);
+    }).catch(function (err) {
+      emit("MEMBER_ERROR kind=" + env.kind + " sessionId=" + (env.sessionId || "?") + " err=" + (err && err.message));
+    });
+  }
+
+  /* Un autre Master a retiré un membre : tombstone validé par le modèle de
+   * l'émetteur. On applique le retrait localement (jamais les skills globales). */
+  function handleMemberRemove(env, entry) {
+    if (!env.sessionId || !env.deviceId) {
+      emit("MEMBER_DROP kind=member_remove reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    store().get(env.sessionId).then(function (local) {
+      if (!local) {
+        emit("MEMBER_DROP kind=member_remove reason=unknown_session sessionId=" + env.sessionId + " from=" + (env.from || "?"));
+        return;
+      }
+      var res = model().removeMember(local, env.deviceId, env.from || "");
+      if (!res.ok) {
+        emit("MEMBER_REJECT kind=member_remove sessionId=" + env.sessionId
+          + " did=" + env.deviceId + " reason=not_a_member from=" + (env.from || "?"));
+        return;
+      }
+      if (res.changed) {
+        return store().save(res.session).then(function () {
+          emitEvents(res.events, env.sessionId, env.from);
+          emit("MEMBER_REMOVE_RECEIVED sessionId=" + env.sessionId + " did=" + env.deviceId
+            + " from=" + (env.from || "?"));
+          notifyChanged();
+        });
+      }
+      emit("MEMBER_REMOVE_NOOP sessionId=" + env.sessionId + " did=" + env.deviceId);
+    }).catch(function (err) {
+      emit("MEMBER_ERROR kind=member_remove sessionId=" + (env.sessionId || "?") + " err=" + (err && err.message));
+    });
   }
 
   /* L'écran 02 consomme le dernier verdict de join (déduit du protocole, pas de
@@ -812,6 +940,106 @@
     return state.selfEndpoint || "";
   }
 
+  /* ---------- API J05 : gestion des membres (appelée par UI écran 03) ---------- */
+
+  /* Ajoute (ou met à jour) un device comme membre de la session avec ses
+   * sessionRoles. L'identité est le deviceId. Le modèle valide les rôles
+   * (≥1 rôle annoncé) ; un échec est renvoyé sans toucher au store. Propage
+   * member_add + broadcast du sharedView complet (convergence immédiate). */
+  function addMember(session, peer, roles) {
+    var actor = state.localDid || (cfg() ? cfg().deviceId : "");
+    var res = model().addMember(session, peer, roles, actor);
+    if (!res.ok) {
+      emit("MEMBER_ADD_REJECT sessionId=" + session.sessionId + " did=" + (peer && peer.deviceId)
+        + " roles=[" + (Array.isArray(roles) ? roles.join(",") : "") + "] reason=" + (res.error || "rejected")
+        + " rejected=[" + (res.rejected || []).join(",") + "]");
+      return Promise.reject(new Error(res.error || "member_add_rejected"));
+    }
+    if (!res.changed) {
+      emit("MEMBER_ADD_NOOP sessionId=" + session.sessionId + " did=" + peer.deviceId);
+      return Promise.resolve(session);
+    }
+    return store().save(res.session).then(function () {
+      emit("MEMBER_ADD_LOCAL sessionId=" + res.session.sessionId + " did=" + peer.deviceId
+        + " roles=[" + res.session.members.filter(function (m) { return m.deviceId === peer.deviceId; }).map(function (m) { return m.sessionRoles.join("+"); }).join(",")
+        + "] by=" + actor);
+      emitEvents(res.events, res.session.sessionId, actor);
+      broadcastMember("member_add", res.session, { member: res.session.members.filter(function (m) { return m.deviceId === peer.deviceId; })[0] });
+      broadcast(res.session, "member_add", " did=" + peer.deviceId);
+      notifyChanged();
+      return res.session;
+    });
+  }
+
+  /* Modifie les rôles d'un membre existant (crayon). */
+  function updateMemberRoles(session, deviceId, roles) {
+    var actor = state.localDid || (cfg() ? cfg().deviceId : "");
+    var res = model().updateMemberRoles(session, deviceId, roles, actor);
+    if (!res.ok) {
+      emit("MEMBER_UPDATE_REJECT sessionId=" + session.sessionId + " did=" + deviceId
+        + " roles=[" + (Array.isArray(roles) ? roles.join(",") : "") + "] reason=" + (res.error || "rejected")
+        + " rejected=[" + (res.rejected || []).join(",") + "]");
+      return Promise.reject(new Error(res.error || "member_update_rejected"));
+    }
+    if (!res.changed) {
+      emit("MEMBER_UPDATE_NOOP sessionId=" + session.sessionId + " did=" + deviceId);
+      return Promise.resolve(session);
+    }
+    return store().save(res.session).then(function () {
+      emit("MEMBER_UPDATE_LOCAL sessionId=" + res.session.sessionId + " did=" + deviceId
+        + " roles=[" + roles.join(",") + "] by=" + actor);
+      emitEvents(res.events, res.session.sessionId, actor);
+      broadcastMember("member_update", res.session, { member: res.session.members.filter(function (m) { return m.deviceId === deviceId; })[0] });
+      broadcast(res.session, "member_update", " did=" + deviceId);
+      notifyChanged();
+      return res.session;
+    });
+  }
+
+  /* Retire un membre (membership + rôles). Ne touche jamais aux skills globales
+   * du device. Propage member_remove + broadcast du sharedView (tombstone). */
+  function removeMember(session, deviceId) {
+    var actor = state.localDid || (cfg() ? cfg().deviceId : "");
+    var res = model().removeMember(session, deviceId, actor);
+    if (!res.ok) {
+      emit("MEMBER_REMOVE_REJECT sessionId=" + session.sessionId + " did=" + deviceId + " reason=" + (res.error || "not_a_member"));
+      return Promise.reject(new Error(res.error || "not_a_member"));
+    }
+    if (!res.changed) {
+      emit("MEMBER_REMOVE_NOOP sessionId=" + session.sessionId + " did=" + deviceId);
+      return Promise.resolve(session);
+    }
+    return store().save(res.session).then(function () {
+      emit("MEMBER_REMOVE_LOCAL sessionId=" + res.session.sessionId + " did=" + deviceId + " by=" + actor);
+      emitEvents(res.events, res.session.sessionId, actor);
+      broadcastMember("member_remove", res.session, { deviceId: deviceId, removedAtMs: res.session.removedMembers[deviceId] ? res.session.removedMembers[deviceId].removedAtMs : 0, removedByDeviceId: actor });
+      broadcast(res.session, "member_remove", " did=" + deviceId);
+      notifyChanged();
+      return res.session;
+    });
+  }
+
+  /* Enveloppe ciblée membre (émit en parallèle avec le broadcast du sharedView
+   * complet : la cible donne un évènement diagnostic précis, le sync assure la
+   * convergence intégrale). Même destinataire que broadcast(). */
+  function broadcastMember(kind, session, extra) {
+    var env = envelope(kind, session.sessionId, extra);
+    var sent = 0;
+    Object.keys(state.serverConns).forEach(function (uuid) {
+      var entry = state.serverConns[uuid];
+      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId || !entry.peerDid)) {
+        if (sendServer(uuid, env)) sent++;
+      }
+    });
+    Object.keys(state.clientConns).forEach(function (key) {
+      var entry = state.clientConns[key];
+      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId)) {
+        if (sendOn(entry.ws, env)) sent++;
+      }
+    });
+    emit("MEMBER_BROADCAST kind=" + kind + " sessionId=" + session.sessionId + " peers=" + sent);
+  }
+
   /* ---------- heartbeat / liveness (§30.4/30.8) ---------- */
 
   function startHeartbeat() {
@@ -908,6 +1136,9 @@
     joinSession: joinSession,
     renameSession: renameSession,
     closeSession: closeSession,
+    addMember: addMember,
+    updateMemberRoles: updateMemberRoles,
+    removeMember: removeMember,
     advertiseOpenSessions: advertiseOpenSessions,
     unadvertise: unadvertise,
     reSyncSession: reSyncSession,
