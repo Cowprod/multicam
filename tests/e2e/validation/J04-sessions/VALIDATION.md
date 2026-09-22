@@ -44,7 +44,7 @@ Device A non installable → scénarios 3 Masters repoussés :
 - rejet d'un 3ᵉ joiner concurrent ;
 - délestage / retour d'un pair en plein REC (lightning cut).
 
-Ils restent **PASS attendus, non testés** ; aucun critère du plan J04 ne dépend du 3ᵉ device (le plan ne requiert que 2 Masters).
+Ils restent **NOT TESTED — DEFERRED par décision utilisateur explicite** ; aucun critère du plan J04 ne dépend du 3ᵉ device (le plan ne requiert que 2 Masters).
 
 ## Bugs réels détectés et corrigés (évidence honnête)
 
