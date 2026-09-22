@@ -936,3 +936,23 @@ Décision V1 validée :
 - cette décision s'appuie sur le POC C2 validé physiquement sur 3 Android et sur `tests/poc/websocket-server/PRODUCTION-INTEGRATION.md`.
 
 Le plugin WebSocket retenu pour la V1 reste une brique **générique** d'infrastructure ; aucune logique métier MultiCam ne doit y être ajoutée.
+
+
+## 31. J05 — Membres et rôles de session
+
+### 31.1 Ajout / édition / retrait d'un device
+
+Décisions fonctionnelles validées :
+
+- l'ajout d'un device à la session est initié par un Master depuis l'écran 03 ;
+- les devices disponibles sont ceux détectés sur le LAN et non encore membres de la session ;
+- l'action `Ajouter` ouvre la modal prévue par l'UI 03 validée ;
+- la modal ne propose que les rôles correspondant aux skills supportées, activées et annoncées par le device ;
+- au moins un `sessionRole` doit être sélectionné pour qu'un device reste membre de la session ;
+- l'édition d'un membre existant utilise la même logique via l'action crayon ;
+- retirer un device supprime son membership de session et ses `sessionRoles` ;
+- le retrait ne modifie pas ses `enabledSkills` globales ;
+- le device retiré reste détectable sur le LAN s'il est présent ;
+- il peut être ré-ajouté immédiatement à la même session ;
+- l'identité reste basée sur le `deviceId`, jamais sur l'IP ;
+- un ancien membre déconnecté reste membre tant qu'un Master ne le retire pas explicitement.
