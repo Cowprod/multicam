@@ -949,6 +949,7 @@ Décisions fonctionnelles validées :
 - l'action `Ajouter` ouvre la modal prévue par l'UI 03 validée ;
 - la modal ne propose que les rôles correspondant aux skills supportées, activées et annoncées par le device ;
 - au moins un `sessionRole` doit être sélectionné pour qu'un device reste membre de la session ;
+- un même device peut cumuler plusieurs `sessionRoles` simultanément ; en particulier `Capture` + `Storage` est autorisé si le device annonce les deux skills correspondantes ;
 - l'édition d'un membre existant utilise la même logique via l'action crayon ;
 - retirer un device supprime son membership de session et ses `sessionRoles` ;
 - le retrait ne modifie pas ses `enabledSkills` globales ;
