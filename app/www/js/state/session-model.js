@@ -1,9 +1,9 @@
-/* MultiCam — modele minimal de session J04 (pur, sans transport, sans UI).
+/* MultiCam — modele pur de session (J04 + J05 : membres et sessionRoles).
  * Module "UMD-lite" : utilisable dans l'app (window.MultiCamSessionModel) ET
  * chargeable en Node pour tester la convergence de maniere deterministe
- * (tests/e2e/validation/J04-sessions/merge-model.test.js).
+ * (tests/plugin-lab/session/merge-model.test.js, members-model.test.js).
  *
- * Decisions figees (MULTICAM_DECISIONS_REFERENCE section 30.9 + mission J04) :
+ * Decisions figees (MULTICAM_DECISIONS_REFERENCE section 30.9 + 31 + missions) :
  *  - state : closed > open (closed est terminal ; une copie open hors-ligne ne
  *    ressuscite jamais une session fermee) ;
  *  - PIN : immuable pour la vie de la session ; un desaccord n'est JAMAIS resolu
@@ -12,6 +12,13 @@
  *    rege de departage deterministe pour les horodatages egaux) ;
  *  - masters : fusion par deviceId, jamais de doublon lie a l'IP/host/endpoint ;
  *    la connectivite est un metadonnee transitoire, jamais l'identite.
+ *  - membres (J05) : identite par deviceId (jamais IP) ; un membre a des
+ *    sessionRoles valides uniquement si ses skills annoncées les couvrent ;
+ *    ≥ 1 rôle requis pour rester membre ; le retrait est un tombstone horodaté
+ *    fusionné en LMW — un membre ré-ajouté après retrait ne ressuscite pas un
+ *    ancien rôle, et un device retiré reste en LAN dans les devices disponibles ;
+ *  - roles : un rôle non annoncé (enabledSkills) ne peut JAMAIS être ajouté au
+ *    modèle — la validation vit ici et dans le protocole, pas seulement dans l'UI.
  *
  * Le PIN ne figure JAMAIS dans les vues partagees reseau (sharedView) ni dans DNS-SD. */
 
@@ -26,6 +33,11 @@
 
   var SCHEMA_VERSION = 1;
   var PROTOCOL_VERSION = 1;
+
+  /* J05 — sessionRoles possibles en V1. "controller" est une skill globale d'un
+   * device (config) ; il n'est PAS un rôle de session : un rôle de session est
+   * only capture/storage (décision 31.2 : combinaison autorisée si annoncée). */
+  var VALID_ROLES = ["capture", "storage"];
 
   /* Alphabet 32 sans ambiguite (pas de 0/O/1/I) : 8 chars = 40 bits, largement
    * suffisant pour un identifiant LAN a courte portee. */
@@ -70,6 +82,54 @@
     };
   }
 
+  /* ---------- J05 : membres + sessionRoles ---------- */
+
+  /* Assainit un membre. Règle d'invariants (décision 31 + mission J05) :
+   *  - identité = deviceId, jamais IP ;
+   *  - un rôle est conservé UNIQUEMENT s'il est dans les skills annoncées
+   *    (enabledSkills) ET dans VALID_ROLES — un rôle non annoncé est jeté
+   *    au niveau du modèle, jamais propagé (test J05 « rôle non annoncé ») ;
+   *  - si après assainissement il ne reste AUCUN rôle → membre invalide (le
+   *    device ne peut pas rester membre : ≥1 rôle requis). */
+  function cleanMember(m) {
+    if (!m || typeof m !== "object") return null;
+    var enabled = (Array.isArray(m.enabledSkills) ? m.enabledSkills : []).slice();
+    var roles = (Array.isArray(m.sessionRoles) ? m.sessionRoles : []).filter(function (r) {
+      return VALID_ROLES.indexOf(r) >= 0 && enabled.indexOf(r) >= 0;
+    });
+    /* Suppression des doublons (au cas où un auteur mal formé en enverrait). */
+    roles = roles.filter(function (r, i) { return roles.indexOf(r) === i; });
+    return {
+      deviceId: typeof m.deviceId === "string" && m.deviceId ? m.deviceId : null,
+      deviceName: typeof m.deviceName === "string" ? m.deviceName : "",
+      enabledSkills: enabled,
+      sessionRoles: roles,
+      addedAtMs: typeof m.addedAtMs === "number" && m.addedAtMs > 0 ? m.addedAtMs : nowMs(),
+      addedByDeviceId: typeof m.addedByDeviceId === "string" ? m.addedByDeviceId : "",
+      roleUpdatedMs: typeof m.roleUpdatedMs === "number" && m.roleUpdatedMs > 0 ? m.roleUpdatedMs : (m.addedAtMs || nowMs()),
+      roleByDeviceId: typeof m.roleByDeviceId === "string" ? m.roleByDeviceId : (m.addedByDeviceId || "")
+    };
+  }
+
+  /* Valide la liste de rôles demandée pour un device (skills annoncées).
+   * Renvoie { ok, roles, rejected } — les rôles rejetés (non annoncés / hors
+   * VALID_ROLES / doublons) ne sont jamais appliqués. ok=false si AUCUN rôle
+   * valide ne subsiste (décision 31.1 : ≥1 sessionRole pour rester membre). */
+  function validateRoles(enabledSkills, requested) {
+    var enabled = Array.isArray(enabledSkills) ? enabledSkills : [];
+    var roles = [];
+    var rejected = [];
+    var seen = {};
+    (Array.isArray(requested) ? requested : []).forEach(function (r) {
+      if (VALID_ROLES.indexOf(r) < 0) { rejected.push(r); return; }
+      if (enabled.indexOf(r) < 0) { rejected.push(r); return; }
+      if (seen[r]) return; /* doublon */
+      seen[r] = true;
+      roles.push(r);
+    });
+    return { ok: roles.length > 0, roles: roles, rejected: rejected };
+  }
+
   function sanitizeSession(raw) {
     var s = (raw && typeof raw === "object") ? raw : {};
     var now = nowMs();
@@ -84,6 +144,38 @@
     }
     var keyed = {};
     masters.forEach(function (m) { if (!keyed[m.deviceId]) keyed[m.deviceId] = m; });
+
+    /* J05 — membres : identité par deviceId, rôles assainis (un rôle non annoncé
+     * est jeté), tombstone de retrait conservé. Un member sans deviceId ni rôle
+     * valide est écarté. L'ordre est déterministe (tri par deviceId). */
+    var members = [];
+    var memberKeyed = {};
+    if (Array.isArray(s.members)) {
+      s.members.forEach(function (m) {
+        var c = cleanMember(m);
+        if (!c || !c.deviceId) return;
+        if (c.sessionRoles.length === 0) return; /* ≥1 rôle requis pour rester membre */
+        if (!memberKeyed[c.deviceId]) memberKeyed[c.deviceId] = c;
+      });
+    }
+    members = Object.keys(memberKeyed).sort().map(function (id) { return memberKeyed[id]; });
+
+    /* Tombstones de retrait (J05) : deviceId -> { removedAtMs } — ne jamais
+     * ressusciter un membre retiré. Conservés tels quels. */
+    var removedMembers = {};
+    if (s.removedMembers && typeof s.removedMembers === "object") {
+      Object.keys(s.removedMembers).forEach(function (did) {
+        var t = s.removedMembers[did];
+        if (!t || typeof t !== "object") return;
+        removedMembers[did] = {
+          removedAtMs: typeof t.removedAtMs === "number" && t.removedAtMs > 0 ? t.removedAtMs : now,
+          removedByDeviceId: typeof t.removedByDeviceId === "string" ? t.removedByDeviceId : ""
+        };
+      });
+    }
+    /* Un membre portant un tombstone est déjà exclu au moment du clean ci-dessus
+     * (le retrait supprime le membre + crée le tombstone atomiquement). */
+
     var day = new Date(s.createdAtMs || now);
     return {
       schemaVersion: SCHEMA_VERSION,
@@ -98,7 +190,9 @@
       stateByDeviceId: typeof s.stateByDeviceId === "string" && s.stateByDeviceId ? s.stateByDeviceId : (s.self || ""),
       createdAtMs: typeof s.createdAtMs === "number" && s.createdAtMs > 0 ? s.createdAtMs : now,
       updatedAtMs: typeof s.updatedAtMs === "number" && s.updatedAtMs > 0 ? s.updatedAtMs : now,
-      masters: Object.keys(keyed).map(function (id) { return keyed[id]; })
+      masters: Object.keys(keyed).map(function (id) { return keyed[id]; }),
+      members: members,
+      removedMembers: removedMembers
     };
   }
 
@@ -121,13 +215,30 @@
     return s;
   }
 
+  function lastCompletedMs(s) {
+    var max = s.updatedAtMs || 0;
+    (s.members || []).forEach(function (m) { if ((m.roleUpdatedMs || 0) > max) max = m.roleUpdatedMs; });
+    Object.keys(s.removedMembers || {}).forEach(function (id) {
+      if ((s.removedMembers[id].removedAtMs || 0) > max) max = s.removedMembers[id].removedAtMs;
+    });
+    return max;
+  }
+
   function cloneSession(s) {
     return sanitizeSession(JSON.parse(JSON.stringify({
       sessionId: s.sessionId, name: s.name, nameUpdatedMs: s.nameUpdatedMs,
       nameByDeviceId: s.nameByDeviceId, pin: s.pin, state: s.state,
       stateUpdatedMs: s.stateUpdatedMs, stateByDeviceId: s.stateByDeviceId,
-      createdAtMs: s.createdAtMs, updatedAtMs: s.updatedAtMs, masters: s.masters || []
+      createdAtMs: s.createdAtMs, updatedAtMs: s.updatedAtMs, masters: s.masters || [],
+      members: s.members || [],
+      removedMembers: objectShallow(s.removedMembers)
     })));
+  }
+
+  function objectShallow(obj) {
+    var out = {};
+    Object.keys(obj || {}).forEach(function (k) { if (k !== "__proto__") out[k] = obj[k]; });
+    return out;
   }
 
   function isClosed(s) { return s.state === "closed"; }
@@ -150,7 +261,16 @@
       stateByDeviceId: s.stateByDeviceId,
       createdAtMs: s.createdAtMs,
       updatedAtMs: s.updatedAtMs,
-      masters: (s.masters || []).map(function (m) { return { deviceId: m.deviceId, deviceName: m.deviceName, endpoint: m.endpoint, joinedAtMs: m.joinedAtMs }; })
+      masters: (s.masters || []).map(function (m) { return { deviceId: m.deviceId, deviceName: m.deviceName, endpoint: m.endpoint, joinedAtMs: m.joinedAtMs }; }),
+      members: (s.members || []).map(function (m) {
+        return { deviceId: m.deviceId, deviceName: m.deviceName, enabledSkills: m.enabledSkills.slice(), sessionRoles: m.sessionRoles.slice(), addedAtMs: m.addedAtMs, addedByDeviceId: m.addedByDeviceId, roleUpdatedMs: m.roleUpdatedMs, roleByDeviceId: m.roleByDeviceId };
+      }),
+      removedMembers: (function () {
+        var out = {};
+        var rm = s.removedMembers || {};
+        Object.keys(rm).forEach(function (id) { out[id] = rm[id]; });
+        return out;
+      })()
     };
   }
 
@@ -242,11 +362,144 @@
     });
     out.masters = Object.keys(byId).map(function (id) { return byId[id]; });
 
-    /* 5. updatedAtMs : max (utilise pour le tri "recentes"). */
-    out.updatedAtMs = Math.max(out.updatedAtMs || 0, remote.updatedAtMs || 0, nowMs());
+    /* 5. J05 — membres & rôles : fusion déterministe par deviceId.
+     *    - identité deviceId (jamais IP) ;
+     *    - chaque membre porte roleUpdatedMs + roleByDeviceId : LMW + départage
+     *      déterministe (deviceId) pour les horodatages égaux ;
+     *    - les rôles sont TOUJOURS re-validés contre les skills annoncées du
+     *      membre (un rôle non annoncé est jeté au modèle, jamais propagé) ;
+     *    - un membre existant localement et absent du remote reste (le remote
+     *      peut être une copie plus ancienne ou filtrée) — le retrait est le
+     *      seul signal de suppression : tombstone removedMembers (J05-31).
+     *    - un membre avec 0 rôle valide après fusion (skills retirées) perd ses
+     *      rôles et bascule en tombstone (≥1 rôle requis pour rester membre). */
+    var mById = {};
+    (out.members || []).forEach(function (m) { mById[m.deviceId] = m; });
+    (remote.members || []).forEach(function (rm) {
+      var rmClean = cleanMember(rm);
+      if (!rmClean || !rmClean.deviceId) return;
+      var id = rmClean.deviceId;
+      /* Un membre retiré (tombstone) côté remote n'apparaît pas dans remote.members. */
+      if (!mById[id]) {
+        mById[id] = rmClean;
+        events.push({ type: "memberAdded", deviceId: id });
+      } else {
+        var cur = mById[id];
+        var win = memberWinner(cur, rmClean);
+        if (win === rmClean && !memberEqual(cur, rmClean)) {
+          mById[id] = rmClean;
+          events.push({ type: "memberRolesChanged", deviceId: id, to: rmClean.sessionRoles.slice() });
+        } else if (win === cur && !memberEqual(cur, rmClean)) {
+          /* LMW local gagne : rien à appliquer, mais si le remote était plus
+           * récent sur le nom on garde une info ; sinon conflit silencieux. */
+          if (rmClean.deviceName && !cur.deviceName) cur.deviceName = rmClean.deviceName;
+        }
+      }
+    });
+    /* Détection de retrait : un membre local absent du remote.members ET absent
+     * de remote.removedMembers est un membre connu localement que le remote ne
+     * connaît pas (copie antérieure) → on le GARDE localement ; le retrait ne
+     * vient JAMAIS de l'absence, uniquement du tombstone (décision 31). */
+    /* Applique les tombstones de retrait distants : les membres visés perdent
+     * leurs rôles et deviennent des tombstones. */
+    var rmRemote = (remote.removedMembers && typeof remote.removedMembers === "object") ? remote.removedMembers : {};
+    Object.keys(rmRemote).forEach(function (did) {
+      var t = rmRemote[did];
+      if (!t || typeof t !== "object") return;
+      var member = mById[did];
+      if (member) {
+        var roleBy = t.removedByDeviceId || "";
+        var removedAt = t.removedAtMs || 0;
+        /* Le tombstone n'est valide que si plus récent que la dernière mise à
+         * jour de rôle du membre local (LMW). Sinon : le membre est plus récent
+         * que le retrait → le retrait ne s'applique pas (pas de résurrection
+         * intempestive d'un retrait ancien sur une MAJ plus récente). */
+        var memberKey = (member.roleUpdatedMs || 0);
+        var tombKey = removedAt;
+        var cmp = (memberKey > tombKey) ? 1 : (memberKey < tombKey ? -1 : 0);
+        if (cmp >= 0) {
+          if (cmp === 0 && (roleBy || "") > (member.roleByDeviceId || "") && member.roleByDeviceId) {
+            /* tie-break déterministe */ cmp = -1;
+          }
+        }
+        if (cmp < 0) {
+          delete mById[did];
+          if (!out.removedMembers) out.removedMembers = {};
+          var existing = out.removedMembers[did];
+          if (!existing || (removedAt || 0) >= (existing.removedAtMs || 0)) {
+            out.removedMembers[did] = { removedAtMs: removedAt, removedByDeviceId: roleBy };
+          }
+          events.push({ type: "memberRemoved", deviceId: did });
+        }
+      } else {
+        /* Membre déjà absent localement : on mémorise le tombstone si plus
+         * récent que l'existant (anti-résurrection après re-merge). */
+        if (!out.removedMembers) out.removedMembers = {};
+        var ex = out.removedMembers[did];
+        if (!ex || (removedAt || 0) > (ex.removedAtMs || 0)) {
+          out.removedMembers[did] = { removedAtMs: removedAt, removedByDeviceId: roleBy };
+        }
+      }
+    });
+    /* Après fusion : pruning des membres sans rôle valide (skills retirées).
+     * Un membre qui perd tous ses rôles-session ne peut plus rester membre
+     * (≥1 sessionRole requis, décision 31.1). */
+    var finalMembers = [];
+    Object.keys(mById).sort().forEach(function (id) {
+      var m = mById[id];
+      var pruned = cleanMember(m);
+      if (!pruned || pruned.sessionRoles.length === 0) {
+        events.push({ type: "memberPruned", deviceId: id, reason: "no_valid_role" });
+        return;
+      }
+      finalMembers.push(pruned);
+    });
+    out.members = finalMembers;
+    /* Egalisation des tombstones : un membre présent dans le résultat fusionné
+     * (avec ≥1 rôle valide) annule son tombstone local éventuel. Cas : ré-ajout
+     * après retrait — le chemin addMember local lève le tombstone ; le chemin
+     * convergence (pas de tombstone dans remote) doit faire pareil pour rester
+     * déterministe entre Masters (J05-08). */
+    if (out.removedMembers && typeof out.removedMembers === "object") {
+      Object.keys(out.removedMembers).forEach(function (did) {
+        var stillPresent = finalMembers.some(function (m) { return m.deviceId === did && (m.sessionRoles || []).length > 0; });
+        if (stillPresent) {
+          delete out.removedMembers[did];
+          events.push({ type: "memberRestored", deviceId: did });
+        }
+      });
+    }
+
+    /* 6. updatedAtMs : max (utilise pour le tri "recentes"). */
+    out.updatedAtMs = Math.max(out.updatedAtMs || 0, remote.updatedAtMs || 0, lastCompletedMs(out), nowMs());
 
     var changed = JSON.stringify(sanitizeSession(out)) !== JSON.stringify(local);
     return { session: out, events: events, changed: changed };
+  }
+
+  /* J05 — comparateur déterministe de "clé de modification" d'un membre :
+   * (roleUpdatedMs, puis roleByDeviceId). Le plus grand gagne ; égalité stricte
+   * de (ms, deviceId) → comparaison lexicographique des rôles pour rester
+   * déterministe. Renvoie a ou b (le gagnant). */
+  function memberWinner(a, b) {
+    var aMs = a.roleUpdatedMs || 0, bMs = b.roleUpdatedMs || 0;
+    if (aMs !== bMs) return aMs > bMs ? a : b;
+    var aBy = a.roleByDeviceId || "", bBy = b.roleByDeviceId || "";
+    if (aBy !== bBy) return aBy > bBy ? a : b;
+    var aR = (a.sessionRoles || []).join(","), bR = (b.sessionRoles || []).join(",");
+    if (aR !== bR) return aR > bR ? a : b;
+    return a; /* identiques → a (stable) */
+  }
+
+  function memberEqual(a, b) {
+    return a.deviceId === b.deviceId
+      && a.deviceName === b.deviceName
+      && (a.enabledSkills || []).join(",") === (b.enabledSkills || []).join(",")
+      && (a.sessionRoles || []).join(",") === (b.sessionRoles || []).join(",")
+      && a.addedAtMs === b.addedAtMs
+      && a.addedByDeviceId === b.addedByDeviceId
+      && a.roleUpdatedMs === b.roleUpdatedMs
+      && a.roleByDeviceId === b.roleByDeviceId;
   }
 
   /* Ajoute/rafraichit (par deviceId) un Master connu dans la session (ce device ou
@@ -276,6 +529,128 @@
     return a.name >= b.name ? a : b;
   }
 
+  /* ---------- J05 : opérations de gestion des membres (appelées par la couche
+   * transport/UI). Chaque op mute une COPIE et renvoie { session, changed,
+   * events } ; l'appelant persiste + broadcast. Identité toujours par deviceId. */
+
+  /* Ajoute ou met à jour les rôles d'un device membre. Le device est identifié
+   * par son deviceId ; si déjà membre de la session, on fusionne (jamais de
+   * doublon — reconnexion d'un ancien membre = mise à jour du même membre).
+   * Un rôle non annoncé est rejeté via validateRoles (retour { rejected }). */
+  function addMember(session, member, requestedRoles, byDeviceId) {
+    var out = cloneSession(session);
+    var events = [];
+    var now = nowMs();
+    var v = validateRoles(member.enabledSkills, requestedRoles);
+    if (!v.ok) {
+      return {
+        session: out, changed: false, ok: false,
+        rejected: v.rejected, error: "no_valid_role_for_device"
+      };
+    }
+    var id = member.deviceId;
+    var existing = null;
+    (out.members || []).forEach(function (m) { if (m.deviceId === id) existing = m; });
+    var rec = cleanMember({
+      deviceId: id,
+      deviceName: member.deviceName || "",
+      enabledSkills: member.enabledSkills || [],
+      sessionRoles: v.roles,
+      addedAtMs: existing ? existing.addedAtMs : now,
+      addedByDeviceId: existing ? existing.addedByDeviceId : (byDeviceId || ""),
+      roleUpdatedMs: now,
+      roleByDeviceId: byDeviceId || ""
+    });
+    if (!existing) {
+      out.members = (out.members || []).concat([rec]);
+      events.push({ type: "memberAdded", deviceId: id });
+      if (out.removedMembers && out.removedMembers[id]) {
+        /* Retiré + ré-ajouté immédiatement : le tombstone est levé (le device
+         * redevient membre) — décision 31.1 "peut être ré-ajouté immédiatement". */
+        delete out.removedMembers[id];
+        events.push({ type: "memberRestored", deviceId: id });
+      }
+    } else {
+      var replaced = false;
+      out.members = out.members.map(function (m) {
+        if (m.deviceId !== id) return m;
+        replaced = true;
+        return rec;
+      });
+      if (replaced && !memberEqual(existing, rec)) {
+        events.push({ type: "memberRolesChanged", deviceId: id, to: v.roles.slice() });
+      }
+    }
+    out.updatedAtMs = now;
+    var changed = JSON.stringify(sanitizeSession(out)) !== JSON.stringify(session);
+    return { session: out, changed: changed, ok: true, events: events };
+  }
+
+  /* Met à jour les rôles d'un membre existant : purement LMW local (clone +
+   * roleUpdatedMs). Retour { ok:false, error:"not_a_member" } si inconnu. */
+  function updateMemberRoles(session, deviceId, requestedRoles, byDeviceId) {
+    var out = cloneSession(session);
+    var now = nowMs();
+    var idx = -1;
+    out.members = (out.members || []).map(function (m, i) {
+      if (m.deviceId !== deviceId) return m;
+      idx = i;
+      return m;
+    });
+    if (idx < 0) return { session: out, changed: false, ok: false, error: "not_a_member" };
+    var member = out.members[idx];
+    var v = validateRoles(member.enabledSkills, requestedRoles);
+    if (!v.ok) {
+      return { session: out, changed: false, ok: false, rejected: v.rejected, error: "no_valid_role_for_device" };
+    }
+    var updated = cleanMember({
+      deviceId: member.deviceId,
+      deviceName: member.deviceName,
+      enabledSkills: member.enabledSkills,
+      sessionRoles: v.roles,
+      addedAtMs: member.addedAtMs,
+      addedByDeviceId: member.addedByDeviceId,
+      roleUpdatedMs: now,
+      roleByDeviceId: byDeviceId || ""
+    });
+    out.members[idx] = updated;
+    out.updatedAtMs = now;
+    var changed = JSON.stringify(sanitizeSession(out)) !== JSON.stringify(session);
+    return {
+      session: out, changed: changed, ok: true,
+      events: [{ type: "memberRolesChanged", deviceId: deviceId, to: v.roles.slice() }]
+    };
+  }
+
+  /* Retire un device membre de la session : suppression du membership ET des
+   * sessionRoles, tombstone horodaté (anti-résurrection). Ne touche JAMAIS aux
+   * enabledSkills globales du device (L'historique global est géré par la config
+   * device, pas par la session). Le device reste détectable en LAN et peut être
+   * ré-ajouté immédiatement (décision 31.1). */
+  function removeMember(session, deviceId, byDeviceId) {
+    var out = cloneSession(session);
+    var now = nowMs();
+    var found = false;
+    out.members = (out.members || []).filter(function (m) {
+      if (m.deviceId !== deviceId) return true;
+      found = true;
+      return false;
+    });
+    if (!found) return { session: out, changed: false, ok: false, error: "not_a_member" };
+    if (!out.removedMembers) out.removedMembers = {};
+    var existing = out.removedMembers[deviceId];
+    if (!existing || now > (existing.removedAtMs || 0)) {
+      out.removedMembers[deviceId] = { removedAtMs: now, removedByDeviceId: byDeviceId || "" };
+    }
+    out.updatedAtMs = now;
+    var changed = JSON.stringify(sanitizeSession(out)) !== JSON.stringify(session);
+    return { session: out, changed: changed, ok: true, events: [{ type: "memberRemoved", deviceId: deviceId }] };
+  }
+
+  /* NB: deleted member removal (out.members filter) + tombstone : un membre
+   * retiré n'apparaît plus dans members ; le tombstone protège contre toute
+   * copie périmée qui réintroduirait un rôle déjà retiré. */
+
   return {
     SCHEMA_VERSION: SCHEMA_VERSION,
     PROTOCOL_VERSION: PROTOCOL_VERSION,
@@ -291,6 +666,15 @@
     mergeSessions: mergeSessions,
     upsertMaster: upsertMaster,
     nameWinner: nameWinner,
-    logKeyCompare: logKeyCompare
+    logKeyCompare: logKeyCompare,
+    VALID_ROLES: VALID_ROLES,
+    validateRoles: validateRoles,
+    cleanMember: cleanMember,
+    addMember: addMember,
+    updateMemberRoles: updateMemberRoles,
+    removeMember: removeMember,
+    memberWinner: memberWinner,
+    memberEqual: memberEqual,
+    membersOf: function (s) { return (s ? s.members : []) || []; }
   };
 });

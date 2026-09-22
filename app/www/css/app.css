@@ -20,6 +20,7 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
 .cap{font-size:.76rem;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.13);border-radius:999px;padding:.3rem .55rem}
 .cap.off{opacity:.38;filter:grayscale(1);background:rgba(255,255,255,.04)}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:#45d483}
+.dot.off{background:#8a8f98}
 .menu{display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:10;width:260px}
 .menu.open{display:block}
 .menu .btn{white-space:nowrap}
@@ -29,3 +30,13 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
 .toastbox.show{display:block}
 .pin-box{width:56px;height:60px;font-size:1.6rem;font-weight:700;padding:0}
 .pin-box:focus{border-color:var(--m);box-shadow:0 0 0 .2rem rgba(255,255,255,.18)}
+/* J05 · modal locale de gestion des membres/rôles (écran 03).
+ * Overlay léger sans dépendance Bootstrap JS : .screenmodal masqué par défaut,
+ * .screenmodal.show affiche le backdrop + la card centrée. */
+.screenmodal{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:16px}
+.screenmodal.show{display:flex}
+.screenmodal .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55)}
+.screenmodal .modal-dialog{position:relative;width:100%;max-width:520px;z-index:2}
+.member-role-option{font-size:.8rem;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.35rem .7rem;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none}
+.member-role-option input{accent-color:#45d483}
+.member-role-option.checked{border-color:var(--m,#ffb45b);color:#fff;background:rgba(255,255,255,.16)}
