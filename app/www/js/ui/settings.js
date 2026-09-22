@@ -293,9 +293,15 @@
     grid.innerHTML = rows.map(function (r) { return "<div>" + r[0] + "</div><div>" + r[1] + "</div>"; }).join("");
   }
 
+  var bound = false;
+
   function bind(cfg) {
-    byId("deviceNameInput").value = cfg.deviceName;
-    byId("headerName").textContent = cfg.deviceName;
+    if (bound) return;
+    bound = true;
+
+    byId("backSettings").addEventListener("click", function () {
+      global.MultiCamNav.show("home");
+    });
 
     byId("saveName").addEventListener("click", function () {
       var input = byId("deviceNameInput");
@@ -384,32 +390,25 @@ if (hasDiagnostic()) {
     }
   }
 
-  function init() {
-    global.MultiCamConfig.load().then(function (cfg) {
-      console.log("SETTINGS_OPEN deviceId=" + cfg.deviceId + " deviceName=" + cfg.deviceName
-        + " enabledSkills=[" + cfg.enabledSkills.join(",") + "] storage=" + cfg.storage.mode);
-      byId("btnTestWrite").disabled = false;
-      renderSkills(cfg);
-      renderStorage(cfg);
-      renderDeviceInfo();
-      refreshPermissions(cfg);
-      bind(cfg);
-      if (global.MultiCamNet && global.MultiCamNet.start) {
-        global.MultiCamNet.start().then(function () {
-          renderMdnsInfo();
-          console.log("SETTINGS_NET ready=1 mdns=" + (global.MultiCamNet.status().running ? "1" : "0"));
-        });
-      } else {
-        renderMdnsInfo();
-      }
-    }).catch(function (e) {
-      console.log("SETTINGS_ERROR " + e);
-    });
+  /* J04 SPA : panneau rendu à chaque entrée par le routeur MultiCamNav ;
+   * les écouteurs ne sont liés qu'une fois. Le réseau a déjà été démarré par le
+   * boot (main.js) — ici on ne fait qu'afficher l'état (30.7, cycle de vie
+   * réseau indépendant de l'écran). */
+  function show(cfg) {
+    console.log("SETTINGS_OPEN deviceId=" + cfg.deviceId + " deviceName=" + cfg.deviceName
+      + " enabledSkills=[" + cfg.enabledSkills.join(",") + "] storage=" + cfg.storage.mode);
+    byId("deviceNameInput").value = cfg.deviceName;
+    byId("headerName").textContent = cfg.deviceName;
+    byId("btnTestWrite").disabled = false;
+    bind(cfg);
+    renderSkills(cfg);
+    renderStorage(cfg);
+    renderDeviceInfo();
+    refreshPermissions(cfg);
+    renderMdnsInfo();
   }
 
-  if (global.cordova) {
-    document.addEventListener("deviceready", init, false);
-  } else {
-    init();
-  }
+  global.MultiCamSettings = {
+    show: show
+  };
 })(window);

@@ -18,6 +18,7 @@
     "cordova-plugin-multicam-platform": "file:local-plugins/cordova-plugin-multicam-platform",
     "cordova-plugin-multicam-saf": "file:local-plugins/cordova-plugin-multicam-saf",
     "cordova-plugin-network-information": "^3.1.0",
+    "cordova-websocket-server": "file:local-plugins/cordova-websocket-server",
     "cordova.plugins.diagnostic": "^7.4.0",
     "xcode": "^3.0.1"
   },
@@ -43,7 +44,8 @@
         "MDNS_SERVICE_TYPE": "_multicam._tcp.",
         "MDNS_DEFAULT_PORT": "45101",
         "MDNS_USE_MULTICAST_LOCK": "false"
-      }
+      },
+      "cordova-websocket-server": {}
     }
   }
 }

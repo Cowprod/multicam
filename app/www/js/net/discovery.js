@@ -38,8 +38,13 @@
     nsdNameToDid: {},
     staleTimeoutMs: 0,
     staleTimer: null,
-    listeners: []
+    listeners: [],
+    sessionObservers: []
   };
+
+  function notifySessionObservers(ev) {
+    state.sessionObservers.slice().forEach(function (fn) { fn(ev); });
+  }
 
   function cfg() {
     return (global.MultiCamConfig && global.MultiCamConfig.get) ? global.MultiCamConfig.get() : null;
@@ -234,6 +239,12 @@
   function handleEvent(ev) {
     if (!ev || !ev.type) return;
     var type = ev.type;
+    /* Événements session (J04) : routés vers les observateurs dédiés, jamais
+     * mélangés à la table des peers device (keyed deviceId). */
+    if (type.indexOf("session") === 0) {
+      notifySessionObservers(ev);
+      return;
+    }
     switch (type) {
       case "nsdPath":
         state.nsdPath = ev.nsdPath;
@@ -435,6 +446,12 @@
     if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);
   }
 
+  /* Observateur des événements session (J04) — reçoit tous les événements *session* du
+   * plugin NSD (sessionServiceUpdated/Found/Lost, sessionAdvertised, …). */
+  function onSessionEvent(fn) {
+    if (typeof fn === "function" && state.sessionObservers.indexOf(fn) < 0) state.sessionObservers.push(fn);
+  }
+
   /* ---------- stale fallback (défensif, 0 = désactivé) ---------- */
 
   function startStaleSweep() {
@@ -464,6 +481,7 @@
     table: table,
     status: status,
     onChanged: onChanged,
+    onSessionEvent: onSessionEvent,
     setStaleTimeout: function (ms) { state.staleTimeoutMs = Math.max(0, ms || 0); }
   };
 })(window);

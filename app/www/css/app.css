@@ -21,3 +21,5 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
 .empty-state{padding:.9rem 1rem;border:1px dashed rgba(255,255,255,.22);border-radius:.75rem;color:var(--m);font-size:.9rem;text-align:center}
 .toastbox{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:20;max-width:80vw;display:none}
 .toastbox.show{display:block}
+.pin-box{width:56px;height:60px;font-size:1.6rem;font-weight:700;padding:0}
+.pin-box:focus{border-color:var(--m);box-shadow:0 0 0 .2rem rgba(255,255,255,.18)}

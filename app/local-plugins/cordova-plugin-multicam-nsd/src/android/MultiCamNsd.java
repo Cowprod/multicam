@@ -88,6 +88,15 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
     private NsdManager.ResolveListener resolveListener;
     private volatile boolean discoveryRunning = false;
 
+    /* Session advertisement + discovery (J04, decision 30.3).
+     * Type DNS-SD distinct : _multicam-session._tcp. — meme NsdManager, chemin
+     * parallele a la decouverte device J03. TXT minimal fourni par la couche JS
+     * (sid, name, did, ver, sver) ; PAS de PIN (decision 30.3/30.6). Port effectif
+     * = port DNS-SD du service. */
+    /* Session advertisement + discovery (J04, decision 30.3). Les champs liés à
+     * la session (regs, discovery, refresh) sont déclarés à la section Session
+     * (voir "/* header *​/ SESSION_SERVICE_TYPE" ci-dessous). */
+
     /* Health server. */
     private HealthServer healthServer;
     private JSONObject healthIdentity = new JSONObject();
@@ -120,6 +129,12 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
                         break;
                     case "probeLocalAccess":
                         doProbe(args.getJSONObject(0), cb);
+                        break;
+                    case "advertiseSession":
+                        doAdvertiseSession(args.getJSONObject(0), cb);
+                        break;
+                    case "unadvertiseSession":
+                        doUnadvertiseSession(cb);
                         break;
                     case "events":
                         eventsCtx = cb;
@@ -187,6 +202,18 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
         }
         scheduleDiscoveryRefresh();
 
+        /* Session discovery (J04) : type distinct _multicam-session._tcp. */
+        buildSessionDiscoveryListener();
+        startSessionDiscovery();
+        if (!sessionDiscoveryRunning) {
+            mainHandler.postDelayed(new Runnable() {
+                @Override public void run() {
+                    if (running) startSessionDiscovery();
+                }
+            }, 1500);
+        }
+        scheduleSessionDiscoveryRefresh();
+
         /* Network receiver. */
         startNetReceiver();
 
@@ -227,8 +254,11 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
         running = false;
         stopNetReceiver();
         cancelDiscoveryRefresh();
+        cancelSessionDiscoveryRefresh();
         stopDiscovery();
+        stopSessionDiscovery();
         try { nsdManager.unregisterService(regListener); } catch (Exception ignored) {}
+        doUnadvertiseSession(null);
         if (healthServer != null) healthServer.stop();
         releaseMulticastLock();
         JSONObject data = new JSONObject();
@@ -310,6 +340,283 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
             sb.append(v);
         }
         return sb.toString();
+    }
+
+    /* ---------- session advertisement + discovery (J04) ----------
+     * Type DNS-SD distinct : _multicam-session._tcp. (decision 30.3).
+     * TXT minimal fourni par la couche JS : sid, name, did (annonceur/Master),
+     * ver, sver, port effectif. JAMAIS de PIN dans le TXT (decision 30.3/30.6).
+     * Le secret PIN ne transite QUE par le protocole WebSocket (layers JS). */
+
+    /* header */
+    static final String SESSION_SERVICE_TYPE = "_multicam-session._tcp.";
+
+    /* Par session : registration dediee, name d'instance, etat de reannonce. */
+    private static class SessionReg {
+        String sessionId;
+        String instanceName;
+        NsdServiceInfo info;
+        NsdManager.RegistrationListener listener;
+        boolean reannouncePending = false;
+        SessionReg(String sid) {
+            this.sessionId = sid;
+            this.instanceName = "";
+        }
+    }
+    private final ConcurrentHashMap<String, SessionReg> sessionRegs = new ConcurrentHashMap<>();
+    private NsdManager.DiscoveryListener sessionDiscoveryListener;
+    private final ConcurrentHashMap<String, NsdManager.ServiceInfoCallback> sessionInfoCallbacks = new ConcurrentHashMap<>();
+    private NsdManager.ResolveListener sessionResolveListener;
+    private volatile boolean sessionDiscoveryRunning = false;
+    private volatile CallbackContext pendingSessionReannounceCb;
+
+    private void doAdvertiseSession(JSONObject cfg, CallbackContext cb) throws JSONException {
+        if (nsdManager == null) {
+            cb.error("not_started");
+            return;
+        }
+        String sid = cfg.optString("sessionId", "");
+        if (sid.length() == 0) { cb.error("missing_sessionId"); return; }
+        SessionReg reg = sessionRegs.get(sid);
+        NsdServiceInfo info = buildSessionServiceInfo(cfg);
+        if (reg == null) {
+            reg = new SessionReg(sid);
+            sessionRegs.put(sid, reg);
+            reg.info = info;
+            reg.listener = buildSessionRegListener(reg);
+            try {
+                nsdManager.registerService(info, NsdManager.PROTOCOL_DNS_SD, reg.listener);
+                cb.success();
+            } catch (Exception e) {
+                sessionRegs.remove(sid);
+                sendError("sessionRegisterException", -1, e.getMessage());
+                cb.error("register_exception:" + e.getMessage());
+            }
+            return;
+        }
+        /* Re-annonce (renommage session / port effectif / rejoint) : two-phase
+         * unregister → register comme pour le device (evite la race "listener
+         * already in use" observee sur MIUI). */
+        reg.info = info;
+        reg.reannouncePending = true;
+        pendingSessionReannounceCb = cb;
+        try {
+            nsdManager.unregisterService(reg.listener);
+        } catch (Exception e) {
+            reg.reannouncePending = true;
+            pendingSessionReannounceCb = cb;
+            try { nsdManager.registerService(info, NsdManager.PROTOCOL_DNS_SD, reg.listener); } catch (Exception e2) {
+                sessionRegs.remove(sid);
+                cb.error("register_exception:" + e2.getMessage());
+            }
+        }
+    }
+
+    private void doUnadvertiseSession(CallbackContext cb) {
+        for (SessionReg reg : sessionRegs.values()) {
+            try { nsdManager.unregisterService(reg.listener); } catch (Exception ignored) {}
+        }
+        sessionRegs.clear();
+        if (pendingSessionReannounceCb != null) { pendingSessionReannounceCb.success(); pendingSessionReannounceCb = null; }
+        if (cb != null) cb.success();
+    }
+
+    private NsdManager.RegistrationListener buildSessionRegListener(final SessionReg reg) {
+        return new NsdManager.RegistrationListener() {
+            @Override public void onServiceRegistered(NsdServiceInfo s) {
+                reg.instanceName = s.getServiceName();
+                JSONObject d = new JSONObject();
+                try { d.put("sessionId", reg.sessionId).put("registeredName", reg.instanceName); } catch (Exception ignored) {}
+                sendEvent("sessionAdvertised", d);
+            }
+            @Override public void onRegistrationFailed(NsdServiceInfo s, int code) {
+                sendError("sessionRegisterFailed", code, reg.sessionId);
+            }
+            @Override public void onServiceUnregistered(NsdServiceInfo s) {
+                if (reg.reannouncePending) {
+                    reg.reannouncePending = false;
+                    try {
+                        nsdManager.registerService(reg.info, NsdManager.PROTOCOL_DNS_SD, reg.listener);
+                    } catch (Exception e) {
+                        sendError("sessionRegisterException", -1, e.getMessage());
+                    }
+                    JSONObject d = new JSONObject();
+                    try { d.put("sessionId", reg.sessionId); } catch (Exception ignored) {}
+                    sendEvent("sessionReannounced", d);
+                    if (pendingSessionReannounceCb != null) { pendingSessionReannounceCb.success(); pendingSessionReannounceCb = null; }
+                }
+            }
+            @Override public void onUnregistrationFailed(NsdServiceInfo s, int code) {
+                sendError("sessionUnregisterFailed", code, reg.sessionId);
+            }
+        };
+    }
+
+    private NsdServiceInfo buildSessionServiceInfo(JSONObject cfg) throws JSONException {
+        String sid = cfg.getString("sessionId");
+        String sname = cfg.optString("name", "");
+        String did = cfg.optString("did", localDid);
+        int port = cfg.optInt("port", 0);
+        NsdServiceInfo info = new NsdServiceInfo();
+        /* Nom d'instance DNS-SD : localise la session sans secret. */
+        String name = did + " - " + sid;
+        info.setServiceName(name);
+        info.setServiceType(SESSION_SERVICE_TYPE);
+        if (port > 0 && port <= 65535) info.setPort(port);
+        if (sid.length() > 0) info.setAttribute("sid", sid);
+        if (sname.length() > 0) info.setAttribute("name", sname);
+        if (did.length() > 0) info.setAttribute("did", did);
+        if (version.length() > 0) info.setAttribute("ver", version);
+        info.setAttribute("sver", String.valueOf(sver));
+        return info;
+    }
+
+    /* Decouverte des sessions (type distinct). */
+    private void buildSessionDiscoveryListener() {
+        sessionDiscoveryListener = new NsdManager.DiscoveryListener() {
+            @Override public void onDiscoveryStarted(String t) {
+                sessionDiscoveryRunning = true;
+                JSONObject d = new JSONObject();
+                try { d.put("serviceType", SESSION_SERVICE_TYPE); } catch (Exception ignored) {}
+                sendEvent("sessionDiscoveryStarted", d);
+            }
+            @Override public void onDiscoveryStopped(String t) {
+                sessionDiscoveryRunning = false;
+                JSONObject d = new JSONObject();
+                try { d.put("serviceType", SESSION_SERVICE_TYPE); } catch (Exception ignored) {}
+                sendEvent("sessionDiscoveryStopped", d);
+            }
+            @Override public void onServiceFound(NsdServiceInfo s) {
+                if (s.getServiceType() == null || !s.getServiceType().equalsIgnoreCase(SESSION_SERVICE_TYPE)) return;
+                String name = s.getServiceName();
+                if (isSelfName(name)) return;
+                JSONObject d = new JSONObject();
+                try { d.put("serviceName", name).put("serviceType", SESSION_SERVICE_TYPE); } catch (Exception ignored) {}
+                sendEvent("sessionServiceFound", d);
+                if (Build.VERSION.SDK_INT >= 34) {
+                    startSessionInfoCallback(s);
+                } else {
+                    sessionResolve(s);
+                }
+            }
+            @Override public void onServiceLost(NsdServiceInfo s) {
+                String name = s != null ? s.getServiceName() : null;
+                if (isSelfName(name)) return;
+                if (name == null || sessionInfoCallbacks.containsKey(name)) return;
+                JSONObject d = new JSONObject();
+                try { d.put("serviceName", name).put("serviceType", SESSION_SERVICE_TYPE); } catch (Exception ignored) {}
+                sendEvent("sessionServiceLost", d);
+            }
+            @Override public void onStartDiscoveryFailed(String t, int code) { sendError("sessionDiscoverStartFailed", code, null); }
+            @Override public void onStopDiscoveryFailed(String t, int code) { sendError("sessionDiscoverStopFailed", code, null); }
+        };
+    }
+
+    private void startSessionDiscovery() {
+        if (sessionDiscoveryRunning) return;
+        sessionDiscoveryRunning = true;
+        try {
+            nsdManager.discoverServices(SESSION_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, sessionDiscoveryListener);
+        } catch (Exception e) {
+            sessionDiscoveryRunning = false;
+            sendError("sessionDiscoverException", -1, e.getMessage());
+        }
+    }
+
+    private void stopSessionDiscovery() {
+        for (Map.Entry<String, NsdManager.ServiceInfoCallback> e : sessionInfoCallbacks.entrySet()) {
+            try { nsdManager.unregisterServiceInfoCallback(e.getValue()); } catch (Exception ignored) {}
+        }
+        sessionInfoCallbacks.clear();
+        if (sessionDiscoveryListener != null) {
+            try { nsdManager.stopServiceDiscovery(sessionDiscoveryListener); } catch (Exception ignored) {}
+        }
+        sessionDiscoveryRunning = false;
+    }
+
+    private void startSessionInfoCallback(NsdServiceInfo info) {
+        String name = info.getServiceName();
+        if (sessionInfoCallbacks.containsKey(name)) return;
+        NsdManager.ServiceInfoCallback cb = new NsdManager.ServiceInfoCallback() {
+            @Override public void onServiceUpdated(NsdServiceInfo updated) { emitSessionServiceUpdated(updated); }
+            @Override public void onServiceLost() {
+                sessionInfoCallbacks.remove(name);
+                if (isSelfName(name)) return;
+                JSONObject d = new JSONObject();
+                try { d.put("serviceName", name).put("serviceType", SESSION_SERVICE_TYPE); } catch (Exception ignored) {}
+                sendEvent("sessionServiceLost", d);
+            }
+            @Override public void onServiceInfoCallbackRegistrationFailed(int code) {
+                sessionInfoCallbacks.remove(name);
+                sendError("sessionSicRegFailed", code, name);
+            }
+            @Override public void onServiceInfoCallbackUnregistered() { sessionInfoCallbacks.remove(name); }
+        };
+        sessionInfoCallbacks.put(name, cb);
+        try {
+            nsdManager.registerServiceInfoCallback(info, cordova.getActivity().getMainExecutor(), cb);
+        } catch (Exception e) {
+            sessionInfoCallbacks.remove(name);
+            sendError("sessionSicRegisterException", -1, e.getMessage());
+        }
+    }
+
+    private void sessionResolve(NsdServiceInfo info) {
+        if (sessionResolveListener == null) {
+            sessionResolveListener = new NsdManager.ResolveListener() {
+                @Override public void onServiceResolved(NsdServiceInfo resolved) { emitSessionServiceUpdated(resolved); }
+                @Override public void onResolveFailed(NsdServiceInfo info, int code) {
+                    sendError("sessionResolveFailed", code, info != null ? info.getServiceName() : null);
+                }
+            };
+        }
+        try {
+            nsdManager.resolveService(info, sessionResolveListener);
+        } catch (Exception e) {
+            sendError("sessionResolveException", -1, e.getMessage());
+        }
+    }
+
+    private void emitSessionServiceUpdated(NsdServiceInfo info) {
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("serviceName", info.getServiceName());
+            payload.put("serviceType", SESSION_SERVICE_TYPE);
+            JSONObject txt = new JSONObject();
+            Map<String, byte[]> attrs = info.getAttributes();
+            if (attrs != null) {
+                for (Map.Entry<String, byte[]> e : attrs.entrySet()) {
+                    txt.put(e.getKey(), new String(e.getValue(), StandardCharsets.UTF_8));
+                }
+            }
+            payload.put("txt", txt);
+            /* auto-filtre par did local (annonce de nos propres sessions). */
+            String did = txt.has("did") ? txt.getString("did") : "";
+            if (did.equals(localDid)) return;
+            String host = "";
+            if (Build.VERSION.SDK_INT >= 34) {
+                List<InetAddress> addrs = info.getHostAddresses();
+                if (addrs != null) {
+                    for (InetAddress a : addrs) {
+                        if (a instanceof Inet4Address) { host = a.getHostAddress(); break; }
+                    }
+                    if (host.isEmpty() && !addrs.isEmpty()) host = addrs.get(0).getHostAddress();
+                }
+            }
+            if (host.isEmpty() && info.getHost() != null) host = info.getHost().getHostAddress();
+            payload.put("host", host != null ? host : "");
+            payload.put("port", info.getPort());
+            try {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    android.net.Network network = info.getNetwork();
+                    if (network != null) payload.put("networkId", network.getNetworkHandle());
+                }
+            } catch (Exception ignored) {}
+
+            sendEvent("sessionServiceUpdated", payload);
+        } catch (Exception e) {
+            sendError("emitSessionServiceUpdatedFailed", -1, e.getMessage());
+        }
     }
 
     /* ---------- discovery ---------- */
@@ -403,6 +710,41 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
     }
     private void cancelDiscoveryRefresh() {
         mainHandler.removeCallbacks(discoveryRefreshScheduler);
+    }
+
+    /* Refresh periodique de LA DECOUVERTE SESSION (J04) : meme principe que le
+     * refresh device — force la re-enumeration des instances de session. */
+    private final Runnable sessionDiscoveryRefreshScheduler = new Runnable() {
+        private int attempt = 0;
+        @Override public void run() {
+            if (!running) return;
+            stopSessionDiscovery();
+            attempt = 0;
+            mainHandler.postDelayed(new Runnable() {
+                @Override public void run() {
+                    if (!running) return;
+                    startSessionDiscovery();
+                    if (sessionDiscoveryRunning) {
+                        attempt = 0;
+                        try { JSONObject d = new JSONObject(); d.put("serviceType", SESSION_SERVICE_TYPE); sendEvent("sessionDiscoveryRefresh", d); } catch (Exception ignored) {}
+                        mainHandler.postDelayed(sessionDiscoveryRefreshScheduler, DISCOVERY_REFRESH_MS);
+                    } else if (attempt < 5) {
+                        attempt++;
+                        mainHandler.postDelayed(this, 1000);
+                    } else {
+                        attempt = 0;
+                        mainHandler.postDelayed(sessionDiscoveryRefreshScheduler, DISCOVERY_REFRESH_MS);
+                    }
+                }
+            }, 400);
+        }
+    };
+    private void scheduleSessionDiscoveryRefresh() {
+        mainHandler.removeCallbacks(sessionDiscoveryRefreshScheduler);
+        mainHandler.postDelayed(sessionDiscoveryRefreshScheduler, DISCOVERY_REFRESH_MS);
+    }
+    private void cancelSessionDiscoveryRefresh() {
+        mainHandler.removeCallbacks(sessionDiscoveryRefreshScheduler);
     }
 
     /* Modern path (API 34+): per-service callback for live updates. */
@@ -570,6 +912,8 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
          * onServiceUnregistered (race "listener already in use" evitee). */
         stopDiscovery();
         startDiscovery();
+        stopSessionDiscovery();
+        startSessionDiscovery();
         try {
             doReannounce(lastCfg, null);
         } catch (Exception ignored) {}
@@ -656,6 +1000,12 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
             s.put("multicastLock", multicastLockEnabled && multicastLock != null);
             s.put("nsdPath", Build.VERSION.SDK_INT >= 34 ? "modern:registerServiceInfoCallback" : "legacy:resolveService");
             s.put("discoveryActive", discoveryRunning);
+            JSONObject sess = new JSONObject();
+            sess.put("type", SESSION_SERVICE_TYPE);
+            sess.put("discoveryActive", sessionDiscoveryRunning);
+            sess.put("advertised", sessionRegs.keySet().size());
+            sess.put("count", sessionRegs.size());
+            s.put("session", sess);
             return s;
         } catch (Exception e) { return new JSONObject(); }
     }

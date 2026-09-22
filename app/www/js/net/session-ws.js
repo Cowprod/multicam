@@ -1,0 +1,922 @@
+/* MultiCam — transport WebSocket de session (J04).
+ *
+ * Séparation stricte (décision 30.5) :
+ *   - modèle de session pur          → MultiCamSessionModel (js/state/session-model.js)
+ *   - persistance locale             → MultiCamSessionStore (js/state/session-store.js)
+ *   - brique serveur générique       → cordova.plugins.wsserver (plugin qualifié C2, AUCUNE
+ *     logique MultiCam dans le plugin — décision 30.10)
+ *   - TRANSPORT + protocole J04      → ce module (JS, logique applicative)
+ *
+ * Responsabilités :
+ *   - serveur WebSocket par device avec repli de port 45102..45111 (Partie A :
+ *     onFailure + failure exec → port suivant, succès → port effectif publié) ;
+ *   - client WebSocket standard vers les autres Masters ;
+ *   - enveloppes versionnées {v=1, kind, from, sessionId, ts, seq} ;
+ *   - messages : sync (state complet), sync_please, join_req, join_ok, join_nack,
+ *     ping/pong (heartbeat/liveness §30.4/30.8) ;
+ *   - broadcast du sharedView (jamais le PIN) aux Masters connectés ;
+ *   - convergence par fusion §30.9 (closed>open, LMW nom, PIN immuable, masters par deviceId).
+ *
+ * Journalisation parsable : WS_*, FALLBACK, JOIN_*, SYNC_*, RENAME_*, SESSION_CLOSE_*,
+ * PEER_* (voir AGENTS.md — exigence journalisation distribuée).
+ */
+
+(function (global) {
+  "use strict";
+
+  var PROTOCOL_VERSION = 1;
+  var WS_BASE_PORT = 45102;
+  var WS_PORT_WINDOW = 9;                    /* 45102..45111 (Partie A) */
+  var HB_INTERVAL_MS = 2000;
+  var HB_TIMEOUT_MS = 8000;
+
+  function emit(line) { console.log(line); }
+
+  function nowMs() { return Date.now(); }
+
+  function model() { return global.MultiCamSessionModel; }
+  function store() { return global.MultiCamSessionStore; }
+
+  /* Égalité SÉMANTIQUE de deux copies de session (champs qui forment la
+   * convergence partagée). updatedAtMs est du métadonnée (chaque save le
+   * re-horodate) : une simple re-save provoquerait un écho permanent
+   * sync → changed → sync. Une égalité sémantique → NOOP (pas de save, pas de
+   * ré-annonce, pas de notifyChanged). */
+  function semanticEqual(a, b) {
+    if (!a || !b) return false;
+    if (a.state !== b.state || a.stateUpdatedMs !== b.stateUpdatedMs || a.stateByDeviceId !== b.stateByDeviceId) return false;
+    if (a.name !== b.name || a.nameUpdatedMs !== b.nameUpdatedMs || a.nameByDeviceId !== b.nameByDeviceId) return false;
+    var am = a.masters || [], bm = b.masters || [];
+    if (am.length !== bm.length) return false;
+    for (var i = 0; i < am.length; i++) {
+      if (am[i].deviceId !== bm[i].deviceId) return false;
+      if ((am[i].endpoint || "") !== (bm[i].endpoint || "")) return false;
+    }
+    return true;
+  }
+
+  function wsserver() {
+    return (global.cordova && global.cordova.plugins && global.cordova.plugins.wsserver) || null;
+  }
+
+  var state = {
+    serverRunning: false,
+    effectivePort: -1,
+    serverConns: {},       /* uuid -> { uuid, remoteAddr, peerDid, sessionId } (acceptés) */
+    serverSidToAm: {},     /* am_i_master? unused — kept for future per-conn roles */
+    clientConns: {},       /* endpoint "host:port" -> { ws, did, sessionId, lastRxMs, closed } */
+    hbTimer: null,
+    listeners: [],
+    pendingJoin: null,   /* { sid, host, port, ok, reason, atMs } — consommé par l'écran 02 */
+    localDid: null,
+    localName: "",
+    selfEndpoint: "",      /* "ip:effectivePort" (best-effort, rempli au start) */
+    advertisedKey: {},     /* sessionId -> dernier TXT publié (dédup des ré-annonces) */
+    lastResyncMs: 0        /* anti-écho : throttle des sync_please (convergence) */
+  };
+
+  var _ipCache = "";       /* IPv4 synchrone (warm-up asynchrone via MultiCamNative) */
+
+  function notifyChanged() {
+    state.listeners.slice().forEach(function (fn) { fn(); });
+  }
+
+  function cfg() {
+    return (global.MultiCamConfig && global.MultiCamConfig.get) ? global.MultiCamConfig.get() : null;
+  }
+
+  /* ---------- endpoint / interfaces ---------- */
+
+  function localIpv4() {
+    var st = (global.MultiCamDiscovery && global.MultiCamDiscovery.status) ? global.MultiCamDiscovery.status() : {};
+    if (st && st.ipv4) return st.ipv4;
+    return _ipCache || "";
+  }
+
+  /* Cache synchrone de l'IPv4 (MultiCamNative.ipv4() est asynchrone). Défendu :
+   * on n'accepte qu'une chaîne "1.2.3.4" réelle — jamais un objet/Promise. */
+  function warmIpCache() {
+    if (!global.MultiCamNative || !global.MultiCamNative.ipv4) return;
+    try {
+      global.MultiCamNative.ipv4().then(function (ip) {
+        if (typeof ip === "string" && ip && ip.indexOf(":") < 0 && ip.indexOf(" ") < 0) {
+          _ipCache = ip;
+          refreshSelfEndpoint();
+        }
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
+  function refreshSelfEndpoint() {
+    if (state.effectivePort > 0) {
+      var ip = localIpv4();
+      /* défense : l'IPv4 peut arriver de source asynchrone ; on n'accepte qu'une
+       * chaîne réelle (jamais un objet/Promise qu'une mauvaise API pourrait donner). */
+      if (typeof ip === "string" && ip && ip.indexOf(":") < 0 && ip.indexOf(" ") < 0) {
+        state.selfEndpoint = ip + ":" + state.effectivePort;
+      }
+    }
+    return state.selfEndpoint;
+  }
+
+  /* ---------- handlers serveur ---------- */
+
+  function srvOnOpen(conn) {
+    state.serverConns[conn.uuid] = {
+      uuid: conn.uuid,
+      remoteAddr: conn.remoteAddr || "",
+      resource: conn.resource || "",
+      peerDid: null,
+      sessionId: null,
+      anonymous: true,
+      lastRxMs: nowMs()
+    };
+    emit("WS_CONN_OPEN uuid=" + conn.uuid.substr(0, 8) + "… remote=" + conn.remoteAddr + " res=" + conn.resource);
+    notifyChanged();
+  }
+
+  function srvOnMsg(conn, msg) {
+    var entry = state.serverConns[conn.uuid];
+    if (entry) entry.lastRxMs = nowMs();
+    if (typeof msg === "string") handleServerText(conn, msg);
+    else emit("WS_DROP kind=binary reason=unsupported_j04 uuid=" + (conn.uuid || "?").substr(0, 8) + "…");
+  }
+
+  function srvOnClose(conn, code, reason, wasClean) {
+    var entry = state.serverConns[conn.uuid];
+    delete state.serverConns[conn.uuid];
+    var did = entry ? entry.peerDid : "";
+    emit("WS_CONN_CLOSE uuid=" + (conn.uuid || "?").substr(0, 8) + "… code=" + code
+      + " reason=" + reason + " clean=" + (wasClean ? 1 : 0)
+      + (did ? " did=" + did : ""));
+    if (did) {
+      emit("PEER_DISCONNECTED did=" + did + " reason=ws_close");
+    }
+    notifyChanged();
+  }
+
+  /* ---------- serveur : repli de port (mécano Partie A qualifiée) ---------- */
+
+  /* Démarre le serveur WebSocket avec repli séquentiel base..base+fenêtre.
+   * Résout avec { port } — ne rejette que si TOUTE la fenêtre est occupée.
+   * On réutilise comme signal d'échec : onFailure ET la failure exec (les deux
+   * avancent au port suivant, `settled` évite le double-déclenchement). */
+  function startServer() {
+    var ws = wsserver();
+    if (!ws) {
+      emit("WS_ERROR code=wsserver_unavailable");
+      return Promise.reject(new Error("wsserver_unavailable"));
+    }
+    if (state.serverRunning) return Promise.resolve({ port: state.effectivePort });
+
+    var base = WS_BASE_PORT;
+    var win = WS_PORT_WINDOW;
+    var idx = 0;
+    var tried = [];
+    var t0 = nowMs();
+
+    return new Promise(function (resolve, reject) {
+      var attempt = function () {
+        var port = base + idx;
+        if (idx > win) {
+          emit("WS_FALLBACK_EXHAUSTED base=" + base + " tried=" + JSON.stringify(tried) + " total=" + (nowMs() - t0) + "ms");
+          reject(new Error("no_free_ws_port"));
+          return;
+        }
+        var ta = nowMs();
+        var settled = false;
+        var onAccept = srvOnOpen;
+        var onMsg = srvOnMsg;
+        var onClose = srvOnClose;
+        var onFailure = function (addr, p, reason) {
+          if (p !== port) return;
+          advance("onFailure:" + reason);
+        };
+        var advance = function (tag) {
+          if (settled) return;
+          settled = true;
+          tried.push(":" + port + "(" + tag + "," + (nowMs() - ta) + "ms)");
+          emit("WS_FALLBACK_BUSY port=" + port + " via=" + tag + " dt=" + (nowMs() - ta) + "ms");
+          idx++;
+          attempt();
+        };
+
+        ws.start(port, {
+          origins: null,
+          protocols: null,
+          tcpNoDelay: true,
+          onOpen: onAccept,
+          onMessage: onMsg,
+          onClose: onClose,
+          onFailure: onFailure
+        }, function (addr, effectivePort) {
+          settled = true;
+          state.serverRunning = true;
+          state.effectivePort = effectivePort;
+          emit("WS_EFFECTIVE_PORT port=" + effectivePort + " addr=" + addr
+            + " attempts=" + JSON.stringify(tried) + " total=" + (nowMs() - t0) + "ms");
+          startHeartbeat();
+          refreshSelfEndpoint();
+          resolve({ port: effectivePort });
+        }, function (err) {
+          advance("execcb:" + JSON.stringify(err));
+        });
+      };
+      attempt();
+    });
+  }
+
+  function stopServer() {
+    var ws = wsserver();
+    if (!ws) return;
+    if (state.serverRunning) {
+      try { ws.stop(function () {}, function () {}); } catch (e) {}
+    }
+    stopHeartbeat();
+    state.serverRunning = false;
+    state.effectivePort = -1;
+    state.serverConns = {};
+    state.clientConns = {};
+    emit("WS_SERVER_STOP reason=app");
+    notifyChanged();
+  }
+
+  /* ---------- client (standard WebView WebSocket) ---------- */
+
+  /* Ouvre (ou ressort) une connexion client vers host:port. Résout le WebSocket
+   * ouvert. Les messages entrants sont routés comme ceux du serveur. */
+  function connectTo(host, port) {
+    var key = host + ":" + port;
+    var prev = state.clientConns[key];
+    if (prev && prev.ws && prev.ws.readyState === WebSocket.OPEN) {
+      return Promise.resolve(prev.ws);
+    }
+    if (prev && (prev.closing || prev.ws.readyState === WebSocket.CONNECTING)) {
+      return Promise.resolve(prev.ws);
+    }
+    return new Promise(function (resolve, reject) {
+      var url = "ws://" + key;
+      var ws;
+      try {
+        ws = new WebSocket(url);
+      } catch (e) {
+        emit("WS_CLIENT_CTOR_ERROR url=" + url + " err=" + e);
+        reject(e);
+        return;
+      }
+      var entry = { ws: ws, did: null, sessionId: null, lastRxMs: nowMs(), closing: false };
+      state.clientConns[key] = entry;
+      ws.binaryType = "arraybuffer";
+      ws.onopen = function () {
+        if (entry.closing) return;
+        emit("WS_CLIENT_OPEN endpoint=" + key);
+        resolve(ws);
+        notifyChanged();
+      };
+      ws.onmessage = function (ev) {
+        entry.lastRxMs = nowMs();
+        if (typeof ev.data === "string") {
+          var env = parseEnvelope(ev.data);
+          if (env) {
+            if (env.from) entry.did = env.from;
+            if (env.sessionId) entry.sessionId = env.sessionId;
+            handleIncoming(env, entry);
+          } else {
+            emit("WS_CLIENT_PARSE_ERROR endpoint=" + key);
+          }
+        }
+      };
+      ws.onclose = function (ev) {
+        if (state.clientConns[key] === entry) delete state.clientConns[key];
+        var did = entry.did;
+        emit("WS_CLIENT_CLOSE endpoint=" + key + " code=" + ev.code + " reason=" + ev.reason
+          + " did=" + (did || ""));
+        if (did) emit("PEER_DISCONNECTED did=" + did + " reason=ws_client_close");
+        notifyChanged();
+      };
+      ws.onerror = function () {
+        emit("WS_CLIENT_ERROR endpoint=" + key);
+      };
+    });
+  }
+
+  function sendOn(ws, obj) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return false;
+    try {
+      ws.send(JSON.stringify(obj));
+      return true;
+    } catch (e) {
+      emit("WS_SEND_ERROR " + e);
+      return false;
+    }
+  }
+
+  function sendClient(key, obj) {
+    var entry = state.clientConns[key];
+    if (!entry || !entry.ws) return false;
+    return sendOn(entry.ws, obj);
+  }
+
+  function sendServer(uuid, obj) {
+    var ws = wsserver();
+    var entry = state.serverConns[uuid];
+    if (!ws || !entry) return false;
+    try {
+      ws.send(entry, JSON.stringify(obj));
+      return true;
+    } catch (e) {
+      emit("WS_SEND_ERROR " + e);
+      return false;
+    }
+  }
+
+  /* ---------- enveloppes ---------- */
+
+  function envelope(kind, sessionId, extra) {
+    var e = { v: PROTOCOL_VERSION, kind: kind, from: state.localDid, ts: nowMs() };
+    if (sessionId) e.sessionId = sessionId;
+    if (extra) for (var k in extra) e[k] = extra[k];
+    return e;
+  }
+
+  function parseEnvelope(text) {
+    var raw;
+    try { raw = JSON.parse(text); } catch (e) { return null; }
+    if (!raw || typeof raw !== "object") return null;
+    if (raw.v !== PROTOCOL_VERSION) {
+      emit("WS_DROP kind=" + (raw.kind || "?") + " reason=protocol_version from=" + (raw.from || "?"));
+      return null;
+    }
+    if (typeof raw.kind !== "string" || !raw.kind) return null;
+    return raw;
+  }
+
+  /* ---------- routage entrant (serveur ET client) ---------- */
+
+  function handleServerText(conn, text) {
+    var env = parseEnvelope(text);
+    if (!env) {
+      emit("WS_SERVER_PARSE_ERROR remote=" + conn.remoteAddr);
+      return;
+    }
+    var entry = state.serverConns[conn.uuid];
+    if (entry) entry.lastRxMs = nowMs();
+    if (entry && env.from) entry.peerDid = env.from;
+    if (entry && env.sessionId) entry.sessionId = env.sessionId;
+    /* Lie le conn au deviceId/peer en amont du traitement (broadcast + PEER_CONNECTED). */
+    if (entry && env.from) {
+      var wasUnknown = !entry.peerDid;
+      entry.peerDid = env.from;
+      if (wasUnknown) emit("PEER_CONNECTED did=" + env.from + " via=ws_server uuid=" + conn.uuid.substr(0, 8) + "…");
+    }
+    handleIncoming(env, entry, conn);
+  }
+
+  function handleIncoming(env, entry, serverConn) {
+    switch (env.kind) {
+      case "ping":
+        sendReply(entry, serverConn, "pong", env.sessionId, { echo_ts: env.ts });
+        break;
+      case "pong":
+        break;
+      case "sync_please":
+        handleSyncPlease(env, entry, serverConn);
+        break;
+      case "sync":
+        handleSync(env);
+        break;
+      case "join_req":
+        handleJoinRequest(env, entry, serverConn);
+        break;
+      case "join_ok":
+        handleJoinOk(env);
+        break;
+      case "join_nack":
+        handleJoinNack(env);
+        break;
+      default:
+        emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
+        break;
+    }
+  }
+
+  /* envoie vers l'émetteur : si serverConn présent → via ws.send(conn), sinon client */
+  function sendReply(entry, serverConn, kind, sessionId, extra) {
+    var env = envelope(kind, sessionId, extra);
+    if (serverConn) {
+      sendServer(serverConn.uuid, env);
+    } else if (entry && entry.ws) {
+      sendOn(entry.ws, env);
+    }
+  }
+
+  /* ---------- protocole : sync ---------- */
+
+  function handleSyncPlease(env, entry, serverConn) {
+    if (!env.sessionId) {
+      emit("WS_DROP kind=sync_please reason=missing_sessionId from=" + (env.from || "?"));
+      return;
+    }
+    store().get(env.sessionId).then(function (s) {
+      if (!s) {
+        emit("SYNC_PLEASE_UNKNOWN sessionId=" + env.sessionId + " from=" + (env.from || "?"));
+        sendReply(entry, serverConn, "sync", env.sessionId, { state: null, reason: "unknown_session" });
+        return;
+      }
+      /* Un Master déjà connu peut resynchroniser ; un inconnu se fait servir le
+       * state (sans PIN) et sera validé s'il envoie un join_req ensuite. */
+      var view = model().sharedView(s);
+      emit("SYNC_SENT sessionId=" + env.sessionId + " to=" + (env.from || "?") + " state=" + s.state);
+      sendReply(entry, serverConn, "sync", env.sessionId, { state: view });
+    });
+  }
+
+  function handleSync(env) {
+    if (!env.sessionId || !env.state) return;
+    var remote = env.state;
+    if (remote.sessionId !== env.sessionId) {
+      emit("WS_DROP kind=sync reason=session_mismatch from=" + (env.from || "?"));
+      return;
+    }
+    store().get(env.sessionId).then(function (local) {
+      var modelM = model();
+      if (!local) {
+        /* Copie locale créée à partir du state distant : surtout PAS de PIN —
+         * seul un join_req reconnu en apportera un. */
+        var fresh = modelM.sanitizeSession({
+          sessionId: env.sessionId,
+          name: remote.name, nameUpdatedMs: remote.nameUpdatedMs, nameByDeviceId: remote.nameByDeviceId,
+          state: remote.state, stateUpdatedMs: remote.stateUpdatedMs, stateByDeviceId: remote.stateByDeviceId,
+          createdAtMs: remote.createdAtMs, updatedAtMs: remote.updatedAtMs,
+          masters: []
+        });
+        /* Sanitize génère un PIN local aléatoire (jamais transmis). */
+        return store().save(fresh).then(function () {
+          emit("SYNC_RECEIVED sessionId=" + env.sessionId + " kind=new_copy state=" + fresh.state + " note=no_pin_wire");
+          notifyChanged();
+        });
+      }
+      var res = modelM.mergeSessions(local, remote);
+      if (res.changed && semanticEqual(local, res.session)) {
+        /* Écho de convergence (ex : re-save distante avec updatedAtMs neuf sur des
+         * champs partagés inchangés) → rien à persister, rien à ré-annoncer. */
+        emit("MERGE_NOOP sessionId=" + res.session.sessionId + " from=" + (env.from || "?"));
+        return;
+      }
+      if (res.changed) {
+        return store().save(res.session).then(function () {
+          emitEvents(res.events, env.sessionId, env.from);
+          if (res.session.state === "closed") {
+            /* Décision 30.9/30.10 : une session fermée n'est plus annoncée sur le
+             * LAN, quel que soit l'écran courant (J04-11). Le serveur WS reste up
+             * pour la sync de retour (30.9.3). */
+            emit("SESSION_UNADVERTISE_LEARNED sessionId=" + res.session.sessionId + " via=sync");
+            unadvertise();
+          } else {
+            /* Convergence complète : le TXT DNS-SD (nom) de CET annonceur suit
+             * l'état fusionné, même si la mutation est arrivée par sync (30.1). */
+            advertiseOne(res.session);
+          }
+          notifyChanged();
+        });
+      }
+    }).catch(function (err) {
+      emit("SYNC_ERROR sessionId=" + env.sessionId + " err=" + (err && err.message));
+    });
+  }
+
+  function emitEvents(events, sid, from) {
+    var modelM = model();
+    events.forEach(function (e) {
+      if (e.type === "close") {
+        emit("SESSION_CLOSE_APPLIED sessionId=" + sid + " by=" + (e.byDeviceId || "?"));
+      } else if (e.type === "rename") {
+        emit("RENAME_APPLIED sessionId=" + sid + " from=" + e.from + " to=" + e.to + " by=" + e.byDeviceId);
+      } else if (e.type === "masterAdded") {
+        emit("MASTER_ADDED sessionId=" + sid + " deviceId=" + e.deviceId + " learned_from=" + (from || "?"));
+      } else if (e.type === "conflict") {
+        emit("SYNC_CONFLICT sessionId=" + sid + " field=" + e.field + " detail=" + (e.detail || ""));
+      }
+    });
+  }
+
+  /* ---------- protocole : join ---------- */
+
+  function handleJoinRequest(env, entry, serverConn) {
+    if (!env.sessionId || !env.pin || !env.from) {
+      emit("JOIN_NACK sessionId=" + (env.sessionId || "?") + " reason=malformed from=" + (env.from || "?"));
+      sendReply(entry, serverConn, "join_nack", env.sessionId, { reason: "malformed" });
+      return;
+    }
+    store().get(env.sessionId).then(function (s) {
+      if (!s) {
+        emit("JOIN_NACK sessionId=" + env.sessionId + " reason=unknown_session from=" + env.from);
+        sendReply(entry, serverConn, "join_nack", env.sessionId, { reason: "unknown_session" });
+        return;
+      }
+      if (s.state === "closed") {
+        emit("JOIN_NACK sessionId=" + env.sessionId + " reason=session_closed from=" + env.from);
+        sendReply(entry, serverConn, "join_nack", env.sessionId, { reason: "session_closed" });
+        return;
+      }
+      if (String(env.pin) !== String(s.pin)) {
+        /* Décision 30.8 : PIN erroné → rejet SANS modifier la session. */
+        emit("JOIN_NACK sessionId=" + env.sessionId + " reason=pin_mismatch from=" + env.from);
+        sendReply(entry, serverConn, "join_nack", env.sessionId, { reason: "pin_mismatch" });
+        return;
+      }
+      /* OK : ajoute le joiner aux Masters (fusion par deviceId), persiste, répond
+       * avec le sharedView (sans PIN), et prévient les autres Masters. */
+      var selfInfo = {
+        deviceId: env.from,
+        deviceName: env.deviceName || env.from,
+        endpoint: env.endpoint || "",
+        joinedAtMs: nowMs()
+      };
+      var res = model().upsertMaster(s, selfInfo);
+      return store().save(res.session).then(function () {
+        emit("JOIN_OK sessionId=" + env.sessionId + " did=" + env.from + " name=" + selfInfo.deviceName);
+        emit("PEER_JOINED sessionId=" + env.sessionId + " did=" + env.from);
+        var view = model().sharedView(res.session);
+        sendReply(entry, serverConn, "join_ok", env.sessionId, { state: view });
+        broadcast(res.session, "master_added", " did=" + env.from);
+        notifyChanged();
+      });
+    }).catch(function (err) {
+      emit("JOIN_ERROR sessionId=" + env.sessionId + " err=" + (err && err.message));
+    });
+  }
+
+  function handleJoinOk(env) {
+    /* Réponse du Master acceptant notre join_req. On reçoit le sharedView. */
+    if (!env.sessionId || !env.state) return;
+    state.pendingJoin = { sid: env.sessionId, host: "", port: 0, ok: true, reason: "accepted", atMs: nowMs() };
+    /* Le PIN reste LOCAL : celui saisi par l'utilisateur (on jamais sur le wire).
+     * On le retrouve via le store de la session en cours de création. */
+    return store().get(env.sessionId).then(function (local) {
+      var modelM = model();
+      var res = modelM.mergeSessions(local, env.state);
+      res.session.pin = local.pin; /* immuable, conservé en local uniquement */
+      return store().save(res.session).then(function () {
+        emit("JOIN_ACCEPTED sessionId=" + env.sessionId + " state=" + res.session.state
+          + " name=" + res.session.name);
+        emitEvents(res.events, env.sessionId, env.from);
+        notifyChanged();
+      });
+    }).catch(function () {
+      emit("JOIN_OK_NO_LOCAL sessionId=" + env.sessionId + " — sync pure attendue");
+    });
+  }
+
+  function handleJoinNack(env) {
+    state.pendingJoin = { sid: env.sessionId, host: "", port: 0, ok: false, reason: env.reason || "unknown", atMs: nowMs() };
+    emit("JOIN_REJECTED sessionId=" + (env.sessionId || "?") + " reason=" + (env.reason || "unknown"));
+    notifyChanged();
+  }
+
+  /* L'écran 02 consomme le dernier verdict de join (déduit du protocole, pas de
+   * l'UI) — remis à null après lecture. */
+  function takeJoinOutcome(sid) {
+    if (!state.pendingJoin || (sid && state.pendingJoin.sid !== sid)) return null;
+    var o = state.pendingJoin;
+    state.pendingJoin = null;
+    return o;
+  }
+
+  /* ---------- broadcast ---------- */
+
+  /* Envoie le sharedView (sans PIN) à tous les Masters connectés (serveur + client)
+   * concernés par la session. Appelé après tout changement local (create/rename/close/
+   * join) et sur demandes. */
+  function broadcast(session, tag, extra) {
+    var view = model().sharedView(session);
+    var env = envelope("sync", session.sessionId, { state: view });
+    var sent = 0;
+    Object.keys(state.serverConns).forEach(function (uuid) {
+      var entry = state.serverConns[uuid];
+      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId || !entry.peerDid)) {
+        if (sendServer(uuid, env)) sent++;
+      }
+    });
+    Object.keys(state.clientConns).forEach(function (key) {
+      var entry = state.clientConns[key];
+      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId)) {
+        if (sendOn(entry.ws, env)) sent++;
+      }
+    });
+    emit("SYNC_BROADCAST sessionId=" + session.sessionId + " tag=" + (tag || "") + " peers=" + sent + (extra || ""));
+  }
+
+  /* ---------- API session (appelée par les écrans) ---------- */
+
+  function ensureServer() {
+    /* Application monodocument (index.html) : le cycle de vie réseau ne dépend pas
+     * de l'écran affiché (décision 30.7). Le serveur générique démarre via
+     * startServer() seulement ; pas de ré-attache natif : le plugin qualifié C2 ne
+     * comporte AUCUNE action `status` (pas de logique MultiCam dans le plugin,
+     * décision 30.10). L'état JS de ce document persiste, donc pas de double
+     * démarrage possible. */
+    return startServer().then(function (res) { return res.port; });
+  }
+
+  function advertiseOne(session) {
+    /* Dé-dup : on ne ré-enregistre pas auprès du plugin NSD si le TXT DNS-SD
+     * n'a pas changé (même sid, nom, port, deviceId). Cela empêche :
+     * 1) l'accumulation d'instances "- THBVPJ77", "(2)", "(3)"… (défaut NSD).
+     * 2) le déclenchement d'échos ping-pong de convergence. */
+    if (!global.MultiCamNsd || !global.MultiCamNsd.advertiseSession) return Promise.resolve();
+    if (!session || session.state !== "open") return Promise.resolve();
+    refreshSelfEndpoint();
+    var key = {
+      name: session.name,
+      did: cfg() ? cfg().deviceId : "",
+      port: state.effectivePort,
+      ver: (global.MultiCamDevice && global.MultiCamDevice.appVersion) || "0.0.0",
+      sver: model().SCHEMA_VERSION
+    };
+    var prev = state.advertisedKey[session.sessionId];
+    if (prev && prev.name === key.name && prev.port === key.port && prev.did === key.did
+        && prev.ver === key.ver && prev.sver === key.sver) {
+      emit("SESSION_ADVERTISE_SKIP sessionId=" + session.sessionId + " name=" + session.name + " reason=no_change");
+      return Promise.resolve();
+    }
+    return new Promise(function (resolve) {
+      var opts = { sessionId: session.sessionId, name: key.name, did: key.did, port: key.port, ver: key.ver, sver: key.sver };
+      global.MultiCamNsd.advertiseSession(opts, function () {
+        state.advertisedKey[session.sessionId] = key;
+        emit("SESSION_ADVERTISE sessionId=" + session.sessionId + " name=" + session.name
+          + " port=" + state.effectivePort + " type=_multicam-session._tcp.");
+        resolve();
+      }, function (err) {
+        emit("SESSION_ADVERTISE_ERROR sessionId=" + session.sessionId + " err=" + err);
+        resolve();
+      });
+    });
+  }
+
+  function advertiseOpenSessions() {
+    if (!global.MultiCamNsd || !global.MultiCamNsd.advertiseSession) return Promise.resolve();
+    return store().list().then(function (sessions) {
+      var jobs = sessions
+        .filter(function (s) { return s.state === "open"; })
+        .map(function (s) { return advertiseOne(s); });
+      return Promise.all(jobs);
+    });
+  }
+
+  function unadvertise() {
+    state.advertisedKey = {};
+    if (global.MultiCamNsd && global.MultiCamNsd.unadvertiseSession) {
+      return new Promise(function (resolve) {
+        global.MultiCamNsd.unadvertiseSession(function () { resolve(); }, function () { resolve(); });
+      });
+    }
+    return Promise.resolve();
+  }
+
+  function reSyncSession(session) {
+    /* Throttle convergence (meilleure pratique anti-écho) : au plus une requête
+     * sync_please toutes les 1 500 ms. Les diff sont déjà portés en temps réel
+     * par le canal WS ; sync_please n'est qu'un mécanisme de réparation. */
+    var now = nowMs();
+    if (now - state.lastResyncMs < 1500) {
+      emit("RE_SYNC_THROTTLED sessionId=" + session.sessionId + " dt=" + (now - state.lastResyncMs) + "ms");
+      return;
+    }
+    state.lastResyncMs = now;
+    /* Reproche l'état aux Masters connus (endpoints persistés). Best-effort. */
+    var knownMasterDid = [];
+    (session.masters || []).forEach(function (m) {
+      if (m.deviceId === state.localDid) return;
+      if (m.endpoint) {
+        var parts = m.endpoint.split(":");
+        var host = parts[0] || "";
+        var port = parseInt(parts[1], 10) || 0;
+        if (host && port) {
+          knownMasterDid.push(m.deviceId);
+          connectTo(host, port).then(function (ws) {
+            var env = envelope("sync_please", session.sessionId, {});
+            sendOn(ws, env);
+            emit("SYNC_PLEASE_SENT sessionId=" + session.sessionId + " to=" + m.deviceId
+              + " endpoint=" + m.endpoint);
+          }).catch(function () {
+            emit("SYNC_PLEASE_CONNECT_FAIL sessionId=" + session.sessionId + " to=" + m.deviceId);
+          });
+        }
+      } else {
+        knownMasterDid.push(m.deviceId);
+      }
+    });
+    if (knownMasterDid.length) {
+      emit("RE_SYNC_START sessionId=" + session.sessionId + " peers=" + knownMasterDid.length
+        + " list=" + JSON.stringify(knownMasterDid));
+    }
+  }
+
+  /* ---------- API opérations (appelées par UI) ---------- */
+
+  function createSession(name, selfMeta) {
+    var cfgv = cfg();
+    var self = {
+      deviceId: cfgv ? cfgv.deviceId : "self",
+      deviceName: (selfMeta && selfMeta.deviceName) || (cfgv && cfgv.deviceName) || "Cam",
+      endpoint: state.selfEndpoint || selfEndpointFallback(),
+      joinedAtMs: nowMs()
+    };
+    var s = model().createSession(name, self);
+    return store().save(s).then(function () {
+      emit("SESSION_CREATED sessionId=" + s.sessionId + " name=" + s.name
+        + " state=" + s.state + " endpoint=" + self.endpoint
+        + " pinGenerated=1");
+      notifyChanged();
+      return s;
+    });
+  }
+
+  /* Le device rejoint via discovery : ouvre un client WS vers l'annonceur et
+   * envoie join_req. Le PIN est envoyé une fois, jamais publié ailleurs. */
+  function joinSession(discovered, pin) {
+    var cfgv = cfg();
+    var announcerHost = discovered.host;
+    var announcerPort = discovered.port;
+    if (!announcerHost || !announcerPort) return Promise.reject(new Error("no_endpoint"));
+    var selfInfo = {
+      deviceId: cfgv ? cfgv.deviceId : "self",
+      deviceName: (cfgv && cfgv.deviceName) || "Cam",
+      endpoint: refreshSelfEndpoint()
+    };
+    /* Copie locale provisoire (PIN local saisi — jamais transmis via sharedView). */
+    var provisional = model().sanitizeSession({
+      sessionId: discovered.sessionId,
+      name: discovered.name,
+      pin: pin,
+      state: "open",
+      createdAtMs: nowMs(),
+      updatedAtMs: nowMs(),
+      masters: []
+    });
+    return store().save(provisional).then(function () {
+      return connectTo(announcerHost, announcerPort).then(function (ws) {
+        state.pendingJoin = { sid: discovered.sessionId, host: announcerHost, port: announcerPort, ok: null, reason: "requested", atMs: nowMs() };
+        var env = envelope("join_req", discovered.sessionId, {
+          pin: pin,
+          deviceName: selfInfo.deviceName,
+          endpoint: selfInfo.endpoint
+        });
+        sendOn(ws, env);
+        emit("JOIN_REQUEST sessionId=" + discovered.sessionId + " to=" + announcerHost + ":" + announcerPort
+          + " did=" + selfInfo.deviceId + " name=" + selfInfo.deviceName);
+        return ws;
+      });
+    }).catch(function (err) {
+      state.pendingJoin = { sid: discovered.sessionId, host: announcerHost, port: announcerPort, ok: false, reason: "connect_failed:" + (err && err.message), atMs: nowMs() };
+      throw err;
+    });
+  }
+
+  function renameSession(session, newName) {
+    var n = typeof newName === "string" ? newName.trim() : "";
+    if (!n) return Promise.reject(new Error("name_empty"));
+    // model().cloneSession + modification locale (LMW locale)
+    var updated = model().cloneSession(session);
+    updated.name = n;
+    updated.nameUpdatedMs = nowMs();
+    updated.nameByDeviceId = state.localDid || cfg().deviceId;
+    updated.updatedAtMs = nowMs();
+    return store().save(updated).then(function () {
+      emit("RENAME_LOCAL sessionId=" + updated.sessionId + " to=" + n + " by=" + updated.nameByDeviceId);
+      broadcast(updated, "rename");
+      advertiseOne(updated);
+      notifyChanged();
+      return updated;
+    });
+  }
+
+  function closeSession(session) {
+    var closed = model().cloneSession(session);
+    closed.state = "closed";
+    closed.stateUpdatedMs = nowMs();
+    closed.stateByDeviceId = state.localDid || (cfg() ? cfg().deviceId : "");
+    closed.updatedAtMs = nowMs();
+    return store().save(closed).then(function () {
+      emit("SESSION_CLOSE_LOCAL sessionId=" + closed.sessionId + " by=" + closed.stateByDeviceId);
+      broadcast(closed, "close");
+      return unadvertise().then(function () {
+        notifyChanged();
+        return closed;
+      });
+    });
+  }
+
+  function selfEndpointFallback() {
+    return state.selfEndpoint || "";
+  }
+
+  /* ---------- heartbeat / liveness (§30.4/30.8) ---------- */
+
+  function startHeartbeat() {
+    stopHeartbeat();
+    var probe = function () {
+      var now = nowMs();
+      /* Serveur : ping aux conns anonymes/actives, purge des expirés. */
+      Object.keys(state.serverConns).forEach(function (uuid) {
+        var entry = state.serverConns[uuid];
+        if (!entry) return;
+        if (now - entry.lastRxMs > HB_TIMEOUT_MS) {
+          var did = entry.peerDid || "";
+          delete state.serverConns[uuid];
+          emit("WS_CONN_TIMEOUT uuid=" + uuid.substr(0, 8) + "… did=" + (did || "anon"));
+          if (did) emit("PEER_DISCONNECTED did=" + did + " reason=heartbeat_timeout");
+          notifyChanged();
+          return;
+        }
+        sendServer(uuid, envelope("ping", entry.sessionId || null, {}));
+      });
+      /* Client. */
+      Object.keys(state.clientConns).forEach(function (key) {
+        var entry = state.clientConns[key];
+        if (!entry || !entry.ws) return;
+        if (entry.ws.readyState !== WebSocket.OPEN) return;
+        if (now - entry.lastRxMs > HB_TIMEOUT_MS) {
+          var did = entry.did || "";
+          delete state.clientConns[key];
+          emit("WS_CLIENT_TIMEOUT endpoint=" + key + " did=" + (did || "?"));
+          if (did) emit("PEER_DISCONNECTED did=" + did + " reason=heartbeat_timeout");
+          try { entry.ws.close(); } catch (e) {}
+          notifyChanged();
+          return;
+        }
+        sendOn(entry.ws, envelope("ping", entry.sessionId || null, {}));
+      });
+    };
+    state.hbTimer = setInterval(probe, HB_INTERVAL_MS);
+    emit("WS_HEARTBEAT_START interval=" + HB_INTERVAL_MS + "ms timeout=" + HB_TIMEOUT_MS + "ms");
+  }
+
+  function stopHeartbeat() {
+    if (state.hbTimer) clearInterval(state.hbTimer);
+    state.hbTimer = null;
+  }
+
+  /* ---------- état exposé ---------- */
+
+  function connectedPeers(sessionId) {
+    var out = {};
+    Object.keys(state.serverConns).forEach(function (uuid) {
+      var e = state.serverConns[uuid];
+      if (e.peerDid && (!sessionId || !e.sessionId || e.sessionId === sessionId)) {
+        out[e.peerDid] = { via: "server", lastRxMs: e.lastRxMs };
+      }
+    });
+    Object.keys(state.clientConns).forEach(function (key) {
+      var e = state.clientConns[key];
+      if (e.did && (!sessionId || !e.sessionId || e.sessionId === sessionId)) {
+        var prev = out[e.did] || {};
+        out[e.did] = { via: "client", lastRxMs: e.lastRxMs, server: prev.via || "" };
+      }
+    });
+    return out;
+  }
+
+  function status() {
+    return {
+      serverRunning: state.serverRunning,
+      effectivePort: state.effectivePort,
+      localDid: state.localDid,
+      localName: state.localName,
+      selfEndpoint: state.selfEndpoint,
+      serverConns: Object.keys(state.serverConns).length,
+      clientConns: Object.keys(state.clientConns).length,
+      heartbeat: !!state.hbTimer
+    };
+  }
+
+  function bind(cfgv) {
+    state.localDid = cfgv.deviceId;
+    state.localName = cfgv.deviceName;
+    warmIpCache();
+  }
+
+  global.MultiCamSessionWs = {
+    PROTOCOL_VERSION: PROTOCOL_VERSION,
+    WS_BASE_PORT: WS_BASE_PORT,
+    bind: bind,
+    ensureServer: ensureServer,
+    stopServer: stopServer,
+    connectTo: connectTo,
+    createSession: createSession,
+    joinSession: joinSession,
+    renameSession: renameSession,
+    closeSession: closeSession,
+    advertiseOpenSessions: advertiseOpenSessions,
+    unadvertise: unadvertise,
+    reSyncSession: reSyncSession,
+    broadcast: broadcast,
+    takeJoinOutcome: takeJoinOutcome,
+    connectedPeers: connectedPeers,
+    status: status,
+    onChanged: function (fn) {
+      if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);
+    }
+  };
+})(window);
