@@ -66,7 +66,7 @@ Preuves : `dumps/` (27 JSON), `logs/` (parsables, MEMBER_*), `screenshots/` (17 
 
 - **Invariant SPA** : `1|panel-session/home` à chaque navigation (pas d'empilement).
 - **OCR** (tesseract fra, psm 11) : chaque capture contient le texte attendu — PIN « 4208 », « Cam J05 », pills « capture » puis « capture storage », « Cet appareil » / « Connecté », disparition de « Cam J05 » au retrait puis retour au ré-ajout, « DISPONIBLES SUR LE LAN » vide à la fermeture.
-- **Doublons** : 16 PNG, **aucun doublon byte-identique** (`uniq -d` vide).
+- **Doublons** : 17 PNG, **aucun doublon byte-identique** (`uniq -d` vide).
 
 ## Critères d'acceptation du plan J05
 
