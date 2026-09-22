@@ -5,6 +5,11 @@
     <author>MultiCam</author>
     <content src="index.html" />
     <access origin="*" />
+    <preference name="scheme" value="http" />
+    <preference name="hostname" value="localhost" />
+    <!-- J04 — trafic cleartext Android requis par ws:// LAN, déclaré de façon
+         versionnée (hook after_prepare idempotent) — décision 30.10. -->
+    <hook type="after_prepare" src="hooks/after_prepare/010-enable-cleartext.js" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="AndroidXEnabled" value="true" />
     <preference name="android-targetSdkVersion" value="36" />

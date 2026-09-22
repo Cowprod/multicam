@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-websocket-server"
+    version="1.1.0">
+
+    <name>WebSocket Server</name>
+    <description>WebSocket Server plugin for Cordova</description>
+    <author>Sylvain Bréjeon</author>
+    <keywords>cordova,plugin,network,websocket,server</keywords>
+    <license>MIT</license>
+
+    <!-- MultiCam: Android-only. The iOS block and the cordova-plugin-add-swift-support
+         dependency of the upstream plugin.xml are removed: this app is Android-only and
+         that npm dependency caused rebuild breakage (see MULTICAM_DECISIONS_REFERENCE).
+         The patched C2-1.6.0-compat Android sources are UNMODIFIED. -->
+    <platform name="android">
+        <js-module src="www/wsserver.js" name="WebSocketServer">
+            <clobbers target="cordova.plugins.wsserver" />
+        </js-module>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+        </config-file>
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="WebSocketServer">
+                <param name="android-package" value="cordova.wsserver.WebSocketServerPlugin" />
+            </feature>
+        </config-file>
+        <source-file src="src/android/WebSocketServerPlugin.java" target-dir="src/cordova/wsserver" />
+        <source-file src="src/android/WebSocketServerImpl.java" target-dir="src/cordova/wsserver" />
+        <framework src="src/android/websocket-server.gradle" custom="true" type="gradleReference" />
+    </platform>
+
+</plugin>

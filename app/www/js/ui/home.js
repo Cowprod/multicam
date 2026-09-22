@@ -53,6 +53,107 @@
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
+  /* Sessions récentes (écran 01, maquette validée) : 4 plus récentes de la
+   * persistance locale. Un appui ouvre la Session 03 avec sa config persistée
+   * (PIN, membres, rôles — reprise §30.9.1). */
+  function renderRecents() {
+    var list = byId("recentList");
+    if (!list) return;
+    var store = global.MultiCamSessionStore;
+    if (!store) { list.innerHTML = ""; return; }
+    store.list().then(function (all) {
+      var recent = all.slice(0, 4);
+      if (!recent.length) {
+        list.innerHTML = emptyState("Aucune session récente");
+        return;
+      }
+      list.innerHTML = recent.map(function (s) {
+        var closed = s.state === "closed";
+        var badge = closed
+          ? '<span class="badge rounded-pill text-bg-danger ms-1">FERMÉE</span>'
+          : '<span class="badge rounded-pill text-bg-success ms-1">OUVERTE</span>';
+        return '<button type="button" class="card glass rounded-4 w-100 text-start session-card" data-sid="' + esc(s.sessionId) + '">'
+          + '<div class="card-body p-3 d-flex align-items-center gap-3">'
+          + '<i class="fa-solid fa-sliders fs-4"></i>'
+          + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(s.name) + badge + "</div>"
+          + '<div class="small muted">PIN ' + esc(s.pin) + " · " + (s.masters ? s.masters.length : 0) + " membre(s)</div></div>"
+          + '<i class="fa-solid fa-chevron-right muted"></i></div></button>';
+      }).join("");
+      bindSessionCards();
+    });
+  }
+
+  function bindSessionCards() {
+    var cards = document.querySelectorAll(".session-card");
+    Array.prototype.forEach.call(cards, function (c) {
+      c.addEventListener("click", function () {
+        global.MultiCamNav.show("session", { sid: c.getAttribute("data-sid") });
+      });
+    });
+  }
+
+  /* Sessions disponibles sur le LAN (J04 découverte session) : dédup par
+   * sessionId, on masque celles dont on est déjà membre localement. */
+  function renderLanSessions() {
+    var list = byId("lanList");
+    if (!list) return;
+    var disc = global.MultiCamSessionDiscovery;
+    if (!disc) { list.innerHTML = emptyState("Aucune session disponible"); return; }
+    var store = global.MultiCamSessionStore;
+    Promise.resolve(store ? store.list() : Promise.resolve([])).then(function (locals) {
+      var localIds = {};
+      (locals || []).forEach(function (s) { localIds[s.sessionId] = true; });
+      var found = disc.list();
+      var available = found.filter(function (e) { return !localIds[e.sessionId]; });
+      setLanCount(available.length);
+      if (!available.length) {
+        list.innerHTML = emptyState("Aucune session disponible");
+        return;
+      }
+      list.innerHTML = available.map(function (e) {
+        var ann = e.announcers || [];
+        var inst = ann.length ? ann[ann.length - 1] : null;
+        var host = inst ? inst.host : "";
+        var port = inst ? inst.port : 0;
+        var endpoint = (host && port) ? escapeURI(host) + ":" + port : "";
+        return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
+          + '<i class="fa-solid fa-sliders fs-4"></i>'
+          + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(e.name) + "</div>"
+          + '<div class="small muted">' + (endpoint ? esc(endpoint) : "détection en cours…")
+          + " · " + ann.length + " Master(s)</div></div>"
+          + '<button type="button" class="btn btn-outline-light glass session-join"'
+          + ' data-sid="' + esc(e.sessionId) + '"'
+          + ' data-name="' + esc(e.name) + '"'
+          + ' data-host="' + esc(host) + '"'
+          + ' data-port="' + String(port) + '">Rejoindre</button>'
+          + "</div></article>";
+      }).join("");
+      bindJoinButtons();
+    });
+  }
+
+  function bindJoinButtons() {
+    var btns = document.querySelectorAll(".session-join");
+    Array.prototype.forEach.call(btns, function (b) {
+      b.addEventListener("click", function () {
+        global.MultiCamNav.show("join", {
+          mode: "join",
+          sid: b.getAttribute("data-sid"),
+          name: b.getAttribute("data-name"),
+          host: b.getAttribute("data-host"),
+          port: b.getAttribute("data-port")
+        });
+      });
+    });
+  }
+
+  function escapeURI(s) { return s; }
+
+  function setLanCount(n) {
+    var c = byId("lanCount");
+    if (c) c.textContent = String(n);
+  }
+
   function renderDevices() {
     var list = byId("devicesList");
     var count = byId("devicesCount");
@@ -90,8 +191,8 @@
 
     if (isMaster) {
       renderDevices();
-      byId("recentList").innerHTML = emptyState("Aucune session récente");
-      byId("lanList").innerHTML = emptyState("Aucune session disponible");
+      renderRecents();
+      renderLanSessions();
     } else {
       byId("recentList").innerHTML = "";
       byId("lanList").innerHTML = "";
@@ -125,18 +226,25 @@
       nv.addEventListener("click", function () {
         var menu = byId("menu");
         if (menu) menu.classList.remove("open");
-        // Écran 14 réel (J02) : navigation vers la page Paramètres.
-        global.location.href = "settings.html";
+        // Panneau Paramètres (J04 SPA : même document, pas de navigation).
+        global.MultiCamNav.show("settings");
       });
     }
-    ["navHistory", "createSession"].forEach(function (id) {
-      var n = byId(id);
-      if (n) {
-        n.addEventListener("click", function () {
-          showToast("Disponible dans une version ultérieure");
-        });
-      }
-    });
+    var nh = byId("navHistory");
+    if (nh) {
+      nh.addEventListener("click", function () {
+        var menu = byId("menu");
+        if (menu) menu.classList.remove("open");
+        showToast("Disponible dans une version ultérieure");
+      });
+    }
+    var cs = byId("createSession");
+    if (cs) {
+      cs.addEventListener("click", function () {
+        // Panneau Création (J04 SPA : même document, pas de navigation).
+        global.MultiCamNav.show("create");
+      });
+    }
   }
 
   global.MultiCamHome = {
@@ -147,6 +255,21 @@
         global.MultiCamDiscovery.onChanged(function () {
           renderDevices();
           updateNetStatus(global.MultiCamConfig.get());
+        });
+      }
+      if (global.MultiCamSessionDiscovery) {
+        global.MultiCamSessionDiscovery.onChanged(function () {
+          renderLanSessions();
+        });
+      }
+      if (global.MultiCamSessionStore) {
+        global.MultiCamSessionWs.onChanged(function () {
+          /* J04 : toute mutation/convergence de session (join, rename, close,
+           * sync) doit re-rendre AUSSI les sessions récentes — sinon un écran
+           * d'accueil resté affiché garde le badge OUVERTE d'une session fermée
+           * (défaut revue visuelle humaine, corrigé). */
+          renderRecents();
+          renderLanSessions();
         });
       }
       window.addEventListener("pageshow", function () {
