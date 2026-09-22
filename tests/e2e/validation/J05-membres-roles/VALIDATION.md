@@ -1,7 +1,7 @@
 # VALIDATION.md — J05 Membres + rôles de session
 
 - Jalon : `docs/PLAN-DEVELOPPEMENT-V1.md` → J05
-- État : **PASS technique — en attente de revue humaine**
+- État : **PASS — accepté en revue humaine**
 - Date campagne : 2026-09-22 (campaign 1 finale, `tests/e2e/j05-campaign.sh clean`)
 - Branche : `feat/j05-membres-roles` (départ `ecb9aae` == `main`)
 - Décisions appliquées : `MULTICAM_DECISIONS_REFERENCE.md` §31 (membres : ajout/édition/retrait initiés par un Master ; rôle non annoncé rejeté ; device retiré ré-ajoutable immédiatement) et §31.2 (rôles cumulables capture+storage) — architecture inchangée
@@ -87,7 +87,7 @@ Preuves : `dumps/` (27 JSON), `logs/` (parsables, MEMBER_*), `screenshots/` (17 
 - **TTL DNS-SD système** : après `pm clear`, le résolveur système peut répondre pour des runs précédents jusqu'à ~120-180 s. Pendant la campagne, la table LAN « brute » de B montre des ghosts non-membres (`9c3eb398…`, `366c35c2…`) — **ils restent « disponibles » (non membres)**, seul le device C (`ecfc17ba…`) est member-filtered. Comportement UI conforme (filtre par membres).
 - Nom « Cam J05 » utilisé dans l'API de la campagne (addMember) plutôt que « Cam 07 » annoncé — donnée de la campagne, sans impact sur la sémantique (identité = deviceId).
 - Scénarios 3 appareils — **NOT TESTED — DEFERRED** (décision utilisateur, PAS affaiblis) : tracking de présence d'un membre non-Master appuyé sur 3 joueurs, retrait concurrent depuis 3 Masters.
-- La revue humaine des captures reste **requise** (statut : PASS technique, pas encore accepté).
+- Revue humaine des 17 captures effectuée et **acceptée le 2026-09-23**.
 
 ## Lancer la campagne
 
