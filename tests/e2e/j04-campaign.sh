@@ -58,6 +58,21 @@ read_pin() { # $1 serial $2 sid -> PIN (lu depuis la session créée)
 
 mark(){ echo "### $1"; }
 
+# Invariant SPA : à chaque navigation, EXACTEMENT un panneau .screen.active.
+# (défaut corrigé J04 : panneaux empilés — revue visuelle humaine 2026-09-22)
+# Invariant SPA : à chaque navigation, EXACTEMENT un panneau .screen.active.
+# (défaut corrigé J04 : panneaux empilés — revue visuelle humaine 2026-09-22)
+panels_ok() {
+  local s="$1" label="$2"
+  local n=$(ev "$s" "(function(){var a=document.querySelectorAll('.screen.active');return a.length+'|'+(a[0]?a[0].id:'');})()" 2>/dev/null)
+  n="${n//\"/}"; n="${n//\\/}"
+  echo "panels_ok $label -> $n"
+  case "$n" in
+    1\|*) echo "PANELS_OK $label active=$(echo "$n" | cut -d'|' -f2)" ;;
+    *) echo "PANELS_FAIL $label got=$n (attendu exactement 1|panel-…)" ;;
+  esac
+}
+
 if [ "${1:-}" = "clean" ]; then
   echo "CLEAN des données B et C"
   clean_device "$B"
@@ -79,13 +94,16 @@ wait_lan_clear() {
   return 1
 }
 wait_lan_clear "$C"
+wait_lan_clear "$B"
 
 echo "############ J04-01 : création de session sur B ############"
 ev "$B" "MultiCamNav.show('create'); 'NAV'" >/dev/null
 sleep 2
+panels_ok "$B" "J04-01-create"
 shot "$B" "J04-01-B-create-screen"
 ev "$B" "(function(){document.getElementById('sessionName').value='$SNAME';document.getElementById('createButton').click();return 'CLICKED_CREATE';})()"
 sleep 5
+panels_ok "$B" "J04-01-session"
 dump "$B" "(async function(){var l=await MultiCamSessionStore.list();var s=l[0];return JSON.stringify({found:s?true:false,sid:s?s.sessionId:'',name:s?s.name:'',state:s?s.state:'',pin:s?s.pin:'',masters:s?(s.masters||[]).length:0,ws:MultiCamSessionWs.status(),self:MultiCamSessionWs.status().selfEndpoint})})()" "J04-01-B-created.json"
 shot "$B" "J04-01-B-session-screen"
 logs "$B" "J04-01-B"
@@ -96,6 +114,7 @@ if [ "$PIN" = "N/A" ] || [ -z "$PIN" ]; then echo "FATAL: PIN illisible"; exit 1
 
 echo "############ J04-02 : découverte LAN de la session par C ############"
 sleep 4
+panels_ok "$C" "J04-02-home"
 dump "$C" "JSON.stringify({lan:MultiCamSessionDiscovery.list()})" "J04-02-C-lan.json"
 shot "$C" "J04-02-C-home-lan"
 logs "$C" "J04-02-C"
@@ -104,21 +123,24 @@ read -r JHOST JPORT <<< "$(node -e "const fs=require('fs');let j=JSON.parse(fs.r
 echo "JOIN_TARGET sid=$SID host=$JHOST port=$JPORT"
 
 echo "############ J04-05 : PIN erroné sur C -> rejet vérifié (session inchangée sur B) ############"
-ev "$C" "MultiCamNav.show('join',{sid:'$SID',name:'$SNAME',host:'$JHOST',port:'$JPORT'}); 'NAV'" >/dev/null
+ev "$C" "MultiCamNav.show('join',{mode:'join',sid:'$SID',name:'$SNAME',host:'$JHOST',port:'$JPORT'}); 'NAV'" >/dev/null
 sleep 2
+panels_ok "$C" "J04-05-join"
 shot "$C" "J04-05-C-join-screen"
 set_pin "$C" "1111"
 sleep 6
+panels_ok "$C" "J04-05-rejected"
 dump "$C" "(async function(){var l=await MultiCamSessionStore.list();return JSON.stringify({storedCount:l.length,panelVisible:!!document.getElementById('panel-join').classList.contains('active'),pinStatus:document.getElementById('pinStatus').textContent})})()" "J04-05-C-reject.json"
 dump "$B" "(async function(){var s=await MultiCamSessionStore.get('$SID');return JSON.stringify({state:s?s.state:'',pin:s?s.pin:'',masters:s?(s.masters||[]).length:0})})()" "J04-05-B-unchanged.json"
 shot "$C" "J04-05-C-wrong-pin"
 logs "$C" "J04-05-C"
 
 echo "############ J04-03 : C rejoint avec le PIN réel -> convergence 2 Masters ############"
-ev "$C" "MultiCamNav.show('join',{sid:'$SID',name:'$SNAME',host:'$JHOST',port:'$JPORT'}); 'NAV'" >/dev/null
+ev "$C" "MultiCamNav.show('join',{mode:'join',sid:'$SID',name:'$SNAME',host:'$JHOST',port:'$JPORT'}); 'NAV'" >/dev/null
 sleep 2
 set_pin "$C" "$PIN"
 sleep 7
+panels_ok "$C" "J04-03-session"; panels_ok "$B" "J04-03-session"
 dump "$C" "(async function(){var l=await MultiCamSessionStore.list();return JSON.stringify({sessions:l.map(function(s){return{sid:s.sessionId,name:s.name,state:s.state,pin:s.pin,masters:(s.masters||[]).map(function(m){return{deviceId:m.deviceId,deviceName:m.deviceName}})}}),ws:MultiCamSessionWs.status(),panel:['panel-session','panel-join'].filter(function(id){return document.getElementById(id).classList.contains('active')})})})()" "J04-03-C-joined.json"
 dump "$B" "(async function(){var l=await MultiCamSessionStore.list();return JSON.stringify({sessions:l.map(function(s){return{sid:s.sessionId,name:s.name,state:s.state,pin:s.pin,masters:(s.masters||[]).map(function(m){return{deviceId:m.deviceId,deviceName:m.deviceName}})}}),serverConns:MultiCamSessionWs.status().serverConns,clientConns:MultiCamSessionWs.status().clientConns})})()" "J04-03-B-converged.json"
 shot "$B" "J04-03-B-session-2masters"
@@ -128,16 +150,19 @@ logs "$B" "J04-03-B"; logs "$C" "J04-03-C"
 echo "############ J04-04 : renommage depuis C -> propagé sur B + TXT DNS-SD ############"
 ev "$C" "(async function(){var s=await MultiCamSessionStore.get('$SID');await MultiCamSessionWs.renameSession(s,'$RNAME');return 'RENAMED';})()" >/dev/null
 sleep 6
+panels_ok "$B" "J04-04-renamed"; panels_ok "$C" "J04-04-renamed"
 dump "$B" "(async function(){var s=await MultiCamSessionStore.get('$SID');return JSON.stringify({name:s?s.name:'',nameBy:s?s.nameByDeviceId:''})})()" "J04-04-B-name.json"
 dump "$C" "(async function(){var s=await MultiCamSessionStore.get('$SID');return JSON.stringify({name:s?s.name:'',nameBy:s?s.nameByDeviceId:''})})()" "J04-04-C-name.json"
 dump "$B" "JSON.stringify(MultiCamSessionDiscovery.list())" "J04-04-B-lan-txt.json"
 shot "$B" "J04-04-B-renamed"
+shot "$C" "J04-04-C-renamed"
 
 echo "############ J04-08 : redémarrage B -> session conservée, PAS de nouvelle session ############"
 adb -s "$B" shell am force-stop "$APP"
 sleep 2
 adb -s "$B" shell am start -n "$APP/.MainActivity" >/dev/null
 sleep 9
+panels_ok "$B" "J04-08-restart-home"
 dump "$B" "(async function(){var l=await MultiCamSessionStore.list();return JSON.stringify({count:l.length,sessions:l.map(function(s){return{sid:s.sessionId,name:s.name,state:s.state,pin:s.pin,masters:(s.masters||[]).length}})})})()" "J04-08-B-restart.json"
 shot "$B" "J04-08-B-restart-home"
 logs "$B" "J04-08-B"
@@ -145,10 +170,21 @@ logs "$B" "J04-08-B"
 echo "############ J04-06 : fermeture depuis C -> B apprend fermé, LAN vidé ############"
 ev "$C" "(async function(){var s=await MultiCamSessionStore.get('$SID');await MultiCamSessionWs.closeSession(s);return 'CLOSED';})()" >/dev/null
 sleep 7
+panels_ok "$B" "J04-06-closed"; panels_ok "$C" "J04-06-closed"
 dump "$B" "(async function(){var s=await MultiCamSessionStore.get('$SID');return JSON.stringify({state:s?s.state:'',closedBy:s?s.closedByDeviceId:''})})()" "J04-06-B-closed.json"
 dump "$C" "(async function(){var s=await MultiCamSessionStore.get('$SID');return JSON.stringify({state:s?s.state:''})})()" "J04-06-C-closed.json"
 dump "$B" "JSON.stringify({lan:MultiCamSessionDiscovery.list()})" "J04-06-B-lan-after-close.json"
+# Preuve visuelle FERMÉE : panneau session (badge FERMÉE) puis Accueil (session
+# récente FERMÉE) — les deux états doivent être visibles, jamais OUVERTE.
+ev "$B" "MultiCamNav.show('session',{sid:'$SID'}); 'NAV'" >/dev/null
+sleep 2
+panels_ok "$B" "J04-06-closed-session"
 shot "$B" "J04-06-B-closed-screen"
+ev "$B" "MultiCamNav.show('home'); 'NAV'" >/dev/null
+sleep 2
+panels_ok "$B" "J04-06-closed-home"
+shot "$B" "J04-06-B-home-closed"
+shot "$C" "J04-06-C-closed-screen"
 logs "$B" "J04-06-B"
 
 echo "############ J04-09 : purge DNS-SD de la session fermée (< fenêtre stale 150s) ############"
@@ -157,7 +193,7 @@ dump "$B" "JSON.stringify({lan:MultiCamSessionDiscovery.list()})" "J04-09-B-lan-
 logs "$B" "J04-09-B"
 
 echo "############ J04-07 : re-jonction d'une session fermée refusée (C) ############"
-ev "$C" "MultiCamNav.show('join',{sid:'$SID',name:'$SNAME',host:'$JHOST',port:'$JPORT'}); 'NAV'" >/dev/null
+ev "$C" "MultiCamNav.show('join',{mode:'join',sid:'$SID',name:'$SNAME',host:'$JHOST',port:'$JPORT'}); 'NAV'" >/dev/null
 sleep 2
 set_pin "$C" "$PIN"
 sleep 6
@@ -166,3 +202,14 @@ logs "$C" "J04-07-C"
 
 echo "############ TERMINÉ ############"
 ls -1 "$OUT/dumps"
+
+echo "--- Vérif fin de run : panneaux exactement un par device (doit être 1|panel-…) ---"
+panels_ok "$B" "fin"
+panels_ok "$C" "fin"
+
+echo "--- Hachage SHA-256 des captures + détection de doublons ---"
+cd "$OUT/screenshots" || exit 1
+shasum -a 256 *.png | tee "$OUT/png-shas.txt"
+echo "--- doublons (le cas échéant) ---"
+shasum -a 256 *.png | awk '{print $1}' | sort | uniq -d | sed 's/^/duplicate-sha: /'
+cd "$ROOT"

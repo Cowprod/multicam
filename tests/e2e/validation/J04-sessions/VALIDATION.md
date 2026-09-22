@@ -1,70 +1,86 @@
 # VALIDATION.md — J04 Sessions + second Master
 
 - Jalon : `docs/PLAN-DEVELOPPEMENT-V1.md` → J04
-- État : **PASS technique — en attente revue humaine**
-- Date : 2026-09-22
+- État : **PASS technique — en attente revue humaine** (revue visuelle non effectuée)
+- Date campagne : 2026-09-22 (campaign 8 ; refonte visuelle après revue humaine KO 1)
 - Branche : `fix/j04-websocket`
-- Décisions appliquées : `MULTICAM_DECISIONS_REFERENCE.md` §28 (transport WebSocket LAN), §30 (sessions, PIN immuable, fermeture, masters égaux)
-- Devices physiques : B (`61d54bba7d91`, Cam 07, 192.168.92.76) et C (`c0d8514d7d87`, Cam 07, 192.168.92.192). Device A exclu par décision utilisateur (install Android bloquée par `INSTALL_FAILED_USER_RESTRICTED`, HyperOS « Install via USB » désactivé).
+- Décisions appliquées : `MULTICAM_DECISIONS_REFERENCE.md` §28 (transport WS LAN), §30 (sessions, PIN immuable, fermeture, masters égaux) — architecture inchangée
+- Devices physiques : B = `61d54bba7d91` (Cam 07, 192.168.92.76) et C = `c0d8514d7d87` (Cam 07, 192.168.92.192). A indisponible et exclu (décision utilisateur).
 
 ## Artefact validé
 
-- APK : `testia/openCode/multicam/tests/e2e/validation/J04-sessions/artifacts/multicam-j04.apk`
-- SHA-256 : `2e91bf1bc58036f0766de8c296dc6e75b33783b4dec4bf8d38650dca3ac9f107`
-- Installé sur B et C via `pm install -r -t`.
+- APK : `tests/e2e/validation/J04-sessions/artifacts/multicam-j04.apk`
+- SHA-256 : `ba7c85f3e9b957c8e43dce24a61b53fd80d4f7af1758e76d82982315bea7ae38`
+- Installé sur B et C via `pm install -r -t` ; **le même APK** sur les deux devices.
 
-## Scénarios exécutés (campaign 4, `tests/e2e/j04-campaign.sh clean`)
+## Défauts SPA corrigés pendant la refonte visuelle (revue humaine KO 1)
 
-| # | Scénario | Cible critère plan | Résultat | Preuves |
+La revue humaine a rejeté les captures précédentes : (a) plusieurs panneaux visibles empilés,
+(b) joint/PIN non montré, (c) badge OUVERTE sur session fermée, (d) captures byte-identiques
+entre scénarios. Trois défauts rendus réels, corrigés — SANS changer la sémantique session/network :
+
+1. **CSS** `app/www/css/app.css` : aucune règle `.screen` n'existait → tous les panneaux étaient
+   rendus empilés. Ajout : `.screen{display:none}` + `.screen.active{display:flex;flex-direction:column}`.
+2. **Routeur** `app/www/js/main.js` : `showPanel` case `join` ne forçait pas `mode:"join"` →
+   l'écran Rejoindre affichait le formulaire de CRÉATION et `#joinArea` (bloc PIN) restait
+   masqué. Le routeur force désormais le mode join ; `ui/home.js` passe aussi `mode:"join"`.
+3. **Rendu temps réel** `app/www/js/ui/home.js` : `renderRecents()` n'était pas rappelé sur les
+   mutations de session → l'accueil gardait `OUVERTE` pour une session apprise fermée. Corrigé
+   (Accueil re-refait aussi les sessions récentes).
+
+Garde-fous déterministes : `tests/plugin-lab/ui/panels-check.test.js` (exactement 1 panneau
+`.active`, règles CSS obligatoires, routeur force mode join, badges FERMÉE/OUVERTE) — **18/18 OK** ;
+`tests/plugin-lab/session/merge-model.test.js` — **7/7 OK**; `node --check` sur tous les JS app.
+
+## Scénarios exécutés (campaign 8, `tests/e2e/j04-campaign.sh clean`)
+
+À chaque navigation, invariant vérifié : `PANELS_OK active=panel-…` (exactement UN panneau `.active`).
+
+| # | Scénario | État clé (dump/log) | Capture visuelle (OCR vérifié) | Résultat |
 |---|---|---|---|---|
-| J04-01 | Création de session sur B : `sessionId` persistant, nom, PIN 4 chiffres, serveur WS 45102, annonce DNS-SD | création session / PIN | **PASS** | `dumps/J04-01-B-created.json`, `shots/J04-01-B-*`, `logs/J04-01-B.log` |
-| J04-02 | Découverte LAN par C : 1 annonceur, host/port/TXT corrects | second Master via écran 02 | **PASS** | `dumps/J04-02-C-lan.json`, `shots/J04-02-C-home-lan.png`, `logs/J04-02-C.log` |
-| J04-03 | C rejoint avec le PIN réel → convergence **2 Masters distincts** (mêmes nom, PIN, sessionId, masters par `deviceId`) sur les deux écrans | même état de session / écran 03 vue principale | **PASS** | `dumps/J04-03-B-converged.json`, `dumps/J04-03-C-joined.json`, `shots/J04-03-B-session-2masters.png`, `shots/J04-03-C-session-screen.png`, `logs/J04-03-*.log` |
-| J04-04 | Renommage depuis C → propagé sur B + TXT DNS-SD actualisé (2 Masters, nom renommé) | même état / propagation temps réel | **PASS** | `dumps/J04-04-B-name.json`, `dumps/J04-04-C-name.json`, `dumps/J04-04-B-lan-txt.json`, `shots/J04-04-B-renamed.png` |
-| J04-05 | PIN erroné sur C → rejet `pin_mismatch`, message « PIN incorrect », session **inchangée** sur B | décision 30.8 | **PASS** | `dumps/J04-05-C-reject.json`, `dumps/J04-05-B-unchanged.json`, `shots/J04-05-C-*`, `logs/J04-05-C.log` |
-| J04-06 | Fermeture depuis C → propagation sur B (état `closed`), **LAN vidé** des deux côtés | fermeture / décisions 30.9-30.11 | **PASS** | `dumps/J04-06-*.json`, `dumps/J04-06-B-lan-after-close.json`, `shots/J04-06-B-closed-screen.png`, `logs/J04-06-B.log` |
-| J04-07 | Re-jonction d'une session fermée → rejet `session_closed`, « Session indisponible », retour accueil, **store vide** | reprise cohérente | **PASS** | `dumps/J04-07-C-closed-reject.json`, `logs/J04-07-C.log` |
-| J04-08 | Kill + restart de B (Master rejoint) → **même** session (dedans `9EGCAUWJ`, renommée, 2 Masters) | restart n'en crée pas une nouvelle / sessions récentes | **PASS** | `dumps/J04-08-B-restart.json`, `shots/J04-08-B-restart-home.png`, `logs/J04-08-B.log` |
-| J04-09 | Purge DNS-SD de l'annonce fermée hors fenêtre stale 150 s | décision 30.11 (nettoyage) | **PASS** | `dumps/J04-09-B-lan-purged.json`, `logs/J04-09-B.log` |
-| — | Tests unitaires module de fusion (`tests/plugin-lab/session/merge-model.test.js`) | — | **7/7 PASS** | `tests/plugin-lab/session/` |
+| J04-01 | Création session B : `sessionId` persistant, PIN 4 chiffres, serveur 45102, DNS-SD | `J04-01-B-created.json` : sid=A8CG3YXR, open, pin=7431, masters=1, selfEndpoint=.76:45102, serverConns=0 | `J04-01-B-create-screen.png` (« NOUVELLE SESSION ») ; `J04-01-B-session-screen.png` (« DEVICES DANS LA SESSION … 1 », « Terminer la session ») | **PASS** |
+| J04-02 | Découverte LAN par C (Home) | `J04-02-C-lan.json` : 1 annonceur A8CG3YXR did=B host .76 port 45102 TXT sid/name/did/ver/sver | `J04-02-C-home-lan.png` : « Studio J04 · 192.168.92.76:45102 · 1 Master(s) · Rejoindre » | **PASS** |
+| J04-05 | PIN erroné sur C (1111) → rejet `pin_mismatch`, session B intacte | `J04-05-C-reject.json` : storedCount=0, panelVisible=true, pinStatus=« PIN incorrect » ; `J04-05-B-unchanged.json` : open/pin 7431/masters 1 | `J04-05-C-join-screen.png` : « REJOINDRE LA SESSION · Studio J04 · PIN Master » (4 cases vides) ; `J04-05-C-wrong-pin.png` : « … PIN incorrect » visible | **PASS** |
+| J04-03 | C rejoint avec le PIN réel → convergence 2 Masters | `J04-03-C-joined.json` / `J04-03-B-converged.json` : mêmes nom/PIN/sessionId, masters [[76,76]] exacts par deviceId, panel=[panel-session] | `J04-03-B-session-2masters.png` : « DEVICES DANS LA SESSION … 2 … Connecté · 192.168.92.192:45102 » ; `J04-03-C-session-screen.png` idem miroir | **PASS** |
+| J04-04 | Renommage depuis C → propagé B et C + TXT | `J04-04-B-name.json` / `J04-04-C-name.json` : name=« Studio J04 renommee », nameBy=did(C) ; `J04-04-B-lan-txt.json` : TXT renommé, 1 annonceur | `J04-04-B-renamed.png`, `J04-04-C-renamed.png` : seule bande diff vs J04-03 = rangée NOM (pixel-band y=420-479, 0.6 %) | **PASS** |
+| J04-08 | Force-stop + relance B → même session, PAS de nouvelle | `J04-08-B-restart.json` : count=1, A8CG3YXR renommé, open, pin 7431, masters 2 | `J04-08-B-restart-home.png` : Accueil, récente « Studio J04 renommee (OUVERTE) · PIN 7431 · 2 membre(s) » | **PASS** |
+| J04-06 | Fermeture depuis C → B/C closed, LAN vidé | `J04-06-B-closed.json`/`J04-06-C-closed.json` : state=closed ; `J04-06-B-lan-after-close.json` : lan=[] | `J04-06-B-closed-screen.png` : badge FERMÉE, « Terminer la session » masqué ; `J04-06-B-home-closed.png` : récente « (FERMÉE) » + « Aucune session disponible » ; `J04-06-C-closed-screen.png` idem | **PASS** |
+| J04-09 | Purge DNS-SD de la session fermée (fenêtre stale 150 s) | `J04-09-B-lan-purged.json` : lan=[] | — | **PASS** |
+| J04-07 | Re-jonction d'une session fermée → refus `session_closed`, store vidé | `J04-07-C-closed-reject.json` : storedCount=0, panelVisible=false, pinStatus=« Session indisponible » | — (retour Accueil automatique) | **PASS** |
+| — | Unités fusion + garde-fou SPA | `merge-model.test.js` 7/7 ; `panels-check.test.js` 18/18 | — | **PASS** |
 
-## Critères d'acceptation du plan
+Preuves : logs parsables dans `logs/` (J04-01…09 + boots), dumps JSON `dumps/`, captures `screenshots/`
+(13 PNG, manifeste SHA-256 `png-shas.txt`).
+
+## Critères d'acceptation du plan J04
 
 | Critère | Verdict |
 |---|---|
-| Les deux Masters affichent le même nom, PIN et `sessionId` | ✅ J04-03 (dumps identiques, masters triés par `deviceId`) |
+| Les deux Masters affichent le même nom, PIN et `sessionId` | ✅ J04-03 (dumps identiques, masters par `deviceId`) + captures les 2 côtés |
 | Un restart n'en crée pas une nouvelle | ✅ J04-08 (count=1, même sid) |
-| La session réapparaît dans les sessions récentes | ✅ J04-08 (session listée au boot) |
-| L'écran 03 devient la vue principale réelle de session | ✅ J04-03 (panel-session + `MultiCamSessionScreen`) |
+| La session réapparaît dans les sessions récentes | ✅ J04-08 (Accueil, récente avec état/pin/membres persistés) |
+| L'écran 03 devient la vue principale réelle de session | ✅ J04-03 (panel-session, `MultiCamSessionScreen`, convergence temps réel) |
 
-## Scénarios différés — décision utilisateur explicite (PAS affaiblis)
+## Vérification croisée capture ↔ dump/log + doublons
 
-Device A non installable → scénarios 3 Masters repoussés :
-- déterminisme à 3 Masters (fusion/renommage/fermeture avec trios) ;
-- rejet d'un 3ᵉ joiner concurrent ;
-- délestage / retour d'un pair en plein REC (lightning cut).
+- **Invariant SPA** : `1|panel-create/join/session/home` vérifié à chaque navigation (pas d'empilement).
+- **OCR** (tesseract fra, psm 11) : chaque capture contient le texte attendu du scénario (listé ci-dessus).
+- **Pixel-band** (diff BMP par bandes de 60 px) :
+  - J04-03-B → J04-04-B et J04-03-C → J04-04-C : seule diff = rangée du NOM (y=420-479, 0,6 %) → renommage visible, rien d'autre ne bouge ;
+  - J04-05-join → J04-05-wrong-pin : diff concentrée zone form/PIN (y=300-839, jusqu'à 89,5 %) → saisie/rejet visibles ;
+  - J04-06-B-home-closed → J04-08-B-restart-home : diff y=1080-1139 (6,4 %) = badge FERMÉE vs OUVERTE sur la carte récente.
+- **Doublons** : 13 PNG, **aucun doublon byte-identique** (`uniq -d` vide).
 
-Ils restent **NOT TESTED — DEFERRED par décision utilisateur explicite** ; aucun critère du plan J04 ne dépend du 3ᵉ device (le plan ne requiert que 2 Masters).
+## Limitations et notes honnêtes
 
-## Bugs réels détectés et corrigés (évidence honnête)
-
-1. **Cache store périmé après `remove()`** (découvert campagne 3, `storedCount:1` après rejet) : dans la branche Cordova, `remove()` faisait `return getEntry(...)` AVANT la purge cache → `cache[sid]` restait servi par `list()/get()` alors que le fichier avait été supprimé. Corrigé dans `session-store.js` (purge commune toutes branches + `SESSION_STORE_REMOVE`/`_MISSING` tracés). Campagne 4 : `storedCount:0` sur rejet (J04-05 et J04-07).
-2. **Boucle de convergence sync-echo** (campagnes 1-2) : différences cosmétiques `updatedAtMs` → `merge-changed` → advertise + reSync ping-pong. Corrigé via `semanticEqual()` noop dans `handleSync` (`MERGE_NOOP`).
-3. **Instances DNS-SD dupliquées** (`- SID`, `(2)`, `(3)`) : lors des restarts non `clean`, chaque `advertise` recréait une instance. Corrigé via `advertisedKey` dédup dans `advertiseOne` (`SESSION_ADVERTISE_SKIP`), `advertiseOpenSessions` routé via `advertiseOne`, `unadvertise` purge la clé.
-4. **Throttle reSync** : `reSyncSession` 1500 ms (`RE_SYNC_THROTTLED`) pour stopper les allers-retours intempestifs.
-5. **Mapping NACK** : `session_closed`/`unknown_session` affichés « Session indisponible » (au lieu de « PIN incorrect »).
-
-## Limitation environnementale connue (non produit)
-
-Après `pm clear`/force-stop, le résolveur DNS-SD système peut encore répondre jusqu'à l'expiration du TTL (~120 s) pour les annonces du run précédent (observé sur `dumps/J04-04-B-lan-txt.json` : 1 résidu `2VGQQDNU` du run précédent à `lastSeen` rafraîchi, vidé au plus tard à J04-06 « LAN après fermeture = [] » et J04-09 « [] »). Le sweeper stale (`STALE_MS=150000`, période `SWEEP_MS=30000`) est le filet de sécurité ; `serviceLost` n'est que rarement délivré.
-
-## Architecture livrée (résumé)
-
-- Serveur WebSocket embarqué **générique** (`app/local-plugins/cordova-websocket-server/`) : aucune logique MultiCam, seul diff = compat Java-WebSocket 1.6.0 (patch minimal qualifié en POC) + `plugin.xml` android-only.
-- Clients `new WebSocket` standard ; origine `http://localhost`, transport `ws://` LAN, port 45102 (fallback JS).
-- Logique MultiCam 100 % dans `app/www/js/`: `net/session-ws.js` (protocole v1, ping/heartbeat, sync/merge, join), `net/session-discovery.js` (DNS-SD), `state/session-model.js` (merge), `state/session-store.js` (fichiers JSON, cache), `ui/session-create.js`, `ui/session.js`, `ui/settings.js`.
-- SPA mono-document (`index.html`) : les écrans 01/02/03/settings sont des panneaux (`panel-home/create/join/session/settings`), routeur `MultiCamNav`. L'action native `status` est **interdite** ; l'état serveur est lu côté app (`serverRunning`, `effectivePort`, connexions, heartbeat).
-- DNS-SD : `_multicam-session._tcp.` TXT `sid,name,did,ver,sver` (PAS de PIN dans le TXT).
+- **TTL DNS-SD système** : après force-stop/`pm clear`, le résolveur système peut encore répondre
+  pour des annonces du run précédent jusqu'à ~120-180 s (observations campaigns 3-7). La campagne
+  attend l'expiration sur B **et** C avant de commencer (`wait_lan_clear` ×2) afin que les preuves
+  LAN ne portent QUE sur la campagne courante. Un résidu manuel d'investigation (session « Repro Visual J04 »,
+  créée hors campagne pour le diagnostic visuel) avait contaminé le run 7 — d'où le run 8 final.
+- La purge après fermeture est vérifiée ≤ fenêtre stale 150 s (J04-09).
+- Scénarios 3 appareils — **NOT TESTED — DEFERRED** (décision utilisateur, PAS affaiblis) :
+  déterminisme à 3 Masters, rejet d'un 3ᵉ concurrent, délestage/retour d'un pair en cours de REC.
 
 ## Lancer la campagne
 
@@ -73,4 +89,4 @@ adb devices                          # B et C branchés
 bash tests/e2e/j04-campaign.sh clean
 ```
 
-Résultat attendu : 9 PASS techniques, `TERMINÉ`.
+Résultat attendu : 9 PASS technique + invariants `PANELS_OK`, `TERMINÉ`.
