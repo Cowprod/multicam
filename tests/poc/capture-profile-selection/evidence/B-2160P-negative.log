@@ -1,0 +1,11 @@
+09-23 09:46:23.726 D/CameraPreview(22342): Constructing
+09-23 09:46:23.726 D/PluginManager(22342): getPlugin - put: CameraPreview
+09-23 09:46:30.761 D/CameraPreview(22342): start camera action
+09-23 09:46:30.888 D/MiuiEmbeddingWindow( 1307): needUse3rdPipeline =false,isNeedRotateCameraInFullScreen=false,isAppSupportCameraPreview=false,isSupportCameraPreviewInFixOri=false,willActivityInFO=false,shouldUpdate3rdPipe =false,isRequestedLandscape=false
+09-23 09:46:30.943 D/CameraActivity(22342): CameraPreview previewAspectRatio 1.7777777777777777
+09-23 09:46:30.943 D/CameraActivity(22342): CameraPreview optimalPictureSize 1920x1088
+09-23 09:46:31.008 D/CameraPreview(22342): Camera started
+09-23 09:46:32.514 D/CameraActivity(22342): CameraPreview startRecord camera: back width: 0, height: 0, quality: 85
+09-23 09:46:32.514 E/CameraActivity(22342): Recording rejected (explicit profile): PROFILE_NOT_SUPPORTED 2160P cameraId=0
+09-23 09:46:32.514 D/CameraPreview(22342): CameraPreview onStartRecordVideo
+09-23 09:46:32.527 D/CameraPreview(22342): onStopRecordVideo error
