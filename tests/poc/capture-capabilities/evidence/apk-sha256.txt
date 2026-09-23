@@ -1,0 +1,1 @@
+faed1c8622459629cce6a5cca219db394c4a2f73a2b5d6679363ef7efee485ec  /Volumes/SSD1TO/testia/openCode/multicam/app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
