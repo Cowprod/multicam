@@ -957,3 +957,27 @@ Décisions fonctionnelles validées :
 - il peut être ré-ajouté immédiatement à la même session ;
 - l'identité reste basée sur le `deviceId`, jamais sur l'IP ;
 - un ancien membre déconnecté reste membre tant qu'un Master ne le retire pas explicitement.
+
+
+## 32. J06 — Capacités Capture et règles de fallback
+
+### 32.1 Résolution vidéo
+
+Décisions validées avant l'implémentation J06 :
+
+- le réglage global conserve les choix `HD`, `Full HD` et `4K`, même si un Capture sélectionné ne supporte pas le choix global ;
+- mapping natif : `HD` → `CamcorderProfile 720P`, `Full HD` → `1080P`, `4K` → `2160P` ;
+- si le profil demandé n'est pas supporté par un Capture, ce Capture utilise la meilleure résolution inférieure supportée ;
+- ce fallback est visible sous forme de warning, par exemple `4K indisponible → Full HD` ;
+- une différence de capacité vidéo ne bloque pas à elle seule ARM ;
+- les capacités doivent provenir des APIs natives du device, jamais d'une table statique par modèle Android.
+
+Les POC `capture-capabilities` et `capture-profile-selection` ont validé sur B et C la détection des profils et l'application réelle de 720P/1080P, ainsi que le rejet explicite de 2160P non supporté.
+
+### 32.2 GPS absent
+
+- si le device indique `gpsFeature=false`, le GPS est considéré indisponible pour ce Capture ;
+- le fallback effectif est `Off` ;
+- l'UI affiche un warning correspondant, par exemple `GPS Normal indisponible → Off` ;
+- l'absence de GPS ne bloque pas ARM ;
+- ne pas substituer automatiquement une localisation réseau au GPS matériel.
