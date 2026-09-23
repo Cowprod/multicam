@@ -1,0 +1,9 @@
+09-23 08:47:22.877 D/CameraPreview(10593): Constructing
+09-23 08:47:22.877 D/PluginManager(10593): getPlugin - put: CameraPreview
+09-23 08:47:24.391 I/chromium(10593): [INFO:CONSOLE:128] "CONFIG_INIT source=loaded deviceId=cc02e8fe-91f8-41cd-bfdc-a112072862db schema=1 deviceName=Cam 07 enabledSkills=[capture,storage,controller] storage=internal", source: http://localhost/js/state/config.js (128)
+09-23 08:47:24.392 I/chromium(10593): [INFO:CONSOLE:18] "APP_BOOT app=MultiCam version=0.1.0 deviceId=cc02e8fe-91f8-41cd-bfdc-a112072862db deviceName=Cam 07 supportedSkills=[capture,storage,controller] enabledSkills=[capture,storage,controller] storage=internal", source: http://localhost/js/main.js (18)
+09-23 08:47:24.393 I/chromium(10593): [INFO:CONSOLE:127] "APP_BOOT platform=Android model=24075RP89G android=16 sdk=36", source: http://localhost/js/main.js (127)
+09-23 08:47:31.036 D/MiuiEmbeddingWindow( 1307): needUse3rdPipeline =false,isNeedRotateCameraInFullScreen=false,isAppSupportCameraPreview=false,isSupportCameraPreviewInFixOri=false,willActivityInFO=false,shouldUpdate3rdPipe =false,isRequestedLandscape=false
+09-23 08:47:31.242 D/MiuiEmbeddingWindow( 1307): needUse3rdPipeline =false,isNeedRotateCameraInFullScreen=false,isAppSupportCameraPreview=false,isSupportCameraPreviewInFixOri=false,willActivityInFO=false,shouldUpdate3rdPipe =false,isRequestedLandscape=false
+09-23 08:47:31.283 D/MiuiEmbeddingWindow( 1307): needUse3rdPipeline =false,isNeedRotateCameraInFullScreen=false,isAppSupportCameraPreview=false,isSupportCameraPreviewInFixOri=false,willActivityInFO=false,shouldUpdate3rdPipe =false,isRequestedLandscape=false
+09-23 08:47:31.391 D/MiuiEmbeddingWindow( 1307): needUse3rdPipeline =false,isNeedRotateCameraInFullScreen=false,isAppSupportCameraPreview=false,isSupportCameraPreviewInFixOri=false,willActivityInFO=false,shouldUpdate3rdPipe =false,isRequestedLandscape=false
