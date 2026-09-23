@@ -1,0 +1,12 @@
+09-23 09:45:17.666 D/CameraPreview(21385): Constructing
+09-23 09:45:17.666 D/PluginManager(21385): getPlugin - put: CameraPreview
+09-23 09:45:24.723 D/CameraPreview(21385): start camera action
+09-23 09:45:24.856 D/MiuiEmbeddingWindow( 1307): needUse3rdPipeline =false,isNeedRotateCameraInFullScreen=false,isAppSupportCameraPreview=false,isSupportCameraPreviewInFixOri=false,willActivityInFO=false,shouldUpdate3rdPipe =false,isRequestedLandscape=false
+09-23 09:45:24.913 D/CameraActivity(21385): CameraPreview previewAspectRatio 1.7777777777777777
+09-23 09:45:24.914 D/CameraActivity(21385): CameraPreview optimalPictureSize 1920x1088
+09-23 09:45:25.005 D/CameraPreview(21385): Camera started
+09-23 09:45:26.520 D/CameraActivity(21385): CameraPreview startRecord camera: back width: 0, height: 0, quality: 85
+09-23 09:45:26.549 D/CameraActivity(21385): Starting recording
+09-23 09:45:27.138 D/CameraPreview(21385): onStartRecordVideo started
+09-23 09:45:31.550 D/CameraPreview(21385): onStopRecordVideo success
+09-23 09:45:31.953 D/MiuiEmbeddingWindow( 1307): needUse3rdPipeline =false,isNeedRotateCameraInFullScreen=false,isAppSupportCameraPreview=false,isSupportCameraPreviewInFixOri=false,willActivityInFO=false,shouldUpdate3rdPipe =false,isRequestedLandscape=false
