@@ -1,0 +1,9 @@
+{
+  "phase": "FIX-T3",
+  "objective": "Deux mutations globales dans le MEME tick JS : aucune valeur perdue (defaut 2 corrige)",
+  "ctx": {"before": {"video.resolution": "FHD", "gpsProfile": "NORMAL"}},
+  "sameTickDispatch": ["tkRes4K (resolution=4K)", "tkGpsPRECISE (gps=PRECISE) — meme tick, sans await"],
+  "afterDispatcher": {"video.resolution": "4K", "gpsProfile": "PRECISE"},
+  "bothPersisted": true,
+  "verdict": "PASS"
+}

@@ -1,0 +1,30 @@
+{
+  "phase": "FIX-T1",
+  "objective": "0 Storage : controles Transfert visuellement grises ET reellement inoperants (defaut 1 corrige)",
+
+  "preconditions": {
+    "session": "X5K25E5N",
+    "status": "open",
+    "captures": ["aba0ba5c-31bd-4722-86e7-f673632ac0b1"],
+    "storages": []
+  },
+  "controlState": {
+    "tkAccTransferBtn.disabled": true,
+    "tkAccTransferBtn.disabledAttrPresente": true,
+    "tkTransferAuto.disabled": true,
+    "tkDeleteLocal.disabled": true,
+    "accordion.aria-expanded": "false",
+    "accordion.body.display": "none",
+    "storageWarningVisible": true,
+    "summary": "Aucun Storage"
+  },
+  "uiAttempts": ["auto.checked=false + auto.click()", "tkAccTransferBtn.click()"],
+  "persistedResult": {
+    "transferAuto": true,
+    "changed": false,
+    "auto.checkedApres": true,
+    "accordionOuvert": false
+  },
+  "independance": {"tkArm.disabled": false, "armedPossible": true},
+  "verdict": "PASS"
+}

@@ -2,7 +2,8 @@
 
 - Jalon : `docs/PLAN-DEVELOPPEMENT-V1.md` → J06
 - État : **PASS technique — en attente revue humaine**
-- Date campagne : 2026-09-24 (campaign finale, `tests/e2e/j06-campaign.sh clean`)
+- Date campagne : 2026-09-24 (campaign finale, `tests/e2e/j06-campaign.sh clean`) + campagne complémentaire (J06-C) + corrections ciblées post-revue (J06-FIX T1/T2/T3, même date)
+- Statut des 2 défauts détectés en revue : **corrigés et non-régressés** (cf. section « Corrections ciblées post-revue »)
 - Branche : `feat/j06-take-preparation` (départ `490e652`)
 - Décisions appliquées : `MULTICAM_DECISIONS_REFERENCE.md` §32 (globals jamais réécrits, best-effort 4K→FHD→HD documenté, warnings, `gpsFeature=false` → effectif Off, jamais de fallback silencieux côté natif, honnêteté `capsUnknown`, bullet SIMULATED via `setFixtureMap` uniquement, restauration par `clearFixtures()`) — architecture transport J04/J05 inchangée
 - Devices physiques : B = `61d54bba7d91` (Cam 07, hôte) et C = `c0d8514d7d87` (Cam 07, second Master + device membre). `61cc29567d91` présent sur le hub **HORS PÉRIMÈTRE** (décision utilisateur) : jamais installé, jamais utilisé.
@@ -12,6 +13,7 @@
 
 - APK : `app/platforms/android/app/build/outputs/apk/debug/app-debug.apk` installé **identique** sur B et C (hash vérifié au build + `adb install`)
 - SHA-256 : `27115b7d55c18456648c09502a79e3408f3eec1a01abbe51b092d4957c1abad2` (cf. `apk-sha256.txt`)
+- **APK corrigé (post-revue)** : rebuilt via la même chaîne `app/setup-android.sh` → SHA-256 `822da2fa2df5cd45df7b0c26573e2b99a2aa02a82829cbb0cdb7329966b81f3b` (cf. `apk-sha256-fix.txt`), installé identique sur B et C, présence PixelCopy/capture-capabilities re-vérifiée dans les sources compilées
 - Chaîne de build reproductible : `app/setup-android.sh` (npm install → platform → plugins → 3 patches dans `pixelcopy-patch/` + `capture-profile` + `capture-capabilities` → build).
 
 ## Modèle de données J06 (implémenté dans `app/www/js/state/take-model.js`)
@@ -117,8 +119,32 @@ Campagne **evidence-only** (aucun changement de code, AUCUN rebuild) demandée p
 3. **Warnings ignorants l'override** : `warningsForCapture` calculait sur les globals — un override GPS OFF sur un device sans GPS signalait quand même « GPS Précis indisponible → Off ». Corrigé : warnings basés sur `effectiveForCapture` (override appliqué). Preuve visuelle : `J06-08-B-after-overrides.png` ≠ `J06-07` (GPS conformé).
 4. **`clearFixtures()` ne purgeait pas le cache** → la restauration SIMULATED republiait le fixture (SimulatedCam4K) même après nettoyage. Corrigé : purge `DEBUG_FIXTURES` **et** `CACHE`. Preuve : `J06-12-C-simulated-cleanup.json` → `REAL_RESTORED model=24075RP89G`.
 
+## Corrections ciblées post-revue (campagne J06-FIX T1/T2/T3 — défauts détectés en revue humaine)
+
+Deux défauts réels détectés en revue des preuves J06-C ont été **corrigés seuls** (aucune autre modification, aucune réouverture de conception J06, aucun jalon lancé). APK re-buildé + réinstallé identique sur B et C, mini-campagne physique dédiée.
+
+| # | Défaut (racine) | Correction (fichiers) | Non-régression automatisée |
+|---|---|---|---|
+| 1 | **Transfert grisé mais interactif** : `#tkAccTransfer` (accordéon + `tkTransferAuto`/`tkDeleteLocal`) était imbriqué dans `#tkSettings` ; à la fin de `renderSettings`, la boucle de verrouillage `tkSettings.querySelectorAll("input, .tk-acc-btn") → disabled = isClosed` **ré-activait** les contrôles transfert juste après les avoir désactivés dans `renderStorages`. Résultat : avec 0 Storage, le bouton restait cliquable et basculait `transferAuto` dans le Take | **1)** `app/www/index.html` : `#tkAccTransfer` déplacé **hors** de `#tkSettings` (la boucle de verrouillage ne le touche plus) ; **2)** `app/www/js/state/take-model.js` : prédicat `transferControlsEnabled(take, isClosed)` = `anyStorage && !isClosed`, source unique de vérité ; **3)** `app/www/js/ui/take.js` `renderStorages` : les 3 contrôles (`tkAccTransferBtn`, `tkTransferAuto`, `tkDeleteLocal`) pilotés par la prédicat (le repli/aria/summary/warning restent gérés par `any`) | take-model.test.js **Case 18** (5 scénarios prédicat) + **Case 17** (batch) → 18/18 |
+| 2 | **Mutation double même tick → valeur perdue** : deux changements de réglages globaux émis dans le **même tick JS** construisaient chacun `updated` depuis le même `state.take` et partaient en `upsertTake` parallèles → « last-writer-wins » a perdu une valeur (repro : 4K OK, PRECISE perdu) | **`app/www/js/ui/take.js`** : sérialisation des commits — file `commitQueue` + `drainCommitQueue`, chaque tâche (`enqueueTakeUpdate(fn)`) applique sur le Take **le plus frais confirmé** (`state.take` après résolution du upsert précédent) ; toutes les mutations converties (`applySettingRadio`, `saveOverrides`, `groupCaptures`/`toggleCapture`, `groupStorages`/`toggleStorage`, TRANSFER auto, DELETE_LOCAL). **`take-model.js`** : `applySettingBatch(take, pairs, actor, atMs)` cumulatif ajouté **et exporté** | take-model.test.js **Case 17** (batch cumulatif : [4K, PRECISE] même lot → les deux présents) |
+
+**Résultats automatisés (host)** — `tests/plugin-lab/` :
+- `take-model.test.js` → **18 cases OK** (16 existantes + Case 17 `applySettingBatch` + Case 18 `transferControlsEnabled`) ; `takes-session.test.js` 8 OK ; `members-model.test.js` 17 OK ; `merge-model.test.js` 7 OK — **aucune régression**.
+- `ui/panels-check.test.js` → SPA OK ; `node --check` de tous les JS app OK ; `git grep commitTake` → aucune référence résiduelle.
+
+**Mini-campagne physique (B = hôte, C = 2e Master + membre ; session « Fix J06 » `X5K25E5N`)** — preuves dans `dumps/fix-T*.json`, `logs/fix-T*.log`, `screenshots/J06-FIX-*.png` (+ `apk-sha256-fix.txt`) :
+
+| Test | Scénario | Résultat |
+|---|---|---|
+| **T1** (défaut 1, 0 Storage) | 1 Capture sélectionnée, 0 Storage → DOM : `tkAccTransferBtn.disabled=true` (attribut présent), `auto/delete.disabled=true`, warning visible, « Aucun Storage », `aria-expanded=false` ; **tentatives réelles d'interaction** (clic accordéon + `.checked=false` + clic sur le switch) → accordéon non ouvert, `transferAuto` **inchangé** (`true`), `tkArm.disabled=false` (l'ARM reste indépendant) | ✅ PASS |
+| **T2** (défaut 1, ≥1 Storage) | +1 Storage → les 3 contrôles `.disabled=false`, warning masqué, résumé « Auto · suppression après réplication », accordéon ouvrable ; double-clic toggle UI → round-trip **persisté** `false → true → false` (UI `checked` et model `transferAuto` en sync à chaque coup) | ✅ PASS |
+| **T3** (défaut 2, même tick) | Une seule évaluation => **deux** dispatch change **synchrones** (`tkRes4K` + `tkGpsPRECISE`) — repro exact du bug : Take final `{resolution:"4K", gpsProfile:"PRECISE"}` **les deux présents** ; sur C, convergence **sans refresh** au bout de quelques secondes avec l'écho complet (`updatedBy`=B) | ✅ PASS |
+
+Verdict des 2 corrections : **PASS technique — en attente revue humaine** (aucune acceptance humaine, aucune fusion).
+
 ## Limitations et notes honnêtes
 
+- **`takes-session.test.js` §6 (anti-rebond télémétrie) — flakiness LATENTE identifiée (hors périmètre des 2 corrections)** : `mergeSessions` force `out.updatedAtMs = Math.max(…, nowMs())` (session-model.js:538) → un re-merge d'une session STRICTEMENT identique signale `changed:true` dès que ≥1 ms s'écoule entre deux `mergeSessions`. Reproduction déterministe (gèle `Date.now`, puis avance de 1 ms) : `changed false → true`. Défaut **pré-existant**, PAS introduit par les corrections ciblées (take-model.js n'a reçu que des fonctions additives ; take.js/index.html ne touchent pas le merge). Conséquence : aucun modèle de données mal formé (l'anti-rebond est conservateur → re-sync/rebond possible entre Masters, jamais de perte), l'assertion concernée ne s'applique qu'à la couche modèle. **Non corrigé dans cette campagne (hors périmètre J05 — décision requise)** ; les suites complètes tournent au vert en boucle (le flake dépend du franchissement d'une frontière de milliseconde).
 - **`ui/` mockups** : invariants respectés (écran 05) — l'écran production reste une implémentation Cordova (pas le mockup).
 - **Fenêtre de reprise ≥4 h/24 h** : non horodatée (aucun timer de reprise dans la V1 — décision ; la persistance J06-11 prouve la non-perte).
 - **3 appareils simultanés** (convergence à 3 Masters) : **NOT TESTED — DEFERRED** (même logique que J05 ; décision utilisateur, critère non affaibli).

@@ -1,0 +1,15 @@
+{
+  "phase": "FIX-T3",
+  "objective": "Convergence du Take sur le 2e Master (C) SANS refresh apres le batch du meme tick",
+  "noRefresh": true,
+  "convergedTake": {
+    "takeNumber": 1,
+    "video.resolution": "4K",
+    "gpsProfile": "PRECISE",
+    "transferAuto": false,
+    "captures": ["aba0ba5c-31bd-4722-86e7-f673632ac0b1"],
+    "storages": ["24d456c3-5249-40a4-a742-11ede3236fc4"],
+    "updatedByDeviceId": "aba0ba5c-31bd-4722-86e7-f673632ac0b1"
+  },
+  "verdict": "PASS"
+}
