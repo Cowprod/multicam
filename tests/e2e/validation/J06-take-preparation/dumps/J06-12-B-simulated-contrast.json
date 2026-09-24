@@ -1,0 +1,1 @@
+"{\"simulated\":{\"source\":\"fixture\",\"model\":\"SimulatedCam4K\",\"rear\":[\"4K\",\"FHD\",\"HD\"],\"gpsFeature\":true},\"wB\":[{\"type\":\"video\",\"message\":\"4K indisponible → Full HD\"},{\"type\":\"gps\",\"message\":\"GPS Précis indisponible → Off\"}],\"wC\":[],\"contrast\":true}"
