@@ -14,6 +14,7 @@
 - APK : `app/platforms/android/app/build/outputs/apk/debug/app-debug.apk` installé **identique** sur B et C (hash vérifié au build + `adb install`)
 - SHA-256 : `27115b7d55c18456648c09502a79e3408f3eec1a01abbe51b092d4957c1abad2` (cf. `apk-sha256.txt`)
 - **APK corrigé (post-revue)** : rebuilt via la même chaîne `app/setup-android.sh` → SHA-256 `822da2fa2df5cd45df7b0c26573e2b99a2aa02a82829cbb0cdb7329966b81f3b` (cf. `apk-sha256-fix.txt`), installé identique sur B et C, présence PixelCopy/capture-capabilities re-vérifiée dans les sources compilées
+- **APK FINAL J06 (verrouillé)** : rebuilt `app/setup-android.sh` sur HEAD `5406142` — contient `8c941e7` (transfert + mutations atomiques) + `cb98f32` (preuves T1/T2/T3) + `5406142` (idempotence `mergeSessions`) → SHA-256 `e0c460a4756a4120d92a2ebcfa3ac76bcf9daae9d3a5177f064c885710b206be` (cf. `apk-sha256-final.txt`), installé **identique** sur B et C, hash re-vérifié après `adb install` sur les deux devices (packages `base.apk` extraits == SHA build). Smoke device : démarrage sans erreur JS, session existante « Fix J06 » reprise (open, 2 membres, Take 001 4K/PRECISE), écran 05 ouvert (accordéon Transfert hors `#tkSettings`), re-sync B↔C borné (14 lignes sync/take sur 14 s) **sans boucle ni rebond** (`TAKE_IGNORED_STALE` = 0), Take final identique B==C
 - Chaîne de build reproductible : `app/setup-android.sh` (npm install → platform → plugins → 3 patches dans `pixelcopy-patch/` + `capture-profile` + `capture-capabilities` → build).
 
 ## Modèle de données J06 (implémenté dans `app/www/js/state/take-model.js`)
@@ -140,7 +141,7 @@ Deux défauts réels détectés en revue des preuves J06-C ont été **corrigés
 | **T2** (défaut 1, ≥1 Storage) | +1 Storage → les 3 contrôles `.disabled=false`, warning masqué, résumé « Auto · suppression après réplication », accordéon ouvrable ; double-clic toggle UI → round-trip **persisté** `false → true → false` (UI `checked` et model `transferAuto` en sync à chaque coup) | ✅ PASS |
 | **T3** (défaut 2, même tick) | Une seule évaluation => **deux** dispatch change **synchrones** (`tkRes4K` + `tkGpsPRECISE`) — repro exact du bug : Take final `{resolution:"4K", gpsProfile:"PRECISE"}` **les deux présents** ; sur C, convergence **sans refresh** au bout de quelques secondes avec l'écho complet (`updatedBy`=B) | ✅ PASS |
 
-Verdict des 2 corrections : **PASS technique — en attente revue humaine** (aucune acceptance humaine, aucune fusion).
+Verdict des 2 corrections : **PASS technique — en attente revue humaine** (aucune acceptance humaine, aucune fusion). Le correctif d'idempotence `5406142` (mergeSessions — flake latent détecté en revue) est **intégré à l'artefact final J06** verrouillé `e0c460a4…`.
 
 ## Limitations et notes honnêtes
 
