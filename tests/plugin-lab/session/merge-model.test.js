@@ -112,6 +112,45 @@ check("upsertMaster add + upsert rafraîchit endpoint sans dupliquer", () => {
   assert.strictEqual(r2.session.masters[0].endpoint, "10.0.0.9:45102");
 });
 
+check("merge idempotent : états strictement identiques → changed:false, updatedAtMs intact (flake corrigé)", () => {
+  const realNow = Date.now;
+  try {
+    let fakeNow = 987654321000;
+    Date.now = () => fakeNow;
+    const a = base("SID1");
+    const b = M.sanitizeSession(JSON.parse(JSON.stringify(a))); /* strictement identique */
+    const tLocal = a.updatedAtMs;
+    const r1 = M.mergeSessions(a, b);
+    assert.strictEqual(r1.changed, false, "1er merge d'états identiques = no-op");
+    assert.strictEqual(r1.session.updatedAtMs, tLocal, "updatedAtMs non avancé (1er merge)");
+    assert.strictEqual(r1.events.length, 0, "aucun event sur merge identique");
+    fakeNow += 10000; /* Date.now() avance de 10 ms entre les deux merges */
+    const r2 = M.mergeSessions(a, b);
+    assert.strictEqual(r2.changed, false, "re-merge après ≥1 ms reste no-op (idempotence)");
+    assert.strictEqual(r2.session.updatedAtMs, tLocal, "updatedAtMs jamais avancé artificiellement par l'heure du merge");
+    assert.strictEqual(JSON.stringify(r1.session), JSON.stringify(r2.session), "résultats des deux merges identiques");
+  } finally {
+    Date.now = realNow;
+  }
+});
+
+check("merge : un état réellement plus récent fait avancer updatedAtMs (LMW conservé)", () => {
+  const realNow = Date.now;
+  try {
+    let fakeNow = 111111111000;
+    Date.now = () => fakeNow;
+    const older = base("SID1", { updatedAtMs: 1000, name: "A", nameUpdatedMs: 100, nameByDeviceId: "dev-a" });
+    const newer = base("SID1", { updatedAtMs: 9000, name: "B", nameUpdatedMs: 8000, nameByDeviceId: "dev-b" });
+    const res = M.mergeSessions(older, newer);
+    assert.strictEqual(res.changed, true, "état plus récent → changé");
+    assert.strictEqual(res.session.name, "B", "LMW du nom préservé");
+    assert.ok(res.session.updatedAtMs >= newer.updatedAtMs, "updatedAtMs a avancé avec l'état réellement intégré");
+    assert.strictEqual(res.session.updatedAtMs, Math.max(older.updatedAtMs, newer.updatedAtMs, fakeNow), "max sémantique conservé");
+  } finally {
+    Date.now = realNow;
+  }
+});
+
 console.log("\nRésumé : " + passed + " groupe(s) de tests exécuté(s)"
   + (process.exitCode ? " — ÉCHECS" : " — TOUS OK"));
 process.exit(process.exitCode || 0);

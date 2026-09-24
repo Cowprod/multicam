@@ -1,0 +1,24 @@
+{
+  "phase": "FIX-T2",
+  "objective": ">=1 Storage : controles Transfert redevenus interactifs + bascule persistee (defaut 1 corrige)",
+  "context": {
+    "session": "X5K25E5N",
+    "captures": ["aba0ba5c-31bd-4722-86e7-f673632ac0b1"],
+    "storages": ["24d456c3-5249-40a4-a742-11ede3236fc4"]
+  },
+  "controlsAfterStorageAdd": {
+    "tkAccTransferBtn.disabled": false,
+    "disabledAttrPresente": false,
+    "tkTransferAuto.disabled": false,
+    "tkDeleteLocal.disabled": false,
+    "storageWarningVisible": false,
+    "summary": "Auto · suppression après réplication"
+  },
+  "toggleRoundTrip": {
+    "start": {"transferAuto": false, "uiChecked": false},
+    "afterToggle1": {"transferAuto": true, "uiChecked": true},
+    "afterToggle2": {"transferAuto": false, "uiChecked": false}
+  },
+  "accordion": {"openedByClick": true},
+  "verdict": "PASS"
+}

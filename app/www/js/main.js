@@ -41,7 +41,7 @@
 
   /* ---------- routeur panneaux (index.html monodocument) ---------- */
 
-  var panels = ["home", "create", "join", "session", "settings"];
+  var panels = ["home", "create", "join", "session", "settings", "take", "arm"];
 
   function panelEl(name) { return document.getElementById("panel-" + name); }
 
@@ -66,6 +66,12 @@
         break;
       case "session":
         global.MultiCamSessionScreen.show(appCfg, params || {});
+        break;
+      case "take":
+        global.MultiCamTakeScreen.show(appCfg, params || {});
+        break;
+      case "arm":
+        global.MultiCamTakeScreen.arm(appCfg, params || {});
         break;
       case "settings":
         global.MultiCamSettings.show(appCfg);

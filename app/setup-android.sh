@@ -36,6 +36,15 @@ npx cordova plugin add "${CAMERA_PLUGIN_REF}"
 # Patch PixelCopy applique sur les sources du plugin conservees dans plugins/.
 python3 pixelcopy-patch/apply_pixelcopy_patch.py .
 
+# J06 — selection explicite du profil CamcorderProfile au demarrage d'enregistrement
+# (greffe generique qualifiee en POC, idempotente) : le plugin est re-installe a
+# chaque passage ici, donc le patch est re-applique systématiquement.
+python3 ../tests/poc/capture-profile-selection/patch/apply_capture_profile_patch.py .
+
+# J06 — capacites Capture natives (getCaptureCapabilities : camcorderProfiles,
+# gpsFeature, audioMicFeature) — derive du POC capture-capabilities.
+python3 camera-patches/apply_capture_capabilities_patch.py .
+
 # Cordova copie les sources Java pendant l'installation du plugin. Comme le patch est
 # applique ensuite, on recopie explicitement les sources patchees vers celles compilees.
 mkdir -p "$CAMERA_PLATFORM_DIR"
@@ -77,6 +86,21 @@ grep -q 'capturePreviewSurface' "$CAMERA_PLATFORM_DIR/CameraPreview.java" || {
   exit 1
 }
 echo "PixelCopy natif present dans la plateforme Android (sources compilees)"
+
+echo "=== Verification J06 (sources compilees par le build) ==="
+grep -q 'GET_CAPTURE_CAPABILITIES_ACTION' "$CAMERA_PLATFORM_DIR/CameraPreview.java" || {
+  echo "ERREUR: action getCaptureCapabilities absente de CameraPreview.java compile"
+  exit 1
+}
+grep -q 'getCaptureCapabilities' "$CAMERA_PLATFORM_DIR/CameraPreview.java" || {
+  echo "ERREUR: methode getCaptureCapabilities absente de CameraPreview.java compile"
+  exit 1
+}
+grep -q 'final String camcorderProfile' "$CAMERA_PLATFORM_DIR/CameraActivity.java" || {
+  echo "ERREUR: profil CamcorderProfile explicite absent de CameraActivity.java compile"
+  exit 1
+}
+echo "J06 capture-capabilities + camcorderProfile presents dans la plateforme Android"
 
 echo "=== Plugins ==="
 npx cordova plugin ls

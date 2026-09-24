@@ -40,3 +40,29 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
 .member-role-option{font-size:.8rem;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.35rem .7rem;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none}
 .member-role-option input{accent-color:#45d483}
 .member-role-option.checked{border-color:var(--m,#ffb45b);color:#fff;background:rgba(255,255,255,.16)}
+/* J06 · écran 05 Préparer Take (maquette validée ui/05-take-preparation).
+ * Accordéon « Réglages du Take » sans Bootstrap JS + grid de choix + warnings
+ * de compatibilité par Capture + ARM bloqué tant qu'aucune Capture. */
+.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
+.choice-grid.three{grid-template-columns:repeat(3,1fr)}
+.choice-grid .btn{font-size:.84rem}
+.tk-acc-btn{background:transparent;border:0;color:#fff;padding:.85rem 1rem;font-weight:600;gap:.4rem}
+.tk-acc-btn[aria-expanded="true"]{color:#fff}
+.tk-acc-btn .setting-summary{font-size:.76rem;color:var(--m);font-weight:500;max-width:48%;text-align:right}
+.tk-acc-btn::after{content:"\f107";font-family:"Font Awesome 6 Free";font-weight:900;color:rgba(255,255,255,.55);transition:transform .15s}
+.tk-acc-btn[aria-expanded="true"]::after{transform:rotate(180deg)}
+.tk-acc-body{border-top:1px solid rgba(255,255,255,.12)}
+.device-icon{border:0;background:transparent;padding:.2rem;color:rgba(255,255,255,.45);line-height:1;font-size:.95rem}
+.device-icon.warning{color:#ffc107}
+.device-icon.off{opacity:.35}
+.capture-edit{width:38px;height:38px;display:flex;align-items:center;justify-content:center}
+.capture-edit:disabled{opacity:.3}
+.warning-box{background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.35);border-radius:14px;padding:.5rem .7rem;font-size:.85rem}
+.warning-box.warn{color:#ffc107}
+.form-switch .form-check-input{width:2.6em!important;height:1.35em!important;cursor:pointer}
+.disabled-arm{opacity:.62}
+.ov-section{border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.04)}
+.ov-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.75rem 1rem}
+.ov-body{padding:0 1rem 1rem}
+.ov-body select{font-size:.9rem}
+.tk-note{font-size:.78rem;color:var(--m)}
