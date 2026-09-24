@@ -534,10 +534,17 @@
       out.takes = localT;
     }
 
-    /* 6. updatedAtMs : max (utilise pour le tri "recentes"). */
-    out.updatedAtMs = Math.max(out.updatedAtMs || 0, remote.updatedAtMs || 0, lastCompletedMs(out), nowMs());
-
+    /* 6. updatedAtMs : n'avance QUE si un véritable état a été intégré
+     * (idempotence du merge). Re-merger deux états strictement identiques
+     * ne doit NI produire changed:true NI faire avancer l'horloge en raison
+     * de l'heure du merge (défaut latent : nowMs() était stampé en
+     * inconditionnel → changed:true dès que ≥1 ms s'écoulait entre deux
+     * merges, sans aucun changement de contenu fonctionnel). Le max garde
+     * la sémantique « tri des récentes » quand un vrai changement arrive. */
     var changed = JSON.stringify(sanitizeSession(out)) !== JSON.stringify(local);
+    if (changed) {
+      out.updatedAtMs = Math.max(out.updatedAtMs || 0, remote.updatedAtMs || 0, lastCompletedMs(out), nowMs());
+    }
     return { session: out, events: events, changed: changed };
   }
 
