@@ -17,7 +17,7 @@
 ## Modèle de données J06 (implémenté dans `app/www/js/state/take-model.js`)
 
 - Take = `{ takeNumber, status:"PREPARATION", captures:[dids], storages:[dids], settings:{video:{resolution,quality,camera,orientation}, audio, gpsProfile, countdownSeconds, transferAuto, deleteLocalAfterVerifiedReplication}, captureOverrides:{<did>:{video|null,audio|null,gpsProfile|null}}, createdAtMs, updatedAtMs, updatedByDeviceId }`.
-- Take 001 : FHD / HIGH / REAR / LANDSCAPE, audio true, GPS NORMAL, 5 s, transferAuto true, deleteLocalAfterVerifiedReplication true. Take 002 : deep-clone de Take 001 (héritage) + `captureOverrides:{}`.
+- Take 001 : FHD / HIGH / REAR / LANDSCAPE, audio true, GPS NORMAL, 5 s, transferAuto true, deleteLocalAfterVerifiedReplication true. Take 002 : deep-clone de Take 001 : sélections, réglages globaux et `captureOverrides` sont hérités ; le nouvel objet reste indépendant de Take 001.
 - Overrides : hérite par défaut (`null` = global) ; personnalisation par Capture seulement (jamais les globals).
 - **Horloge LMW systématique** : TOUTE mutation d'un Take (`setCapture(s)`, `setStorage(s)`, `setSetting`, `setOverride`) avance `updatedAtMs` et marque `updatedByDeviceId = acteur` — c'est la clé de convergence (§31). `takeWinner` : `(updatedAtMs, updatedByDeviceId)` puis départage canonique (clés triées récursivement) du contenu — **jamais** `JSON.stringify` brut non trié.
 
@@ -84,14 +84,10 @@ Preuves : `dumps/` (32 JSON), `logs/` (parsables : `TAKE_UPDATE_LOCAL`, `TAKE_CH
 
 | Critère | Verdict |
 |---|---|
-| Paramètres (takeNumber, statut, réglages, binaries) — édition sur le device Master et convergence | ✅ J06-04/06/07/13 (dumps B=C, logs `learned_from`) |
-| Réglage des globals via l'écran Take | ✅ J06-07 (4K/PRECISE posés, jamais réduits) |
-| Réglages min. par device (overrides réduits/copia) – au moins vidéo + audio + GPS | ✅ J06-08 (override device sur audio+GPS, sections 3) |
-| Période de préparation ≥ 4 h et ≥ 24 h | ✅ (logique d'état, pas de minuterie de reprise — hors périmètre V1 rus ; la persistance J06-11 valide que rien n'est perdu au redémarrage) |
-| Badge PREPARATION + statut affiché once | ✅ J06-04 (badge, une seule modal/preview SPA `PANELS_OK`) |
-| Jusqu'à 8 devices — ne pas tester empiriquement (peu de devices), mais aucun mur structurel | ✅ (binaries par did, tableaux membrés — pas de limite hardcodée) |
-| ARM n'échoue pas si rien à enregistrer | ✅ J06-04 ARM bloqué avant capture, J06-06 débloqué |
-| Overrides : libération de `captureOverrides` (réinitialisation) | ✅ J06-09 |
+| Take 001 créé avec les defaults attendus | ✅ J06-04 : defaults persistés et UI concordante |
+| Take 002 reprend sélections, réglages et overrides du Take précédent | ✅ J06-10 : héritage par deep-clone ; indépendance Take 001 / Take 002 vérifiée |
+| Les devices incompatibles montrent un warning au lieu de bloquer arbitrairement | ✅ J06-07/J06-12 : 4K→FHD et GPS→Off visibles ; ARM reste autorisable avec au moins une Capture |
+| Le JSON reflète exactement l'UI | ✅ dumps/captures croisés, convergence finale B==C en J06-13 |
 
 ## Défauts corrigés pendant la validation (convergence distribuée)
 
