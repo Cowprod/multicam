@@ -525,6 +525,30 @@
     return sanitizeTake(t);
   }
 
+  /* Deux mutations successives SYNCHRONES appliquées au même Take doivent être
+   * cumulatives (atomicité de mutation) : chaque paire [key, value] s'applique
+   * sur le résultat de la précédente — aucune valeur n'est perdue. Le résultat
+   * conserve le comportement LMW (updatedAtMs/updatedByDeviceId via setSetting,
+   * actor, atMs optionnel). */
+  function applySettingBatch(take, pairs, actor, atMs) {
+    var ts = isNum(atMs) && atMs > 0 ? atMs : undefined;
+    var out = take;
+    (pairs || []).forEach(function (pair) {
+      if (!Array.isArray(pair) || pair.length < 2) return;
+      out = setSetting(out, pair[0], pair[1], actor, ts);
+    });
+    return out;
+  }
+
+  /* Gating unique des contrôles Transfert (défaut 1 corrigé) : les contrôles
+   * de l'accordéon Transfert ne sont RÉELLEMENT interactifs que si le Take
+   * a ≥1 Storage ET la session est ouverte. Source de vérité utilisée par
+   * l'UI (renderStorages) pour disabled des 3 contrôles. */
+  function transferControlsEnabled(take, isClosed) {
+    var any = !!take && !!(take.storages || []).length;
+    return any && isClosed !== true;
+  }
+
   /* section=video → value {resolution,quality,camera,orientation} | null
    * section=audio → value boolean | null ; section=gpsProfile → value string|null. */
   function setOverride(take, did, section, value, actor, atMs) {
@@ -665,6 +689,8 @@
     setStorage: setStorage,
     setStorages: setStorages,
     setSetting: setSetting,
+    applySettingBatch: applySettingBatch,
+    transferControlsEnabled: transferControlsEnabled,
     setOverride: setOverride,
     takesEqual: takesEqual,
     takeWinner: takeWinner,

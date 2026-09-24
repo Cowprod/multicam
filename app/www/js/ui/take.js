@@ -199,22 +199,49 @@
     if (key === "countdownSeconds") v = parseInt(value, 10);
     var updated = tm().setSetting(state.take, key, v, selfDid());
     if (updated && !tm().takesEqual(updated, state.take)) {
-      commitTake(updated, "SETTING key=" + key + " val=" + JSON.stringify(v));
+      enqueueTakeUpdate(function (base) {
+        var u = tm().setSetting(base, key, v, selfDid());
+        return { updated: u, what: "SETTING key=" + key + " val=" + JSON.stringify(v) };
+      });
     }
   }
 
-  function commitTake(updated, what) {
-    ws().upsertTake(state.session, updated).then(function (upd) {
-      console.log("SCREEN05_" + what + " take=" + updated.takeNumber);
+  /* ---------- commit sérialisé : mutations atomiques du Take ----------
+   * Cible : deux mutations SYNCHRONES successives (même tick JS) sur le même
+   * Take. Chaque job s'exécute sur le Take le PLUS RÉCENT (confirmé par le job
+   * précédent) — les mutations s'accumulent, aucune valeur n'est perdue.
+   * LWM/updatedAtMs/updatedByDeviceId restent émis par take-model ; l'anti-
+   * rebond stale côté session-ws est inchangé. */
+  var commitQueue = [];
+  var commitBusy = false;
+
+  function enqueueTakeUpdate(fn) {
+    commitQueue.push(fn);
+    drainCommitQueue();
+  }
+
+  function drainCommitQueue() {
+    if (commitBusy || !state.session) return;
+    var job = commitQueue.shift();
+    if (!job) return;
+    var base = state.take || currentTake(state.session);
+    if (!base) { drainCommitQueue(); return; }
+    var res = job(base);
+    commitBusy = true;
+    ws().upsertTake(state.session, res.updated).then(function (upd) {
+      console.log("SCREEN05_" + res.what + " take=" + res.updated.takeNumber);
       state.session = upd;
       state.take = currentTake(upd);
       render();
+      commitBusy = false;
+      drainCommitQueue();
     }).catch(function (err) {
       console.log("SCREEN05_COMMIT_FAIL reason=" + String((err && err.message) || err));
       showToast("Modification impossible");
+      commitBusy = false;
+      drainCommitQueue();
     });
   }
-
   /* ---------- rendu ---------- */
 
   function render() {
@@ -319,24 +346,26 @@
       }).join("");
     }
     var any = take && take.storages && take.storages.length >= 1;
+    var transferOn = tm() && tm().transferControlsEnabled ? tm().transferControlsEnabled(take, isClosed) : (any && !isClosed);
     byId("tkStorageWarning").classList.toggle("d-none", any);
-    /* Transfert : actif uniquement si ≥1 Storage. Aucun Storage → replié + désactivé. */
+    /* Transfert : actif uniquement si ≥1 Storage ET session ouverte (source de
+     * vérité unique takeModel.transferControlsEnabled). 0 Storage → replié +
+     * contrôles réellement disabled. */
     var trBtn = byId("tkAccTransferBtn");
     var trCard = byId("tkAccTransfer");
     var trBody = trCard ? trCard.querySelector(".tk-acc-body") : null;
     if (!any) {
-      trBtn.disabled = true;
       if (trBody) trBody.style.display = "none";
       trBtn.setAttribute("aria-expanded", "false");
       trCard.classList.add("disabled-arm");
       byId("tkTransferSummary").textContent = "Aucun Storage";
     } else {
-      trBtn.disabled = isClosed;
       trCard.classList.remove("disabled-arm");
       byId("tkTransferSummary").textContent = (take.settings.transferAuto ? "Auto" : "Manuel") + (take.settings.deleteLocalAfterVerifiedReplication ? " · suppression après réplication" : "");
     }
-    byId("tkTransferAuto").disabled = isClosed || !any;
-    byId("tkDeleteLocal").disabled = isClosed || !any;
+    trBtn.disabled = !transferOn;
+    byId("tkTransferAuto").disabled = !transferOn;
+    byId("tkDeleteLocal").disabled = !transferOn;
   }
 
   function renderSettings(take, isClosed) {
@@ -472,51 +501,59 @@
   function saveOverrides() {
     var did = state.ovrDevice;
     if (!did || !state.take) return;
-    var t = state.take;
+    var plan = [];
     ["video", "audio", "gpsProfile"].forEach(function (key) {
       var sec = document.querySelector('.ov-section[data-key="' + key + '"]');
       if (!sec) return;
       var inherit = sec.querySelector(".tko-inherit").checked;
       if (inherit) {
-        t = tm().setOverride(t, did, key, null, selfDid());
+        plan.push({ section: key, value: null });
       } else if (key === "video") {
-        t = tm().setOverride(t, did, "video", {
+        plan.push({ section: "video", value: {
           resolution: sec.querySelector(".ov-resolution").value,
           quality: sec.querySelector(".ov-quality").value,
           camera: sec.querySelector(".ov-camera").value,
           orientation: sec.querySelector(".ov-orientation").value
-        }, selfDid());
+        } });
       } else if (key === "audio") {
-        t = tm().setOverride(t, did, "audio", sec.querySelector(".ov-audio").value === "true", selfDid());
+        plan.push({ section: "audio", value: sec.querySelector(".ov-audio").value === "true" });
       } else {
-        t = tm().setOverride(t, did, "gpsProfile", sec.querySelector(".ov-gps").value, selfDid());
+        plan.push({ section: "gpsProfile", value: sec.querySelector(".ov-gps").value });
       }
     });
     closeOverrides();
-    commitTake(t, "OVERRIDE did=" + did);
+    enqueueTakeUpdate(function (base) {
+      var t = base;
+      plan.forEach(function (p) { t = tm().setOverride(t, did, p.section, p.value, selfDid()); });
+      return { updated: t, what: "OVERRIDE did=" + did };
+    });
   }
 
   /* ---------- actions de sélection de groupe ---------- */
 
   function groupCaptures(dids) {
     if (!state.take) return;
-    var updated = tm().setCaptures(state.take, dids, selfDid());
-    commitTake(updated, "CAPTURE_GROUP dids=" + JSON.stringify(dids));
+    enqueueTakeUpdate(function (base) {
+      return { updated: tm().setCaptures(base, dids, selfDid()), what: "CAPTURE_GROUP dids=" + JSON.stringify(dids) };
+    });
   }
   function toggleCapture(did, on) {
     if (!state.take) return;
-    var updated = tm().setCapture(state.take, did, on, selfDid());
-    commitTake(updated, "CAPTURE did=" + did + " on=" + on);
+    enqueueTakeUpdate(function (base) {
+      return { updated: tm().setCapture(base, did, on, selfDid()), what: "CAPTURE did=" + did + " on=" + on };
+    });
   }
   function groupStorages(dids) {
     if (!state.take) return;
-    var updated = tm().setStorages(state.take, dids, selfDid());
-    commitTake(updated, "STORAGE_GROUP dids=" + JSON.stringify(dids));
+    enqueueTakeUpdate(function (base) {
+      return { updated: tm().setStorages(base, dids, selfDid()), what: "STORAGE_GROUP dids=" + JSON.stringify(dids) };
+    });
   }
   function toggleStorage(did, on) {
     if (!state.take) return;
-    var updated = tm().setStorage(state.take, did, on, selfDid());
-    commitTake(updated, "STORAGE did=" + did + " on=" + on);
+    enqueueTakeUpdate(function (base) {
+      return { updated: tm().setStorage(base, did, on, selfDid()), what: "STORAGE did=" + did + " on=" + on };
+    });
   }
 
   /* ---------- bind ---------- */
@@ -571,11 +608,15 @@
       if (!t || !t.name || t.name.indexOf("tk-") !== 0) {
         /* switches participants + transfert */
         if (t && t.id === "tkTransferAuto") {
-          if (state.take) commitTake(tm().setSetting(state.take, "transferAuto", t.checked, selfDid()), "TRANSFER auto=" + t.checked);
+          if (state.take) enqueueTakeUpdate(function (base) {
+            return { updated: tm().setSetting(base, "transferAuto", t.checked, selfDid()), what: "TRANSFER auto=" + t.checked };
+          });
           return;
         }
         if (t && t.id === "tkDeleteLocal") {
-          if (state.take) commitTake(tm().setSetting(state.take, "deleteLocalAfterVerifiedReplication", t.checked, selfDid()), "DELETE_LOCAL=" + t.checked);
+          if (state.take) enqueueTakeUpdate(function (base) {
+            return { updated: tm().setSetting(base, "deleteLocalAfterVerifiedReplication", t.checked, selfDid()), what: "DELETE_LOCAL=" + t.checked };
+          });
           return;
         }
         var sw = t && (t.classList.contains("capture-switch"));

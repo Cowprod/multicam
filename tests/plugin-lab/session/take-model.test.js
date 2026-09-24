@@ -371,4 +371,53 @@ function countsChanged(events) { return events.filter((e) => e.type === "takeAdd
   assert.ok(stc.updatedAtMs > st.updatedAtMs, "setStorage off avance aussi");
 }
 
-console.log("take-model.test.js OK — %d cases", 16);
+/* ---------- 17. MUTATION ATOMIQUE : applySettingBatch cumulatif (défaut 2 corrigé) ---------- */
+{
+  const base = () => ({
+    takeNumber: 1, status: "PREPARATION", captures: [], storages: [],
+    settings: M.DEFAULT_SETTINGS(), captureOverrides: {}, createdAtMs: 100, updatedAtMs: 1000, updatedByDeviceId: "B"
+  });
+  /* Deux mutations SYNCHRONES (même tick JS / même cycle) : resolution=4K puis
+   * gps=PRECISE. Le lot doit être CUMULATIF : les DEUX valeurs présentes dans le
+   * Take final (aucune perdue), réglages non touchés préservés. */
+  const t = base();
+  const batched = M.applySettingBatch(t, [["resolution", "4K"], ["gpsProfile", "PRECISE"]], "B");
+  assert.strictEqual(batched.settings.video.resolution, "4K", "batch : resolution=4K appliquée (jamais perdue)");
+  assert.strictEqual(batched.settings.gpsProfile, "PRECISE", "batch : gps=PRECISE appliquée (jamais perdue)");
+  assert.strictEqual(batched.settings.video.quality, "HIGH", "batch : réglages non touchés préservés");
+  assert.ok(batched.updatedAtMs >= 1000, "batch avance l'horloge LMW");
+  assert.strictEqual(batched.updatedByDeviceId, "B", "batch marque l'acteur (updatesByDeviceId)");
+  /* Deux lots successifs dans le même cycle s'accumulent aussi. */
+  const b2 = M.applySettingBatch(base(), [["resolution", "4K"]], "B");
+  const b3 = M.applySettingBatch(b2, [["gpsProfile", "PRECISE"]], "B");
+  assert.strictEqual(b3.settings.video.resolution, "4K", "lot 2 : resolution=4K conservée après le 2e lot");
+  assert.strictEqual(b3.settings.gpsProfile, "PRECISE", "lot 2 : gps=PRECISE ajoutée sur le résultat du 1er lot");
+  /* Paire invalide ignorée sans casser le lot ; booleans (audio/transfert) acceptés. */
+  const b4 = M.applySettingBatch(base(), [["audio", false], ["bogus", "x"]], "B");
+  assert.strictEqual(b4.settings.audio, false, "paire audio appliquée");
+  assert.strictEqual(b4.settings.gpsProfile, "NORMAL", "paire inconnue ignorée, reste le défaut");
+  const b5 = M.applySettingBatch(base(), [["transferAuto", false], ["deleteLocalAfterVerifiedReplication", false]], "B");
+  assert.strictEqual(b5.settings.transferAuto, false, "transferAuto false dans le lot");
+  assert.strictEqual(b5.settings.deleteLocalAfterVerifiedReplication, false, "deleteLocal false dans le lot");
+}
+
+/* ---------- 18. GATING TRANSFERT : transferControlsEnabled (défaut 1 corrigé) ---------- */
+{
+  const base = (storages) => ({
+    takeNumber: 1, status: "PREPARATION", captures: [], storages: storages || [],
+    settings: M.DEFAULT_SETTINGS(), captureOverrides: {}, createdAtMs: 100, updatedAtMs: 1000, updatedByDeviceId: "B"
+  });
+  /* Contrat UI 05 : contrôles Transfert RÉELLEMENT désactivés (disabled=true) tant
+   * qu'aucun Storage — même affichage que l'état grisé — indépendamment de l'ARM.
+   * ≥1 Storage (session ouverte) → contrôles redevenus interactifs. */
+  assert.strictEqual(M.transferControlsEnabled(base([]), false), false, "0 Storage + open → contrôles désactivés");
+  assert.strictEqual(M.transferControlsEnabled(base([]), true), false, "0 Storage + fermée → désactivés");
+  assert.strictEqual(M.transferControlsEnabled(base(["C"]), false), true, "≥1 Storage + open → contrôles interactifs");
+  assert.strictEqual(M.transferControlsEnabled(base(["C"]), true), false, "≥1 Storage + fermée → désactivés");
+  assert.strictEqual(M.transferControlsEnabled(null, false), false, "pas de Take → désactivés");
+  const t = base(["C"]);
+  t.captures = ["X"];
+  assert.strictEqual(M.transferControlsEnabled(t, false), true, "le storage débloque le transfert, indépendamment des captures");
+}
+
+console.log("take-model.test.js OK — %d cases", 18);
