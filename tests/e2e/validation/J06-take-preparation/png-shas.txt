@@ -20,3 +20,15 @@ d85070f9bb3cf3e665d927bf8192c0d97139b6952e8b5197e3550630dc739ab9  J06-10-B-take0
 b882e05ecf9a9ae6605395392ff31170aea4267c088d448ef53c7ff82ae18b4e  J06-13-B-session-view.png
 85a78f47a59e91826cd0f60382c69ae76cc09456bd7c7e59a5694453adeb8381  J06-13-C-final.png
 cc4594c9efd52557eb414a0fb9deac32e9d524e3b0c13d922b1c585b3f05e8b8  J06-13-C-session-view.png
+6b1c64bbf748d78647a57e136104b90bca0b887bd7c24c3a02b5a23ddeb4ae90  J06-C-01-take001-video-defaults.png
+c83fb0eae76e2413a0bb876c7ca97d19624e3926984d71f52620b2b11778011e  J06-C-02-take001-audio-gps-countdown.png
+b081a732521486eddaf7dd2e50a32942566e7b1c9a56e0044c548c0f89cbd08c  J06-C-03-arm-blocked-zero-captures.png
+70f9fcef095408e1824937a13a30a870840f7ee68451f557c55fba6ef2a7566e  J06-C-04-arm-enabled-capture-selected.png
+d726a439f26bea6b0fc283b1713d51f2006489ce2c9e41a4bbec290fe5197130  J06-C-05-no-storage-transfer-disabled.png
+ff77f6acded212e1644630e6a2e2073a54f24127901a9135a48e426b2df8d5f8  J06-C-06-storage-selected-transfer-on.png
+05c8271619c53d764fc8776dde47d506e9b41fd324f1f4b95c36bb91b8b5e9ff  J06-C-07-global-4k-gps-precise.png
+66540047704ef22e84d3e08e401f4a3f478a12bda6f183b3adb7482d51ab7154  J06-C-08-warnings-fallback.png
+f800005b9b947a61f514da89782d9fe893a9f29cf69024d30d7511d6766b80f8  J06-C-09-take002-identity.png
+27f972de0d4a1b2efea0dd62319f013ebdcfdcb4ec917f376398eaf589412615  J06-C-10-take002-inherited-video-settings.png
+ee4d762869e6a86f9f730351462ef362a1fc8a323ee2b567af27a3bd6cea402e  J06-C-11-take002-inherited-audio-gps-countdown-transfer.png
+0fe950f7332442f417db4cdabaaf8019d9b28600e08bff862b67dcfd0277f8ad  J06-C-12-final-telemetry-both-devices.png
