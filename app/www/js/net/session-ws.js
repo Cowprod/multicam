@@ -66,6 +66,9 @@
       if ((ma.sessionRoles || []).join(",") !== (mb.sessionRoles || []).join(",")) return false;
       if (ma.addedAtMs !== mb.addedAtMs) return false;
       if (ma.roleUpdatedMs !== mb.roleUpdatedMs) return false;
+      /* J06 — télémétrie auto-déclarée : une MAJ de télémétrie doit se propager
+       * (sinon l'écran 05 du peer garde cap/batterie périmés). */
+      if (JSON.stringify(ma.telemetry || null) !== JSON.stringify(mb.telemetry || null)) return false;
     }
     var ar = a.removedMembers || {}, br = b.removedMembers || {};
     var ak = Object.keys(ar).sort(), bk = Object.keys(br).sort();
@@ -74,7 +77,11 @@
       if (ak[k] !== bk[k]) return false;
       if ((ar[ak[k]].removedAtMs || 0) !== (br[ak[k]].removedAtMs || 0)) return false;
     }
-    return true;
+    /* J06 — Takes de la session : toute différence sémantique (sélections,
+     * réglages, overrides, métadonnées LMW) doit se propager. */
+    var aT = (a.takes || []).map(function (t) { return JSON.stringify(t); });
+    var bT = (b.takes || []).map(function (t) { return JSON.stringify(t); });
+    return JSON.stringify(aT) === JSON.stringify(bT);
   }
 
   function wsserver() {
@@ -423,6 +430,12 @@
       case "member_remove":
         handleMemberRemove(env, entry);
         break;
+      case "take_update":
+        handleTakeUpdate(env, entry);
+        break;
+      case "telemetry_update":
+        handleTelemetryUpdate(env, entry);
+        break;
       default:
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
         break;
@@ -467,8 +480,8 @@
       emit("WS_DROP kind=sync reason=session_mismatch from=" + (env.from || "?"));
       return;
     }
-    store().get(env.sessionId).then(function (local) {
-      var modelM = model();
+store().get(env.sessionId).then(function (local) {
+        var modelM = model();
       if (!local) {
         /* Copie locale créée à partir du state distant : surtout PAS de PIN —
          * seul un join_req reconnu en apportera un. Les membres/sessionRoles et
@@ -535,6 +548,12 @@
         emit("MEMBER_RESTORED sessionId=" + sid + " did=" + e.deviceId + " learned_from=" + (from || "?"));
       } else if (e.type === "memberPruned") {
         emit("MEMBER_PRUNED sessionId=" + sid + " did=" + e.deviceId + " reason=" + (e.reason || "") + " learned_from=" + (from || "?"));
+      } else if (e.type === "memberTelemetryChanged") {
+        emit("MEMBER_TELEMETRY sessionId=" + sid + " did=" + e.deviceId + " learned_from=" + (from || "?"));
+      } else if (e.type === "takeAdded") {
+        emit("TAKE_ADDED sessionId=" + sid + " take=" + e.takeNumber + " learned_from=" + (from || "?"));
+      } else if (e.type === "takeChanged") {
+        emit("TAKE_CHANGED sessionId=" + sid + " take=" + e.takeNumber + " learned_from=" + (from || "?"));
       } else if (e.type === "conflict") {
         emit("SYNC_CONFLICT sessionId=" + sid + " field=" + e.field + " detail=" + (e.detail || ""));
       }
@@ -709,6 +728,94 @@
     var o = state.pendingJoin;
     state.pendingJoin = null;
     return o;
+  }
+
+  /* ---------- protocole J06 : Takes + télémétrie ---------- */
+
+  /* Un autre Master a créé/modifié un Take. Le Take est déjà validé par le
+   * modèle de l'émetteur ; on l'insère/remplace localement via upsertTake
+   * (upsert idempotent, LMW) puis on propage. La convergence intégrale est
+   * également portée par le sync (sharedView) de l'émetteur. */
+  function handleTakeUpdate(env, entry) {
+    if (!env.sessionId || !env.take || !env.take.takeNumber) {
+      emit("TAKE_DROP kind=take_update reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    store().get(env.sessionId).then(function (local) {
+      if (!local) {
+        emit("TAKE_DROP kind=take_update reason=unknown_session sessionId=" + env.sessionId + " from=" + (env.from || "?"));
+        return;
+      }
+      /* Anti-rebond : un écho stale (même clé LMW, contenu plus vieux) ne doit
+       * jamais régresser un Take local plus récent (J06-06 campagne). */
+      var tmG = model() && model().takeModel;
+      var current = (local.takes || []).filter(function (t) { return t.takeNumber === env.take.takeNumber; })[0];
+      if (current && tmG) {
+        var win = tmG.takeWinner(current, env.take);
+        if (win === current && !tmG.takesEqual(current, env.take)) {
+          emit("TAKE_IGNORED_STALE sessionId=" + env.sessionId + " take=" + env.take.takeNumber
+            + " local_upd=" + (current.updatedAtMs || 0) + " peer_upd=" + (env.take.updatedAtMs || 0) + " from=" + (env.from || "?"));
+          return;
+        }
+      }
+      var actor = env.from || "";
+      var res = model().upsertTake(local, env.take, actor);
+      if (!res.ok) {
+        emit("TAKE_REJECT kind=take_update sessionId=" + env.sessionId
+          + " take=" + env.take.takeNumber + " reason=" + (res.error || "rejected") + " from=" + (env.from || "?"));
+        return;
+      }
+      if (!res.changed) {
+        emit("TAKE_NOOP kind=take_update sessionId=" + env.sessionId + " take=" + env.take.takeNumber + " from=" + (env.from || "?"));
+        return;
+      }
+      return store().save(res.session).then(function () {
+        emitEvents(res.events, env.sessionId, env.from);
+        emit("TAKE_RECEIVED sessionId=" + env.sessionId + " take=" + res.session.takes.length
+          + " event=" + res.events[0].type + " from=" + (env.from || "?"));
+        notifyChanged();
+      });
+    }).catch(function (err) {
+      emit("TAKE_ERROR kind=take_update sessionId=" + (env.sessionId || "?") + " err=" + (err && err.message));
+    });
+  }
+
+  /* Un Master annonce SA PROPRE télémétrie (capacités/batterie/espace libre).
+   * Régle J06 : SEUL env.from === deviceId est accepté (jamais d'invention
+   * externe). Le sync complète. */
+  function handleTelemetryUpdate(env, entry) {
+    if (!env.sessionId || !env.deviceId || !env.from) {
+      emit("TELEMETRY_DROP kind=telemetry_update reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    if (env.from !== env.deviceId) {
+      emit("TELEMETRY_DROP kind=telemetry_update sessionId=" + env.sessionId
+        + " reason=not_self claimed=" + env.deviceId + " from=" + env.from);
+      return;
+    }
+    store().get(env.sessionId).then(function (local) {
+      if (!local) {
+        emit("TELEMETRY_DROP kind=telemetry_update reason=unknown_session sessionId=" + env.sessionId + " from=" + (env.from || "?"));
+        return;
+      }
+      var res = model().updateMemberTelemetry(local, env.deviceId, env.telemetry || {}, env.from);
+      if (!res.ok) {
+        emit("TELEMETRY_REJECT kind=telemetry_update sessionId=" + env.sessionId
+          + " did=" + env.deviceId + " reason=" + (res.error || "rejected") + " from=" + env.from);
+        return;
+      }
+      if (!res.changed) {
+        emit("TELEMETRY_NOOP kind=telemetry_update sessionId=" + env.sessionId + " did=" + env.deviceId + " from=" + env.from);
+        return;
+      }
+      return store().save(res.session).then(function () {
+        emitEvents(res.events, env.sessionId, env.from);
+        emit("TELEMETRY_RECEIVED sessionId=" + env.sessionId + " did=" + env.deviceId + " from=" + env.from);
+        notifyChanged();
+      });
+    }).catch(function (err) {
+      emit("TELEMETRY_ERROR kind=telemetry_update sessionId=" + (env.sessionId || "?") + " err=" + (err && err.message));
+    });
   }
 
   /* ---------- broadcast ---------- */
@@ -1019,6 +1126,108 @@
     });
   }
 
+  /* On envoie maintenant l'API J06. D'abord un broadcast ciblé générique
+   * (diagnostic précis + convergence intégrale par le sync qui suit). */
+  function broadcastTargeted(kind, session, extra) {
+    var env = envelope(kind, session.sessionId, extra);
+    var sent = 0;
+    Object.keys(state.serverConns).forEach(function (uuid) {
+      var entry = state.serverConns[uuid];
+      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId || !entry.peerDid)) {
+        if (sendServer(uuid, env)) sent++;
+      }
+    });
+    Object.keys(state.clientConns).forEach(function (key) {
+      var entry = state.clientConns[key];
+      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId)) {
+        if (sendOn(entry.ws, env)) sent++;
+      }
+    });
+    emit("TARGETED_BROADCAST kind=" + kind + " sessionId=" + session.sessionId + " peers=" + sent);
+  }
+
+  /* ---------- API J06 : Takes (écran 05) ---------- */
+
+  /* Remplace/insère un Take (mutations de l'écran 05). Propage take_update +
+   * broadcast du sharedView (convergence immédiate, LMW). */
+  function upsertTake(session, take) {
+    var actor = state.localDid || (cfg() ? cfg().deviceId : "");
+    var res = model().upsertTake(session, take, actor);
+    if (!res.ok) {
+      emit("TAKE_UPDATE_REJECT sessionId=" + session.sessionId + " reason=" + (res.error || "rejected"));
+      return Promise.reject(new Error(res.error || "take_upsert_rejected"));
+    }
+    if (!res.changed) {
+      emit("TAKE_UPDATE_NOOP sessionId=" + session.sessionId + " take=" + (take && take.takeNumber));
+      return Promise.resolve(session);
+    }
+    return store().save(res.session).then(function () {
+      emit("TAKE_UPDATE_LOCAL sessionId=" + res.session.sessionId + " take=" + (take && take.takeNumber)
+        + " event=" + res.events[0].type + " by=" + actor);
+      emitEvents(res.events, res.session.sessionId, actor);
+      broadcastTargeted("take_update", res.session, { take: res.session.takes.filter(function (t) { return t.takeNumber === take.takeNumber; })[0] });
+      broadcast(res.session, "take_update", " take=" + (take && take.takeNumber));
+      notifyChanged();
+      return res.session;
+    });
+  }
+
+  /* Nouveau Take (hérite du précédent). Retour Promise<{ session, takeNumber }>. */
+  function newTake(session) {
+    var actor = state.localDid || (cfg() ? cfg().deviceId : "");
+    var res = model().newTake(session, actor);
+    if (!res.ok) {
+      emit("TAKE_NEW_REJECT sessionId=" + session.sessionId + " reason=" + (res.error || "rejected"));
+      return Promise.reject(new Error(res.error || "take_new_rejected"));
+    }
+    if (!res.changed) {
+      emit("TAKE_NEW_NOOP sessionId=" + session.sessionId);
+      return Promise.resolve({ session: res.session, takeNumber: res.takeNumber });
+    }
+    return store().save(res.session).then(function () {
+      emit("TAKE_NEW_LOCAL sessionId=" + res.session.sessionId + " take=" + res.takeNumber + " by=" + actor);
+      emitEvents(res.events, res.session.sessionId, actor);
+      broadcastTargeted("take_update", res.session, { take: res.session.takes.filter(function (t) { return t.takeNumber === res.takeNumber; })[0] });
+      broadcast(res.session, "take_update", " take=" + res.takeNumber);
+      notifyChanged();
+      return { session: res.session, takeNumber: res.takeNumber };
+    });
+  }
+
+  /* ---------- API J06 : télémétrie auto-déclarée ---------- */
+
+  /* Le device local déclare CAPACITÉS + batterie + espace libre (natif). Seul
+   * soi-même : le protocole refuse telemetry_update dont le from != deviceId. */
+  function updateMemberTelemetry(session, deviceId, telemetry) {
+    var actor = state.localDid || (cfg() ? cfg().deviceId : "");
+    if (deviceId !== actor) {
+      emit("TELEMETRY_REJECT sessionId=" + session.sessionId + " did=" + deviceId
+        + " reason=not_self by=" + actor);
+      return Promise.reject(new Error("telemetry_not_self"));
+    }
+    var res = model().updateMemberTelemetry(session, deviceId, telemetry, actor);
+    if (!res.ok) {
+      emit("TELEMETRY_UPDATE_REJECT sessionId=" + session.sessionId + " did=" + deviceId
+        + " reason=" + (res.error || "rejected"));
+      return Promise.reject(new Error(res.error || "telemetry_rejected"));
+    }
+    if (!res.changed) {
+      emit("TELEMETRY_UPDATE_NOOP sessionId=" + session.sessionId + " did=" + deviceId);
+      return Promise.resolve(session);
+    }
+    return store().save(res.session).then(function () {
+      emit("TELEMETRY_UPDATE_LOCAL sessionId=" + res.session.sessionId + " did=" + deviceId + " by=" + actor);
+      emitEvents(res.events, res.session.sessionId, actor);
+      broadcastTargeted("telemetry_update", res.session, {
+        deviceId: deviceId,
+        telemetry: res.session.members.filter(function (m) { return m.deviceId === deviceId; })[0] ? res.session.members.filter(function (m) { return m.deviceId === deviceId; })[0].telemetry : null
+      });
+      broadcast(res.session, "telemetry_update", " did=" + deviceId);
+      notifyChanged();
+      return res.session;
+    });
+  }
+
   /* Enveloppe ciblée membre (émit en parallèle avec le broadcast du sharedView
    * complet : la cible donne un évènement diagnostic précis, le sync assure la
    * convergence intégrale). Même destinataire que broadcast(). */
@@ -1139,6 +1348,10 @@
     addMember: addMember,
     updateMemberRoles: updateMemberRoles,
     removeMember: removeMember,
+    upsertTake: upsertTake,
+    newTake: newTake,
+    updateMemberTelemetry: updateMemberTelemetry,
+    semanticEqual: semanticEqual,
     advertiseOpenSessions: advertiseOpenSessions,
     unadvertise: unadvertise,
     reSyncSession: reSyncSession,

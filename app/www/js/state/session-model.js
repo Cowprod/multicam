@@ -34,6 +34,17 @@
   var SCHEMA_VERSION = 1;
   var PROTOCOL_VERSION = 1;
 
+  /* J06 — modèle du Take (écran 05) : chargé en premier dans l'app (script) ou
+   * par require en Node. Si absent, la session reste fonctionnelle pour J04/J05
+   * (takes vides, aucune opération Take offerte). */
+  var TAKE_MODEL = (function () {
+    try {
+      if (typeof module !== "undefined" && module.exports) return require("./take-model.js");
+      return root.MultiCamTakeModel || null;
+    } catch (e) { return null; }
+  })();
+  function tk() { return TAKE_MODEL; }
+
   /* J05 — sessionRoles possibles en V1. "controller" est une skill globale d'un
    * device (config) ; il n'est PAS un rôle de session : un rôle de session est
    * only capture/storage (décision 31.2 : combinaison autorisée si annoncée). */
@@ -91,6 +102,22 @@
    *    au niveau du modèle, jamais propagé (test J05 « rôle non annoncé ») ;
    *  - si après assainissement il ne reste AUCUN rôle → membre invalide (le
    *    device ne peut pas rester membre : ≥1 rôle requis). */
+  /* Télémétrie d'un device (J06) : capacités Capture normalisées + batterie +
+   * espace libre, auto-déclarée par le device lui-même (jamais par un autre).
+   * Capacités inconnues = null (honnête, jamais inventées). */
+  function sanitizeTelemetry(m) {
+    if (!m || typeof m !== "object") return null;
+    var caps = (m.capabilities && typeof m.capabilities === "object") ? m.capabilities : null;
+    return {
+      capabilities: caps,
+      batteryLevel: (typeof m.batteryLevel === "number" && isFinite(m.batteryLevel)
+        && m.batteryLevel >= 0 && m.batteryLevel <= 100) ? Math.round(m.batteryLevel) : null,
+      freeBytes: (typeof m.freeBytes === "number" && isFinite(m.freeBytes) && m.freeBytes >= 0) ? Math.round(m.freeBytes) : null,
+      updatedAtMs: (typeof m.updatedAtMs === "number" && m.updatedAtMs > 0) ? m.updatedAtMs : nowMs(),
+      updatedByDeviceId: typeof m.updatedByDeviceId === "string" ? m.updatedByDeviceId : ""
+    };
+  }
+
   function cleanMember(m) {
     if (!m || typeof m !== "object") return null;
     var enabled = (Array.isArray(m.enabledSkills) ? m.enabledSkills : []).slice();
@@ -107,7 +134,9 @@
       addedAtMs: typeof m.addedAtMs === "number" && m.addedAtMs > 0 ? m.addedAtMs : nowMs(),
       addedByDeviceId: typeof m.addedByDeviceId === "string" ? m.addedByDeviceId : "",
       roleUpdatedMs: typeof m.roleUpdatedMs === "number" && m.roleUpdatedMs > 0 ? m.roleUpdatedMs : (m.addedAtMs || nowMs()),
-      roleByDeviceId: typeof m.roleByDeviceId === "string" ? m.roleByDeviceId : (m.addedByDeviceId || "")
+      roleByDeviceId: typeof m.roleByDeviceId === "string" ? m.roleByDeviceId : (m.addedByDeviceId || ""),
+      /* J06 — télémétrie auto-déclarée (capacités/batterie/espace libre). */
+      telemetry: sanitizeTelemetry(m.telemetry)
     };
   }
 
@@ -192,7 +221,10 @@
       updatedAtMs: typeof s.updatedAtMs === "number" && s.updatedAtMs > 0 ? s.updatedAtMs : now,
       masters: Object.keys(keyed).map(function (id) { return keyed[id]; }),
       members: members,
-      removedMembers: removedMembers
+      removedMembers: removedMembers,
+      /* J06 — Takes de la session (écran 05). Une session sans Takes reste
+       * valide : l'écran 05 instancie Take 001 à la première ouverture. */
+      takes: tk() ? tk().sanitizeTakes(s.takes) : []
     };
   }
 
@@ -221,6 +253,7 @@
     Object.keys(s.removedMembers || {}).forEach(function (id) {
       if ((s.removedMembers[id].removedAtMs || 0) > max) max = s.removedMembers[id].removedAtMs;
     });
+    (s.takes || []).forEach(function (t) { if ((t.updatedAtMs || 0) > max) max = t.updatedAtMs; });
     return max;
   }
 
@@ -231,7 +264,8 @@
       stateUpdatedMs: s.stateUpdatedMs, stateByDeviceId: s.stateByDeviceId,
       createdAtMs: s.createdAtMs, updatedAtMs: s.updatedAtMs, masters: s.masters || [],
       members: s.members || [],
-      removedMembers: objectShallow(s.removedMembers)
+      removedMembers: objectShallow(s.removedMembers),
+      takes: s.takes || []
     })));
   }
 
@@ -263,14 +297,16 @@
       updatedAtMs: s.updatedAtMs,
       masters: (s.masters || []).map(function (m) { return { deviceId: m.deviceId, deviceName: m.deviceName, endpoint: m.endpoint, joinedAtMs: m.joinedAtMs }; }),
       members: (s.members || []).map(function (m) {
-        return { deviceId: m.deviceId, deviceName: m.deviceName, enabledSkills: m.enabledSkills.slice(), sessionRoles: m.sessionRoles.slice(), addedAtMs: m.addedAtMs, addedByDeviceId: m.addedByDeviceId, roleUpdatedMs: m.roleUpdatedMs, roleByDeviceId: m.roleByDeviceId };
+        return { deviceId: m.deviceId, deviceName: m.deviceName, enabledSkills: m.enabledSkills.slice(), sessionRoles: m.sessionRoles.slice(), addedAtMs: m.addedAtMs, addedByDeviceId: m.addedByDeviceId, roleUpdatedMs: m.roleUpdatedMs, roleByDeviceId: m.roleByDeviceId, telemetry: m.telemetry || null };
       }),
       removedMembers: (function () {
         var out = {};
         var rm = s.removedMembers || {};
         Object.keys(rm).forEach(function (id) { out[id] = rm[id]; });
         return out;
-      })()
+      })(),
+      /* J06 — Takes de la session (sharedView : convergence multi-Master). */
+      takes: tk() ? tk().sanitizeTakes(s.takes) : []
     };
   }
 
@@ -396,6 +432,20 @@
         }
       }
     });
+    /* J06 — télémétrie : adoptée indépendamment du vainqueur "rôles" (une
+     * télémétrie plus récente peut arriver sur un membre dont les rôles n'ont
+     * pas bougé, ou l'inverse). LMW identique aux Takes. */
+    (remote.members || []).forEach(function (rm) {
+      var rmClean = cleanMember(rm);
+      if (!rmClean || !rmClean.deviceId || !rmClean.telemetry) return;
+      var id = rmClean.deviceId;
+      var cur = mById[id];
+      if (!cur) return;
+      var winT = telemetryWinner(cur.telemetry || null, rmClean.telemetry);
+      if (!telemetryChanged(cur.telemetry || null, winT)) return;
+      mById[id] = withTelemetry(cur, winT);
+      events.push({ type: "memberTelemetryChanged", deviceId: id });
+    });
     /* Détection de retrait : un membre local absent du remote.members ET absent
      * de remote.removedMembers est un membre connu localement que le remote ne
      * connaît pas (copie antérieure) → on le GARDE localement ; le retrait ne
@@ -470,6 +520,20 @@
       });
     }
 
+    /* 5.5 J06 — Takes de la session : fusion déterministe par takeNumber (LMW).
+     * Pas de retrait de Take en J06 : ajout/adoption uniquement. Ne se déclenche
+     * que si le modèle Take est disponible (sinon on garde la liste locale). */
+    var localT = tk() ? tk().sanitizeTakes(out.takes) : [];
+    if (tk()) {
+      var mrg = tk().mergeTakes(localT, (remote.takes || []));
+      out.takes = mrg.takes;
+      mrg.events.forEach(function (e) {
+        events.push({ type: e.type, takeNumber: e.takeNumber });
+      });
+    } else {
+      out.takes = localT;
+    }
+
     /* 6. updatedAtMs : max (utilise pour le tri "recentes"). */
     out.updatedAtMs = Math.max(out.updatedAtMs || 0, remote.updatedAtMs || 0, lastCompletedMs(out), nowMs());
 
@@ -490,7 +554,6 @@
     if (aR !== bR) return aR > bR ? a : b;
     return a; /* identiques → a (stable) */
   }
-
   function memberEqual(a, b) {
     return a.deviceId === b.deviceId
       && a.deviceName === b.deviceName
@@ -499,7 +562,34 @@
       && a.addedAtMs === b.addedAtMs
       && a.addedByDeviceId === b.addedByDeviceId
       && a.roleUpdatedMs === b.roleUpdatedMs
-      && a.roleByDeviceId === b.roleByDeviceId;
+      && a.roleByDeviceId === b.roleByDeviceId
+      && JSON.stringify(a.telemetry || null) === JSON.stringify(b.telemetry || null);
+  }
+
+  /* J06 — télémétrie concurrente d'un même member (LMW : updatedAtMs puis
+   * updatedByDeviceId, départage lexicographique JSON). Adoptée indépendamment
+   * du vainqueur "rôles". */
+  function telemetryWinner(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    var aMs = (a.updatedAtMs || 0), bMs = (b.updatedAtMs || 0);
+    if (aMs !== bMs) return aMs > bMs ? a : b;
+    var aBy = a.updatedByDeviceId || "", bBy = b.updatedByDeviceId || "";
+    if (aBy !== bBy) return aBy > bBy ? a : b;
+    var aJ = JSON.stringify(a), bJ = JSON.stringify(b);
+    return aJ >= bJ ? a : b;
+  }
+
+  function telemetryChanged(a, b) {
+    return JSON.stringify(a || null) !== JSON.stringify(b || null);
+  }
+
+  /* Copie d'un member avec une nouvelle télémétrie (les champs de rôle/identité
+   * restent ceux du vainqueur "rôles"). */
+  function withTelemetry(member, t) {
+    var m = JSON.parse(JSON.stringify(member));
+    m.telemetry = t ? sanitizeTelemetry(t) : null;
+    return m;
   }
 
   /* Ajoute/rafraichit (par deviceId) un Master connu dans la session (ce device ou
@@ -559,7 +649,8 @@
       addedAtMs: existing ? existing.addedAtMs : now,
       addedByDeviceId: existing ? existing.addedByDeviceId : (byDeviceId || ""),
       roleUpdatedMs: now,
-      roleByDeviceId: byDeviceId || ""
+      roleByDeviceId: byDeviceId || "",
+      telemetry: existing ? existing.telemetry : null
     });
     if (!existing) {
       out.members = (out.members || []).concat([rec]);
@@ -611,7 +702,8 @@
       addedAtMs: member.addedAtMs,
       addedByDeviceId: member.addedByDeviceId,
       roleUpdatedMs: now,
-      roleByDeviceId: byDeviceId || ""
+      roleByDeviceId: byDeviceId || "",
+      telemetry: member.telemetry
     });
     out.members[idx] = updated;
     out.updatedAtMs = now;
@@ -651,6 +743,79 @@
    * retiré n'apparaît plus dans members ; le tombstone protège contre toute
    * copie périmée qui réintroduirait un rôle déjà retiré. */
 
+  /* ---------- J06 — ops Takes (écran 05) ---------- */
+
+  /* Take courant de la session : le premier s'il existe, sinon Take 001 instancié
+   * (jamais persisté par cette fonction : l'appelant décide). */
+  function currentTake(session, actor) {
+    if (!tk()) return null;
+    var first = tk().takeAt(session.takes || [], 1);
+    if (first) return first;
+    return tk().createFirstTake(actor || "");
+  }
+
+  /* Insère ou remplace un Take validé. Retour { session, changed, ok, events }. */
+  function upsertTake(session, take, actor) {
+    var out = cloneSession(session);
+    var now = nowMs();
+    if (!tk()) return { session: out, changed: false, ok: false, error: "take_model_unavailable" };
+    var t = tk().sanitizeTake(take);
+    if (!t) return { session: out, changed: false, ok: false, error: "invalid_take" };
+    var arr = tk().sanitizeTakes(out.takes);
+    var idx = -1;
+    arr = arr.map(function (x, i) {
+      if (x.takeNumber === t.takeNumber) idx = i;
+      return x;
+    });
+    var changed = false;
+    if (idx >= 0) {
+      if (!tk().takesEqual(arr[idx], t)) { arr[idx] = t; changed = true; }
+    } else {
+      arr.push(t);
+      arr.sort(function (a, b) { return a.takeNumber - b.takeNumber; });
+      changed = true;
+    }
+    out.takes = arr;
+    out.updatedAtMs = now;
+    var evType = !changed ? "takeNoop" : (idx >= 0 ? "takeChanged" : "takeAdded");
+    return {
+      session: out, changed: changed, ok: true,
+      events: changed ? [{ type: evType, takeNumber: t.takeNumber }] : []
+    };
+  }
+
+  /* Nouveau Take : hérite des sélections/réglages/overrides du précédent
+   * (copie profonde), statut PREPARATION. Retour { session, changed, ok,
+   * takeNumber, events }. */
+  function newTake(session, actor) {
+    var out = cloneSession(session);
+    if (!tk()) return { session: out, changed: false, ok: false, error: "take_model_unavailable" };
+    var t = tk().createNextTake(out.takes, actor || "");
+    if (!t) return { session: out, changed: false, ok: false, error: "invalid_take" };
+    var n = t.takeNumber;
+    var res = upsertTake(out, t, actor);
+    return { session: res.session, changed: res.changed, ok: res.ok, takeNumber: n, events: res.events };
+  }
+
+  /* Met à jour la télémétrie auto-déclarée d'un device membre (deviceId == émetteur,
+   * vérifié côté protocole, jamais inventé par un autre device). */
+  function updateMemberTelemetry(session, deviceId, telemetry, actor) {
+    var out = cloneSession(session);
+    var now = nowMs();
+    var found = false;
+    out.members = (out.members || []).map(function (m) {
+      if (m.deviceId !== deviceId) return m;
+      found = true;
+      var t = sanitizeTelemetry(telemetry);
+      if (t) { t.updatedAtMs = now; t.updatedByDeviceId = actor || deviceId; }
+      return withTelemetry(m, t);
+    });
+    if (!found) return { session: out, changed: false, ok: false, error: "not_a_member" };
+    out.updatedAtMs = now;
+    var changed = JSON.stringify(sanitizeSession(out)) !== JSON.stringify(session);
+    return { session: out, changed: changed, ok: true, events: [{ type: "memberTelemetryChanged", deviceId: deviceId }] };
+  }
+
   return {
     SCHEMA_VERSION: SCHEMA_VERSION,
     PROTOCOL_VERSION: PROTOCOL_VERSION,
@@ -675,6 +840,14 @@
     removeMember: removeMember,
     memberWinner: memberWinner,
     memberEqual: memberEqual,
-    membersOf: function (s) { return (s ? s.members : []) || []; }
+    telemetryWinner: telemetryWinner,
+    membersOf: function (s) { return (s ? s.members : []) || []; },
+    /* J06 — Takes */
+    currentTake: currentTake,
+    upsertTake: upsertTake,
+    newTake: newTake,
+    updateMemberTelemetry: updateMemberTelemetry,
+    sanitizeTakes: function (arr) { return tk() ? tk().sanitizeTakes(arr) : []; },
+    takeModel: TAKE_MODEL
   };
 });

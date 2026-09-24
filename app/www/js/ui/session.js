@@ -316,6 +316,15 @@
         showToast("Impossible de terminer la session");
       });
     });
+    var prepareBtn = byId("prepareTakeButton");
+    if (prepareBtn) {
+      prepareBtn.addEventListener("click", function () {
+        if (state.session && state.session.state === "open") {
+          console.log("SCREEN03_TO_TAKE sessionId=" + state.sid);
+          global.MultiCamNav.show("take", { sid: state.sid });
+        }
+      });
+    }
 
     /* Délégation : contenu généré dynamiquement (members + LAN + modal). */
     document.body.addEventListener("click", function (ev) {

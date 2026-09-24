@@ -24,7 +24,7 @@ const html = fs.readFileSync(path.join(WWW, "index.html"), "utf8");
 const css = fs.readFileSync(path.join(WWW, "css", "app.css"), "utf8");
 const mainJs = fs.readFileSync(path.join(WWW, "js", "main.js"), "utf8");
 
-const REQUIRED_PANELS = ["home", "create", "join", "session", "settings"];
+const REQUIRED_PANELS = ["home", "create", "join", "session", "settings", "take", "arm"];
 
 let failures = 0;
 function assert(cond, label) {
@@ -46,7 +46,7 @@ for (const p of REQUIRED_PANELS) {
   assert(panelIds.indexOf("panel-" + p) !== -1,
     "panneau déclaré #panel-" + p);
 }
-const onlyExpected = panelIds.every(id => /^panel-(home|create|join|session|settings)$/.test(id));
+const onlyExpected = panelIds.every(id => /^panel-(home|create|join|session|settings|take|arm)$/.test(id));
 assert(onlyExpected, "aucun panneau hors liste attendue");
 
 /* ---- 2. Au boot, au plus UN panneau .active ---- */

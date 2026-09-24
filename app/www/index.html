@@ -161,9 +161,180 @@
 
 <div id="actionsArea" class="card glass strong rounded-4 mt-4 d-none">
   <div class="card-body p-2 d-flex gap-2">
+    <button id="prepareTakeButton" class="btn btn-primary w-100" type="button"><i class="fa-solid fa-list-check me-2"></i>Préparer Take</button>
     <button id="closeButton" class="btn btn-outline-danger w-100" type="button"><i class="fa-solid fa-ban me-2"></i>Terminer la session</button>
   </div>
 </div>
+</section>
+
+<!-- ============ Écran 05 — Préparer Take (J06) ============ -->
+<section id="panel-take" class="screen">
+<header class="d-flex align-items-center gap-3 mb-2">
+  <button id="backTake" class="btn btn-outline-light glass icon" type="button" aria-label="Retour session"><i class="fa-solid fa-arrow-left"></i></button>
+  <div class="flex-grow-1">
+    <div class="fw-bold fs-4">Préparer Take</div>
+    <div id="deviceNameTake" class="small muted">…</div>
+  </div>
+</header>
+
+<section class="card glass strong rounded-4 mb-3">
+  <div class="card-body p-3 d-flex align-items-center gap-2">
+    <div class="flex-grow-1">
+      <div class="small text-uppercase muted">Take</div>
+      <div class="fw-semibold fs-5" id="tkTakeName">Take —</div>
+    </div>
+    <span class="badge rounded-pill text-bg-secondary" id="tkTakeBadge">PRÉPARATION</span>
+    <button id="tkNew" class="btn btn-sm btn-outline-light glass" type="button" title="Nouveau Take (hérite du précédent)"><i class="fa-solid fa-plus"></i></button>
+  </div>
+</section>
+
+<section class="mb-3">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="small text-uppercase muted">Captures</div>
+    <div class="btn-group btn-group-sm">
+      <button type="button" class="btn btn-outline-light glass" id="tkCaptureAll">Toutes</button>
+      <button type="button" class="btn btn-outline-light glass" id="tkCaptureNone">Aucune</button>
+    </div>
+  </div>
+  <div id="tkCaptures" class="vstack gap-2"></div>
+</section>
+
+<section class="mb-3">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="small text-uppercase muted">Storage</div>
+    <div class="btn-group btn-group-sm">
+      <button type="button" class="btn btn-outline-light glass" id="tkStorageAll">Tous</button>
+      <button type="button" class="btn btn-outline-light glass" id="tkStorageNone">Aucun</button>
+    </div>
+  </div>
+  <div id="tkStorages" class="vstack gap-2"></div>
+  <div id="tkStorageWarning" class="warning-box mt-2 d-none"><i class="fa-solid fa-triangle-exclamation me-2"></i>Aucun Storage sélectionné — les médias resteront sur les Captures.</div>
+</section>
+
+<div class="small text-uppercase muted mb-2">Réglages du Take</div>
+<div class="vstack gap-2 mb-3" id="tkSettings">
+  <div class="card glass rounded-4 overflow-hidden">
+    <button id="tkAccVideo" class="tk-acc-btn d-flex align-items-center w-100" type="button" aria-expanded="false">
+      <i class="fa-solid fa-video me-2"></i><span class="flex-grow-1 text-start">Vidéo</span>
+      <span class="setting-summary" id="tkVideoSummary">…</span>
+    </button>
+    <div class="tk-acc-body" style="display:none">
+      <div class="p-3">
+        <label class="small muted mb-1">Résolution</label>
+        <div class="choice-grid three mb-3">
+          <input type="radio" class="btn-check take-setting" name="tk-resolution" value="HD" id="tkResHD"><label class="btn btn-outline-light" for="tkResHD">HD</label>
+          <input type="radio" class="btn-check take-setting" name="tk-resolution" value="FHD" id="tkResFHD"><label class="btn btn-outline-light" for="tkResFHD">Full HD</label>
+          <input type="radio" class="btn-check take-setting" name="tk-resolution" value="4K" id="tkRes4K"><label class="btn btn-outline-light" for="tkRes4K">4K</label>
+        </div>
+        <label class="small muted mb-1">Qualité</label>
+        <div class="choice-grid three mb-3">
+          <input type="radio" class="btn-check take-setting" name="tk-quality" value="ECO" id="tkQECO"><label class="btn btn-outline-light" for="tkQECO">Éco</label>
+          <input type="radio" class="btn-check take-setting" name="tk-quality" value="NORMAL" id="tkQNORMAL"><label class="btn btn-outline-light" for="tkQNORMAL">Normal</label>
+          <input type="radio" class="btn-check take-setting" name="tk-quality" value="HIGH" id="tkQHIGH"><label class="btn btn-outline-light" for="tkQHIGH">Haute</label>
+        </div>
+        <label class="small muted mb-1">Caméra</label>
+        <div class="choice-grid mb-3">
+          <input type="radio" class="btn-check take-setting" name="tk-camera" value="REAR" id="tkCamREAR"><label class="btn btn-outline-light" for="tkCamREAR">Arrière</label>
+          <input type="radio" class="btn-check take-setting" name="tk-camera" value="FRONT" id="tkCamFRONT"><label class="btn btn-outline-light" for="tkCamFRONT">Avant</label>
+        </div>
+        <label class="small muted">Orientation</label>
+        <div class="choice-grid">
+          <input type="radio" class="btn-check take-setting" name="tk-orientation" value="LANDSCAPE" id="tkOrientLANDSCAPE"><label class="btn btn-outline-light" for="tkOrientLANDSCAPE">Paysage</label>
+          <input type="radio" class="btn-check take-setting" name="tk-orientation" value="PORTRAIT" id="tkOrientPORTRAIT"><label class="btn btn-outline-light" for="tkOrientPORTRAIT">Portrait</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card glass rounded-4 overflow-hidden">
+    <button id="tkAccAudio" class="tk-acc-btn d-flex align-items-center w-100" type="button" aria-expanded="false">
+      <i class="fa-solid fa-microphone me-2"></i><span class="flex-grow-1 text-start">Audio</span>
+      <span class="setting-summary" id="tkAudioSummary">…</span>
+    </button>
+    <div class="tk-acc-body" style="display:none">
+      <div class="p-3">
+        <div class="choice-grid">
+          <input type="radio" class="btn-check take-setting" name="tk-audio" value="true" id="tkAudON"><label class="btn btn-outline-light" for="tkAudON">Activé</label>
+          <input type="radio" class="btn-check take-setting" name="tk-audio" value="false" id="tkAudOFF"><label class="btn btn-outline-light" for="tkAudOFF">Désactivé</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card glass rounded-4 overflow-hidden">
+    <button id="tkAccGps" class="tk-acc-btn d-flex align-items-center w-100" type="button" aria-expanded="false">
+      <i class="fa-solid fa-location-dot me-2"></i><span class="flex-grow-1 text-start">GPS</span>
+      <span class="setting-summary" id="tkGpsSummary">…</span>
+    </button>
+    <div class="tk-acc-body" style="display:none">
+      <div class="p-3">
+        <div class="choice-grid">
+          <input type="radio" class="btn-check take-setting" name="tk-gps" value="OFF" id="tkGpsOFF"><label class="btn btn-outline-light" for="tkGpsOFF">Off</label>
+          <input type="radio" class="btn-check take-setting" name="tk-gps" value="ECO" id="tkGpsECO"><label class="btn btn-outline-light" for="tkGpsECO">Éco</label>
+          <input type="radio" class="btn-check take-setting" name="tk-gps" value="NORMAL" id="tkGpsNORMAL"><label class="btn btn-outline-light" for="tkGpsNORMAL">Normal</label>
+          <input type="radio" class="btn-check take-setting" name="tk-gps" value="PRECISE" id="tkGpsPRECISE"><label class="btn btn-outline-light" for="tkGpsPRECISE">Précis</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card glass rounded-4 overflow-hidden">
+    <button id="tkAccCountdown" class="tk-acc-btn d-flex align-items-center w-100" type="button" aria-expanded="false">
+      <i class="fa-solid fa-clock me-2"></i><span class="flex-grow-1 text-start">Countdown</span>
+      <span class="setting-summary" id="tkCountdownSummary">…</span>
+    </button>
+    <div class="tk-acc-body" style="display:none">
+      <div class="p-3">
+        <div class="choice-grid">
+          <input type="radio" class="btn-check take-setting" name="tk-countdown" value="0" id="tkC0"><label class="btn btn-outline-light" for="tkC0">0 s</label>
+          <input type="radio" class="btn-check take-setting" name="tk-countdown" value="3" id="tkC3"><label class="btn btn-outline-light" for="tkC3">3 s</label>
+          <input type="radio" class="btn-check take-setting" name="tk-countdown" value="5" id="tkC5"><label class="btn btn-outline-light" for="tkC5">5 s</label>
+          <input type="radio" class="btn-check take-setting" name="tk-countdown" value="10" id="tkC10"><label class="btn btn-outline-light" for="tkC10">10 s</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="tkAccTransfer" class="card glass rounded-4 overflow-hidden">
+    <button id="tkAccTransferBtn" class="tk-acc-btn d-flex align-items-center w-100" type="button" aria-expanded="false">
+      <i class="fa-solid fa-arrow-right-arrow-left me-2"></i><span class="flex-grow-1 text-start">Transfert</span>
+      <span class="setting-summary" id="tkTransferSummary">…</span>
+    </button>
+    <div class="tk-acc-body" style="display:none">
+      <div class="p-1">
+        <div class="d-flex align-items-center justify-content-between py-2 px-3">
+          <div><div class="fw-semibold">Transfert automatique</div><div class="small muted">Après fermeture du clip</div></div>
+          <div class="form-check form-switch m-0"><input id="tkTransferAuto" class="form-check-input" type="checkbox"></div>
+        </div>
+        <div class="d-flex align-items-center justify-content-between py-2 px-3 border-top border-light border-opacity-10">
+          <div><div class="fw-semibold">Suppression locale</div><div class="small muted">Après réplication validée</div></div>
+          <div class="form-check form-switch m-0"><input id="tkDeleteLocal" class="form-check-input" type="checkbox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="card glass strong rounded-4">
+  <div class="card-body p-2">
+    <button id="tkArm" class="btn btn-success w-100 mainbtn disabled disabled-arm" type="button" disabled><i class="fa-solid fa-shield-halved me-2"></i>ARM</button>
+    <div id="tkArmHint" class="small muted text-center mt-2">Sélectionne au moins une Capture.</div>
+  </div>
+</section>
+</section>
+
+<!-- ============ Écran 06 — ARM (stub J07) ============ -->
+<section id="panel-arm" class="screen">
+<header class="d-flex align-items-center gap-3 mb-2">
+  <button id="backArm" class="btn btn-outline-light glass icon" type="button" aria-label="Retour"><i class="fa-solid fa-arrow-left"></i></button>
+  <div class="flex-grow-1">
+    <div class="fw-bold fs-4">ARM</div>
+    <div id="deviceNameArm" class="small muted">…</div>
+  </div>
+</header>
+<section id="armArea" class="flex-grow-1">
+  <div class="card glass rounded-4 p-4 text-center">
+    <i class="fa-solid fa-shield-halved fs-1 muted mb-2"></i>
+    <div class="fw-bold" id="armTakeName">Take 001 prêt</div>
+    <p class="small muted mb-0">L'armement et le déclenchement d'enregistrement sont prévus au jalon J07. Le Take est prêt en PREPARATION.</p>
+  </div>
+</section>
 </section>
 
 <!-- Modal locale J05 de gestion des membres/rôles (Ajouter / Modifier). Pas de
@@ -185,6 +356,30 @@
         <button id="mmSave" class="btn btn-success mainbtn" type="button"><i class="fa-solid fa-check me-2"></i><span id="mmSaveLabel">Ajouter</span></button>
         <button id="mmRemove" class="btn btn-outline-danger d-none" type="button"><i class="fa-solid fa-user-slash me-2"></i>Retirer de la session</button>
         <button id="mmCancel" class="btn btn-outline-light" type="button">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal locale J06 d'overrides Capture (écran 05). Même toggler
+     .screenmodal.show que la modal membre (sans Bootstrap JS). -->
+<div id="takeOverrideModal" class="screenmodal" aria-hidden="true">
+  <div class="modal-backdrop" data-tko-close="1"></div>
+  <div class="modal-dialog card glass strong rounded-4">
+    <div class="card-body p-3">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <div>
+          <div class="small text-uppercase muted">Overrides Capture</div>
+          <div class="fw-semibold fs-5" id="tkoTitle">…</div>
+        </div>
+        <button id="tkoClose" class="btn btn-outline-light glass icon ms-auto" type="button" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="small muted mb-2" id="tkoMeta">…</div>
+      <div class="vstack gap-2" id="tkoSections"></div>
+      <div class="small muted mt-2" id="tkoHint">« Hériter » = utiliser le réglage global du Take. Décocher pour personnaliser ce device.</div>
+      <div class="d-grid gap-2 mt-3">
+        <button id="tkoSave" class="btn btn-success mainbtn" type="button"><i class="fa-solid fa-check me-2"></i>Enregistrer</button>
+        <button id="tkoCancel" class="btn btn-outline-light" type="button">Annuler</button>
       </div>
     </div>
   </div>
@@ -273,8 +468,10 @@
 <script src="js/native/saf.js"></script>
 <script src="js/native/storage.js"></script>
 <script src="js/native/pixelcopy.js"></script>
+<script src="js/native/capture-capabilities.js"></script>
 <script src="js/net/discovery.js"></script>
 <script src="js/net/transport.js"></script>
+<script src="js/state/take-model.js"></script>
 <script src="js/state/session-model.js"></script>
 <script src="js/state/session-store.js"></script>
 <script src="js/net/session-ws.js"></script>
@@ -282,6 +479,7 @@
 <script src="js/ui/home.js"></script>
 <script src="js/ui/session-create.js"></script>
 <script src="js/ui/session.js"></script>
+<script src="js/ui/take.js"></script>
 <script src="js/ui/settings.js"></script>
 <script src="js/main.js"></script>
 </body>
