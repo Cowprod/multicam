@@ -26,7 +26,7 @@ Implémenter l'écran 05 « Préparation Take » : sélection Captures/Storage, 
 - `app/setup-android.sh` + `app/camera-patches/` — build reproductible.
 
 ## 5. Modèle de données Take (JSON)
-`{takeNumber, status:"PREPARATION", captures:[], storages:[], settings:{video{resolution,quality,camera,orientation}, audio, gpsProfile, countdownSeconds, transferAuto, deleteLocalAfterVerifiedReplication}, captureOverrides:{<did>:{video|null,audio|null,gpsProfile|null}}, createdAtMs, updatedAtMs, updatedByDeviceId}`. Take 001 = défauts (FHD/HIGH/REAR/LANDSCAPE, audio true, GPS NORMAL, 5 s, autotransfert). Take 002 = clonage profond du précédent (héritage) + overrides vides.
+`{takeNumber, status:"PREPARATION", captures:[], storages:[], settings:{video{resolution,quality,camera,orientation}, audio, gpsProfile, countdownSeconds, transferAuto, deleteLocalAfterVerifiedReplication}, captureOverrides:{<did>:{video|null,audio|null,gpsProfile|null}}, createdAtMs, updatedAtMs, updatedByDeviceId}`. Take 001 = défauts (FHD/HIGH/REAR/LANDSCAPE, audio true, GPS NORMAL, 5 s, autotransfert). Take 002 = clonage profond du précédent : sélections, réglages et overrides hérités ; objet indépendant du Take précédent.
 
 ## 6. Convergence distribuée (défaut le plus grave corrigé)
 Toute mutation avance `updatedAtMs`/marque l'acteur (horloge LMW fiable sur captures, storages, settings, overrides). `takeWinner` : `(updatedAtMs, updatedByDeviceId)` puis départage canonique (clés triées, longueurs des captures/storages prioritaires) — la copie VIDE ne gagne jamais. Anti-rebond `TAKE_IGNORED_STALE` : un écho stale ne régresse pas un Take local plus récent. Convergence prouvée B==C (J06-13, byte-identité).
@@ -47,7 +47,7 @@ Global 4K + GPS Précis posé sans réduction (`globalUnchanged=true`) ; warning
 Modal J06-08 : 3 sections (video/audio/gps), GPS listé `["OFF"]` sur device `gpsFeature:false` (restriction par capacité), personnalisation audio OFF + GPS OFF → `{video:null, audio:false, gpsProfile:"OFF"}` persisté **et** converge sur C. Retour « Hériter » J06-09 → nettoyage des overrides convergé des deux côtés.
 
 ## 12. Héritage / persistance / ARM
-Take 002 hérite sélections + réglages (captures/storages/4K/PRECISE, overrides vides) et Take 001 reste intact (J06-10). Redémarrage B : session + Taks persistés (J06-11). ARM bloqué avant sélection (J06-04) puis débloqué dès ≥1 Capture (J06-06) — placeholder J07 documenté.
+Take 002 hérite sélections + réglages + overrides du Take précédent et Take 001 reste intact (J06-10). Dans la campagne finale, les overrides avaient été remis à l'état Hériter avant la création de Take 002 ; le modèle et les tests couvrent néanmoins l'héritage d'overrides non nuls. Redémarrage B : session + Taks persistés (J06-11). ARM bloqué avant sélection (J06-04) puis débloqué dès ≥1 Capture (J06-06) — placeholder J07 documenté.
 
 ## 13. Garde-fous déterministes
 `take-model.test.js` 16/16 (dont LMW systématique, takeWinner anti-vide, warnings override-aware, normalizeCapabilities idempotent), `takes-session.test.js` 8/8, `members-model.test.js` 17/17, `merge-model.test.js` 7/7, `panels-check`/SPA OK, `node --check` tous JS modifiés OK.
