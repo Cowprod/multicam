@@ -1,4 +1,5 @@
-/* MultiCam — écran 05 (Préparer Take) + écran 06 (ARM, stub J07).
+/* MultiCam — écran 05 (Préparer Take) ; l'écran 06 (ARM distribué) vit dans
+ * ui/arm.js (J07). Le bouton ARM navigue vers "arm".
  * J06 — modèle du Take persistant, convergé entre Masters via session-ws
  * (TAKE_UPDATE / TELEMETRY_UPDATE), conforme maquette validée ui/05-take-preparation/
  * et décision MULTICAM_DECISIONS_REFERENCE §32 (best effort par Capture + warnings
@@ -566,9 +567,6 @@
     byId("backTake").addEventListener("click", function () {
       global.MultiCamNav.show("session", { sid: state.sid });
     });
-    byId("backArm").addEventListener("click", function () {
-      global.MultiCamNav.show("take", { sid: state.sid });
-    });
     byId("tkNew").addEventListener("click", function () {
       if (!state.take) return;
       if (!global.confirm("Créer le Take suivant en héritant du Take " + pad3(state.take.takeNumber) + " ?")) return;
@@ -708,13 +706,6 @@
     }
   }
 
-  function arm(cfg, params) {
-    byId("deviceNameArm").textContent = cfg.deviceName;
-    var t = currentTake(state.session);
-    byId("armTakeName").textContent = "Take " + (t ? pad3(t.takeNumber) : "—") + " prêt";
-    console.log("SCREEN06_ARM_STUB sessionId=" + state.sid + " take=" + (t ? t.takeNumber : "—"));
-  }
-
   function ensureReactive(cfg) {
     if (ensureReactive._done) return;
     ensureReactive._done = true;
@@ -743,7 +734,6 @@
   }
 
   global.MultiCamTakeScreen = {
-    show: function (cfg, params) { ensureReactive(cfg); show(cfg, params); },
-    arm: arm
+    show: function (cfg, params) { ensureReactive(cfg); show(cfg, params); }
   };
 })(window);

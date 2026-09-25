@@ -66,3 +66,31 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
 .ov-body{padding:0 1rem 1rem}
 .ov-body select{font-size:.9rem}
 .tk-note{font-size:.78rem;color:var(--m)}
+/* J07 · écran 06 ARM distribué (maquette validée ui/06-arm).
+ * Device-main ~78px, icônes de skill avec état (ARMING/READY/WARNING/ERROR via
+ * l'icône SEULE — aucun texte à côté des icônes sur la liste principale),
+ * accordéons de détail (jamais auto-ouverts en incident), dock REC fixe. */
+.rec-dock{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:center;padding:12px 0 16px;pointer-events:none;background:linear-gradient(to top,rgba(17,24,39,.9),transparent)}
+.rec-dock .btn{pointer-events:auto}
+.rec-btn{min-width:96px;min-height:48px;border-radius:999px;font-weight:700;letter-spacing:.08em;display:inline-flex;align-items:center;justify-content:center;gap:.5rem}
+.rec-btn .record-dot{color:#e84960;animation:pulse 1.6s infinite}
+.rec-btn:disabled{opacity:.4}
+.rec-btn:disabled .record-dot{animation:none}
+@keyframes pulse{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}
+.arm-device{border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.05)}
+.arm-device-main{display:flex;align-items:center;gap:.7rem;min-height:78px;padding:.6rem .9rem}
+.skill-state{width:44px;height:44px;min-width:44px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;color:rgba(255,255,255,.5);cursor:pointer}
+.skill-state.arming{color:#ffb45b;border-color:rgba(255,180,91,.55)}
+.skill-state.ready{color:#45d483;border-color:rgba(69,212,131,.55)}
+.skill-state.warning{color:#ffc107;border-color:rgba(255,193,7,.55)}
+.skill-state.error{color:#e84960;border-color:rgba(232,73,96,.55)}
+.arm-detail{border-top:1px solid rgba(255,255,255,.12);padding:.15rem 0 .3rem}
+.arm-line{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;font-size:.84rem;padding:.32rem .9rem}
+.arm-line .arm-line-label{color:var(--m)}
+.arm-line .arm-line-msg{font-weight:600}
+.arm-line.arm-ok .arm-line-msg{color:#45d483}
+.arm-line.arm-warn .arm-line-msg{color:#ffc107}
+.arm-line.arm-err .arm-line-msg{color:#e84960}
+.arm-line.arm-pending .arm-line-msg{color:var(--m)}
+.arm-incident{display:flex;align-items:center;gap:.7rem;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.55rem .7rem;background:rgba(255,255,255,.04)}
+.arm-incident .arm-inc-line{font-size:.84rem}

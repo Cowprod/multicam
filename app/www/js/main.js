@@ -71,7 +71,7 @@
         global.MultiCamTakeScreen.show(appCfg, params || {});
         break;
       case "arm":
-        global.MultiCamTakeScreen.arm(appCfg, params || {});
+        global.MultiCamArmScreen.show(appCfg, params || {});
         break;
       case "settings":
         global.MultiCamSettings.show(appCfg);
@@ -105,6 +105,9 @@
   function bootSession(cfg) {
     global.MultiCamSessionWs.bind(cfg);
     if (global.MultiCamSessionDiscovery) global.MultiCamSessionDiscovery.attach();
+    /* J07 : la machine ARM est créée au boot pour pouvoir RÉPONDRE aux requêtes
+     * ARM des autres Masters, même sans écran ARM ouvert (réponses dirigées). */
+    if (global.MultiCamArmService) global.MultiCamArmService.bind();
     return global.MultiCamSessionStore.list().then(function (sessions) {
       console.log("SESSION_BOOT stored=" + sessions.length
         + " open=" + sessions.filter(function (s) { return s.state === "open"; }).length
