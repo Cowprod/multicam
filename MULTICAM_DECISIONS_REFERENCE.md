@@ -981,3 +981,32 @@ Les POC `capture-capabilities` et `capture-profile-selection` ont validé sur B 
 - l'UI affiche un warning correspondant, par exemple `GPS Normal indisponible → Off` ;
 - l'absence de GPS ne bloque pas ARM ;
 - ne pas substituer automatiquement une localisation réseau au GPS matériel.
+
+## 33. J07 — ARM distribué et synchronisation d'horloge
+
+### 33.1 ARM = évaluation distribuée, pas un enregistrement
+- l'écran 06 déclenche un ARM pour tous les devices sélectionnés de la session courante ;
+- chaque device s'auto-évalue localement (faits natifs) et répond via le pont WebSocket ;
+- le MASTER (demandeur) ajoute SEUL les vérifications de connexion et de synchronisation d'horloge ;
+- `arm_request` / `arm_result` / `clock_sync` / `clock_sync_reply` sont TRANSPORT PUR dans `session-ws.js` : aucune logique ARM dans le réseau (décision 30.10).
+
+### 33.2 Statut des permissions runtime
+- seule une valeur EXPLICITEMENT refusée (`DENIED`, `DENIED_ALWAYS`, `DENIED_ONCE`, `RESTRICTED`) bloque la Capture (statut `err`) ;
+- `NOT_REQUESTED` (jamais demandé) n'est PAS un refus : statut `pending` « Autorisation à demander », micro `warn` « Micro à autoriser » — le device reste ARMABLE et éligible REC via ses autres compétences READY ;
+- les permissions réellement requises sont dérivées de l'effectif du Take (CAMERA toujours ; RECORD_AUDIO si audio effectif ; ACCESS_FINE_LOCATION si GPS effectif).
+
+### 33.3 Synchronisation d'horloge NTP-like
+- `clock_sync` : (t0 local au demandeur, t1/t2 au peer) ; `clock_sync_reply` : t3 ;
+- `rtt = (t3−t0)−(t2−t1)` ; `offset = ((t1−t0)+(t2−t3))/2` ; échantillon retenu = RTT minimal ;
+- 3 échantillons par device distant, espacement 500 ms (les 3 en pompe dans l'ordre des devices, jamais 2 requêtes en vol) ;
+- dégradé (`warn`, message « Dégradée · delta … ms / dispersion … ms ») si |offset| > 50 ms ou dispersion > 50 ms — WARNING, JAMAIS bloquant pour REC ;
+- l'alignement horloge effectif < 50 ms est de la responsabilité de l'opérateur (serrage NTP externe) ; en campagne réelle B/C le delta mesuré ≈ 0,6 s est physique et reporté honnêtement.
+
+### 33.4 Cycle d'ARM et états
+- `armCycleId = sessionId#take#attempt` ; un Take différent ou une session close → annulation (`ARM_CANCEL`) ;
+- attempt s'incrémente à chaque nouvel ARM de l'écran 06 ; retour → annulation propre avec état NEUTRE (devices/clock/disconnected vidés) ;
+- `ARM_RECOVER` journalisé quand une compétence en timeout quitte `ERROR` (repasse ARMing puis READY/WARNING) ;
+- à l'ARM, la pression REC avec incidents → modal « Annuler / Continuer REC » (`SCREEN06_REC_INCIDENT`) ; tout-clear → `REC_ELIGIBLE_NEXT_J08` (l'enregistrement lui-même est J08).
+
+### 33.5 Multi-Master
+- chaque Master (écran 06 ouvert) porte SON cycle d'ARM indépendamment ; les cycles coexistent sans conflit ; les références d'horloge réciproques sont cohérentes (signes opposés, valeurs ~identiques).
