@@ -21,9 +21,13 @@
  *    false) → pas de permission localisation requise.
  *  - Vérifications Storage : connexion, espace libre (≥1 Go ok / <1 Go warn /
  *    inutilisable err), accès volume, réception transferts.
- *  - Réduction : le moindre err → ERROR ; sinon le moindre warn → WARNING ; sinon tout
- *    résolu → READY ; sinon ARMING. La sync dégradée n'est JAMAIS bloquante pour REC ;
- *    un incident Storage n'affecte JAMAIS l'éligibilité REC.
+*  - Réduction : le moindre err → ERROR ; sinon le moindre warn → WARNING ; sinon tout
+   *    résolu → READY ; sinon ARMING. La sync dégradée n'est JAMAIS bloquante pour REC ;
+   *    un incident Storage n'affecte JAMAIS l'éligibilité REC.
+   *  - Distinction PENDING connu vs PENDING protocolaire (revue humaine 4 devices) :
+   *    une permission NOT_REQUESTED connue est un FAIT terminal → WARNING (pas ARMING) ;
+   *    seules les lignes réellement en attente d'une réponse (sync en cours, permission
+   *    non renseignée, réponse distante attendue) restent ARMING.
  *  - REC éligible dès ≥1 Capture READY ou WARNING (le Storage n'a aucun effet).
  *  - Incidents (modal) : lignes en WARNING / ERROR / ARMING / déconnecté ; auto-
  *    fermeture quand plus aucun incident.
@@ -192,7 +196,9 @@
       if (refused.length) {
         checks.push({ key: "permissions", label: "Permissions", status: "err", message: "Permission refusée : " + refused.join(", ") });
       } else if (pending.length) {
-        checks.push({ key: "permissions", label: "Permissions", status: "pending", message: "Autorisation à demander : " + pending.join(", ") });
+        /* NOT_REQUESTED = fait connu et terminal (action requise avant usage), PAS un
+         * contrôle en cours : réduit vers WARNING, jamais vers ARMING. */
+        checks.push({ key: "permissions", label: "Permissions", status: "pending", settled: true, message: "Autorisation à demander : " + pending.join(", ") });
       } else if (missing.length) {
         checks.push({ key: "permissions", label: "Permissions", status: "pending", message: "Vérification des autorisations…" });
       } else {
@@ -246,17 +252,20 @@
 
   /* ---------- réduction / éligibilité / incidents ---------- */
 
-  function lineRank(st) {
+  function lineRank(c) {
+    var st = c && c.status;
     if (st === "err") return 3;
     if (st === "warn") return 2;
-    if (st === "pending") return 1;
+    /* « settled » : pending connu et terminal (ex. permission NOT_REQUESTED) = WARNING,
+     * pas un contrôle réellement encore en cours. */
+    if (st === "pending") return (c && c.settled) ? 2 : 1;
     return 0; /* ok */
   }
 
   function reduceStatus(checks) {
     var max = -1;
     (checks || []).forEach(function (c) {
-      var r = lineRank(c && c.status);
+      var r = lineRank(c);
       if (r > max) max = r;
     });
     if (max <= 0) return checks && checks.length ? STATUS_READY : STATUS_ARMING;
@@ -295,7 +304,7 @@
     (view.devices || []).forEach(function (dev) {
       (dev.skills || []).forEach(function (sk) {
         (sk.checks || []).forEach(function (c) {
-          var r = lineRank(c.status);
+          var r = lineRank(c);
           if (r >= 1) {
             out.push({
               did: dev.did, deviceName: dev.deviceName, skill: sk.skill,
