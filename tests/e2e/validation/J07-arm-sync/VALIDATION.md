@@ -70,15 +70,15 @@ machine ≈ 0,6 s) → statut honnête `warn` « Dégradée · delta … ms »,
 
 ## Artefacts
 
-- APK (identique B et C) SHA-256 : `30804ec08bf05b394c5491f516afa763e01512d48e560e83217ce600c2592670` (cf. `apk-sha256.txt`)
-- Manifeste captures : `png-shas.txt` (13 captures, pas de doublon byte-identique)
+- APK SHA-256 : `30804ec08bf05b394c5491f516afa763e01512d48e560e83217ce600c2592670` (campagne B+C, cf. `apk-sha256.txt`) — voir `final-review/` pour l'APK des correctifs (revue 5 points)
+- Manifeste captures : `png-shas.txt` du blend SI (12 + 27 + 7, pas de doublon byte-identique préservé par dossier)
 - Logs parsables par device/jalon dans `logs/`
 - Dumps JSON (vues ARM, horloge, éligibilité, incidents) dans `dumps/`
 - Revue 4 devices : `four-devices/png-shas.txt` (27 captures, 0 doublon byte-identique), `four-devices/logs/`, `four-devices/dumps/`
 
 ## Écarts / notes
 
-- Multi-Master 3 appareils NON testé (A bloqué, comme J05/J06) — DEFERRED.
+- Multi-Master 3 appareils NON testé (A bloqué, comme J05/J06) — voir historique (re-déféré hors V1).
 - Le delta d'horloge ≈ 0,6 s entre B et C est un fait physique ; la mesure,
   sa dispersion (< 50 ms) et son statut WARNING non bloquant sont les résultats
   attendus de la synchro NTP-like portée. L'alignement réel < 50 ms nécessiterait
@@ -119,7 +119,7 @@ Aucun bullet simulé, aucune identité PM de la campagne (noms/roles préservés
 ## Honnêteté des permissions (NOT_REQUESTED) — vérifié sur 4 devices
 
 - D1 : `permissions=pending — Autorisation à demander : CAMERA, RECORD_AUDIO` + `audio=warn — Micro à autoriser` → capture self **WARNING** (auto-évaluation honnête, aucune permission accordée, aucune inventée).
-- D4 (Samsung) : `permissions=pending — Autorisation à demander : ACCESS_FINE_LOCATION` → capture **WARNING** sur la vue D1 (requester injecte la ligne sync) et **ARMING** sur sa propre vue (self : pas de ligne sync, `[ok,pending]` → ARMING). **Les deux vues sont honnêtes** (§33), `recEligible=true` dans les deux cas. Décalage requester/self = artefact de vue, pas un défaut.
+- D4 (Samsung) : `permissions=pending — Autorisation à demander : ACCESS_FINE_LOCATION` → capture **WARNING** sur la vue D1 (requester injecte la ligne sync) et **ARMING** sur sa propre vue (self : pas de ligne sync, `[ok,pending]` → ARMING). Ce décalage requester/self appelait une revue → **CORRIGÉ en revue 5 points** (cf. ci-dessous, `final-review/`) : la permission connue `NOT_REQUESTED` est désormais un **PENDING TERMINAL** (`settled:true`) → **WARNING** auto-porté sur TOUS les Masters égaux. Les deux vues restent honnêtes : D4 Capture converge **WARNING vu de D1 ET WARNING vu de D4** (plus jamais ARMING), `recEligible=true`, sync distante mesurée (Δ 145 ms / disp 45 ms) vue de D1 vs « Référence locale » vue de D4.
 - D2/D3 : permissions accordées (`ok`), seule la sync physique explique le WARNING → sysop doit accorder les permissions demandées (procédure opérateur, pas un défaut produit).
 
 ## Capacités Samsung réelles (probe natif, source non-fixture)
@@ -134,8 +134,71 @@ Aucun bullet simulé, aucune identité PM de la campagne (noms/roles préservés
 ## Écarts / rapport
 
 - « Device en panne » simulé : force-stop réel D2 (pas un poison), reprise auto vérifiée.
-- Défaut préexistant NOTÉ (hors correctif J07, à documenter) : à l'AJOUT d'un membre,
-  la modal affiche le `deviceId` au lieu du nom (lecture `deviceRow.deviceName`,
-  clés de découverte `name` — J05). Non bloquant pour ARM.
+- Défaut J05 détecté et **CORRIGÉ** (revue 5 points, cf. `final-review/`) : la modal AJOUT affichait le `deviceId` au lieu du nom. Module `ui/names.js` + `humanName()` dans session.js → « Cam D4 » partout, rôles préservés.
+- « WARNING requester / ARMING self » sur D4 : artefact de vue analysé, défaut de
+  convergence entre Masters égaux — **CORRIGÉ** (revue 5 points, PENDING terminal
+  `settled:true`) : D4 Capture **WARNING vu de D1 ET WARNING vu de D4**, 
+  `armCycleId` identique, `recEligible=true`. Voir § REVUE 5 POINTS ci-dessus.
 - Multi-Master 4 devices REC réel : hors périmètre (J08).
-- Statut : **PASS technique — en attente revue humaine** (mêmes APK `30804ec0…2670`).
+- Multi-Master 5+ / 3 appareils visa : voir historique DEFERRED (re-déféré).
+- Statut : **PASS technique — en attente revue humaine** (correctifs revue 5 points : APK `2658f29260aa63396e3c589c55f1ed6a7360ad464084f7f3c448b326804c6801`, cf. `final-review/`).
+
+---
+
+# REVUE 5 POINTS — 2026-09-25 (correctifs J05 UI + J07 ARM, D1 + D4 physiques)
+
+**Motif** : revue humaine → 2 défauts à corriger : (1) modal AJOUT affiche l'UUID
+(J05) ; (2) D4 Capture self restait `ARMING` quand le requester affichait `WARNING`
+(J07) — les vues n'étaient pas équivalentes entre Masters égaux.
+
+## Correctifs
+
+1. **J07 — PENDING terminal connu ≠ protocolaire** (`arm-model.js`) : dans
+   `assessCapture`, une permission connue `NOT_REQUESTED` émet désormais un check
+   `{status:"pending", settled:true}` = **terminal** (passe `lineRank` → WARNING,
+   jamais ARMING) ; un `pending` **protocolaire** (sync en attente, réponse
+   arm_result attendue, permissions non résolues « Vérification… ») reste ARMING.
+   La réduction agrège alors un **WARNING auto-porté** sur tous les Masters égaux —
+   ni goroutine requester/self, ni dépendance à la ligne sync injectée.
+2. **J05 — nom humain partout** : nouveau module `app/www/js/ui/names.js`
+   (`MultiCamNames.deviceHumanName` : `name` → `deviceName` → `deviceId`).
+   `session.js` l'expose via `humanName()` et l'applique au titre de la modal
+   AJOUT, à la persistance `addMember`, aux listes membres/LAN et au confirm
+   retrait. Aucune lecture brute `deviceId` dans la modal.
+
+## Preuve physique (D1 = Xiaomi Master hôte, D4 = Samsung Master, session `KJYB8FTG`)
+
+| # | Preuve | Résultat |
+|---|---|---|
+| FR-01 | Modal AJOUT D4 : nom affiché | ✅ `"Cam D4"` (plus jamais d'UUID) |
+| FR-02 | Modal D4 : rôles Capture + Storage | ✅ `selected:[capture,storage]` (aucune régression sélection) |
+| FR-03 | ARM D1 (Master 1) : Capture D4 | ✅ **WARNING** (requester) |
+| FR-04 | Détail D4 vu de D1 : sync distante | ✅ `warn Dégradée · delta 145 ms / dispersion 45 ms` (3 éch. réels) |
+| FR-05 | ARM D4 (Master 2, self) : Capture D4 | ✅ **WARNING** (plus jamais ARMING) |
+| FR-06 | Détail D4 self : permission + sync | ✅ `permissions pending settled:true « Autorisation à demander : ACCESS_FINE_LOCATION »` + `sync ok « Référence locale »` |
+| FR-07 | REC dock | ✅ `recEligible:true dockShown:true` sur D1 et D4 |
+
+- **Convergence Masters égaux** : `D4_status_vu_de_D1=WARNING D4_status_vu_de_D4=WARNING`,
+  `armCycleId` identique `KJYB8FTG#1#1` des deux côtés, `recEligible=true` ×2 → CONVERGENCE OK.
+- **JSON de contrôle** : `final-review/dumps/6-D1-arm-d4-warning.json`,
+  `8-D4-arm-self-warning.json`, `9-D4-detail-self.json` (données machine, auto-évaluation).
+- **Logs parsables** : `final-review/logs/` — `ARM_START`, `ARM_RESULT` ×12, `MEMBER_ADDED`,
+  `CLOCK_SYNC peer=23c5cf6e… offset=145` et `offset=157`.
+- Session fermée proprement (`KJYB8FTG:closed`), identités préservées
+  (aucun `pm clear` : « Cam D1 » / « Cam D4 » inchangés).
+
+## Tests automatisés (tous verts) — dernières exécutions
+
+- `arm-model.test.js` : + section 24 (Cas A–E) et section 25 (machine C requester +
+  self) → **7 suites vertes** : arm-model, members-model, merge-model, take-model,
+  takes-session, panels-check, **member-modal-name** (nouveau, J05). `node --check`
+  OK sur arm-model.js, session.js, names.js, tests.
+- APK unique D1+D4 (rebuild `app/setup-android.sh`) : SHA-256
+  `2658f29260aa63396e3c589c55f1ed6a7360ad464084f7f3c448b326804c6801`
+  (patch PixelCopy re-vérifié présent), installé `-r` sur les 2 appareils, identités
+  et rôles conservés.
+
+## Artefacts `final-review/`
+
+- `png-shas.txt` (7 captures, 0 doublon byte-identique), `screenshots/FR-01..FR-07`,
+  `dumps/`, `logs/`.
