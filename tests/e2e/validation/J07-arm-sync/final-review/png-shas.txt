@@ -1,0 +1,7 @@
+2cf4bcc398eb51cf4d8f61dacafb1af40d06531f851c68d891048398627e0e17  FR-01-modal-noCam-D4.png
+7fb01d767e51e4b27e9046dc3e6668085a7106bf3acbafaf321c045568a4de23  FR-02-modal-noCam-D4-roles.png
+0810c620d896245ad190bf52d4d2750cce1c574b0a61b2afde9354929a9535d1  FR-03-d1-arm-warning-d4.png
+427bbdc625e3bf41f4fa3e19cb108bedd4cf69dbb002c057ad44b31cf1b1561a  FR-04-d1-detail-d4-sync.png
+c385e366544d4258fab7f76dde17f91f83b65077dc7b1499e8399c13e226e333  FR-05-d4-arm-self-warning.png
+12ab47916ac307ed3c7958e8ab9dd3946a2aa022c3ad8a92159222169a9fe47b  FR-06-d4-detail-self.png
+7893c1d2984cfbf35f1d4c21efbebdedd7e2ee15ad8b1e781baa60c88409eb7c  FR-07-rec-dock-eligible.png

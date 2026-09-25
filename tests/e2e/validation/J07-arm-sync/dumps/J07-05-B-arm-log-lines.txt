@@ -1,0 +1,12 @@
+CLOCK_SYNC peer=92d58e97-c418-47cc-87c5-6a080aff5faf offset=-605ms rtt=40ms samples=1 dispersion=0ms
+CLOCK_SYNC_IGNORE sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 peer=92d58e97-c418-47cc-87c5-6a080aff5faf req=1 expected=none reason=request_mismatch
+ARM_RESULT sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=capture status=WARNING
+ARM_RESULT sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=storage status=READY from=ARMING
+ARM_RESULT sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=capture status=WARNING
+ARM_RESULT sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=storage status=READY
+ARM_RESULT sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 deviceId=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 skill=capture status=READY from=ARMING
+ARM_RESULT sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 deviceId=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 skill=storage status=READY from=ARMING
+CLOCK_SYNC peer=92d58e97-c418-47cc-87c5-6a080aff5faf offset=-611ms rtt=20ms samples=2 dispersion=6ms
+CLOCK_SYNC_IGNORE sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 peer=92d58e97-c418-47cc-87c5-6a080aff5faf req=2 expected=none reason=request_mismatch
+CLOCK_SYNC peer=92d58e97-c418-47cc-87c5-6a080aff5faf offset=-611ms rtt=20ms samples=3 dispersion=14ms
+CLOCK_SYNC_IGNORE sessionId=FTBKCDGP armCycleId=FTBKCDGP#1#1 peer=92d58e97-c418-47cc-87c5-6a080aff5faf req=3 expected=none reason=request_mismatch

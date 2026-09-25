@@ -1,0 +1,23 @@
+ARM_REQUEST sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 targets=[23c5cf6e-beab-4e40-b3ab-6dc6dfed0437,4bbeef26-3e46-40e5-9f0b-d3fb459c9472,92d58e97-c418-47cc-87c5-6a080aff5faf]
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 skill=capture status=ARMING
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 skill=capture status=ARMING
+CLOCK_SYNC peer=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 offset=217ms rtt=158ms samples=1 dispersion=0ms
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=storage status=READY from=ARMING
+CLOCK_SYNC_IGNORE sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 peer=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 req=16 expected=none reason=request_mismatch
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=storage status=READY
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=d5f6b2a1-2387-4207-836d-90b0072a6cee skill=capture status=WARNING from=ARMING
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=d5f6b2a1-2387-4207-836d-90b0072a6cee skill=storage status=READY from=ARMING
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 skill=capture status=WARNING
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 skill=storage status=READY from=ARMING
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 skill=capture status=WARNING
+ARM_RESULT sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 skill=storage status=READY
+CLOCK_SYNC peer=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 offset=158ms rtt=35ms samples=2 dispersion=60ms
+CLOCK_SYNC_IGNORE sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 peer=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 req=17 expected=none reason=request_mismatch
+CLOCK_SYNC peer=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 offset=155ms rtt=29ms samples=3 dispersion=63ms
+CLOCK_SYNC_IGNORE sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 peer=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 req=18 expected=none reason=request_mismatch
+CLOCK_SYNC peer=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 offset=63ms rtt=32ms samples=1 dispersion=0ms
+CLOCK_SYNC_IGNORE sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 peer=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 req=19 expected=none reason=request_mismatch
+CLOCK_SYNC peer=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 offset=62ms rtt=26ms samples=2 dispersion=1ms
+CLOCK_SYNC_IGNORE sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 peer=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 req=20 expected=none reason=request_mismatch
+CLOCK_SYNC peer=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 offset=61ms rtt=25ms samples=3 dispersion=3ms
+CLOCK_SYNC_IGNORE sessionId=BV8PHNNE armCycleId=BV8PHNNE#1#1 peer=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 req=21 expected=none reason=request_mismatch

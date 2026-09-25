@@ -101,7 +101,8 @@
     localName: "",
     selfEndpoint: "",      /* "ip:effectivePort" (best-effort, rempli au start) */
     advertisedKey: {},     /* sessionId -> dernier TXT publié (dédup des ré-annonces) */
-    lastResyncMs: 0        /* anti-écho : throttle des sync_please (convergence) */
+    lastResyncMs: 0,       /* anti-écho : throttle des sync_please (convergence) */
+    armBridge: null        /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
   };
 
   var _ipCache = "";       /* IPv4 synchrone (warm-up asynchrone via MultiCamNative) */
@@ -435,6 +436,18 @@
         break;
       case "telemetry_update":
         handleTelemetryUpdate(env, entry);
+        break;
+      case "arm_request":
+        handleArmRequest(env, entry, serverConn);
+        break;
+      case "arm_result":
+        handleArmResult(env);
+        break;
+      case "clock_sync":
+        handleClockSync(env, entry, serverConn);
+        break;
+      case "clock_sync_reply":
+        handleClockSyncReply(env);
         break;
       default:
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
@@ -816,6 +829,56 @@ store().get(env.sessionId).then(function (local) {
     }).catch(function (err) {
       emit("TELEMETRY_ERROR kind=telemetry_update sessionId=" + (env.sessionId || "?") + " err=" + (err && err.message));
     });
+  }
+
+  /* ---------- protocole J07 : ARM distribué + synchronisation d'horloge ---------- */
+
+  /* TRANSPORT uniquement : aucune logique ARM ici (décision 30.10). Les messages
+   * sont routés vers le pont applicatif (arm-service → arm-model) ; la réponse
+   * arm_result / clock_sync_reply part sur la MÊME connexion que la demande. */
+
+  function handleArmRequest(env, entry, serverConn) {
+    if (!env.sessionId || !env.armCycleId || !Array.isArray(env.targets) || !env.takeNumber) {
+      emit("ARM_TRANSPORT_DROP reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    if (!state.armBridge || typeof state.armBridge.onArmRequest !== "function") {
+      emit("ARM_TRANSPORT_DROP reason=no_bridge kind=arm_request sessionId=" + env.sessionId);
+      return;
+    }
+    state.armBridge.onArmRequest(env, function (kind, extra) {
+      if (kind === "arm_result" || kind === "clock_sync_reply") {
+        sendReply(entry, serverConn, kind, env.sessionId, extra);
+      }
+    });
+  }
+
+  function handleArmResult(env) {
+    if (!env.sessionId || !env.armCycleId || !env.deviceId) {
+      emit("ARM_TRANSPORT_DROP reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    if (!state.armBridge || typeof state.armBridge.onArmResult !== "function") return;
+    state.armBridge.onArmResult(env);
+  }
+
+  function handleClockSync(env, entry, serverConn) {
+    if (!env.sessionId || !env.armCycleId || typeof env.requestId === "undefined" || !env.target) {
+      emit("CLOCK_TRANSPORT_DROP reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    if (!state.armBridge || typeof state.armBridge.onClockSync !== "function") return;
+    state.armBridge.onClockSync(env, function (kind, extra) {
+      if (kind === "clock_sync_reply") {
+        sendReply(entry, serverConn, kind, env.sessionId, extra);
+      }
+    });
+  }
+
+  function handleClockSyncReply(env) {
+    if (!env.sessionId || !env.armCycleId || !env.from) return;
+    if (!state.armBridge || typeof state.armBridge.onClockReply !== "function") return;
+    state.armBridge.onClockReply(env);
   }
 
   /* ---------- broadcast ---------- */
@@ -1356,9 +1419,13 @@ store().get(env.sessionId).then(function (local) {
     unadvertise: unadvertise,
     reSyncSession: reSyncSession,
     broadcast: broadcast,
+    broadcastTargeted: broadcastTargeted,
     takeJoinOutcome: takeJoinOutcome,
     connectedPeers: connectedPeers,
     status: status,
+    setArmBridge: function (bridge) {
+      state.armBridge = bridge || null;
+    },
     onChanged: function (fn) {
       if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);
     }

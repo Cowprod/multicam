@@ -319,22 +319,47 @@
 </section>
 </section>
 
-<!-- ============ Écran 06 — ARM (stub J07) ============ -->
+<!-- ============ Écran 06 — ARM distribué (J07, maquette validée ui/06-arm) ============ -->
 <section id="panel-arm" class="screen">
 <header class="d-flex align-items-center gap-3 mb-2">
   <button id="backArm" class="btn btn-outline-light glass icon" type="button" aria-label="Retour"><i class="fa-solid fa-arrow-left"></i></button>
   <div class="flex-grow-1">
-    <div class="fw-bold fs-4">ARM</div>
+    <div class="fw-bold fs-4">ARM <span class="small muted ms-2" id="armTakeName">…</span></div>
     <div id="deviceNameArm" class="small muted">…</div>
   </div>
 </header>
 <section id="armArea" class="flex-grow-1">
-  <div class="card glass rounded-4 p-4 text-center">
-    <i class="fa-solid fa-shield-halved fs-1 muted mb-2"></i>
-    <div class="fw-bold" id="armTakeName">Take 001 prêt</div>
-    <p class="small muted mb-0">L'armement et le déclenchement d'enregistrement sont prévus au jalon J07. Le Take est prêt en PREPARATION.</p>
-  </div>
+  <div id="armList" class="vstack gap-2"></div>
+  <div class="empty-state d-none mt-3" id="armEmpty">Aucun device sélectionné dans ce Take. Retour à l'écran Préparer le Take.</div>
 </section>
+
+<!-- Dock REC fixe (maquette 06) -->
+<div id="armRecDock" class="rec-dock">
+  <button id="armRec" class="btn btn-outline-danger rec-btn" type="button" aria-label="Déclencher l'enregistrement (R.E.C.)" disabled>
+    <i class="fa-solid fa-circle record-dot"></i>
+    <span id="armRecLabel">R.E.C.</span>
+  </button>
+</div>
+
+<!-- Modal incidents (J07) : WARNING / ERROR / ARMING / déconnecté / Storage.
+     Toujours sans Bootstrap JS : toggler .screenmodal.show (même convention J05). -->
+<div id="armIncidentModal" class="screenmodal" aria-hidden="true">
+  <div class="modal-backdrop" data-arminc-close="1"></div>
+  <div class="modal-dialog card glass strong rounded-4">
+    <div class="card-body p-3">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div class="fw-semibold fs-5 flex-grow-1">Armement incomplet</div>
+        <button id="armIncidentClose" class="btn btn-outline-light glass icon" type="button" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="small muted mb-2" id="armIncidentIntro">Certains devices sont encore en armement, en alerte ou en erreur.</div>
+      <div id="armIncidentList" class="vstack gap-2"></div>
+      <div class="d-grid gap-2 mt-3">
+        <button id="armIncidentContinue" class="btn btn-danger mainbtn" type="button"><i class="fa-solid fa-video me-2"></i>Continuer REC</button>
+        <button id="armIncidentCancel" class="btn btn-outline-light" type="button">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
 </section>
 
 <!-- Modal locale J05 de gestion des membres/rôles (Ajouter / Modifier). Pas de
@@ -476,10 +501,14 @@
 <script src="js/state/session-store.js"></script>
 <script src="js/net/session-ws.js"></script>
 <script src="js/net/session-discovery.js"></script>
+<script src="js/state/arm-model.js"></script>
+<script src="js/state/arm-service.js"></script>
 <script src="js/ui/home.js"></script>
 <script src="js/ui/session-create.js"></script>
+<script src="js/ui/names.js"></script>
 <script src="js/ui/session.js"></script>
 <script src="js/ui/take.js"></script>
+<script src="js/ui/arm.js"></script>
 <script src="js/ui/settings.js"></script>
 <script src="js/main.js"></script>
 </body>
