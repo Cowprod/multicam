@@ -41,6 +41,13 @@
     return (mk && mk.status && mk.status().localDid) || "";
   }
 
+  /* Nom humain centralisé (name → deviceName → deviceId), jamais de convention
+   * locale de nommage dans l'UI. */
+  function humanName(row) {
+    return (global.MultiCamNames && global.MultiCamNames.deviceHumanName)
+      ? global.MultiCamNames.deviceHumanName(row) : ((row && (row.name || row.deviceName)) || (row && row.deviceId) || "");
+  }
+
   function escRoles(roles) {
     return (roles || []).map(function (r) { return esc(r); }).join(", ");
   }
@@ -79,7 +86,7 @@
       var online = m.deviceId === selfDidLocal || !!(connected[m.deviceId]);
       allRows.push({
         deviceId: m.deviceId,
-        name: m.deviceName || m.deviceId,
+        name: humanName(m),
         online: online,
         self: m.deviceId === selfDidLocal,
         roles: (m.sessionRoles || []).slice(),
@@ -94,7 +101,7 @@
       var online = did === selfDidLocal || !!(connected[did]);
       allRows.push({
         deviceId: did,
-        name: m.deviceName || did,
+        name: humanName(m),
         online: online,
         self: did === selfDidLocal,
         roles: [],
@@ -163,7 +170,7 @@
     listEl.innerHTML = available.map(function (p) {
       return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
         + '<i class="fa-solid fa-mobile-screen-button fs-4"></i>'
-        + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(p.name || p.deviceId) + "</div>"
+        + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(humanName(p)) + "</div>"
         + '<div class="small muted">' + esc((p.enabledSkills || []).join(" · ")) + "</div>"
         + "</div>"
         + '<button class="btn btn-sm btn-primary member-add" data-device="' + esc(p.deviceId) + '" type="button"><i class="fa-solid fa-plus me-1"></i>Ajouter</button>'
@@ -193,7 +200,7 @@
       saveLabel.textContent = "Ajouter";
       removeBtn.classList.add("d-none");
     }
-    nameEl.textContent = deviceRow.deviceName || deviceRow.deviceId;
+    nameEl.textContent = humanName(deviceRow);
     metaEl.textContent = (deviceRow.enabledSkills || []).join(" · ") || "Aucune skill annoncée";
 
     /* La modal ne propose QUE les rôles couverts par les skills annoncées. */
@@ -244,7 +251,7 @@
     if (member) {
       p = ops().updateMemberRoles(s, did, roles);
     } else {
-      p = ops().addMember(s, { deviceId: did, deviceName: device.deviceName || did, enabledSkills: device.enabledSkills || [] }, roles);
+      p = ops().addMember(s, { deviceId: did, deviceName: humanName(device), enabledSkills: device.enabledSkills || [] }, roles);
     }
     p.then(function (upd) {
       console.log("SCREEN03_MEMBER_SAVE mode=" + (member ? "edit" : "add") + " did=" + did + " roles=[" + roles.join(",") + "]");
@@ -262,7 +269,7 @@
     var s = state.session;
     var member = state.modalMember;
     if (!s || !member || s.state === "closed") return;
-    if (!global.confirm("Retirer « " + (member.deviceName || member.deviceId) + " » de la session ?")) return;
+    if (!global.confirm("Retirer « " + humanName(member) + " » de la session ?")) return;
     ops().removeMember(s, member.deviceId).then(function (upd) {
       console.log("SCREEN03_MEMBER_REMOVE did=" + member.deviceId);
       state.session = upd;
