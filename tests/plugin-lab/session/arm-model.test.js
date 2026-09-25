@@ -802,3 +802,96 @@ function syncStatus(m, did) {
   await flush();
   assert.strictEqual(m.mach.view().incidentsEmpty, true, "auto-fermeture du modal une fois tout READY");
 })();
+
+/* ================================================================== */
+/* 24. convergence terminale ARM après revue humaine : un `pending`    */
+/*     connu (permission NOT_REQUESTED) est un fait terminal →         */
+/*     WARNING, jamais ARMING durable ; seul un pending réellement     */
+/*     en cours (sync en attente / réponse attendue) reste ARMING.     */
+/* ================================================================== */
+{
+  /* Cas A — Capture locale : tout OK sauf permission NOT_REQUESTED,
+     sync = référence locale → WARNING (jamais ARMING). */
+  const f = okCaptureFacts({ perms: { CAMERA: "NOT_REQUESTED", RECORD_AUDIO: "GRANTED" } });
+  const checks = M.assessCapture(f);
+  const permLine = checks.find((c) => c.key === "permissions");
+  assert.strictEqual(permLine.status, "pending", "la ligne reste honnêtement pending (« à demander »)");
+  assert.strictEqual(permLine.settled, true, "mais marquée settled = fait connu terminal");
+  assert.strictEqual(permLine.message, "Autorisation à demander : CAMERA");
+  const local = [{ status: "ok" }].concat(checks).concat([{ key: "sync", status: "ok", message: "Référence locale" }]);
+  assert.strictEqual(M.reduceStatus(local), M.STATUS_WARNING, "Cas A : NOT_REQUESTED connue → WARNING, pas ARMING");
+  const skA = [{ skill: M.SKILL_CAPTURE, status: M.STATUS_WARNING }];
+  assert.strictEqual(M.recEligible(skA), true, "Cas A : Capture WARNING reste recEligible");
+
+  /* Cas B — même Capture vue depuis un Master distant, sync distante OK
+     → même état fonctionnel terminal (WARNING). */
+  const distantOk = [{ status: "ok" }].concat(checks).concat([{ key: "sync", status: "ok", message: "Stable · delta 0 ms", offsetMs: 0 }]);
+  assert.strictEqual(M.reduceStatus(distantOk), M.STATUS_WARNING, "Cas B : mêmes faits + sync distante OK → même WARNING");
+
+  /* Cas C — sync distante dégradée → WARNING (jamais bloquant). */
+  const distantDeg = [{ status: "ok" }].concat(checks).concat([{ key: "sync", status: "warn", message: "Dégradée · delta 155 ms", offsetMs: 155 }]);
+  assert.strictEqual(M.reduceStatus(distantDeg), M.STATUS_WARNING, "Cas C : sync dégradée → WARNING, jamais ERROR/ARMING");
+
+  /* Cas D — réponse réellement encore attendue (sync pending, pas settled)
+     → ARMING. */
+  assert.strictEqual(M.reduceStatus([{ status: "ok" }, { status: "pending" }]), M.STATUS_ARMING, "Cas D : pending en cours (sync) → ARMING");
+  assert.strictEqual(M.reduceStatus([{ status: "ok" }, { key: "sync", status: "pending" }]), M.STATUS_ARMING, "Cas D : sync en attente → ARMING");
+
+  /* Cas E — permission indispensable explicitement refusée → ERROR. */
+  const refused = okCaptureFacts({ perms: { CAMERA: "DENIED", RECORD_AUDIO: "GRANTED" } });
+  const errChecks = M.assessCapture(refused);
+  const errLine = errChecks.find((c) => c.key === "permissions");
+  assert.strictEqual(errLine.status, "err", "Cas E : CAMERA DENIED → err");
+  assert.strictEqual(errLine.settled, undefined, "un refus n'est pas un pending settled");
+  const eLocal = [{ status: "ok" }].concat(errChecks).concat([{ key: "sync", status: "ok", message: "Référence locale" }]);
+  assert.strictEqual(M.reduceStatus(eLocal), M.STATUS_ERROR, "Cas E : refus indispensable → ERROR");
+}
+
+/* ================================================================== */
+/* 25. convergence renforcée côté MACHINE (D4 self ARMING / requester  */
+/*     WARNING — reproduit le défaut physique avant correction)        */
+/* ================================================================== */
+(async () => {
+  /* NOT_REQUESTED physique (style Cam D4) : camera/audio/storage OK,
+     GPS en attente d'action. Défaut reproduit : soi-même → ARMING,
+     requester → WARNING. Corrigé : les deux terminent WARNING. */
+  const notReqFacts = okCaptureFacts({
+    perms: { CAMERA: "GRANTED", RECORD_AUDIO: "GRANTED", ACCESS_FINE_LOCATION: "NOT_REQUESTED" },
+    effective: Object.assign(okCaptureFacts().effective, { gpsProfile: "HIGH" })
+  });
+  const assessSelfWithNomTr = function (ses, tk) {
+    const out = [];
+    (tk.captures || []).forEach((d) => { if (d === C) out.push({ deviceId: d, skill: M.SKILL_CAPTURE, checks: M.assessCapture(notReqFacts) }); });
+    return Promise.resolve(out);
+  };
+
+  /* Vue du device POUI lui-même (C master local : sync = référence locale). */
+  const mSelf = mkMachine({
+    session: session([member(B, ["capture"]), member(C, ["capture"])], [take(1, [B, C])]),
+    selfDid: C, assessSelf: assessSelfWithNomTr
+  });
+  await mSelf.mach.start(SID);
+  await flush();
+  assert.strictEqual(skillStatus(mSelf, C, M.SKILL_CAPTURE), M.STATUS_WARNING, "self : NOT_REQUESTED connue → WARNING, plus jamais ARMING durable");
+  assert.strictEqual(mSelf.mach.view().recEligible, true, "self : Capture WARNING éligible");
+  const syncSelf = mSelf.mach.view().devices.find((d) => d.did === C).skills[0].checks.find((c) => c.key === "sync");
+  assert.strictEqual(syncSelf.status, "ok");
+  assert.strictEqual(syncSelf.message, "Référence locale", "aucun offset factice sur soi-même");
+
+  /* Vue du REQUESTER (B master) sur le même device C avec vraie sync
+     distante dégradée : converge vers le même état terminal. */
+  const mReq = mkMachine({ session: session([member(B, ["capture"]), member(C, ["capture"])], [take(1, [B, C])]) });
+  const cur = M.cycleId(SID, 1, 1);
+  await mReq.mach.start(SID);
+  await flush();
+  mReq.mach.onIncoming(resultEnv({ sessionId: SID, armCycleId: cur, takeNumber: 1, deviceId: C, skill: M.SKILL_CAPTURE, checks: M.assessCapture(notReqFacts) }, C));
+  const p = mReq.mach.state.pendingClock;
+  mReq.clock.jumpTo(p.t0 + 3);
+  mReq.mach.onIncoming({ kind: "clock_sync_reply", sessionId: SID, armCycleId: cur, requestId: p.requestId, from: C, t1: p.t0 + 156, t2: p.t0 + 157 });
+  await flush();
+  assert.strictEqual(skillStatus(mReq, C, M.SKILL_CAPTURE), M.STATUS_WARNING, "requester : même device → même WARNING (sync dégradée mesurée)");
+  const syncReq = mReq.mach.view().devices.find((d) => d.did === C).skills[0].checks.find((c) => c.key === "sync");
+  assert.strictEqual(syncReq.status, "warn", "requester : vraie sync distante dégradée mesurée");
+  assert.ok(String(syncReq.offsetMs).indexOf("15") === 0, "requester : offset réellement mesuré");
+  assert.strictEqual(mReq.mach.view().recEligible, true, "requester : Capture WARNING éligible");
+})();
