@@ -35,7 +35,7 @@ html,body{min-height:100%;margin:0;background:#111827;color:#fff}
  * .screenmodal.show affiche le backdrop + la card centrée. */
 .screenmodal{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:16px}
 .screenmodal.show{display:flex}
-.screenmodal .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55)}
+.screenmodal .modal-backdrop{position:fixed;inset:0;z-index:1;background:rgba(0,0,0,.55)}
 .screenmodal .modal-dialog{position:relative;width:100%;max-width:520px;z-index:2}
 .member-role-option{font-size:.8rem;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.35rem .7rem;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none}
 .member-role-option input{accent-color:#45d483}
