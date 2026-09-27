@@ -91,7 +91,19 @@ function makeApp(opts) {
       takeNumber: 3,
       captures: [A, B, C],
       storages: [S],
-      countdownSeconds: opts.countdownSeconds === undefined ? 0 : opts.countdownSeconds,
+      /* FORME RÉELLEMENT PERSISTÉE (take-model.js) : les réglages d'un Take,
+       * dont countdownSeconds, vivent dans `settings` — PAS au niveau du Take.
+       * Une fixture qui plaçait countdownSeconds à la racine faisait passer le
+       * test alors que l'app ne produit jamais cette forme : le choix 3 s ou
+       * 10 s de l'écran 05 était donc ignoré au START. */
+      settings: {
+        video: { resolution: "FHD", quality: "HIGH", camera: "REAR", orientation: "LANDSCAPE" },
+        audio: true,
+        gpsProfile: "NORMAL",
+        countdownSeconds: opts.countdownSeconds === undefined ? 0 : opts.countdownSeconds,
+        transferAuto: true,
+        deleteLocalAfterVerifiedReplication: true
+      },
       status: "PREPARATION"
     }]
   };
@@ -556,6 +568,33 @@ function one(logs, sub, msg) {
       assert.ok(typeof r.path === "string", "chemin propagé");
       has(app.logs, "CAMERA_REC_STOP_OK");
     });
+  }
+
+  {
+    /* Régression J08 : le countdown choisi sur l'écran 05 doit être celui du
+     * plan. Il est PERSISTÉ dans take.settings.countdownSeconds (take-model.js),
+     * jamais à la racine du Take. Un lecteur a `take.countdownSeconds` lit donc
+     * toujours undefined et retombe sur 5 s : les choix 0/3/10 s étaient
+     * ignorés en silence, pendant que l'UI affichait la valeur choisie. */
+    for (const want of [0, 3, 5, 10]) {
+      const app = makeApp({ countdownSeconds: want });
+      await block("countdown choisi " + want + " s → le plan porte EXACTEMENT " + want + " s", async function () {
+        const svc = app.win.MultiCamStartService;
+        svc.bind();
+        await svc.start(SID);
+        await svc.requestStart(SID);
+        const plan = app.wire.filter((w) => w.kind === "start_plan")[0].extra.plan;
+        assert.strictEqual(plan.countdownSeconds, want,
+          "countdownSeconds du plan = valeur choisie dans take.settings");
+        if (want > 0) {
+          assert.ok(plan.targetStartMs - plan.createdAtMs >= want * 1000,
+            "la cible est au moins countdown s dans le futur");
+        } else {
+          assert.strictEqual(plan.targetStartMs - plan.createdAtMs, 300,
+            "countdown 0 → lead STRUCTUREL de 300 ms");
+        }
+      });
+    }
   }
 
   {

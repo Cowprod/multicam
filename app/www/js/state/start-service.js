@@ -117,9 +117,24 @@
     return (take.captures || []).indexOf(did) >= 0;
   }
 
+  /* Countdown affiché au START : le choix de l'opérateur (écran 05) est
+   * PERSISTÉ DANS LES RÉGLAGES du Take — `take.settings.countdownSeconds`
+   * (take-model.js : sanitizeTake / setSetting). Il n'existe AUCUN champ
+   * `take.countdownSeconds` : le lire à la racine renvoyait toujours
+   * undefined, donc 0/3/10 s étaient ignorés en silence et le START retombait
+   * sur 5 s pendant que l'UI affichait la valeur choisie.
+   * Repli 5 s (défaut modèle) UNIQUEMENT si la valeur est absente ou
+   * inexploitable — et une valeur absente mais impostée est journalisée. */
+  var COUNTDOWN_DEFAULT_SECONDS = 5;
   function countdownSecondsOf(take) {
-    var v = take ? take.countdownSeconds : 5;
-    return typeof v === "number" && isFinite(v) && v >= 0 ? v : 5;
+    var s = take && take.settings ? take.settings : null;
+    var v = s ? s.countdownSeconds : undefined;
+    if (typeof v === "number" && isFinite(v) && v >= 0) return v;
+    if (v !== undefined && v !== null) {
+      log("START_COUNTDOWN_INVALID deviceId=" + selfDid()
+        + " value=" + String(v) + " fallbackSeconds=" + COUNTDOWN_DEFAULT_SECONDS);
+    }
+    return COUNTDOWN_DEFAULT_SECONDS;
   }
 
   /* ---------- J07 : horloge et readiness ARM ---------- */
