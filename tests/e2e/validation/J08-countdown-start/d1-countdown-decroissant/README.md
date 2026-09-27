@@ -1,14 +1,27 @@
-# D1 — Compte à rebours décroissant : PREUVE D'UN DEFAUT
+# D1 — Compte à rebours décroissant : DÉFAUT PROUVÉ, PUIS CORRIGÉ ET VALIDÉ
 
-**Verdict : D1 NON VALIDÉ — l'écran 07 affiche « 5 » en permanence pendant les 5 s du
-compte à rebours. La machine à états, elle, décompte correctement.**
+**Verdict : D1 VALIDÉ.** Le défaut est confirmé (§1 à §6, inchangés, preuve d'origine),
+puis corrigé et re-validé sur appareil (§7 à §11).
+
+| | Avant correctif | Après correctif |
+|---|---|---|
+| Modèle (`view().digit`) | 5 → 4 → 3 → 2 → 1 | 5 → 4 → 3 → 2 → 1 |
+| **Écran (`#cdDigitMaster`)** | **« 5 » en permanence** | **5 → 4 → 3 → 2 → 1** |
+| **Pixels de la zone du chiffre** | **« 5 » pendant 5,0 s** | **5, 4, 3, 2, 1 (pixel-exact)** |
+| Séquence à l'écran | `5, 5, 5, 5, 5, REC` | `5, 4, 3, 2, 1, REC` |
+
+**Cause exacte** : `tick()` mettait à jour `state.digit` et `state.recElapsedMs` sans
+jamais appeler `bump()`, donc sans déclencher `deps.onChange()`. Le modèle était correct,
+l'UI ne recevait aucune nouvelle révision à redessiner. Correctif : un `bump()`
+conditionnel dans `tick()`. Détail et preuve : **§7**.
 
 Ce document remplace la preuve D1 précédente (`J08-06-A-countdown-5.png` /
 `J08-06-A-countdown-3.png`, deux PNG strictement identiques), qui était elle-même
 la preuve correcte d'un défaut mais était classée « conforme ».
 
-**Aucun correctif produit n'a été appliqué** : cette mission consistait à établir
-la preuve, pas à corriger. La correction est à faire dans une mission dédiée.
+**§1 à §6 sont le relevé d'origine du défaut, conservé tel quel** (ils documentent ce
+qui a été observé avant toute modification du code). **§7 à §11 sont la preuve
+post-correctif** ; les artefacts sont dans `post-correctif/`.
 
 ---
 
@@ -125,31 +138,44 @@ est identique sur les deux runs.
 
 ---
 
-## 4. Localisation du défaut (lecture de code, cause exacte à confirmer)
+## 4. Localisation du défaut (relevé d'origine — cause établie depuis, voir §7)
+
+> **Rectificatif.** Ce paragraphe contenait une erreur de lecture de code, signalée
+> plus bas dans sa version d'origine : `start-model.js:253` **n'est pas** un appel à
+> chaque tick, c'est l'appel `deps.onChange()` **à l'intérieur de `bump()`**, que rien
+> ne déclenche depuis `tick()`. C'est précisément la cause du défaut, et elle était
+> sous les yeux dans le fichier. La lecture d'origine est conservée ci-dessous telle
+> quelle, avec la mention de l'erreur.
 
 Ce qui est **établi** par la lecture du code, et qui recoupe l'observation :
 
-1. Le modèle est correct : `app/www/js/state/start-model.js:253` appelle
+1. ~~Le modèle est correct : `app/www/js/state/start-model.js:253` appelle
    `deps.onChange()` à chaque tick, et le service le fournit
-   (`app/www/js/state/start-service.js:352`).
+   (`app/www/js/state/start-service.js:352`).~~ **FAUX** : la ligne 253 est dans
+   `bump()`. `bump()` est bien la fonction qui appelle `deps.onChange()`, et le service
+   la fournit bien — mais `tick()` ne l'appelle jamais, donc le subscriber n'est
+   jamais prévenu du temps qui passe. La logique de décompte est correcte, la
+   **notification** ne l'est pas.
 2. Le rendu écrit bien le chiffre courant : `app/www/js/ui/countdown.js:99`
    (`renderMaster` → `cdDigitMaster.textContent = String(v.digit || …)`), et
    `render()` est idempotent (« il reconstruit la vue courante à chaque révision »).
 3. Or `cdDigitMaster.textContent` reste à « 5 » alors que `v.digit` vaut 4, 3, 2 puis 1.
 
 Les points 2 et 3 sont incompatibles : **si `render(v)` était appelé à chaque tick avec
-la vue à jour, le chiffre suivrait.** L'observation localize donc le défaut dans la
-chaîne de notification du rendu, pas dans la logique de compte à rebours ni dans
-`renderMaster`. Point d'entrée à examiner en priorité :
+la vue à jour, le chiffre suivrait.** L'observation localise donc le défaut dans la
+chaîne de notification du rendu, et non dans la logique de compte à rebours ni dans
+`renderMaster`. Points d'entrée examinés :
 
 - `app/www/js/main.js:138` — `if (current === "countdown") screen.render(v);` : le rendu
-  est conditionné à l'état du routeur, pas à une révision de la vue.
+  est déclenché par `onStartView`, lui-même alimenté par la seule chaîne de
+  notification. Chaîne intacte, alimentée à tort.
 - `app/www/js/ui/countdown.js:257` — `state.lastRev = -1;` : un reset de révision au
-  `show()` du panneau, à mettre en regard du chemin de notification.
+  `show()` du panneau. Écarté : le défaut est antérieur à tout `show()`.
 
-**La cause exacte n'est pas établie** (elle demanderait une instrumentation runtime,
-hors périmètre de cette mission de preuve) et **aucun correctif n'a été appliqué**.
-La logique de compte à rebours est correcte ; c'est le rendu de l'UI qui ne suit pas.
+**Cause exacte établie en §7** : `tick()` (`app/www/js/state/start-model.js:327`) met à
+jour l'état sans appeler `bump()`. **Aucun correctif n'avait été appliqué au moment de
+ce relevé** ; la correction est décrite et prouvée en §7.
+
 
 ---
 
@@ -191,3 +217,205 @@ La logique de compte à rebours est correcte ; c'est le rendu de l'UI qui ne sui
 | `calibration-vue-master/digit-0.png` | `a23a9a636a6c88fbefea960dabe9eded4a108359ab81b499dc9de38f3d36fa31` |
 
 `videos/` = `adb screenrecord`, 1340x800. `logs/` = `adb logcat -d`. `dumps/` = sortie CDP.
+
+---
+---
+
+# PARTIE 2 — CORRECTIF ET PREUVE POST-CORRECTIF
+
+## 7. La cause exacte et le correctif
+
+### 7.1 Chaîne de notification, telle qu'elle est
+
+`main.js:onStartView` → `screen.render(v)` n'est appelé que sur notification. La
+chaîne complète est :
+
+```
+tick()  (200 ms)  →  met à jour state.digit / state.recElapsedMs
+                          ↓
+                     bump()  →  state.rev++ puis deps.onChange()
+                          ↓
+              start-service.js:352  →  relaie onChange aux listeners
+                          ↓
+              main.js:onStartView  →  screen.render(v)
+                          ↓
+              countdown.js:99  →  cdDigitMaster.textContent = v.digit
+```
+
+Les 12 appels à `bump()` existants étaient **tous** dans des fonctions événementielles
+(adoption du plan, horloge prête, réception d'un plan, changement de readiness, arrêt…).
+**Aucun n'était dans `tick()`.** Le compteur lui-même était juste ; personne ne
+prévenait l'UI que le temps venait de changer.
+
+### 7.2 Le correctif (17 lignes, un seul fichier)
+
+`app/www/js/state/start-model.js`, fonction `tick()` uniquement :
+
+```js
+var notify = false;                                   // au début de tick()
+// … phase COUNTDOWN :
+if (d > 0 && d !== state.digit) { state.digit = d; notify = true; … }
+// … phase REC :
+var elapsedBefore = state.recElapsedMs;
+state.recElapsedMs = now() - state.recStartedAtMs;
+if (state.recElapsedMs !== elapsedBefore) notify = true;
+// … en fin de tick(), une seule fois, après toutes les mises à jour de l'état :
+if (notify) bump();
+```
+
+Pourquoi cette forme :
+
+| Exigence | Comment elle est tenue |
+|---|---|
+| Le subscriber suit le temps affiché | `bump()` une fois par changement de chiffre, une fois par tick en REC |
+| Pas de notification inutile | `notify` n'est mis à vrai que si la valeur **observable** change ; ~25 ticks en countdown → **4 notifications** |
+| Pas de timer d'interface ajouté | rien d'autre que `TICK_MS = 200`, inchangé ; le modèle reste la source unique du temps |
+| Pas de notification hors COUNTDOWN/REC | `tick()` ne se reprogramme que dans ces deux phases (ligne inchangée) |
+| Transitions préservées | ni adoption, ni top, ni annulation, ni arrêt, ni START_MASTER_LOST : aucune ligne de contrôle modifiée |
+
+**Non modifié** : `countdown.js`, `start-service.js`, `main.js`, `TICK_MS`, le plan
+d'armement, la logique de décompte. Aucun refactor.
+
+### 7.3 Verrou de non-régression (test rouge avant correctif)
+
+6 blocs ajoutés à `tests/plugin-lab/session/start-model.test.js` (39 → 45). Le harnais
+enregistre désormais chaque notification avec la vue lue **à cet instant**, comme le
+fait `main.js`. Test **rouge** sur le code d'origine, puis vert après correctif :
+
+| | Sans le correctif | Avec le correctif |
+|---|---|---|
+| Valeurs publiées pendant le countdown | `[5,5,5,5]` — **le défaut, reproduit** | `[5,4,3,2,1]` |
+| Notifications de tick | 0 | 4 |
+| `remainingMs` publiés | — | `4000, 3000, 2000, 1000` |
+| Aucun `0` publié | oui | oui |
+| Notifications en REC (1,2 s) | 0 | 6, croissantes |
+| Après arrêt | — | 0 parasite |
+
+```
+$ git stash push app/www/js/state/start-model.js && node tests/plugin-lab/session/start-model.test.js
+[40] D1 : le subscriber est prévenu à chaque CHANGEMENT de chiffre
+ECHEC : valeurs observables successives = [5] — AUCUNE notification de tick : l'UI reste
+figée sur 5 alors que le journal COUNTDOWN_STATE descend 5→4→3→2→1
+$ node tests/plugin-lab/session/start-model.test.js     # avec le correctif
+OK — 45 blocs, tous verts.
+```
+
+Le test rouge reproduit exactement le symptôme physique (`5, 5, 5, 5, 5`).
+
+Blocs de test : 40 sequence `[5,4,3,2,1]` · 41 information_stride (rev et remainingMs
+strictement croissants/décroissants) · 42 aucun `0` + cohérence avec le journal ·
+43 `recElapsedMs` notifié en REC · 44 `TICK_MS` inchangé et 4 notifications pour
+~25 ticks · 45 tick désarmé au repos, aucune notification parasite.
+
+## 8. Environnement du run post-correctif
+
+| Élément | Valeur |
+|---|---|
+| Tablette (unique) | `61cc29567d91` (« Cam D1 ») — **seule tablette touchée** |
+| deviceId | `d5f6b2a1-2387-4207-836d-90b0072a6cee` |
+| APK | `app-debug.apk`, sha256 `502f26cf853f0936a20f53f73bb70ab0a04503cfc597b0d0dfac552b0fdab212` |
+| Installation | `lastUpdateTime=2026-09-27 16:35:12` |
+| Correctif embarqué vérifié | `unzip -p app-debug.apk assets/www/js/state/start-model.js \| grep -c "if (notify) bump();"` → `1` |
+| Session / take | `4UMGBHEV` / take 1, `countdownSeconds = 5` |
+| Membre synthétique | `0000d1d1-0000-4000-8000-000000000001`, **le même répondant qu'avant** |
+| Durée du run | 16 s d'écran, échantillonnage 100 ms, 172 échantillons |
+
+Conditions volontairement identiques à la preuve d'origine : même tablette, même
+session, même take, même membre synthétique, même durée, même méthode d'identification
+par pixels, **mêmes images de calibration** (`calibration-vue-master/digit-{0..5}.png`,
+inchangées). La seule variable est le code embarqué.
+
+## 9. Preuve 1 — trace DOM : le nœud affiché suit enfin le modèle
+
+`post-correctif/dumps/d1-dom-trace-run4.jsonl`, colonnes
+`t_ms|phase|digit|remainingMs|recElapsedMs|cdDigitMaster|cdDigitCap|zone_visible|ecran|rect` :
+
+```
+ 5302|COUNTDOWN|5|4993|0|5|5|cdDigitMaster=5|panel-countdown|430x87x146x230
+ 6302|COUNTDOWN|4|3979|0|4|4|cdDigitMaster=4|panel-countdown|430x87x146x230
+ 7301|COUNTDOWN|3|2975|0|3|3|cdDigitMaster=3|panel-countdown|430x87x146x230
+ 8301|COUNTDOWN|2|1971|0|2|2|cdDigitMaster=2|panel-countdown|430x87x146x230
+ 9301|COUNTDOWN|1|967|0|1|1|cdDigitMaster=1|panel-countdown|430x87x146x230
+10302|REC|0|163|40|1|1|AUCUN_VISIBLE|panel-countdown|
+10501|REC|0|242|242|1|1|AUCUN_VISIBLE|panel-countdown|
+10700|REC|0|443|443|1|1|AUCUN_VISIBLE|panel-countdown|
+10911|REC|0|645|645|1|1|AUCUN_VISIBLE|panel-countdown|
+11101|REC|0|846|846|1|1|AUCUN_VISIBLE|panel-countdown|
+```
+
+Sur 50 échantillons en COUNTDOWN :
+
+- **séquence affichée : `5 → 4 → 3 → 2 → 1`** ; 1 seule valeur distincte avant correctif ;
+- **0 ligne où le DOM diffère du modèle** (`cdDigitMaster` == `digit`, sans exception) ;
+- **aucun `0` publié** (0 = instant du top, jamais affiché) ;
+- intervalle de 1000 ms entre deux changements, soit le premier tick de 200 ms qui voit
+  le nouveau palier ;
+- **le timer REC défile aussi** : `recElapsedMs` = 40, 242, 443, 645, 846 … cadence
+  ~200 ms, et à l'écran `cdRecTimer` passe de `00:40` à `00:45` en 4 s. Avant le
+  correctif, ce timer était figé pour la même raison.
+
+Comparatif : `post-correctif/analyse/trace-dom-avant-apres.txt`.
+
+## 10. Preuve 2 — identification PAR PIXELS (mêmes références qu'avant)
+
+`post-correctif/analyse/identite-chiffre-par-pixels-postfix.txt`. Méthode **inchangée**
+par rapport à §3.2 : boîte de lecture `x=570..768`, `y=166..436`, écart absolu moyen sur
+1 octet RGB sur 7, comparé aux 6 rendus de référence d'origine.
+
+| Capture | Lu | Écart | 2e meilleur | Verdict |
+|---|---|---|---|---|
+| `D1-postfix-countdown-5.png` | **5** | **0.00** | 3 à 51.14 | conforme |
+| `D1-postfix-countdown-4.png` | **4** | **0.00** | 1 à 85.57 | conforme |
+| `D1-postfix-countdown-3.png` | **3** | **0.00** | 2 à 46.60 | conforme |
+| `D1-postfix-countdown-2.png` | **2** | **0.00** | 3 à 46.60 | conforme |
+| `D1-postfix-countdown-1.png` | **1** | **0.00** | 2 à 80.10 | conforme |
+| `D1-postfix-rec.png` | — | 56.88 | 4 à 83.68 | hors countdown (attendu) |
+
+Écart **0.00** : les captures sont identiques au pixel près aux rendus de référence de
+l'application. Séparation de 46 à 85 face au 2e candidat : l'identification est certaine.
+
+Contraste avec §3.2, même méthode et mêmes fichiers de calibration :
+
+| | Avant | Après |
+|---|---|---|
+| Chiffres identifiés | 5 **seulement**, 40 frames | 5, 4, 3, 2, 1 |
+| Écart du meilleur | 2.15 | **0.00** |
+| Zone du chiffre stable | 5,0 s de frames identiques | 5 valeurs distinctes |
+
+## 11. Ce qui reste inchangé, et ce qui ne l'est pas
+
+**Validé sur appareil** : `5 → 4 → 3 → 2 → 1 → REC` à l'écran, chiffres pixel-exacts,
+aucun `0`, timer REC vivant, `STOP local` toujours opérationnel (phase `STOPPED`, retour
+`panel-arm`), aucune erreur JavaScript dans le logcat.
+
+**Non concerné par cette mission, volontairement** : D2 (déjà corrigé), D3, D4, D5
+(aucune action), D6, D7, D8. Aucune campagne multi-appareils, aucun preview caméra,
+aucun refactor. Seul `tick()` a changé, et uniquement pour notifier.
+
+**Point d'attention** (inchangé, hors périmètre) : le membre synthétique étant arrêté
+en fin de run, `START_MASTER_LOST` est journalisé une fois pendant le countdown avec
+`countdownContinues=1` — comportement nominal et documenté (le plan survit à la perte
+des Masters), sans rapport avec le correctif.
+
+## 12. Inventaire des preuves post-correctif (sha256)
+
+| Fichier | sha256 |
+|---|---|
+| `post-correctif/videos/d1-ecran-run4.mp4` | `954219b7cf20c2c3f635c6631d1f4efd7103fbcf99b4010d3230c8c51ac8c29a` |
+| `post-correctif/logs/A-D1-run4.log` | `4076cc8ddfd8d65db9e4a909aa3c9f6ee04f8f099056a0ef9f549932fe79489c` |
+| `post-correctif/dumps/d1-dom-trace-run4.jsonl` | `ca8af10a475cc016a2703acfeea2a45cb790220521f610f3050764dd76f6a99c` |
+| `post-correctif/analyse/identite-chiffre-par-pixels-postfix.txt` | `7c540a34edeeb2e753ecc96184f1ac9c77bae9a19d93869d090e8a5bb1f72576` |
+| `post-correctif/analyse/trace-dom-avant-apres.txt` | `0797d762a5b040d1e6597ebff9d4e92179897c99f10a752f157f358d73b246db` |
+| `post-correctif/screenshots/D1-postfix-countdown-5.png` | `c11fde38ad8df467a5ce4d7639d5d8cee521af6f54aa8cf9fe2a1d64a9e01c63` |
+| `post-correctif/screenshots/D1-postfix-countdown-4.png` | `222ffbf178c4643b98569203e680b6add6920ee80a8ab29eea0e0ddf08be79b2` |
+| `post-correctif/screenshots/D1-postfix-countdown-3.png` | `b682c3173208aefe6b5032198aa491cade2d58b1bb0898f0456367a9b1a7772a` |
+| `post-correctif/screenshots/D1-postfix-countdown-2.png` | `adaad3567a952d3c7dcd9fbb04487892d77ed6da6fc986af344417ad335eb3a5` |
+| `post-correctif/screenshots/D1-postfix-countdown-1.png` | `f8f24290f57c4a7a36d871f6498cf86fdc8b9310b301439e9e420934120977d4` |
+| `post-correctif/screenshots/D1-postfix-rec.png` | `c96ba7a1b60214d9ef80938649fc632436bc4f2e4ba4e0d100649b0c3cf8ba6c` |
+| `post-correctif/screenshots/D1-postfix-rec-t1.png` | `41390a5f2d0264bc89951d29dd8b5f7f18ecbe9a28a5ef1838f9d56826b8932a` |
+| `post-correctif/screenshots/D1-postfix-rec-t2.png` | `afe3c8f49dced77f4483402a227e16b4a834f6e6175925c1679b70f3a8e599d6` |
+
+APK testé : `app/platforms/android/app/build/outputs/apk/debug/app-debug.apk`,
+sha256 `502f26cf853f0936a20f53f73bb70ab0a04503cfc597b0d0dfac552b0fdab212`.
+Le répondant synthétique (`/tmp/d1/clock-responder.js`) est un dispositif de test
+hors dépôt, comme dans la preuve d'origine.

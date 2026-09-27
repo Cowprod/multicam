@@ -168,6 +168,10 @@ function makeNode(opts) {
     logs: [],
     starts: [],
     stops: [],
+    /* D1 : chaque notification onChange est ARCHIVÉE avec la vue lue à cet
+     * instant — c'est exactement ce que fait main.js:onStartView() (il relit
+     * view() au moment de la notification pour redessiner). */
+    changes: [],
     ready: true,                                  /* caméra native prête ? */
     offsets: opts.offsets || {},                  /* peer -> offsetMs */
     offsetAges: opts.offsetAges || {},            /* peer -> ageMs */
@@ -218,7 +222,16 @@ function makeNode(opts) {
     sendStartState: function (ses, msg) { net.send(did, "start_state", Object.assign({ sessionId: ses.sessionId }, msg)); },
     sendStartProbe: function (ses, msg) { net.send(did, "start_probe", Object.assign({ sessionId: ses.sessionId }, msg)); },
     log: function (l) { node.logs.push(l); },
-    onChange: function () {}
+    onChange: function () {
+      const v = node.machine ? node.machine.view() : null;
+      node.changes.push({
+        phase: v ? v.phase : "",
+        digit: v ? v.digit : -1,
+        remainingMs: v ? v.remainingMs : null,
+        recElapsedMs: v ? v.recElapsedMs : null,
+        rev: v ? v.rev : -1
+      });
+    }
   };
   node.machine = M.createMachine(node.deps);
   net.register(did, node.machine);
@@ -879,6 +892,133 @@ async function main() {
   await block("…et une nouvelle demande de REC pendant le REC est rejetée (plan_active)", function () {
     assert.strictEqual(rejectErr, "plan_active");
     only(w.A.logs, "reason=plan_active");
+  });
+
+  /* ================================================================== 40
+   * D1 — LE CONTRACT DE NOTIFICATION DU TEMPS.
+   *
+   * Constat physique (tests/e2e/validation/J08-countdown-start/d1-countdown-decroissant/) :
+   * `view().digit` descendait 5→4→3→2→1 et le journal COUNTDOWN_STATE le
+   * confirmait, MAIS #cdDigitMaster restait figé à « 5 » : l'UI n'est redessinée
+   * que par main.js:onStartView(), et ce subscriber n'était jamais prévenu des
+   * ticks — `tick()` met à jour l'état sans appeler bump().
+   *
+   * Ces blocs verrouillent le contrat que l'UI consomme réellement :
+   *   1. le subscriber est prévenu à chaque CHANGEMENT de chiffre ;
+   *   2. les valeurs observables successives sont exactement 5,4,3,2,1 ;
+   *   3. aucun 0 n'est publié pendant le COUNTDOWN (0 = instant du top) ;
+   *   4. pendant le REC, le subscriber est prévenu quand recElapsedMs évolue
+   *      (c'est ce même flux qui fait tourner le timer de l'écran 08) ;
+   *   5. et rien n'est publié en dehors de COUNTDOWN/REC.               */
+  w = buildWorld({});
+  await w.A.machine.requestStart({ sid: SID });
+  await flush();
+  /* 300 ms : le premier tick (200 ms) a déjà tourné SANS changement de chiffre.
+   * Tout ce qui a été publié jusqu'ici est donc ÉVÉNEMENTIEL (adoption du plan,
+   * horloge prête, écho start_plan) — cette frontière permet de distinguer ce
+   * que le modèle publie de lui-même (les ticks) de ce qu'il publie sur
+   * événement : les notifications de tick doivent descendre, les autres sont
+   * antérieures au temps qui s'écoule. */
+  await advance(w, 300, 100);
+  const eventNotifs = w.A.changes.filter((c) => c.phase === M.PHASE_COUNTDOWN).length;
+  await advance(w, 5100, 100);          /* le reste du countdown, tranches de 100 ms */
+
+  const cdNotifs = w.A.changes.filter((c) => c.phase === M.PHASE_COUNTDOWN);
+  const tickNotifs = cdNotifs.slice(eventNotifs);
+  const cdDigits = uniqSeq(cdNotifs.map((c) => c.digit));
+  const tickDigits = tickNotifs.map((c) => c.digit);
+
+  await block("D1 : le subscriber est prévenu à chaque CHANGEMENT de chiffre", function () {
+    assert.deepStrictEqual(cdDigits, [5, 4, 3, 2, 1],
+      "valeurs observables successives = [" + cdDigits.join(",") + "]"
+      + (cdDigits.length === 1
+        ? " — AUCUNE notification de tick : l'UI reste figée sur " + cdDigits[0]
+          + " alors que le journal COUNTDOWN_STATE descend 5→4→3→2→1"
+        : ""));
+    assert.deepStrictEqual(tickDigits, [4, 3, 2, 1],
+      "les ticks publient exactement les 4 changements de chiffre, vus : [" + tickDigits.join(",") + "]");
+    assert.strictEqual(cdNotifs[0].digit, 5, "le premier chiffre est publié à l'adoption du plan");
+  });
+
+  await block("D1 : les notifications de tick portent une information INÉDITE", function () {
+    /* Une notification identique n'apporte rien : l'UI redessinerait un écran
+     * pareil. Chaque tick notifié doit avancer rev ET remainingMs. */
+    const revs = tickNotifs.map((c) => c.rev);
+    const rems = tickNotifs.map((c) => c.remainingMs);
+    for (let i = 1; i < revs.length; i++) {
+      assert.ok(revs[i] > revs[i - 1], "rev strictement croissant : " + revs.join(","));
+    }
+    for (let i = 1; i < rems.length; i++) {
+      assert.ok(rems[i] < rems[i - 1],
+        "remainingMs strictement décroissant d'une notification de tick à l'autre : " + rems.join(","));
+    }
+    assert.deepStrictEqual(rems, [4000, 3000, 2000, 1000],
+      "chaque chiffre est publié au bon instant (remainingMs) : " + rems.join(","));
+  });
+
+  await block("D1 : AUCUN 0 publié pendant le countdown", function () {
+    const zeros = cdNotifs.filter((c) => c.digit === 0);
+    assert.strictEqual(zeros.length, 0,
+      "0 = instant du top, jamais affiché (" + zeros.length + " publication(s))");
+    cdNotifs.forEach((c) => {
+      assert.ok(c.digit >= 1 && c.digit <= 5, "chiffre dans [1..5], vu " + c.digit);
+    });
+    /* Cohérence avec le journal : ce qui est publié EST ce qui est journalisé. */
+    assert.deepStrictEqual(cdDigits, uniqSeq(digitSeries(w.A.logs)),
+      "notifications et journal COUNTDOWN_STATE divergent : " + cdDigits.join(",")
+      + " vs " + uniqSeq(digitSeries(w.A.logs)).join(","));
+  });
+
+  /* Le top est tiré : on mesure maintenant le contrat REC sur ce même monde. */
+  const recBefore = w.A.changes.length;
+  await advance(w, 1200, 100);
+
+  await block("D1 : pendant le REC, recElapsedMs notifie le subscriber", function () {
+    const v = w.A.machine.view();
+    assert.strictEqual(v.phase, M.PHASE_REC, "le plan est passé en REC");
+    const recNotifs = w.A.changes.slice(recBefore).filter((c) => c.phase === M.PHASE_REC);
+    assert.ok(recNotifs.length >= 3,
+      "le subscriber doit suivre le timer REC (≥3 notifications en 1,2 s, reçu " + recNotifs.length + ")");
+    const elapsed = recNotifs.map((c) => c.recElapsedMs);
+    for (let i = 1; i < elapsed.length; i++) {
+      assert.ok(elapsed[i] > elapsed[i - 1], "recElapsedMs croissant : " + elapsed.join(","));
+    }
+    const last = elapsed[elapsed.length - 1];
+    /* Le top est tiré à 5000 ms, le marqueur est pris à 5400 ms, puis on avance
+     * de 1200 ms : le timer doit donc afficher ~1600 ms de REC. */
+    assert.ok(last >= 1500, "le timer REC a réellement avancé (dernier = " + last + " ms)");
+    assert.ok(last <= 1700, "et sans dépassement (dernier = " + last + " ms)");
+  });
+
+  await block("D1 : TICK_MS inchangé, UNE notification par CHANGEMENT (pas par tick)", function () {
+    assert.strictEqual(M.TICK_MS, 200, "le rythme de référence reste TICK_MS = 200 ms");
+    /* 5 s de countdown à 200 ms = ~25 ticks. Si chaque tick notifiait, ce serait
+     * une rafale inutile ; on doit avoir exactement UNE notification par
+     * changement de chiffre. */
+    assert.strictEqual(tickNotifs.length, 4,
+      "exactement 4 notifications de tick pour 4 changements de chiffre, reçu " + tickNotifs.length
+      + " (sur ~25 ticks) : [" + tickDigits.join(",") + "]");
+    assert.strictEqual(tickNotifs.length, uniqSeq(tickDigits).length,
+      "aucune notification redondante sur un chiffre inchangé");
+  });
+
+  await block("D1 : au repos, le tick est désarmé — plus AUCUNE notification", async function () {
+    assert.strictEqual(w.A.machine.view().phase, M.PHASE_REC, "on part du REC");
+    const marker = w.A.changes.length;
+    /* L'arrêt local est une TRANSITION : elle doit être publiée, sinon l'UI
+     * resterait sur l'écran REC. Ce qui est interdit, c'est le tick qui
+     * continuerait à parler après la sortie de COUNTDOWN/REC. */
+    await w.A.machine.stopLocal("test_d1");
+    await flush();
+    const afterStop = w.A.changes.length;
+    assert.strictEqual(w.A.machine.view().phase, M.PHASE_STOPPED, "l'arrêt local est effectif");
+    assert.ok(afterStop - marker >= 1 && afterStop - marker <= 3,
+      "l'arrêt publie ses transitions une seule fois, sans rafale ("
+      + (afterStop - marker) + " notification(s))");
+    /* 1,2 s de temps supplémentaire : un tick resté armé se verrait ici. */
+    await advance(w, 1200, 100);
+    assert.strictEqual(w.A.changes.length, afterStop,
+      "aucune notification après l'arrêt — tick désarmé (" + (w.A.changes.length - afterStop) + " parasite(s))");
   });
 
   console.log("\nOK — " + blocks + " blocs, tous verts.");

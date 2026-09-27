@@ -326,11 +326,25 @@
 
     var tick = function () {
       state.tickTimer = null;
+      /* J08 / D1 : le tick est le SEUL rythme qui fait vivre le temps à l'écran
+       * (chiffre du countdown, puis timer REC). Il doit donc prévenir le
+       * subscriber — c'est `bump()` qui appelle deps.onChange(), relayé par
+       * start-service jusqu'à main.js:onStartView() qui redessine. Sans ce
+       * bump(), l'état descendait correctement (COUNTDOWN_STATE journalisé) mais
+       * #cdDigitMaster restait figé sur le premier chiffre.
+       *
+       * On ne notifie que ce qui CHANGE : une fois par changement de chiffre,
+       * et pendant le REC une fois par tick (recElapsedMs est une horloge
+       * continue). Rien hors COUNTDOWN/REC — un tick n'y est d'ailleurs jamais
+       * reprogrammé. Le modèle reste la source unique du temps : aucun timer
+       * d'interface n'est ajouté, le rythme reste TICK_MS. */
+      var notify = false;
       if (state.phase === PHASE_COUNTDOWN && state.plan && !state.topFired) {
         state.remainingMs = (state.localTopMs == null) ? null : (state.localTopMs - now());
         var d = digitFor(state.remainingMs, state.plan.countdownSeconds);
         if (d > 0 && d !== state.digit) {
           state.digit = d;
+          notify = true;
           log("COUNTDOWN_STATE deviceId=" + self() + " startPlanId=" + state.planId
             + " take=" + state.plan.takeNumber + " digit=" + d
             + " remainingMs=" + Math.round(state.remainingMs));
@@ -346,7 +360,9 @@
           abortPlan("stale_timer_no_start", false);
         }
       } else if (state.phase === PHASE_REC && state.recStartedAtMs) {
+        var elapsedBefore = state.recElapsedMs;
         state.recElapsedMs = now() - state.recStartedAtMs;
+        if (state.recElapsedMs !== elapsedBefore) notify = true;
         state.showEmergencyStop = state.isCapture && connectedMasters().length === 0;
       }
       /* perte de TOUS les Masters : journalisée une fois, le plan local survit
@@ -359,6 +375,7 @@
           + " remainingMs=" + (state.remainingMs == null ? "—" : Math.round(state.remainingMs))
           + " countdownContinues=1");
       }
+      if (notify) bump();
       if (state.phase === PHASE_COUNTDOWN || state.phase === PHASE_REC) scheduleTick();
     };
 

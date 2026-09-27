@@ -41,9 +41,9 @@ Les compteurs ci-dessous sont extraits des journaux `logs/<serial>-<section>.log
 | J08-10 | arrêt local, preuve fichier | **3 `CAMERA_REC_STOP_OK`** avec `path=`, **0 sur D** | logs + 4 captures |
 | J08-11 | plan annulé avant top → rien | **0 `CAMERA_REC_OK`** et `START_CANCEL sessionId=` + `START_PLAN_ABORTED` sur les **4** devices | logs + 4 captures |
 | J08-12 | 5 START successifs | **5/5**, `phase=REC` à chaque run, ≤1 ms d'écart | console run10 + 15 captures |
-| J08-13 | countdown 5→1, jamais 0 | **NON VALIDÉ** — l'écran 07 affiche « 5 » pendant tout le compte à rebours | `d1-countdown-decroissant/` |
+| J08-13 | countdown 5→1, jamais 0 | **VALIDÉ** après correctif D1 (écart 0.00, pixel-exact) ; l'écart initial « 5 » pendant tout le compte à rebours est documenté et corrigé | `d1-countdown-decroissant/` |
 
-## D1 — compte à rebours décroissant : NON VALIDÉ (défaut avéré)
+## D1 — compte à rebours décroissant : VALIDÉ (défaut avéré, corrigé, re-validé)
 
 **Constat : l'écran 07 affiche `5, 5, 5, 5, 5, REC` au lieu de `5, 4, 3, 2, 1, 0, REC`.**
 La machine à états décompte correctement ; le rendu de l'UI, non.
@@ -68,10 +68,44 @@ APK reconstruit depuis `11787e6`
 Preuve complète, hypothèses écartées et inventaire sha256 :
 [`d1-countdown-decroissant/README.md`](d1-countdown-decroissant/README.md).
 
-**Aucun correctif produit n'a été appliqué** : cette mission établissait la preuve.
-La cause est localisée à la chaîne de notification du rendu
-(`renderMaster` écrit bien `v.digit`, donc `render` n'est pas appelé à chaque tick) ;
-elle reste à confirmer et à corriger dans une mission dédiée.
+### Correctif et re-validation
+
+La cause exacte a été établie : `tick()` (`app/www/js/state/start-model.js`) mettait à
+jour `state.digit` et `state.recElapsedMs` **sans jamais appeler `bump()`**, donc sans
+`deps.onChange()` — le subscriber de `main.js:onStartView` n'était jamais prévenu. (La
+lecture de code initiale, qui affirmait le contraire, est rectifiée en §4 du README.)
+
+Correctif : un `bump()` conditionnel dans `tick()` — une notification par **changement
+de chiffre**, une par tick en REC, rien hors COUNTDOWN/REC, `TICK_MS = 200` inchangé,
+aucun timer d'interface ajouté. 17 lignes, un seul fichier ; `countdown.js`,
+`start-service.js`, `main.js` non modifiés.
+
+Verrou de non-régression : 6 blocs ajoutés à `tests/plugin-lab/session/start-model.test.js`
+(39 → 45), **rouges sur le code d'origine** (valeurs publiées `[5,5,5,5]` — le défaut
+reproduit) puis verts. Rejeu : `start-model` 45/45, `start-service` 26/26,
+`countdown-ui` 13/13, `node --check` sur les deux fichiers modifiés.
+
+Re-validation physique, **une seule tablette** (A), APK reconstruit
+sha256 `502f26cf853f0936a20f53f73bb70ab0a04503cfc597b0d0dfac552b0fdab212`
+(« correctif embarqué » vérifié dans l'APK), conditions identiques à la preuve
+d'origine (même session `4UMGBHEV`, même take, même membre synthétique, **mêmes images
+de calibration**) :
+
+| Source | Avant correctif | Après correctif |
+|---|---|---|
+| DOM, 100 ms (`#cdDigitMaster.textContent`) | **5 en permanence** | **5 → 4 → 3 → 2 → 1** |
+| Lignes où le DOM diffère du modèle | 50 / 50 | **0 / 50** |
+| Un `0` publié | non | non |
+| Pixels de la zone du chiffre | 5 sur 40 frames, écart 2.15 | **5, 4, 3, 2, 1, écart 0.00** (pixel-exact) |
+| Timer REC (`cdRecTimer`) | figé | `00:40` → `00:45` en 4 s |
+| Erreur JavaScript | — | aucune |
+
+Preuve complète, correctif détaillé et inventaire sha256 :
+[`d1-countdown-decroissant/README.md`](d1-countdown-decroissant/README.md) (§7 à §12),
+artefacts dans `d1-countdown-decroissant/post-correctif/`.
+
+**D1 est donc validé.** Les autres écarts (J08-09, D2 à D8) sont traités séparément et ne
+sont pas concernés par ce correctif.
 
 
 ## Synchronisation du top (J08-08 et J08-12)

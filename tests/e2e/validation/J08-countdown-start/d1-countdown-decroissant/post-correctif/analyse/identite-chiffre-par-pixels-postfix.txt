@@ -1,0 +1,12 @@
+IDENTIFICATION PAR PIXELS DE LA ZONE DU CHIFFRE — run4 POST-correctif
+Boite de lecture : %s  (x0 y0 x1 y1 dans une capture %dx%d)
+References : calibration-vue-master/digit-0..5.png (calibration d'origine, inchangee)
+Methode : distance absolue moyenne sur 1 octet sur 7 de la zone recadree ;
+          la capture est recadree au pixel pres (identique a la preuve AVANT correctif).
+
+D1-postfix-countdown-5.png : lu=5 ecart=0.00 (2e=3 ecart=51.14) attendu=5 OK
+D1-postfix-countdown-4.png : lu=4 ecart=0.00 (2e=1 ecart=85.57) attendu=4 OK
+D1-postfix-countdown-3.png : lu=3 ecart=0.00 (2e=2 ecart=46.60) attendu=3 OK
+D1-postfix-countdown-2.png : lu=2 ecart=0.00 (2e=3 ecart=46.60) attendu=2 OK
+D1-postfix-countdown-1.png : lu=1 ecart=0.00 (2e=2 ecart=80.10) attendu=1 OK
+D1-postfix-rec.png : lu=1 ecart=56.88 (2e=4 ecart=83.68) attendu=(REC) -- (hors countdown)
