@@ -1,0 +1,22 @@
+# J08 — Appareils utilisés par la campagne
+# Source : serials déclarés dans tests/e2e/j08-campaign.sh (en-tête) et
+# deviceId relevés dans dumps/device-ids.txt pendant la campagne.
+# AUCUN `pm clear` : les deviceId sont la preuve que ce sont les MÊMES devices
+# qu'en J07 (les permissions ont été accordées par `pm grant`).
+#
+# RÔLE DANS LE TAKE 1 : A/B/C = Captures (enregistrent), D = Storage seul
+# (0 CAMERA_REC_OK sur toutes les sections — D n'ouvre pas la caméra).
+#
+# role  serial           deviceId
+A       61cc29567d91     d5f6b2a1-2387-4207-836d-90b0072a6cee
+B       61d54bba7d91     4bbeef26-3e46-40e5-9f0b-d3fb459c9472
+C       c0d8514d7d87     92d58e97-c418-47cc-87c5-6a080aff5faf
+D       R83Y106V1HF      23c5cf6e-beab-4e40-b3ab-6dc6dfed0437
+#
+# Session J08 : TQMPQ86M
+#
+# LIMITES DE CE FICHIER (à ne pas lire comme une preuve de plus) :
+# - le modèle commercial et la version Android de chaque device ne sont pas
+#   capturés par la campagne J08 ; seul le comportement observé est prouvé ;
+# - l'ecart d'horloge inter-devices est MESURE et RAPPORTE par section
+#   (START_CLOCK_FRESHNESS / deltaMs), pas suppose nul.

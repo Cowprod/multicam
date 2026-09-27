@@ -1,0 +1,1 @@
+09-26 11:31:29.514 I/chromium(26219): [INFO:CONSOLE:42] "START_NATIVE_ACK deviceId=4bbeef26-3e46-40e5-9f0b-d3fb459c9472 startPlanId=M7GPZEH4#1#1#1 take=1 ack=11:31:29.512 deltaMs=667 detail=startRecordVideo_ok", source: http://localhost/js/state/start-service.js (42)
