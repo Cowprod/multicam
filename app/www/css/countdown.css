@@ -1,0 +1,252 @@
+/* MultiCam — écran 07 Countdown + placeholder 08 (J08).
+ *
+ * Fond SOMBRE STATIQUE (maquette 07) : pendant le countdown on évite tout fond
+ * animé et toute mosaïque — le coût de rendu doit rester minimal à l'instant
+ * exact du top. La preview native de la Capture est DERRIÈRE le WebView
+ * (toBack:true), ce panneau n'est donc pas opaque : `.cd-screen` laisse
+ * transparaître la couche `.vig`.
+ *
+ * Aucun son, aucune vibration : ce fichier ne contient que des règles
+ * d'affichage (aucune animation de valeur, seulement l'apparition du chiffre).
+ */
+
+.cd-screen {
+  background: transparent;
+  position: relative;
+  min-height: 100%;
+}
+
+.cd-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 70vh;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* La vue Capture doit laisser voir la preview native derrière. */
+#cdCapture {
+  background: transparent;
+  padding: 0;
+}
+
+.vig-cd {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.cd-overlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 70vh;
+  padding: 1.2rem 1rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+}
+
+.cd-head {
+  z-index: 1;
+}
+
+.cd-session {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cd-take,
+.cd-device,
+.cd-wait {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+}
+
+.cd-device {
+  font-weight: 600;
+}
+
+/* Chiffre géant : la seule zone qui change, 5→1. */
+.cd-digit {
+  font-size: clamp(7rem, 42vw, 16rem);
+  font-weight: 800;
+  line-height: 0.9;
+  color: #fff;
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.9);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.cd-foot {
+  z-index: 1;
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 22rem;
+}
+
+/* États locaux de la Capture (UI 07 : uniquement elle-même). */
+.cd-local {
+  z-index: 1;
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cd-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.cd-row i {
+  width: 1.1rem;
+  text-align: center;
+  opacity: 0.85;
+}
+
+.cd-row-label {
+  flex-grow: 1;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cd-row-val {
+  font-weight: 600;
+}
+
+/* Capture écartée : grosse icône + cause, aucun bouton. */
+.cd-excluded {
+  color: #fff;
+}
+
+.cd-excl-icon {
+  font-size: clamp(5rem, 28vw, 9rem);
+  color: #ffc107;
+  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.8));
+}
+
+.cd-excl-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.cd-excl-cause {
+  font-size: 1.1rem;
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.cd-excl-sub {
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 22rem;
+}
+
+/* ---------- Écran 08 : placeholder REC (J08) ---------- */
+
+.cd-rec {
+  justify-content: flex-start;
+  padding-top: 2rem;
+}
+
+.cd-rec-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #fff;
+}
+
+.cd-rec-dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #dc3545;
+  box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.18);
+}
+
+.cd-rec-label {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.cd-rec-timer {
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.cd-rec-meta {
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cd-rec-delta {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-rec-note {
+  margin-top: 1.2rem;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 24rem;
+  text-align: center;
+}
+
+/* ---------- Badge compact Storage ---------- */
+
+.rec-badge {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(20, 22, 28, 0.92);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.rec-badge .rec-badge-take {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.rec-badge .rec-badge-val {
+  font-variant-numeric: tabular-nums;
+}
+
+.rec-badge.rec .rec-badge-val {
+  color: #ff6b6b;
+}
+
+.rec-badge.rec::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #dc3545;
+}

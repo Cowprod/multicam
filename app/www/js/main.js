@@ -41,7 +41,8 @@
 
   /* ---------- routeur panneaux (index.html monodocument) ---------- */
 
-  var panels = ["home", "create", "join", "session", "settings", "take", "arm"];
+  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown"];
+  var current = "home";
 
   function panelEl(name) { return document.getElementById("panel-" + name); }
 
@@ -50,6 +51,7 @@
       var el = panelEl(p);
       if (el) el.classList.toggle("active", p === name);
     });
+    current = name;
     switch (name) {
       case "create":
         global.MultiCamSessionCreate.show(appCfg, { mode: "create" });
@@ -73,12 +75,27 @@
       case "arm":
         global.MultiCamArmScreen.show(appCfg, params || {});
         break;
+      case "countdown":
+        /* Écran 07 + placeholder 08 : même panneau, la vue interne est choisie
+         * par le rôle (Master / Capture / excluée / REC). */
+        global.MultiCamCountdownScreen.show(appCfg, params || {});
+        break;
       case "settings":
         global.MultiCamSettings.show(appCfg);
         break;
       default:
         break;
     }
+  }
+
+  /* Fin de plan (annulation, refus, STOP local) : on revient à l'écran ARM
+   * depuis le panneau 07. Sans ce rattrapage, l'utilisateur resterait sur une vue
+   * de countdown à l'arrêt d'un plan. Le service reste maître de l'état. */
+  function onStartEnded(v) {
+    if (current !== "countdown") return;
+    console.log("NAV_AUTO reason=plan_ended target=arm from=countdown"
+      + " sessionId=" + ((v && v.sid) || (appCfg ? "?" : "?")));
+    showPanel("arm", { sid: (v && v.sid) || null });
   }
 
   function bindBackButtons() {
@@ -94,8 +111,52 @@
 
   global.MultiCamNav = {
     show: showPanel,
-    cfg: function () { return appCfg; }
+    cfg: function () { return appCfg; },
+    current: function () { return current; }
   };
+
+  /* ---------- J08 : abonnement GLOBAL au plan de START ----------
+   *
+   * Un seul abonnement, posé au boot, indépendant de l'écran affiché
+   * (décision 30.7) : un plan reçu d'un autre Master doit ouvrir l'écran 07
+   * même si l'utilisateur est sur une autre vue. Le routeur ne fait que
+   * choisir un PANNEAU ; le rendu (chiffre, états, exclusion) appartient à
+   * MultiCamCountdownScreen, alimenté par la même vue.
+   *
+   * On ne bascule JAMAIS tant que l'utilisateur est sur un écran de
+   * PARAMÈTRES ou de CRÉATION : ces écrans demandent une action explicite et
+   * seraient abandonnés en cours de route. Le badge, lui, reste visible. */
+  var START_RESERVED_PANELS = { settings: true, create: true };
+
+  function onStartView() {
+    var start = global.MultiCamStartService;
+    var screen = global.MultiCamCountdownScreen;
+    if (!start || !screen) return;
+    var v = start.view();
+    if (!v || !v.active) { onStartEnded(v); return; }
+    /* Le rendu est toujours à jour, même quand on ne change pas de panneau. */
+    if (current === "countdown") screen.render(v);
+    if (START_RESERVED_PANELS[current]) return;
+    var target = screen.route(v);
+    if (target && target !== current) {
+      console.log("NAV_AUTO reason=start_plan target=" + target + " phase=" + v.phase
+        + " from=" + current);
+      showPanel(target, { sid: v.sid });
+    }
+  }
+
+  function bindStartService() {
+    var start = global.MultiCamStartService;
+    if (!start) {
+      console.log("START_NAV_UNAVAILABLE reason=service_absent");
+      return;
+    }
+    start.bind();
+    start.onView(onStartView);
+    /* Le timer REC (200 ms) et les digits du countdown passent par ce même
+     * flux : pas de setInterval d'interface en doublon du modèle. */
+    console.log("START_NAV_READY deviceId=" + (appCfg && appCfg.deviceId));
+  }
 
   /* ---------- boot session (J04) ---------- */
 
@@ -108,6 +169,9 @@
     /* J07 : la machine ARM est créée au boot pour pouvoir RÉPONDRE aux requêtes
      * ARM des autres Masters, même sans écran ARM ouvert (réponses dirigées). */
     if (global.MultiCamArmService) global.MultiCamArmService.bind();
+    /* J08 : idem pour le plan de START (pont START branché sur le WS) — un plan
+     * reçu sans écran ouvert doit être adopté, caméra préparée comprise. */
+    if (global.MultiCamStartService) global.MultiCamStartService.bind();
     return global.MultiCamSessionStore.list().then(function (sessions) {
       console.log("SESSION_BOOT stored=" + sessions.length
         + " open=" + sessions.filter(function (s) { return s.state === "open"; }).length
@@ -150,6 +214,7 @@
       global.MultiCamHome.render(cfg);
       global.MultiCamHome.bind();
       bindBackButtons();
+      bindStartService();
 
       console.log("HOME_RENDER deviceName=" + cfg.deviceName
         + " controllerEnabled=" + (global.MultiCamConfig.isControllerEnabled() ? "1" : "0"));
@@ -177,6 +242,7 @@
       global.MultiCamHome.render(cfg);
       global.MultiCamHome.bind();
       bindBackButtons();
+      bindStartService();
       console.log("HOME_RENDER deviceName=" + cfg.deviceName + " run=web");
     });
   }
