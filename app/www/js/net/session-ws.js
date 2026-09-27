@@ -15,13 +15,20 @@
  *   - messages : sync (state complet), sync_please, join_req, join_ok, join_nack,
  *     ping/pong (heartbeat/liveness §30.4/30.8), et depuis J05 :
  *     member_add, member_update, member_remove (gestion des members/sessionRoles) ;
+ *   - routage (et rien d'autre) des messages J08 start_plan, start_cancel,
+ *     start_state, start_probe, start_probe_reply vers le pont start-service ;
  *   - broadcast du sharedView (jamais le PIN) aux Masters connectés ;
  *   - convergence par fusion §30.9 + §31 (closed>open, LMW nom, PIN immuable,
  *     masters par deviceId, members par deviceId avec sessionRoles validés).
  *
  * Journalisation parsable : WS_*, FALLBACK, JOIN_*, SYNC_*, RENAME_*,
- * SESSION_CLOSE_*, MEMBER_*, PEER_* (voir AGENTS.md — exigence journalisation
- * distribuée).
+ * SESSION_CLOSE_*, MEMBER_*, PEER_*, START_TRANSPORT_* (voir AGENTS.md —
+ * exigence journalisation distribuée).
+ *
+ * Rappel de responsabilité (décision 30.10) : ce module ne connaît NI le plan
+ * de START, NI les offsets, NI l'arbitrage. Il transmet fidèlement et signale
+ * les enveloppes malformées ; la logique J08 vit dans start-model (pur) et
+ * start-service (application).
  */
 
 (function (global) {
@@ -102,7 +109,8 @@
     selfEndpoint: "",      /* "ip:effectivePort" (best-effort, rempli au start) */
     advertisedKey: {},     /* sessionId -> dernier TXT publié (dédup des ré-annonces) */
     lastResyncMs: 0,       /* anti-écho : throttle des sync_please (convergence) */
-    armBridge: null        /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
+    armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
+    startBridge: null      /* J08 : pont START (start-service) — idem, zéro logique ici */
   };
 
   var _ipCache = "";       /* IPv4 synchrone (warm-up asynchrone via MultiCamNative) */
@@ -448,6 +456,13 @@
         break;
       case "clock_sync_reply":
         handleClockSyncReply(env);
+        break;
+      case "start_plan":
+      case "start_cancel":
+      case "start_state":
+      case "start_probe":
+      case "start_probe_reply":
+        handleStartMessage(env, entry, serverConn);
         break;
       default:
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
@@ -879,6 +894,55 @@ store().get(env.sessionId).then(function (local) {
     if (!env.sessionId || !env.armCycleId || !env.from) return;
     if (!state.armBridge || typeof state.armBridge.onClockReply !== "function") return;
     state.armBridge.onClockReply(env);
+  }
+
+  /* ---------- protocole J08 : plan de START synchronisé ----------
+   *
+   * TRANSPORT uniquement (décision 30.10) : AUCUNE règle de J08 ici. Validation
+   * STRUCTURALE minimale de l'enveloppe (les invariants métier — offsets frais,
+   * arbitrage startPlanId, rôles, top — sont vérifiés par start-model via
+   * start-service). Seule `start_probe` a une réponse dirigée, sur la MÊME
+   * connexion que la demande (comme clock_sync en J07) : c'est la mesure NTP
+   * courte qui permet à une Capture de connaître son décalage même si le
+   * créateur du plan n'est pas dans clockOffsets.
+   */
+
+  var START_REPLY_KINDS = { start_probe_reply: true };
+
+  function startIsMalformed(env) {
+    if (!env.sessionId || !env.from) return true;
+    switch (env.kind) {
+      case "start_plan":
+        return !env.plan || !env.plan.startPlanId || !env.plan.targetStartMs;
+      case "start_cancel":
+      case "start_state":
+        return !env.startPlanId;
+      case "start_probe":
+        return typeof env.requestId === "undefined" || !env.target;
+      case "start_probe_reply":
+        return !env.startPlanId || typeof env.requestId === "undefined"
+          || typeof env.t1 !== "number" || typeof env.t2 !== "number";
+      default:
+        return true;
+    }
+  }
+
+  function handleStartMessage(env, entry, serverConn) {
+    if (startIsMalformed(env)) {
+      emit("START_TRANSPORT_DROP kind=" + env.kind + " reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    if (!state.startBridge || typeof state.startBridge.onStartMessage !== "function") {
+      emit("START_TRANSPORT_DROP kind=" + env.kind + " reason=no_bridge sessionId=" + env.sessionId);
+      return;
+    }
+    state.startBridge.onStartMessage(env, function (kind, extra) {
+      if (!START_REPLY_KINDS[kind]) {
+        emit("START_TRANSPORT_DROP reply=" + kind + " reason=reply_kind_not_allowed");
+        return;
+      }
+      sendReply(entry, serverConn, kind, env.sessionId, extra);
+    });
   }
 
   /* ---------- broadcast ---------- */
@@ -1425,6 +1489,9 @@ store().get(env.sessionId).then(function (local) {
     status: status,
     setArmBridge: function (bridge) {
       state.armBridge = bridge || null;
+    },
+    setStartBridge: function (bridge) {
+      state.startBridge = bridge || null;
     },
     onChanged: function (fn) {
       if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);

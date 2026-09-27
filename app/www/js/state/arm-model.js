@@ -56,6 +56,7 @@
   var CLOCK_SAMPLES_TARGET = 3;            /* échantillons utiles pour une estimation stable */
   var CLOCK_SAMPLES_MAX = 8;               /* fenêtre glissante d'échantillons conservés */
   var CLOCK_SAMPLE_SPACING_MS = 500;       /* espacement entre échantillons au démarrage */
+  var CLOCK_FRESH_WAIT_MS = 4000;          /* attente max d'un échantillon postérieur à une demande */
   var FREE_WARN_BYTES = 1000000000;        /* 1 Go : seuil WARNING stockage local */
   var SYNC_WARN_OFFSET_MS = 50;            /* objectif ±50 ms (valeur absolue du delta) */
   var SYNC_WARN_DISPERSION_MS = 50;        /* dispersion (étendue des offsets) de dégradation */
@@ -688,7 +689,27 @@
 
     /* Ordonnanceur : échantillonne un à un les captures distants (ordre des devices)
      * tant qu'un device n'a pas atteint CLOCK_SAMPLES_TARGET ; aucune requête en
-     * vol ; appels depuis onClockReply / clockTimeout à 500 ms d'intervalle. */
+     * vol ; appels depuis onClockReply / clockTimeout à 500 ms d'intervalle.
+     *
+     * FENÊTRE GLISSANTE (J08) : une fois la cible atteinte pour tous, on ne
+     * s'arrête PAS. On ré-échantillonne en priorité le device dont le dernier
+     * échantillon est le PLUS VIEUX. Sans cela, `lastSyncMs` vieillit et J08 ne
+     * peut plus garantir la fraîcheur des offsets exigée au verrouillage de
+     * targetStart (CLOCK_FRESH_MAX_AGE_MS = 12 s) : un ARM calme deviendrait
+     * inexploitable quelques secondes après sa montée en READY.
+     * Le coût est borné (1 requête / CLOCK_SAMPLE_SPACING_MS, une à la fois) et
+     * la fenêtre `samples` reste limitée à CLOCK_SAMPLES_MAX. */
+    /* Un seul timer d'échantillonnage, remis à NULL quand il se déclenche :
+     * sans cela, le champ garde l'identifiant d'un timer déjà fired et plus
+     * rien ne peut savoir s'il reste une pompage en attente. */
+    var scheduleSample = function (fn, ms) {
+      if (state.sampleTimer) clearSched(state.sampleTimer);
+      state.sampleTimer = sched(function () {
+        state.sampleTimer = null;
+        fn();
+      }, ms);
+    };
+
     var pumpClockSamples = function () {
       if (!state.active || state.pendingClock) return;
       var dids = remoteCaptureDids();
@@ -701,11 +722,72 @@
       if (target) sampleOnce(target);
     };
 
+    /* Attend des échantillons d'horloge POSTÉRIEURS à l'appel, pour TOUTES les
+     * captures distants — sans toucher au comportement de repos de J07.
+     *
+     * Pourquoi : J08 exige des offsets FRAIS au verrouillage de targetStart
+     * (CLOCK_FRESH_MAX_AGE_MS = 12 s), alors que l'ARM de J07 s'arrête de
+     * sonde une fois 3 échantillons par device atteints. Sans
+     * cette demande explicite, un ARM monté depuis plus de 12 s était refusé en
+     * `clock_stale` — refus correct, mais fonctionnellement inutilisable.
+     *
+     * On ne fait donc PAS d'échantillonnage permanent (trafic permanent, timers
+     * infinis) : un tour de table est déclenché À LA DEMANDE, un device à la
+     * fois, en respectant l'espacement de CLOCK_SAMPLE_SPACING_MS. Coût pour
+     * 3 captures distants : ~1,5 s, une fois, au moment du REC. Résout avec un
+     * relevé même en cas de timeout : l'appelant (START) décide alors
+     * honnêtement (START clock_stale) au lieu d'être bloqué ici. */
+    var ensureFreshClock = function (timeoutMs) {
+      var t0 = now();
+      var max = isNum(timeoutMs) ? timeoutMs : CLOCK_FRESH_WAIT_MS;
+      if (!state.active) return Promise.resolve({ fresh: false, reason: "arm_inactive", waitedMs: 0 });
+      var resolveFn = null;
+      var pr = new Promise(function (resolve) { resolveFn = resolve; });
+      var done = false;
+      var lastSendMs = 0;
+      var tickTimer = null;
+      var finish = function (fresh, reason) {
+        if (done) return;
+        done = true;
+        if (tickTimer) { clearSched(tickTimer); tickTimer = null; }
+        var waited = now() - t0;
+        if (fresh) {
+          log("ARM_CLOCK_FRESH_OK waitedMs=" + Math.round(waited) + " maxWaitMs=" + max
+            + " peers=" + remoteCaptureDids().length);
+        } else {
+          log("ARM_CLOCK_FRESH_WAIT_TIMEOUT waitedMs=" + Math.round(waited) + " maxWaitMs=" + max
+            + " reason=" + reason);
+        }
+        resolveFn({ fresh: !!fresh, reason: reason || "", waitedMs: waited });
+      };
+      var tick = function () {
+        if (done) return;
+        if (now() - t0 >= max) { finish(false, "timeout"); return; }
+        var dids = remoteCaptureDids();
+        if (!dids.length) { finish(true, "no_remote_capture"); return; }
+        var missing = dids.filter(function (d) {
+          var c = state.clock[d];
+          return !c || !isNum(c.lastSyncMs) || c.lastSyncMs < t0;
+        });
+        if (!missing.length) { finish(true, ""); return; }
+        /* Une requête à la fois, espacée comme la montée en READY. On laisse la
+         * réponse revenir (pendingClock) avant d'en envoyer une autre. */
+        if (!state.pendingClock && (now() - lastSendMs) >= CLOCK_SAMPLE_SPACING_MS) {
+          lastSendMs = now();
+          log("ARM_CLOCK_FRESH_SAMPLE peer=" + missing[0] + " reason=on_demand");
+          sampleOnce(missing[0]);
+        }
+        tickTimer = sched(tick, 50);
+      };
+      tick();
+      return pr;
+    };
+
     var clockTimeout = function (did) {
       if (state.pendingClock && state.pendingClock.did === did) {
         state.pendingClock = null;
         log("CLOCK_SYNC_DROP peer=" + did + " reason=timeout");
-        state.sampleTimer = sched(pumpClockSamples, CLOCK_SAMPLE_SPACING_MS);
+        scheduleSample(pumpClockSamples, CLOCK_SAMPLE_SPACING_MS);
       }
     };
 
@@ -754,7 +836,7 @@
       state.pendingClock = null;
       if (!isNum(env.t1) || !isNum(env.t2)) {
         log("CLOCK_SYNC_DROP peer=" + p.did + " reason=malformed");
-        state.sampleTimer = sched(pumpClockSamples, CLOCK_SAMPLE_SPACING_MS);
+        scheduleSample(pumpClockSamples, CLOCK_SAMPLE_SPACING_MS);
         return;
       }
       var t3 = now();
@@ -776,9 +858,9 @@
        * le device suivant (ordre des devices) */
       var n = cl.samples.length;
       if (n < CLOCK_SAMPLES_TARGET) {
-        state.sampleTimer = sched(function () { sampleOnce(p.did); }, CLOCK_SAMPLE_SPACING_MS);
+        scheduleSample(function () { sampleOnce(p.did); }, CLOCK_SAMPLE_SPACING_MS);
       } else {
-        state.sampleTimer = sched(pumpClockSamples, CLOCK_SAMPLE_SPACING_MS);
+        scheduleSample(pumpClockSamples, CLOCK_SAMPLE_SPACING_MS);
       }
     };
 
@@ -1017,6 +1099,7 @@
       state: state,
       isActive: function () { return state.active; },
       cycleIdFor: cycleId,
+      ensureFreshClock: ensureFreshClock,
       samplesFor: function (did) { return state.clock[did] ? state.clock[did].samples.slice() : []; },
       attemptsFor: function (sid, takeNumber) { return state.attempts[sid + "#" + takeNumber] || 0; }
     };
@@ -1031,6 +1114,7 @@
     CLOCK_SAMPLES_TARGET: CLOCK_SAMPLES_TARGET,
     CLOCK_SAMPLES_MAX: CLOCK_SAMPLES_MAX,
     CLOCK_SAMPLE_SPACING_MS: CLOCK_SAMPLE_SPACING_MS,
+    CLOCK_FRESH_WAIT_MS: CLOCK_FRESH_WAIT_MS,
     FREE_WARN_BYTES: FREE_WARN_BYTES,
     SYNC_WARN_OFFSET_MS: SYNC_WARN_OFFSET_MS,
     SYNC_WARN_DISPERSION_MS: SYNC_WARN_DISPERSION_MS,
