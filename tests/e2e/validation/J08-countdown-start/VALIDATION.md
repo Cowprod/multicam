@@ -34,14 +34,45 @@ Les compteurs ci-dessous sont extraits des journaux `logs/<serial>-<section>.log
 | J08-03 | rôles A/B/C Capture, D Storage | `dumps/J08-03-*-members.json` | dumps |
 | J08-04 | Take 1 = 3 Captures + 1 Storage | `{"takeNumber":1,"captures":3,"storages":1}` | dump |
 | J08-05 | ARM distribué READY | `dumps/J08-05-A-arm.json`, `dumps/arm-view-*.json` | dumps |
-| J08-06 | appui REC → plan + countdown 5→1 | **3 `CAMERA_REC_OK`** (A, B, C), **0 sur D** | logs + 9 captures |
+| J08-06 | appui REC → plan + countdown 5→1 | **3 `CAMERA_REC_OK`** (A, B, C), **0 sur D** ; countdown **NON VALIDÉ**, voir « D1 » plus bas | logs + 9 captures |
 | J08-07 | enregistrement RÉEL par Capture | idem J08-06, fichiers produits | logs |
 | J08-08 | écart de top sur 3+ Captures | `deltas = 2 / 3 / 2 ms` | `dumps/top-spread.csv` |
 | J08-09 | D = badge compact, **sans** plein écran | **NON PROUVÉ PHYSIQUEMENT** — voir Limites | dump + capture |
 | J08-10 | arrêt local, preuve fichier | **3 `CAMERA_REC_STOP_OK`** avec `path=`, **0 sur D** | logs + 4 captures |
 | J08-11 | plan annulé avant top → rien | **0 `CAMERA_REC_OK`** et `START_CANCEL sessionId=` + `START_PLAN_ABORTED` sur les **4** devices | logs + 4 captures |
 | J08-12 | 5 START successifs | **5/5**, `phase=REC` à chaque run, ≤1 ms d'écart | console run10 + 15 captures |
-| J08-13 | countdown 5→1, jamais 0 | `{"digit":"5"}` | dump |
+| J08-13 | countdown 5→1, jamais 0 | **NON VALIDÉ** — l'écran 07 affiche « 5 » pendant tout le compte à rebours | `d1-countdown-decroissant/` |
+
+## D1 — compte à rebours décroissant : NON VALIDÉ (défaut avéré)
+
+**Constat : l'écran 07 affiche `5, 5, 5, 5, 5, REC` au lieu de `5, 4, 3, 2, 1, 0, REC`.**
+La machine à états décompte correctement ; le rendu de l'UI, non.
+
+Ce que la campagne run10 affirmait ne tient pas : `png-shas.txt` (lignes 7 et 8)
+enregistre `J08-06-A-countdown-5.png` et `J08-06-A-countdown-3.png` avec le **même
+sha256** `1779b6c8e660cf00…` — deux captures censées montrer « 5 » puis « 3 » sont
+strictement identiques. C'est la preuve du défaut, pas d'un countdown fonctionnel.
+
+Re-validation sur **une seule tablette** (A), sans campagne multi-appareils, avec un
+APK reconstruit depuis `11787e6`
+(sha256 `81e0c639ceb8c84631afb3c0cff5898fecfa0d699643bcb436fdd7fb9886e0bb`, donc
+**différent** de l'APK de la campagne run10 en tête de page) :
+
+| Source | Modèle / vue | Écran |
+|---|---|---|
+| Machine à états (`COUNTDOWN_STATE`) | 5 → 4 → 3 → 2 → 1 | — |
+| DOM, 100 ms (`#cdDigitMaster.textContent`, nœud visible) | 5 → 4 → 3 → 2 → 1 | **5 en permanence** |
+| Pixels de la zone du chiffre (vidéo `screenrecord`) | — | **5 sur 40 frames, écart 2.15 vs 52.22** |
+| Hash de la zone du chiffre | — | **20 frames consécutives byte-identiques = 5.0 s** |
+
+Preuve complète, hypothèses écartées et inventaire sha256 :
+[`d1-countdown-decroissant/README.md`](d1-countdown-decroissant/README.md).
+
+**Aucun correctif produit n'a été appliqué** : cette mission établissait la preuve.
+La cause est localisée à la chaîne de notification du rendu
+(`renderMaster` écrit bien `v.digit`, donc `render` n'est pas appelé à chaque tick) ;
+elle reste à confirmer et à corriger dans une mission dédiée.
+
 
 ## Synchronisation du top (J08-08 et J08-12)
 

@@ -1,0 +1,95 @@
+IDENTITE DU CHIFFRE AFFICHE — identification par pixels
+=====================================================
+
+Methode :
+ 1. References = rendus de l'element .cd-digit de l'application
+    (app/www/css/countdown.css:78 — « Chiffre géant : la seule zone qui change, 5→1 »)
+    pour les 6 valeurs 0..5, captures sur la tablette A (61cc29567d91) avec le panneau
+    countdown en SEUL ecran actif (mise en page identique au countdown reel).
+ 2. Zone de lecture = boite d'encrage du chiffre, obtenue par difference pixel entre
+    les references 5 et 4 : x=570..768  y=166..436  (199 x 271 px sur 1340x800).
+    Zone confirmee independamment par le DOM pendant le countdown reel :
+    cdDigitMaster.getBoundingClientRect() = 430x87x146x230 CSS px
+    -> 572,116,194x306 px (la boite d'encrage est incluse dedans).
+ 3. Chaque frame est cropsee dans cette zone puis comparee aux 6 references.
+    Ecart = moyenne des differences absolues, 1 octet RGB sur 7.
+    ecart < 3  = identification certaine
+    ecart > 10 = aucun chiffre (autre ecran : ARM avant, REC apres)
+
+Zone de lecture : 570 166 768 436 1340 800
+
+------------------------------------------------------------------
+RUN 1 — videos/run1-ecran.mp4 (fenetre 3.0s .. +7.0s, 4 fps)
+------------------------------------------------------------------
+video=run1-ecran.mp4  fenetre=[3.0s .. +7.0s]  4.0 fps
+  t(s)   lecture de la zone du chiffre
+  3.00   aucun chiffre   (meilleur ecart= 65.68)   [ecran sans compte a rebours]
+  3.25   aucun chiffre   (meilleur ecart= 56.86)   [ecran sans compte a rebours]
+  3.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  3.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  4.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  4.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  4.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  4.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  8.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  8.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  8.50   aucun chiffre   (meilleur ecart= 56.80)   [ecran sans compte a rebours]
+  8.75   aucun chiffre   (meilleur ecart= 56.80)   [ecran sans compte a rebours]
+  9.00   aucun chiffre   (meilleur ecart= 56.80)   [ecran sans compte a rebours]
+  9.25   aucun chiffre   (meilleur ecart= 56.80)   [ecran sans compte a rebours]
+  9.50   aucun chiffre   (meilleur ecart= 56.80)   [ecran sans compte a rebours]
+  9.75   aucun chiffre   (meilleur ecart= 57.25)   [ecran sans compte a rebours]
+
+------------------------------------------------------------------
+RUN 3 — videos/run3-ecran.mp4 (fenetre 3.0s .. +9.0s, 4 fps)
+------------------------------------------------------------------
+video=run3-ecran.mp4  fenetre=[3.0s .. +9.0s]  4.0 fps
+  t(s)   lecture de la zone du chiffre
+  3.00   aucun chiffre   (meilleur ecart= 65.68)   [ecran sans compte a rebours]
+  3.25   aucun chiffre   (meilleur ecart= 65.68)   [ecran sans compte a rebours]
+  3.50   aucun chiffre   (meilleur ecart= 65.68)   [ecran sans compte a rebours]
+  3.75   aucun chiffre   (meilleur ecart= 65.68)   [ecran sans compte a rebours]
+  4.00   aucun chiffre   (meilleur ecart= 65.68)   [ecran sans compte a rebours]
+  4.25   aucun chiffre   (meilleur ecart= 56.86)   [ecran sans compte a rebours]
+  4.50   aucun chiffre   (meilleur ecart= 56.86)   [ecran sans compte a rebours]
+  4.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  5.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  6.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  7.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  8.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  8.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  8.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  8.75   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  9.00   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  9.25   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  9.50   AFFICHE 5      ecart=  2.15   (2e=3 ecart= 52.22)
+  9.75   aucun chiffre   (meilleur ecart= 56.74)   [ecran sans compte a rebours]
+ 10.00   aucun chiffre   (meilleur ecart= 56.74)   [ecran sans compte a rebours]
+ 10.25   aucun chiffre   (meilleur ecart= 56.74)   [ecran sans compte a rebours]
+ 10.50   aucun chiffre   (meilleur ecart= 57.18)   [ecran sans compte a rebours]
+ 10.75   aucun chiffre   (meilleur ecart= 57.18)   [ecran sans compte a rebours]
+ 11.00   aucun chiffre   (meilleur ecart= 57.18)   [ecran sans compte a rebours]
+ 11.25   aucun chiffre   (meilleur ecart= 57.18)   [ecran sans compte a rebours]
+ 11.50   aucun chiffre   (meilleur ecart= 57.18)   [ecran sans compte a rebours]
+ 11.75   aucun chiffre   (meilleur ecart= 57.18)   [ecran sans compte a rebours]
