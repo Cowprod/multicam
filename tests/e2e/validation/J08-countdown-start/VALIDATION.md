@@ -35,10 +35,10 @@ Les compteurs ci-dessous sont extraits des journaux `logs/<serial>-<section>.log
 | J08-04 | Take 1 = 3 Captures + 1 Storage | `{"takeNumber":1,"captures":3,"storages":1}` | dump |
 | J08-05 | ARM distribué READY | `dumps/J08-05-A-arm.json`, `dumps/arm-view-*.json` | dumps |
 | J08-06 | appui REC → plan + countdown 5→1 | **3 `CAMERA_REC_OK`** (A, B, C), **0 sur D** ; countdown **NON VALIDÉ**, voir « D1 » plus bas | logs + 9 captures |
-| J08-07 | enregistrement RÉEL par Capture | idem J08-06, fichiers produits | logs |
+| J08-07 | enregistrement RÉEL par Capture | **VALIDÉ (D6)** — fichier réel mesuré : `videoTmp_11.mp4`, **33 594 520 octets**, **13,440 s**, h264 1920×1080 + aac, décodage sans erreur | `d6-fichier-video-produit/` |
 | J08-08 | écart de top sur 3+ Captures | `deltas = 2 / 3 / 2 ms` | `dumps/top-spread.csv` |
 | J08-09 | D = badge compact, **sans** plein écran | **NON PROUVÉ PHYSIQUEMENT** — voir Limites | dump + capture |
-| J08-10 | arrêt local, preuve fichier | **3 `CAMERA_REC_STOP_OK`** avec `path=`, **0 sur D** | logs + 4 captures |
+| J08-10 | arrêt local, preuve fichier | **3 `CAMERA_REC_STOP_OK`** avec `path=`, **0 sur D** ; le `path=` est désormais **ouvert et mesuré** — voir D6 | logs + 4 captures + `d6-fichier-video-produit/` |
 | J08-11 | plan annulé avant top → rien | **0 `CAMERA_REC_OK`** et `START_CANCEL sessionId=` + `START_PLAN_ABORTED` sur les **4** devices | logs + 4 captures |
 | J08-12 | 5 START successifs | **5/5**, `phase=REC` à chaque run, ≤1 ms d'écart | console run10 + 15 captures |
 | J08-13 | countdown 5→1, jamais 0 | **VALIDÉ** après correctif D1 (écart 0.00, pixel-exact) ; l'écart initial « 5 » pendant tout le compte à rebours est documenté et corrigé | `d1-countdown-decroissant/` |
@@ -106,6 +106,52 @@ artefacts dans `d1-countdown-decroissant/post-correctif/`.
 
 **D1 est donc validé.** Les autres écarts (J08-09, D2 à D8) sont traités séparément et ne
 sont pas concernés par ce correctif.
+
+
+## D6 — fichier vidéo réellement produit : VALIDÉ (preuve persistée)
+
+**Ce qui manquait.** `CAMERA_REC_OK` et `CAMERA_REC_STOP_OK` existaient, et
+`CAMERA_REC_STOP_OK` transporte bien un `path=`. Mais **aucun artefact n'ouvrait ce
+chemin** : la ligne J08-07 affirmait « fichiers produits » en s'appuyant sur les seuls
+compteurs du log, sans qu'une taille, une durée ou un hash n'ait jamais été mesuré
+pour un fichier donné. Rien ne prouvait qu'un octet avait été écrit sur disque.
+
+**Ce qui est établi maintenant**, sur **une seule tablette** (`61cc29567d91`),
+commit APK `0774ea6`, APK sha256 `502f26cf853f0936a20f53f73bb70ab0a04503cfc597b0d0dfac552b0fdab212`
+(identique à celui déjà installé : le fichier produit embarqué est bit-à-bit égal à
+celui de HEAD, donc **pas de rebuild**), session `4UMGBHEV` / take 1, ~10 s
+d'enregistrement après le countdown de 5 s, arrêt propre :
+
+| Mesure | Valeur | Provenance |
+|---|---|---|
+| Chemin | `/data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4` | `CAMERA_REC_STOP_OK` — **unique** ligne du log portant ce chemin (ligne 12748) |
+| **Taille exacte** | **33 594 520 octets** | `ls -l` + `stat` + `du -b` **sur le device**, et fichier pullé de taille identique |
+| **Durée** | **13,440000 s** | `ffprobe` sur le fichier pullé |
+| Vidéo / audio | h264 **1920×1080** (~24,92 fps, 332 frames) + aac 192 kbps | `mesures/ffprobe-videoTmp_11.txt` |
+| Intégrité | `ffmpeg -f null -` → code 0, 0 erreur → **non tronqué** | idem |
+| **SHA-256** | `876b4875dd4db6a8c3a7e4b168163f7bcfa9fdfb4927199aec6d465d9f2a13c3` | sur le fichier pullé, archivé dans le dépôt |
+| Cohérence des durées | fenêtre REC 14 370 ms, `recElapsedMs` 12 890 ms, **durée fichier 13 440 ms** | logcat + vue live |
+| Caméra | HAL ouverte (`open camera3 device`), `MPEG4Writer` actif, 1re image horodatée | logcat |
+| Imagerie réelle | 112–118 valeurs de gris distinctes par frame, écart-type ~4,7 (une image noire plate donnerait 1 valeur) | `mesures/statistiques-images.txt` |
+
+Le fichier de 33,6 Mo est **archivé** (`media/videoTmp_11.mp4`) : le SHA-256, la durée
+et le codec sont recontrôlables sans device. Aucun chiffre de cette section n'est
+déclaratif — tous se recalculent depuis les artefacts.
+
+Preuve complète, procédure, hypothèses écartées et inventaire sha256 :
+[`d6-fichier-video-produit/README.md`](d6-fichier-video-produit/README.md).
+
+**Deux observations signalées, non corrigées** (hors périmètre D6, qui porte sur la
+production et la persistance d'un fichier, pas sur la qualité de prise de vue) :
+
+1. l'imagerie est **très sombre** sur tout le film (luminance moyenne ~4,4/255) — la
+   scène du test était sombre ; le fichier reste porteur d'images réelles ;
+2. `CAMERA_REC_REQUEST w=1280 h=720` alors que le fichier est en **1920×1080** : la
+   résolution demandée n'est pas celle obtenue.
+
+Aucune de ces deux observations n'empêche la production du fichier ; toutes deux
+relèvent d'un jalon ultérieure. **Aucun fichier produit n'a été modifié pour cette
+mission.**
 
 
 ## Synchronisation du top (J08-08 et J08-12)

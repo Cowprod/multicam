@@ -1,0 +1,51 @@
+# D6 — MESURES DU FICHIER VIDEO PRODUIT (run unique, tablette A)
+# Toutes les valeurs ci-dessous sont reproductibles depuis les artefacts de ce dossier.
+
+## Identité du run
+| Élément | Valeur |
+|---|---|
+| Tablette (unique) | `61cc29567d91` — ADB model `24075RP89G`, « Cam D1 » |
+| deviceId | `d5f6b2a1-2387-4207-836d-90b0072a6cee` |
+| Commit APK | `0774ea6` (branche `feat/j08-countdown-start`) |
+| APK sha256 | `502f26cf853f0936a20f53f73bb70ab0a04503cfc597b0d0dfac552b0fdab212` |
+| lastUpdateTime (installé) | `2026-09-27 16:35:12` |
+| Session / take | `4UMGBHEV` / take 1, `countdownSeconds = 5` |
+| Durée d'enregistrement visée | 10 s (au-delà du countdown) |
+| Durée totale du run (appui REC -> logcat) | 28101 ms |
+
+## Chemin et taille
+| Élément | Valeur |
+|---|---|
+| Chemin exact (source : `CAMERA_REC_STOP_OK`) | `/data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4` |
+| Taille exacte (octets) | **33594520** |
+| Taille via `ls -l` sur le device | `33594520` (identique) |
+| Taille via `stat` sur le device | `33594520` (identique) |
+| Taille via `du -b` sur le device | `33594520` (identique) |
+| Taille du fichier pullé | `33594520` — **identique à la taille device, pull bit à bit** |
+| mtime device | `2026-09-28 10:15:11.074 +0200` |
+| permissions | `-rw------- u0_a332:u0_a332_cache` |
+
+## Contenu du fichier (ffprobe, sur le fichier pullé)
+| Élément | Valeur |
+|---|---|
+| Format | `mov,mp4,m4a,3gp,3g2,mj2` |
+| **Durée** | **13.440000 s** |
+| Débit global | 19 996 738 bps |
+| Vidéo | **h264, 1920x1080**, ~24.92 fps (299/12), 332 frames, 19 939 061 bps |
+| Audio | **aac**, 192 000 bps, 630 frames |
+| Décodage intégral (`ffmpeg -f null -`) | code de sortie **0**, 0 ligne d'erreur -> **non tronqué** |
+| **SHA-256** | `876b4875dd4db6a8c3a7e4b168163f7bcfa9fdfb4927199aec6d465d9f2a13c3` |
+
+## Cohérence avec le cycle de vie applicatif
+| Élément | Valeur |
+|---|---|
+| `CAMERA_REC_REQUEST` | 10:14:55.357 |
+| `CAMERA_REC_OK` | 10:14:56.742, `ackAtMs=1790583296738`, `callDt=1383ms` |
+| `CAMERA_REC_STOP_OK` | 10:15:11.109, `atMs=1790583311108` |
+| Fenêtre REC (ack -> stop) | 14 370 ms |
+| Durée du fichier | 13 440 ms — **contenue dans la fenêtre REC** |
+| `recElapsedMs` relevé avant l'arrêt | 12 890 ms |
+| Phase après arrêt | `STOPPED`, retour `panel-arm` |
+| Caméra | HAL active : `open camera3 device (device@1.1/internal/0)` |
+| Écrivain | `MPEG4Writer: bit rate: 20192000 bps`, `setStartTimestampUs: 6786` |
+

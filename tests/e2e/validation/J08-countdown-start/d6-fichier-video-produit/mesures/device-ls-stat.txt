@@ -1,0 +1,19 @@
+# Stat du fichier produit — exécuté SUR LE DEVICE (run D6)
+# device : 61cc29567d91   date : 2026-09-28T08:15:25Z
+# chemin exact repris de CAMERA_REC_STOP_OK :
+#   /data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+
+$ run-as fr.emmanuel.multicam ls -l /data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+-rw------- 1 u0_a332 u0_a332_cache 33594520 2026-09-28 10:15 /data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+
+$ run-as fr.emmanuel.multicam stat /data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+  File: /data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+  Size: 33594520	 Blocks: 65688	 IO Blocks: 512	 regular file
+Device: fe40h/65088d	 Inode: 39616	 Links: 1	 Device type: 0,0
+Access: (0600/-rw-------)	Uid: (10332/ u0_a332)	Gid: (20332/u0_a332_cache)
+Access: 2026-09-28 10:14:55.510049635 +0200
+Modify: 2026-09-28 10:15:11.074049636 +0200
+Change: 2026-09-28 10:15:11.074049636 +0200
+
+$ run-as fr.emmanuel.multicam du -b /data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+33594520	/data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4

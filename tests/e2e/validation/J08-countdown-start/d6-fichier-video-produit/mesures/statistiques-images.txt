@@ -1,0 +1,19 @@
+# STATISTIQUES D'IMAGE — le fichier contient-il de l'imagerie reelle ?
+# methode : ffmpeg -ss <t> -i media/videoTmp_11.mp4 -frames:v 1 -f rawvideo -pix_fmt gray -
+#           puis luminance moyenne / ecart-type / valeurs distinctes sur la frame 1920x1080
+#           (une image entierement noire donnerait moyenne=0.00, ecart-type=0.00, 1 valeur)
+
+t(s)            moyenne      max     ecart-type   valeurs_distinctes
+0                  4.37      123           4.65                  115
+2                  4.39      119           4.70                  113
+4                  4.40      127           4.68                  118
+6                  4.37      123           4.68                  115
+8                  4.36      124           4.67                  116
+10                 4.38      125           4.66                  116
+12                 4.39      122           4.67                  112
+13.2               4.41      121           4.68                  115
+
+# CONSTAT : l'imagerie est tres sombre sur TOUT le film (moyenne ~4.4/255, max ~125).
+# Ce n'est pas une image noire plate (114+ valeurs distinctes, ecart-type ~4.7) : le
+# fichier contient bien des images reelles, mais la scene etait tres sombre.
+# Voir la section « Limites » du README pour la portee exacte de cette observation.
