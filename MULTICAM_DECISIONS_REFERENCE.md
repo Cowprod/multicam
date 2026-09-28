@@ -967,7 +967,9 @@ Décision produit validée :
 - `controller` signifie que le device est capable de devenir **Master** ; ce n'est pas un `sessionRole` attribuable dans cette popup ;
 - un device devient Master par le workflow dédié « Rejoindre une session » avec le PIN ;
 - ce même device peut ensuite cumuler son statut Master avec des rôles Capture et/ou Storage ;
-- l'UI de découverte doit distinguer les rôles attribuables de cette capacité et ne plus présenter `controller` comme un troisième choix potentiel ; le libellé opérateur retenu est « Peut devenir Master ».
+- à ce stade, l'UI de découverte / ajout n'affiche pas `controller` : cette information n'est pas utile à l'opérateur lorsqu'il attribue des rôles Capture/Storage ;
+- la popup « Ajouter un device » ne propose donc que les rôles effectivement attribuables ;
+- la capacité `controller` peut rester une donnée technique interne au device/protocole si elle est utile au workflow dédié « Rejoindre une session », mais elle n'est pas exposée dans la carte LAN ni dans la popup d'ajout.
 
 ## 31.3 Ajout depuis un Master = intégration effective du device
 
