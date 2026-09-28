@@ -1,0 +1,56 @@
+# Chronologie B (echantillons 100 ms) autour du force-stop du Master A
+# source : dumps/B-echantillons-100ms.json (833 echantillons)
+# debut COUNTDOWN sur B  : 1790585219404 ms
+# passage en REC         : 1790585224397 ms
+# fenetre force-stop hote : 1790585220881 -> 1790585221175 ms (duree 294 ms)
+# force-stop = 1477 ms apres le debut du countdown
+# top planifie sur B     : localTopMs=1790585224331.5 (targetStartMs=1790585224415 + offset -83.5)
+
+rel_ms   t_B            phase      recElapsed  showEmergencyStop  vue        cote_force_stop
+  -506   1790585218898   IDLE                0      false                       -
+  -407   1790585218997   IDLE                0      false                       -
+  -307   1790585219097   IDLE                0      false                       -
+  -207   1790585219197   IDLE                0      false                       -
+   -48   1790585219356   IDLE                0      false                       -
+     0   1790585219404   COUNTDOWN           0      false              cdMaster -
+    92   1790585219496   COUNTDOWN           0      false              cdMaster -
+   592   1790585219996   COUNTDOWN           0      false              cdMaster -
+  1092   1790585220496   COUNTDOWN           0      false              cdMaster -
+  1492   1790585220896   COUNTDOWN           0      false              cdMaster PENDANT
+  1592   1790585220996   COUNTDOWN           0      false              cdMaster PENDANT
+  1693   1790585221097   COUNTDOWN           0      false              cdMaster PENDANT
+  1792   1790585221196   COUNTDOWN           0      false              cdMaster APRES
+  1892   1790585221296   COUNTDOWN           0      false              cdMaster APRES
+  1992   1790585221396   COUNTDOWN           0      false              cdMaster APRES
+  2093   1790585221497   COUNTDOWN           0      false              cdMaster APRES
+  2192   1790585221596   COUNTDOWN           0      false              cdMaster APRES
+  2292   1790585221696   COUNTDOWN           0      false              cdMaster APRES
+  2392   1790585221796   COUNTDOWN           0      false              cdMaster APRES
+  2493   1790585221897   COUNTDOWN           0      false              cdMaster APRES
+  2593   1790585221997   COUNTDOWN           0      false              cdMaster APRES
+  2692   1790585222096   COUNTDOWN           0      false              cdMaster APRES
+  2792   1790585222196   COUNTDOWN           0      false              cdMaster APRES
+  2893   1790585222297   COUNTDOWN           0      false              cdMaster APRES
+  2993   1790585222397   COUNTDOWN           0      false              cdMaster APRES
+  3093   1790585222497   COUNTDOWN           0      false              cdMaster APRES
+  3193   1790585222597   COUNTDOWN           0      false              cdMaster APRES
+  3293   1790585222697   COUNTDOWN           0      false              cdMaster APRES
+  3392   1790585222796   COUNTDOWN           0      false              cdMaster APRES
+  3493   1790585222897   COUNTDOWN           0      false              cdMaster APRES
+  3593   1790585222997   COUNTDOWN           0      false              cdMaster APRES
+  3693   1790585223097   COUNTDOWN           0      false              cdMaster APRES
+  3792   1790585223196   COUNTDOWN           0      false              cdMaster APRES
+  3893   1790585223297   COUNTDOWN           0      false              cdMaster APRES
+  3993   1790585223397   COUNTDOWN           0      false              cdMaster APRES
+  4092   1790585223496   COUNTDOWN           0      false              cdMaster APRES
+  4192   1790585223596   COUNTDOWN           0      false              cdMaster APRES
+  4293   1790585223697   COUNTDOWN           0      false              cdMaster APRES
+  4392   1790585223796   COUNTDOWN           0      false              cdMaster APRES
+  4492   1790585223896   COUNTDOWN           0      false              cdMaster APRES
+  4593   1790585223997   COUNTDOWN           0      false              cdMaster APRES
+  4693   1790585224097   COUNTDOWN           0      false              cdMaster APRES
+  4793   1790585224197   COUNTDOWN           0      false              cdMaster APRES
+  4892   1790585224296   COUNTDOWN           0      false              cdMaster APRES
+  4993   1790585224397   REC                 0      false              cdRec    APRES
+  5092   1790585224496   REC                78      true               cdRec    APRES
+  5192   1790585224596   REC                78      true               cdRec    APRES

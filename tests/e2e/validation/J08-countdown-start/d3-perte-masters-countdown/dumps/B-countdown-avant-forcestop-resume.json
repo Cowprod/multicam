@@ -1,0 +1,18 @@
+{
+  "phase": "COUNTDOWN",
+  "sid": "UX8ZA4FT",
+  "takeNumber": 1,
+  "startPlanId": "UX8ZA4FT#1#1#1",
+  "isCapture": true,
+  "countdownSeconds": 5,
+  "targetStartMs": 1790585224415,
+  "localTopMs": 1790585224331.5,
+  "remainingMs": 4339.5,
+  "digit": 5,
+  "offsetMs": -83.5,
+  "showCountdown": true,
+  "countdownResolved": true,
+  "excluded": false,
+  "showEmergencyStop": false,
+  "ownersAtThatInstant": []
+}

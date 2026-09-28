@@ -202,6 +202,60 @@ horloges décalées.
   rejoue une navigation. **Aucune cause applicative n'est prouvée** : ni confirmée,
   ni corrigée.
 
+## D3 — perte de TOUS les Masters pendant le countdown : VALIDÉ (preuve persistée)
+
+**Ce qui manquait.** Le comportement « le plan survit à la perte du Master » est couvert
+par le modèle (`START_MASTER_LOST` journalisé une fois, `countdownContinues=1`,
+`showEmergencyStop` quand `connectedMasters().length === 0`), mais **jamais prouvé sur
+appareil réel**. Seul le risque inverse — un Master qui ne répond pas, donc un plan que
+personne n'annule — avait été observé.
+
+**Ce qui est établi maintenant**, sur **deux devices** : A = Master `61cc29567d91`,
+B = Capture `61d54bba7d91` (192.168.92.76), session `UX8ZA4FT` / take 1,
+`captures=[B]`, `countdownSeconds=5`, HEAD `85a0b48`, APK sha256
+`502f26cf853f0936a20f53f73bb70ab0a04503cfc597b0d0dfac552b0fdab212`.
+
+B a d'abord été réinstallé avec l'APK de HEAD : il tournait sur un build **périmé**
+(`start-service.js` différent de HEAD, correctif D1 absent). Sans cela la mission aurait
+mesuré du code obsolète.
+
+Un vrai `adb shell am force-stop fr.emmanuel.multicam` est passé sur A **1 492 ms après le
+début du countdown de B** (fenêtre hôte 1790585220881 → 1790585221175, 294 ms), soit
+3,5 s de countdown encore à couler. B est ensuite observé seul.
+
+| Exigence | Résultat | Preuve |
+|---|---|---|
+| countdown **non annulé** | **oui** — `COUNTDOWN` tenu 4 892 ms d'échantillons, dont 3 121 ms après la mort du Master | `chronologie-comptoir.txt` |
+| `START_MASTER_LOST` **une seule fois** | **oui** — `count= 1` sur le logcat complet | `extrait-master-lost.txt` |
+| `countdownContinues=1` | **oui** — `phase=COUNTDOWN remainingMs=3940 countdownContinues=1` | idem |
+| REC au **top prévu** | **oui** — `localTopMs 1790585224331.5` = `targetStartMs 1790585224415` + `offset −83,5` ; `startPlanId` inchangé | `B-rec-avec-stop-urgence-resume.json` |
+| `CAMERA_REC_OK` réel | **oui** — `detail="OK"`, `callDt=1194ms` | `extrait-master-lost.txt` |
+| UI REC affichée | **oui** — vue active `cdRec` | idem + capture |
+| **STOP d'urgence disponible** | **oui** — `showEmergencyStop=true`, `d-none` absent, boîte `160x54` ; bascule 56 ms après le REC | `chronologie-comptoir.txt` |
+| STOP effectué | **oui** — via la **modale de confirmation** du produit (`Confirmer STOP` / `Annuler`) | `B-modal-confirmation-stop.json` |
+| `CAMERA_REC_STOP_OK` | **oui** — `path=/data/user/0/…/cache/videoTmp.mp4` | `extrait-stop-local.txt` |
+| fichier produit non nul | **oui** — **80 253 952 octets** (D6 non refait) | `fichier-video-apres-stop.txt` |
+
+`START_STOP_LOCAL … reason=emergency_no_master` : la raison est bien « plus aucun Master ».
+La bascule du STOP d'urgence est **conditionnée** et non par défaut : `showEmergencyStop`
+valait `false` au countdown (A encore connecté) et `true` seulement en REC sans Master.
+
+**Limite assumée.** Un second `logcat -c` a été passé sur B juste avant le STOP local, donc
+`logs/B-J08-D3.log` ne couvre que la phase STOP (10:47:31 → 10:47:46). La phase
+countdown → perte Master → REC est couverte par les **extraits** pris aux bons instants,
+les **dumps de vue** horodatés et l'**échantillonneur 100 ms** (833 échantillons,
+IDLE → COUNTDOWN → REC → STOPPED). Le scénario n'a pas été relancé pour obtenir un logcat
+unique. Le REC a duré 34 442 ms et non 5 s : les preuves ont été ramassées avant de
+déclencher le STOP, comme l'impose la procédure.
+
+Aucun fichier de `app/` ou `ui/` n'a été modifié. `MultiCamSessionWs.addMember` a été
+appelé sur A pour que B devienne membre `capture` (le `join` renseigne `masters` mais ne
+crée pas d'entrée dans `members`, donc B n'était pas sélectionnable comme Capture) : c'est
+une étape de mise en place, pas une correction.
+
+Preuve complète, chronologie, hypothèses écartées et inventaire :
+[`d3-perte-masters-countdown/README.md`](d3-perte-masters-countdown/README.md).
+
 ## Correctifs de code validés par cette campagne
 
 - `requestStart()` recharge désormais la session **depuis le store** au lieu du

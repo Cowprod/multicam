@@ -1,0 +1,1 @@
+-rw------- 1 u0_a128 u0_a128_cache 80253952 2026-09-28 10:47 /data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4

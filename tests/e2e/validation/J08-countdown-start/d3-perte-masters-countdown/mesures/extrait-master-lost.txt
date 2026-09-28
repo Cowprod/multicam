@@ -1,0 +1,2 @@
+09-28 10:47:00.393 I/chromium(18942): [INFO:CONSOLE:42] "START_MASTER_LOST deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=UX8ZA4FT#1#1#1 take=1 phase=COUNTDOWN remainingMs=3940 countdownContinues=1", source: http://localhost/js/state/start-service.js (42)
+09-28 10:47:05.533 I/chromium(18942): [INFO:CONSOLE:51] "CAMERA_REC_OK startPlanId=UX8ZA4FT#1#1#1 take=1 ackAtMs=1790585225531 callDt=1194ms detail="OK"", source: http://localhost/js/native/camera-record.js (51)

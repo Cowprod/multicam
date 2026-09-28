@@ -1,0 +1,2 @@
+09-28 10:47:38.889 I/chromium(18942): [INFO:CONSOLE:51] "CAMERA_REC_STOP_OK atMs=1790585258888 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4", source: http://localhost/js/native/camera-record.js (51)
+09-28 10:47:39.178 I/chromium(18942): [INFO:CONSOLE:42] "START_STOP_LOCAL deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=UX8ZA4FT#1#1#1 take=1 reason=emergency_no_master at=10:47:38.888", source: http://localhost/js/state/start-service.js (42)
