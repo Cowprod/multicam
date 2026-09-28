@@ -969,7 +969,8 @@ Décision produit validée :
 - ce même device peut ensuite cumuler son statut Master avec des rôles Capture et/ou Storage ;
 - à ce stade, l'UI de découverte / ajout n'affiche pas `controller` : cette information n'est pas utile à l'opérateur lorsqu'il attribue des rôles Capture/Storage ;
 - la popup « Ajouter un device » ne propose donc que les rôles effectivement attribuables ;
-- la capacité `controller` peut rester une donnée technique interne au device/protocole si elle est utile au workflow dédié « Rejoindre une session », mais elle n'est pas exposée dans la carte LAN ni dans la popup d'ajout.
+- la capacité `controller` peut rester une donnée technique interne au device/protocole si elle est utile au workflow dédié « Rejoindre une session », mais elle n'est pas exposée dans la carte LAN ni dans la popup d'ajout ;
+- un device qui n'annonce **aucun rôle attribuable** (`capture`/`storage`) ne doit pas apparaître dans « Disponibles sur le LAN » de l'écran d'ajout, même s'il annonce `controller`.
 
 ## 31.3 Ajout depuis un Master = intégration effective du device
 
