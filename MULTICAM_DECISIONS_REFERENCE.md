@@ -1012,6 +1012,20 @@ Les POC `capture-capabilities` et `capture-profile-selection` ont validé sur B 
 - chaque Master (écran 06 ouvert) porte SON cycle d'ARM indépendamment ; les cycles coexistent sans conflit ; les références d'horloge réciproques sont cohérentes (signes opposés, valeurs ~identiques).
 
 
+## 31.2 Ajout depuis un Master = intégration effective du device
+
+Décision produit validée :
+
+- lorsqu'un Master voit un device dans « Disponibles sur le LAN » et valide `Ajouter` avec un ou plusieurs rôles de session, l'action doit **intégrer effectivement ce device à la session sans manipulation locale supplémentaire sur le device distant** ;
+- l'ajout ne doit pas se limiter à créer une entrée locale dans `session.members` ;
+- le device distant doit recevoir l'invitation/session, établir sa connexion de session et connaître son membership ainsi que ses rôles attribués ;
+- l'état « Connecté » reste fondé sur la liveness WebSocket réelle : la découverte mDNS seule ne vaut jamais connexion ;
+- tant que l'intégration réseau n'est pas réellement établie, l'UI ne doit pas prétendre que le device est connecté ;
+- le flux doit réutiliser les mécanismes d'identité et de sécurité V1 existants ; le PIN ne doit jamais être publié dans DNS-SD ;
+- aucune action physique supplémentaire sur le device ajouté ne doit être requise dans le scénario nominal.
+
+Cette décision complète §31.1 et lève l'ambiguïté révélée en revue humaine : auparavant, `addMember()` persistait le membership sur le Master puis diffusait uniquement aux peers déjà connectés, ce qui laissait le device ajouté dans l'ignorance de la session et affiché « Déconnecté ».
+
 ## 34. J08 — Countdown + START synchronisé
 
 ### 34.1 Priorité d'affichage Master / Storage
