@@ -959,7 +959,17 @@ Décisions fonctionnelles validées :
 - un ancien membre déconnecté reste membre tant qu'un Master ne le retire pas explicitement.
 
 
-## 31.2 Ajout depuis un Master = intégration effective du device
+## 31.2 Controller : capacité à devenir Master, pas sessionRole attribuable
+
+Décision produit validée :
+
+- `capture` et `storage` peuvent donner lieu à des `sessionRoles` attribués par un Master via « Ajouter un device » ;
+- `controller` signifie que le device est capable de devenir **Master** ; ce n'est pas un `sessionRole` attribuable dans cette popup ;
+- un device devient Master par le workflow dédié « Rejoindre une session » avec le PIN ;
+- ce même device peut ensuite cumuler son statut Master avec des rôles Capture et/ou Storage ;
+- l'UI de découverte doit distinguer les rôles attribuables de cette capacité et ne plus présenter `controller` comme un troisième choix potentiel ; le libellé opérateur retenu est « Peut devenir Master ».
+
+## 31.3 Ajout depuis un Master = intégration effective du device
 
 Décision produit validée :
 
