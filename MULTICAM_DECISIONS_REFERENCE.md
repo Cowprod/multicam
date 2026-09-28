@@ -1010,3 +1010,17 @@ Les POC `capture-capabilities` et `capture-profile-selection` ont validé sur B 
 
 ### 33.5 Multi-Master
 - chaque Master (écran 06 ouvert) porte SON cycle d'ARM indépendamment ; les cycles coexistent sans conflit ; les références d'horloge réciproques sont cohérentes (signes opposés, valeurs ~identiques).
+
+
+## 34. J08 — Countdown + START synchronisé
+
+### 34.1 Priorité d'affichage Master / Storage
+
+Décision produit validée :
+
+- lorsqu'un même device cumule les rôles **Master** et **Storage**, le rôle **Master est prioritaire pendant le countdown et le REC** ;
+- ce device affiche donc l'interface Master complète et conserve les commandes et informations de supervision associées ;
+- le badge compact Storage est destiné aux devices Storage qui ne sont ni Master ni Capture ;
+- le rôle Storage devient principalement utile en fin de Take, notamment pour la réplication et le transfert des fichiers ; il ne doit donc pas masquer l'interface Master pendant la prise.
+
+Cette règle lève l'ambiguïté relevée pendant la validation J08 sur la précédence `Master+Storage`.
