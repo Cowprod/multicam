@@ -2,7 +2,7 @@
 
 Jalon **J08** de `docs/PLAN-DEVELOPPEMENT-V1.md`. Campagne de validation **technique**
 sur 4 devices Android réels, complétée par des validations ciblées D1, D3 et D6.
-**Validation technique J08 : PASS. L'acceptation humaine finale reste à enregistrer.**
+**Validation technique J08 : PASS. Revue humaine fonctionnelle : PASS. Acceptation finale du jalon à confirmer avant merge.**
 
 - Branche : `feat/j08-countdown-start`
 - Base de la branche : `6017baa` (Merge J07 — ARM distribué + synchronisation horloge)
@@ -296,12 +296,32 @@ coupure puis reconnexion automatique au boot. Preuves :
 Le device invité comme Capture n'est pas promu Master ; il mémorise le véritable Master
 pour permettre la reconnexion. Le PIN reste absent de DNS-SD.
 
+## Revue humaine — workflow d'ajout et capability Controller
+
+La revue humaine a également relevé que `controller` était annoncé à côté de
+`capture` / `storage` dans « Disponibles sur le LAN », alors qu'il ne s'agit pas
+d'un `sessionRole` attribuable dans ce workflow.
+
+Décision produit §31.2 et correctifs associés :
+
+- `41249ed` masque `controller` sur la carte LAN et dans la popup d'ajout, sans
+  modifier la donnée de découverte ;
+- `57a73b8` exclut de « Disponibles sur le LAN » tout device qui n'annonce aucun
+  rôle attribuable `capture` / `storage`, notamment un device `controller` seul ;
+- les tests ciblés `lan-skills-display.test.js` couvrent les combinaisons
+  Capture/Storage/Controller et garantissent que la donnée technique reste intacte.
+
+Le smoke physique du correctif `41249ed` a confirmé sur les devices disponibles que
+les cartes et la popup n'exposent plus `controller`. Le complément `57a73b8` est
+verrouillé par le test de rendu ciblé ; il ne modifie ni découverte, ni transport,
+ni membership.
+
 ## Synthèse technique finale J08
 
 **PASS technique.** D1, D2, D3 et D6 sont fermés par correction ou preuve ciblée ; l'intégration effective d'un device ajouté depuis le Master est corrigée et validée physiquement par `39faa53` ;
 D5 est clos sans correction ; D7 est tranché par décision produit. D4 est explicitement
 hors métrique de synchronisation logique J08 et reporté à la qualification média J09.
-L'acceptation humaine finale et le merge vers `main` restent distincts de ce PASS.
+La revue humaine fonctionnelle des anomalies relevées pendant J08 est désormais PASS. L'acceptation finale explicite du jalon et le merge vers `main` restent distincts de ce PASS.
 
 ## Correctifs de code validés par cette campagne
 
