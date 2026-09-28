@@ -52,6 +52,21 @@
     return (roles || []).map(function (r) { return esc(r); }).join(", ");
   }
 
+  /* Capacités affichables dans le workflow d'ajout (décision 31.2) : `capture`
+   * et `storage` sont les SEULES capabilities donnant lieu à un rôle attribuable
+   * par « Ajouter un device ». `controller` reste une capability technique
+   * interne (device capable de devenir Master via le workflow dédié « Rejoindre
+   * une session ») : elle n'est donc jamais affichée ici, ni rendue
+   * sélectionnable. Filtre d'AFFICHAGE pur — la table de découverte et le
+   * payload `addMember` conservent les skills annoncées telles quelles. */
+  function displaySkills(row) {
+    var attributable = (global.MultiCamSessionModel && global.MultiCamSessionModel.VALID_ROLES)
+      || ["capture", "storage"];
+    return ((row && row.enabledSkills) || []).filter(function (sk) {
+      return attributable.indexOf(sk) >= 0;
+    });
+  }
+
   /* ---------- rendu ---------- */
 
   function render() {
@@ -171,7 +186,7 @@
       return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
         + '<i class="fa-solid fa-mobile-screen-button fs-4"></i>'
         + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(humanName(p)) + "</div>"
-        + '<div class="small muted">' + esc((p.enabledSkills || []).join(" · ")) + "</div>"
+        + '<div class="small muted">' + esc(displaySkills(p).join(" · ")) + "</div>"
         + "</div>"
         + '<button class="btn btn-sm btn-primary member-add" data-device="' + esc(p.deviceId) + '" type="button"><i class="fa-solid fa-plus me-1"></i>Ajouter</button>'
         + "</div></article>";
@@ -201,7 +216,7 @@
       removeBtn.classList.add("d-none");
     }
     nameEl.textContent = humanName(deviceRow);
-    metaEl.textContent = (deviceRow.enabledSkills || []).join(" · ") || "Aucune skill annoncée";
+    metaEl.textContent = displaySkills(deviceRow).join(" · ") || "Aucune skill annoncée";
 
     /* La modal ne propose QUE les rôles couverts par les skills annoncées. */
     var enabled = deviceRow.enabledSkills || [];
