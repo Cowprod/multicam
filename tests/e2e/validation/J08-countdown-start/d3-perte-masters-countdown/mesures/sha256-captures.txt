@@ -1,0 +1,2 @@
+2b1854d0516bad348d338b9ebf7064e120e28f963d7e7f6d174d3e5a8c51b67c  tests/e2e/validation/J08-countdown-start/d3-perte-masters-countdown/screenshots/B-confirmation-stop-urgence.png
+133342d2aa006dd00f6cc1cdf4c1b20df488485240a2d5b0537df93e58d8415e  tests/e2e/validation/J08-countdown-start/d3-perte-masters-countdown/screenshots/B-rec-stop-urgence.png

@@ -1,0 +1,17 @@
+09-28 13:25:05.540  3813  3813 I chromium: [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd result=OK host=192.168.92.76 port=45101 wsep=192.168.92.76:45102 service=Cam 07
+09-28 13:25:05.544  3813  3813 I chromium: [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 result=OK host=192.168.92.103 port=45101 wsep=- service=Cam D4
+09-28 13:25:06.333  3813  3813 I chromium: [INFO:CONSOLE:178] "SESSION_BOOT stored=24 open=17 closed=7
+09-28 13:25:06.435  3813  3813 I chromium: [INFO:CONSOLE:43] "WS_EFFECTIVE_PORT port=45102 addr=:: attempts=[] total=74ms
+09-28 13:25:06.546  3813  3813 I chromium: [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd result=OK host=192.168.92.76 port=45101 wsep=192.168.92.76:45102 service=Cam 07
+09-28 13:25:17.788  3813  3813 I chromium: [INFO:CONSOLE:22] "SESSION_STORE_SAVE sessionId=ZUQFCMDV storage=file state=open
+09-28 13:25:17.788  3813  3813 I chromium: [INFO:CONSOLE:404] "SCREEN03_OPEN sessionId=ZUQFCMDV origin=fresh state=open
+09-28 13:25:18.682  3813  3813 I chromium: [INFO:CONSOLE:223] "SCREEN03_MODAL_OPEN mode=add did=7d1d4179-c52e-4260-92d1-3220c33296fd enabled=[capture,storage,controller] proposed=[]
+09-28 13:25:19.318  3813  3813 I chromium: [INFO:CONSOLE:22] "SESSION_STORE_SAVE sessionId=ZUQFCMDV storage=file state=open
+09-28 13:25:19.325  3813  3813 I chromium: [INFO:CONSOLE:265] "SCREEN03_MEMBER_SAVE mode=add did=7d1d4179-c52e-4260-92d1-3220c33296fd roles=[capture]
+09-28 13:25:19.477  3813  3813 I chromium: [INFO:CONSOLE:43] "WS_CLIENT_OPEN endpoint=192.168.92.76:45102
+09-28 13:25:19.482  3813  3813 I chromium: [INFO:CONSOLE:43] "INVITE_SENT sessionId=ZUQFCMDV did=7d1d4179-c52e-4260-92d1-3220c33296fd to=192.168.92.76:45102 roles=[capture]
+09-28 13:25:19.562  3813  3813 I chromium: [INFO:CONSOLE:43] "INVITE_OK sessionId=ZUQFCMDV from=7d1d4179-c52e-4260-92d1-3220c33296fd roles=[capture]
+09-28 13:25:30.419  3813  3813 I chromium: [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd result=OK host=192.168.92.76 port=45101 wsep=192.168.92.76:45102 service=Cam 07
+09-28 13:25:30.421  3813  3813 I chromium: [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 result=OK host=192.168.92.103 port=45101 wsep=- service=Cam D4
+09-28 13:26:06.250  3813  3813 I chromium: [INFO:CONSOLE:43] "WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=7d1d4179-c52e-4260-92d1-3220c33296fd
+09-28 13:26:06.252  3813  3813 I chromium: [INFO:CONSOLE:43] "PEER_DISCONNECTED did=7d1d4179-c52e-4260-92d1-3220c33296fd reason=ws_client_close

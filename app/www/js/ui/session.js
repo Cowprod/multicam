@@ -52,6 +52,21 @@
     return (roles || []).map(function (r) { return esc(r); }).join(", ");
   }
 
+  /* Capacités affichables dans le workflow d'ajout (décision 31.2) : `capture`
+   * et `storage` sont les SEULES capabilities donnant lieu à un rôle attribuable
+   * par « Ajouter un device ». `controller` reste une capability technique
+   * interne (device capable de devenir Master via le workflow dédié « Rejoindre
+   * une session ») : elle n'est donc jamais affichée ici, ni rendue
+   * sélectionnable. Filtre d'AFFICHAGE pur — la table de découverte et le
+   * payload `addMember` conservent les skills annoncées telles quelles. */
+  function displaySkills(row) {
+    var attributable = (global.MultiCamSessionModel && global.MultiCamSessionModel.VALID_ROLES)
+      || ["capture", "storage"];
+    return ((row && row.enabledSkills) || []).filter(function (sk) {
+      return attributable.indexOf(sk) >= 0;
+    });
+  }
+
   /* ---------- rendu ---------- */
 
   function render() {
@@ -161,7 +176,14 @@
     var memberSet = {};
     members.forEach(function (m) { memberSet[m.deviceId] = true; });
     var peers = (global.MultiCamDiscovery && global.MultiCamDiscovery.peers) ? global.MultiCamDiscovery.peers() : [];
-    var available = peers.filter(function (p) { return p && p.deviceId && !memberSet[p.deviceId]; });
+    /* §31.2 : n'est listé que le device ayant au moins un rôle ATTRIBUABLE
+     * (enabledSkills ∩ VALID_ROLES non vide). Un device n'annonçant que
+     * `controller` (ou rien) n'a rien à proposer dans ce workflow : il est
+     * absent de la liste. Filtrage d'affichage uniquement — la table de
+     * découverte et le reste de l'app ignorent ce filtre. */
+    var available = peers.filter(function (p) {
+      return p && p.deviceId && !memberSet[p.deviceId] && displaySkills(p).length > 0;
+    });
     countEl.textContent = String(available.length);
     if (!available.length) {
       listEl.innerHTML = '<div class="empty-state">Aucun device disponible sur le LAN</div>';
@@ -171,7 +193,7 @@
       return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
         + '<i class="fa-solid fa-mobile-screen-button fs-4"></i>'
         + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(humanName(p)) + "</div>"
-        + '<div class="small muted">' + esc((p.enabledSkills || []).join(" · ")) + "</div>"
+        + '<div class="small muted">' + esc(displaySkills(p).join(" · ")) + "</div>"
         + "</div>"
         + '<button class="btn btn-sm btn-primary member-add" data-device="' + esc(p.deviceId) + '" type="button"><i class="fa-solid fa-plus me-1"></i>Ajouter</button>'
         + "</div></article>";
@@ -201,7 +223,7 @@
       removeBtn.classList.add("d-none");
     }
     nameEl.textContent = humanName(deviceRow);
-    metaEl.textContent = (deviceRow.enabledSkills || []).join(" · ") || "Aucune skill annoncée";
+    metaEl.textContent = displaySkills(deviceRow).join(" · ") || "Aucune skill annoncée";
 
     /* La modal ne propose QUE les rôles couverts par les skills annoncées. */
     var enabled = deviceRow.enabledSkills || [];
@@ -251,7 +273,15 @@
     if (member) {
       p = ops().updateMemberRoles(s, did, roles);
     } else {
-      p = ops().addMember(s, { deviceId: did, deviceName: humanName(device), enabledSkills: device.enabledSkills || [] }, roles);
+      p = ops().addMember(s, {
+        deviceId: did,
+        deviceName: humanName(device),
+        enabledSkills: device.enabledSkills || [],
+        /* Endpoint de TRANSPORT de session (TXT wsep) : c'est lui que le Master
+         * doit dialer pour intégrer le device (§31.2) — `endpoint` est le port
+         * health et n'accepterait pas une connexion WebSocket. */
+        endpoint: device.wsEndpoint || ""
+      }, roles);
     }
     p.then(function (upd) {
       console.log("SCREEN03_MEMBER_SAVE mode=" + (member ? "edit" : "add") + " did=" + did + " roles=[" + roles.join(",") + "]");

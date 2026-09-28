@@ -1,0 +1,6 @@
+=== D3 run : perte de TOUS les Masters pendant le countdown ===
+A(master)=61cc29567d91  B(capture)=61d54bba7d91
+T_AVANT_REC host_ms=1790585217554
+T_REC_Clique host_ms=1790585219982 (clic armRec a 1790585217569, modif incidents +ms)
+T_COUNTDOWN_VU host_ms=1790585220197 countdownRemainingMs=undefined
+T_FORCESTOP debut=1790585220881 fin=1790585221175 (duree=294ms) — 978ms apres le debut du countdown

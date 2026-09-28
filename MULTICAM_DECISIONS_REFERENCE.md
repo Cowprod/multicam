@@ -959,6 +959,51 @@ Décisions fonctionnelles validées :
 - un ancien membre déconnecté reste membre tant qu'un Master ne le retire pas explicitement.
 
 
+## 31.2 Controller : capacité à devenir Master, pas sessionRole attribuable
+
+Décision produit validée :
+
+- `capture` et `storage` peuvent donner lieu à des `sessionRoles` attribués par un Master via « Ajouter un device » ;
+- `controller` signifie que le device est capable de devenir **Master** ; ce n'est pas un `sessionRole` attribuable dans cette popup ;
+- un device devient Master par le workflow dédié « Rejoindre une session » avec le PIN ;
+- ce même device peut ensuite cumuler son statut Master avec des rôles Capture et/ou Storage ;
+- à ce stade, l'UI de découverte / ajout n'affiche pas `controller` : cette information n'est pas utile à l'opérateur lorsqu'il attribue des rôles Capture/Storage ;
+- la popup « Ajouter un device » ne propose donc que les rôles effectivement attribuables ;
+- la capacité `controller` peut rester une donnée technique interne au device/protocole si elle est utile au workflow dédié « Rejoindre une session », mais elle n'est pas exposée dans la carte LAN ni dans la popup d'ajout ;
+- un device qui n'annonce **aucun rôle attribuable** (`capture`/`storage`) ne doit pas apparaître dans « Disponibles sur le LAN » de l'écran d'ajout, même s'il annonce `controller`.
+
+## 31.3 Ajout depuis un Master = intégration effective du device
+
+Décision produit validée :
+
+- lorsqu'un Master voit un device dans « Disponibles sur le LAN » et valide `Ajouter` avec un ou plusieurs rôles de session, l'action doit **intégrer effectivement ce device à la session sans manipulation locale supplémentaire sur le device distant** ;
+- l'ajout ne doit pas se limiter à créer une entrée locale dans `session.members` ;
+- le device distant reçoit une invitation de session, persiste la session et son membership, puis établit une vraie connexion WebSocket de session ;
+- l'état « Connecté » reste fondé uniquement sur la liveness WebSocket réelle : la découverte mDNS seule ne vaut jamais connexion ;
+- un device invité comme `Capture` et/ou `Storage` **ne devient pas Master** du seul fait de l'invitation ; son propre `masters` contient les Masters réels de la session, pas lui-même ;
+- le PIN ne doit jamais être publié dans DNS-SD.
+
+### Endpoint WebSocket publié par le device
+
+La découverte device publie désormais explicitement un endpoint WebSocket de session distinct via la clé TXT :
+
+`wsep=<ip>:<port-session>`
+
+Cette clé est nécessaire car le port historique de découverte device `45101` correspond au serveur health HTTP et ne peut pas être utilisé comme endpoint WebSocket de session.
+
+Règles :
+
+- `wsep` ne contient aucun secret ;
+- il est republié dès que le port WebSocket effectif du device est connu ;
+- le Master utilise cet endpoint pour initier l'invitation ;
+- l'invitation utilise le protocole WS de session existant (`invite_req` / `invite_ok` / `invite_nack`) et ne crée pas un second transport parallèle ;
+- le join manuel existant reste supporté ;
+- après coupure, la reconnexion continue de dépendre de la liveness WS réelle et des mécanismes de resynchronisation existants.
+
+Validation physique : ajout depuis A d'un device B découvert mais non connecté, sans interaction sur B ; B reçoit l'invitation, connaît la session et son rôle, A l'affiche `Connecté`, puis `Déconnecté` après coupure et la reconnexion automatique au boot est observée.
+
+Cette décision complète §31.1 et remplace l'ancien comportement où `addMember()` persistait le membership sur le Master puis diffusait uniquement aux peers déjà connectés, laissant le device ajouté dans l'ignorance de la session.
+
 ## 32. J06 — Capacités Capture et règles de fallback
 
 ### 32.1 Résolution vidéo
@@ -1010,3 +1055,17 @@ Les POC `capture-capabilities` et `capture-profile-selection` ont validé sur B 
 
 ### 33.5 Multi-Master
 - chaque Master (écran 06 ouvert) porte SON cycle d'ARM indépendamment ; les cycles coexistent sans conflit ; les références d'horloge réciproques sont cohérentes (signes opposés, valeurs ~identiques).
+
+
+## 34. J08 — Countdown + START synchronisé
+
+### 34.1 Priorité d'affichage Master / Storage
+
+Décision produit validée :
+
+- lorsqu'un même device cumule les rôles **Master** et **Storage**, le rôle **Master est prioritaire pendant le countdown et le REC** ;
+- ce device affiche donc l'interface Master complète et conserve les commandes et informations de supervision associées ;
+- le badge compact Storage est destiné aux devices Storage qui ne sont ni Master ni Capture ;
+- le rôle Storage devient principalement utile en fin de Take, notamment pour la réplication et le transfert des fichiers ; il ne doit donc pas masquer l'interface Master pendant la prise.
+
+Cette règle lève l'ambiguïté relevée pendant la validation J08 sur la précédence `Master+Storage`.

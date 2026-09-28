@@ -295,6 +295,18 @@
       var m = global._mcArmMachine;
       if (m) m.refresh();
     },
+    /* J08 : attend des échantillons d'horloge POSTÉRIEURS à l'appel, pour toutes
+     * les captures distants. Renvoie une Promise — le modèle START verrouille
+     * targetStart seulement après cette résolution, donc avec des offsets
+     * réellement frais. Sans cette attente, un ARM monté depuis plus de 12 s
+     * était refusé en `clock_stale` (comportement correct mais inexploitable). */
+    ensureFreshClock: function (timeoutMs) {
+      var m = global._mcArmMachine;
+      if (!m || typeof m.ensureFreshClock !== "function") {
+        return Promise.resolve({ fresh: false, reason: "no_machine", waitedMs: 0 });
+      }
+      return Promise.resolve(m.ensureFreshClock(timeoutMs));
+    },
     cancel: function (reason) {
       var m = global._mcArmMachine;
       if (m) m.cancel(reason || "user");

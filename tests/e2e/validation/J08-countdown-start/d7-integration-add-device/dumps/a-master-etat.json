@@ -1,0 +1,29 @@
+{
+ "sessionId": "ZUQFCMDV",
+ "name": "J31.2 final 13:25",
+ "state": "open",
+ "pin": "6429",
+ "members": [
+  {
+   "did": "7d1d4179-c52e-4260-92d1-3220c33296fd",
+   "roles": [
+    "capture"
+   ],
+   "addedBy": "d5f6b2a1-2387-4207-836d-90b0072a6cee"
+  }
+ ],
+ "masters": [
+  "d5f6b2a1-2387-4207-836d-90b0072a6cee@192.168.92.57:45102"
+ ],
+ "connectedPeers": [
+  "7d1d4179-c52e-4260-92d1-3220c33296fd"
+ ],
+ "uiRows": [
+  "Cam 07 | Connecté | roles=capture | master=0",
+  "Cam D1 | Cet appareil | roles= | master=1"
+ ],
+ "lanPeerB": {
+  "endpoint": "192.168.92.76:45101",
+  "wsEndpoint": "192.168.92.76:45102"
+ }
+}

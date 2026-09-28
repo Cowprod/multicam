@@ -11,8 +11,8 @@
  *  - clic sur une icône = accordéon de détail du skill ; les accordéons ne
  *    s'ouvrent JAMAIS automatiquement lors d'un incident ;
  *  - dock REC fixe : éligible dès ≥1 Capture READY ou WARNING ; Storage/ARMING/
- *    ERROR n'y participent jamais ; en J07 un appui valide ne déclenche AUCUN
- *    enregistrement (J08) : journal REC_ELIGIBLE_NEXT_J08 ;
+ *    ERROR n'y participent jamais ; en J08 un appui valide déclenche le plan de
+ *    START réel (MultiCamStartService.requestStart → écran 07) ;
  *  - modal incidents (WARNING/ERROR/ARMING/déconnecté/Storage), auto-fermeture
  *    quand tous les incidents disparaissent.
  * Journalisation parsable : SCREEN06_* (open/back/rec/incident) ; les ARM_* et
@@ -200,20 +200,43 @@
       }
       console.log("REC_ELIGIBLE sessionId=" + v.sid + " take=" + v.takeNumber
         + " armCycleId=" + v.armCycleId + " eligible=1");
-      console.log("REC_ELIGIBLE_NEXT_J08 sessionId=" + v.sid + " — enregistrement réel au jalon J08");
+      triggerStart("armRec");
     });
 
     byId("armIncidentContinue").addEventListener("click", function () {
       var v = global.MultiCamArmService.view();
       console.log("REC_ELIGIBLE sessionId=" + v.sid + " take=" + v.takeNumber
         + " armCycleId=" + v.armCycleId + " via=incident_continue");
-      console.log("REC_ELIGIBLE_NEXT_J08 sessionId=" + v.sid + " — enregistrement réel au jalon J08");
       closeIncidentModal();
+      triggerStart("incident_continue");
     });
     byId("armIncidentCancel").addEventListener("click", closeIncidentModal);
     byId("armIncidentClose").addEventListener("click", closeIncidentModal);
     var ib = document.querySelector("#armIncidentModal .modal-backdrop");
     if (ib) ib.addEventListener("click", closeIncidentModal);
+  }
+
+  /* J08 — le dock REC déclenche RÉELLEMENT le plan de START : la machine
+   * start-model rafraîchit l'horloge J07, verrouille l'instant cible, crée et
+   * diffuse le plan. Le modèle est synchrone dans ses refus : on journalise le
+   * motif exact (clock_stale, camera_prepare_failed, plan_active…) et on ne
+   * quitte PAS l'écran ARM, car aucun plan n'a été créé. Le panneau 07 est
+   * ensuite choisi par le routeur global (main.js), pas ici. */
+  function triggerStart(origin) {
+    var start = global.MultiCamStartService;
+    if (!start) {
+      console.log("SCREEN06_REC_KO reason=service_unavailable");
+      return;
+    }
+    start.requestStart(state.sid).then(function (v) {
+      console.log("SCREEN06_REC_STARTED origin=" + origin + " sessionId=" + state.sid
+        + " startPlanId=" + (v && v.startPlanId) + " take=" + (v && v.takeNumber)
+        + " countdown=" + (v && v.countdownSeconds));
+    }).catch(function (err) {
+      console.log("SCREEN06_REC_KO origin=" + origin + " sessionId=" + state.sid
+        + " reason=" + String((err && err.message) || err)
+        + " userMessage=" + String((err && err.userMessage) || "—"));
+    });
   }
 
   function show(cfg, params) {

@@ -1,0 +1,32 @@
+COMPARAISON AVANT / APRES CORRECTIF — valeurs OBSERVEES dans le DOM
+(view().digit = état du modèle ; cdDigitMaster.textContent = ce que l'interface affiche)
+échantillonnage 100 ms, même session 4UMGBHEV, même take 1, countdown 5 s, même tablette A
+
+1. VALEUR DISTINCTE AFFICHEE PENDANT LE COUNTDOWN
+   AVANT  (run3, APK 11787e6) : 1 seule valeur  ->  5, 5, 5, 5, ...   (figé)
+   APRES  (run4, APK correctif) : 5 valeurs     ->  5 -> 4 -> 3 -> 2 -> 1
+
+2. CHANGEMENTS OBSERVES, RUN 4 (POST-CORRECTIF)
+   t(ms)  phase      digit | cdDigitMaster | remainingMs
+    5302  COUNTDOWN     5 |       5       |     4993
+    6302  COUNTDOWN     4 |       4       |     3979
+    7301  COUNTDOWN     3 |       3       |     2975
+    8301  COUNTDOWN     2 |       2       |     1971
+    9301  COUNTDOWN     1 |       1       |      967
+
+   - 50 échantillons en COUNTDOWN, 0 ligne où le DOM diffère du modèle
+   - 0 affiché pendant le COUNTDOWN : NON (0 = instant du top, jamais publié)
+   - intervalle entre deux changements : 1000 ms (1 s), conforme au pas de 200 ms
+     de TICK_MS (le changement de chiffre est publié au premier tick qui le voit)
+
+3. TIMER REC (recElapsedMs notifié au subscriber, meme flux de notification)
+   t=10302 ms ->    40 ms
+   t=10501 ms ->   242 ms
+   t=10700 ms ->   443 ms
+   t=10911 ms ->   645 ms
+   t=11101 ms ->   846 ms
+   cadence ~200 ms = TICK_MS ; a l'ecran cdRecTimer = 00:40 puis 00:45 (+4 s)
+
+4. ARRET
+   STOP local -> phase STOPPED, retour ecran panel-arm, plus aucune notification
+   (verrouille par le bloc de test "au repos, le tick est désarmé")

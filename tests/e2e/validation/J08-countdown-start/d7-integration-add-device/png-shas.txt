@@ -1,0 +1,2 @@
+6c4acabc153c24e80b265b6b6aef0e5172ef92cb71ee0bf7aa868b3289f7f8c5  tests/e2e/validation/J08-countdown-start/d7-integration-add-device/screenshots/a1-master-membre-connecte.png
+83cf2e668ee4df51d1edf4f11027221b9383c39ec1b747b3ef1ba88e29ac65d0  tests/e2e/validation/J08-countdown-start/d7-integration-add-device/screenshots/b1-appel-non-sollicite.png

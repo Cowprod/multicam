@@ -1,0 +1,4 @@
+09-27 15:31:33.148 25353 25353 I chromium: [INFO:CONSOLE:261] "SCREEN06_OPEN sessionId=4UMGBHEV take=1 armCycleId=4UMGBHEV#1#3 target=2", source: http://localhost/js/ui/arm.js (261)
+09-27 15:31:58.402 25353 25353 I chromium: [INFO:CONSOLE:197] "SCREEN06_REC_INCIDENT sessionId=4UMGBHEV n=1", source: http://localhost/js/ui/arm.js (197)
+09-27 15:31:59.856 25353 25353 I chromium: [INFO:CONSOLE:42] "START_REJECTED sessionId=4UMGBHEV take=1 reason=local_stopped_take", source: http://localhost/js/state/start-service.js (42)
+09-27 15:31:59.857 25353 25353 I chromium: [INFO:CONSOLE:236] "SCREEN06_REC_KO origin=incident_continue sessionId=4UMGBHEV reason=local_stopped_take userMessage=—", source: http://localhost/js/ui/arm.

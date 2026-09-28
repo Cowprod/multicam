@@ -1,0 +1,21 @@
+{
+  "active": true,
+  "phase": "REC",
+  "sid": "UX8ZA4FT",
+  "sessionName": "Regie D3 103030",
+  "takeNumber": 1,
+  "startPlanId": "UX8ZA4FT#1#1#1",
+  "isMaster": true,
+  "isCapture": true,
+  "countdownSeconds": 5,
+  "targetStartMs": 1790585224415,
+  "localTopMs": 1790585224331.5,
+  "offsetMs": -83.5,
+  "offsetKnown": true,
+  "countdownResolved": true,
+  "showEmergencyStop": true,
+  "showCountdown": false,
+  "excluded": false,
+  "recElapsedMs": 10327,
+  "ownersAtThatInstant": []
+}

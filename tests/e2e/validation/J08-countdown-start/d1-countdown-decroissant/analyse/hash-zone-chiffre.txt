@@ -1,0 +1,43 @@
+HASH DE LA ZONE DU CHIFFRE — preuve sans hypothese de calibration
+===============================================================
+
+Principe : on ne compare pas a une reference, on hach la zone du chiffre
+  (199 x 271 px, x=570..768, y=166..436) sur chaque frame de la video.
+  Si la zone est BYTE-IDENTIQUE d'une frame a l'autre, l'ecran n'a pas change
+  dans cette zone : le compte a rebours n'est pas anime a l'ecran.
+
+Note : le plan 5 s correspond a 20 frames a 4 fps.
+
+------------------------------------------------------------------
+RUN 3 — videos/run3-ecran.mp4
+------------------------------------------------------------------
+run3-ecran.mp4 : 64 frames
+  zone-chiffre IDENTIQUE sur  2 frames (t=0.25..0.50s)  sha256=3a71e521d1b232fe4a714a8f68c1e0925a746a88c432ae7f3d41dec7de39f3c0
+  zone-chiffre IDENTIQUE sur 20 frames (t=4.75..9.50s)  sha256=54468de852705513b717464a83bf8351f33b9da75e4687f0742a38da222217a8
+  zone-chiffre IDENTIQUE sur  3 frames (t=9.75..10.25s)  sha256=6d277596f0998e1d701b090a05bed9179f695e682d862290da02f7e51ad1a51b
+  zone-chiffre IDENTIQUE sur 19 frames (t=10.50..15.00s)  sha256=64232f48b27cf24d16ed0dafeddba9ee815e0375d526e92b7a4e4f1d33e0ac76
+  zone-chiffre IDENTIQUE sur  3 frames (t=15.25..15.75s)  sha256=b7316087be12682b547d6a24e13e9b94e672ba75024c401d0c5469d1055f578a
+  (64 frames au total, 22 groupes distincts)
+
+  => 20 frames consecutives (t=4.75s .. 9.50s, soit 5.0 s) ont une zone
+     du chiffre strictement identique, avec le meme sha256.
+     C'est exactement la duree du compte a rebours (settings.countdownSeconds=5).
+     Avant (ARM) et apres (REC) la zone change : l'ecran, lui, evolue bien.
+
+------------------------------------------------------------------
+RUN 1 — videos/run1-ecran.mp4 (bruit de compression H.264 plus fort)
+------------------------------------------------------------------
+run1-ecran.mp4 : 60 frames
+  zone-chiffre IDENTIQUE sur  2 frames (t=0.25..0.50s)  sha256=56cb0c2372568e72b664cab443e5df382c67d0ce98744431656b0044b6789c5a
+  zone-chiffre IDENTIQUE sur  5 frames (t=3.50..8.00s)  sha256=cbd30717379564a0e446fe4700e05b75f381a38bdbf55ab8e0dff965b38c89ed
+  zone-chiffre IDENTIQUE sur  6 frames (t=3.75..7.75s)  sha256=4fd2aef146467dc78ab079b791e2a557923f7d8900491eb65c0e1cbc751bfd31
+  zone-chiffre IDENTIQUE sur  4 frames (t=4.00..6.75s)  sha256=157894dc5f46ada363d3fb1d89992840b52c26c184deb25bb97559e19fa85c27
+  zone-chiffre IDENTIQUE sur  5 frames (t=4.25..8.25s)  sha256=b51ea8c174e6a98d6159e49c452a3710554adb0ab5125db83388b091d898e158
+  zone-chiffre IDENTIQUE sur  5 frames (t=8.50..9.50s)  sha256=8f6536aa38c23b07dd9eaa295d1377b763ff8b25ff7b2878a92e75eab715bd1f
+  zone-chiffre IDENTIQUE sur 21 frames (t=9.75..14.75s)  sha256=88425ff3f5137ee9d2008d042091f56627a9a3669174b4430794b9234e06b503
+  (60 frames au total, 19 groupes distincts)
+
+  => par groups de ~5 frames (1 s) la zone est stable, mais le sha change
+     d'un groupe au suivant : artefacts de compression video, pas un changement
+     de chiffre. C'est pourquoi l'identification par reference (ecart 2.15)
+     est necessaire en complement — elle est identique sur les 2 runs.

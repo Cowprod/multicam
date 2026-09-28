@@ -1,0 +1,15 @@
+# Extrait de log reliant le chemin du fichier aux marqueurs CAMERA_REC_* (run D6)
+# source : adb logcat -d de la tablette 61cc29567d91, vidé juste avant l'appui REC
+# fichier : logs/A-J08-D6.log
+
+--- CAMERA_REC_REQUEST / CAMERA_REC_OK / CAMERA_REC_STOP_OK ---
+09-28 10:14:55.357 16697 16697 I chromium: [INFO:CONSOLE:51] "CAMERA_REC_REQUEST startPlanId=4UMGBHEV#1#1#1 take=1 w=1280 h=720 quality=plugin_default qualityLabel=medium profile=auto targetLocalMs=1790583295350
+09-28 10:14:56.742 16697 16697 I chromium: [INFO:CONSOLE:51] "CAMERA_REC_OK startPlanId=4UMGBHEV#1#1#1 take=1 ackAtMs=1790583296738 callDt=1383ms detail="OK"
+09-28 10:15:11.109 16697 16697 I chromium: [INFO:CONSOLE:51] "CAMERA_REC_STOP_OK atMs=1790583311108 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+
+--- lignes mentionnant le chemin exact du fichier ---
+12748:09-28 10:15:11.109 16697 16697 I chromium: [INFO:CONSOLE:51] "CAMERA_REC_STOP_OK atMs=1790583311108 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4
+
+--- top / arrêt de session (contexte) ---
+09-28 10:14:55.354 16697 16697 I chromium: [INFO:CONSOLE:42] "START_LOCAL deviceId=d5f6b2a1-2387-4207-836d-90b0072a6cee startPlanId=4UMGBHEV#1#1#1 take=1 target=10:14:55.350 actual=10:14:55.352 deltaMs=2 countdown=5 status=OK
+09-28 10:15:11.514 16697 16697 I chromium: [INFO:CONSOLE:42] "START_STOP_LOCAL deviceId=d5f6b2a1-2387-4207-836d-90b0072a6cee startPlanId=4UMGBHEV#1#1#1 take=1 reason=emergency_no_master at=10:15:11.108

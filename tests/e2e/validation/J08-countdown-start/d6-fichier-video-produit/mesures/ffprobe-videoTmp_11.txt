@@ -1,0 +1,31 @@
+# Sortie BRUTE de ffprobe sur le fichier pullé (non réécrite)
+# $ ffprobe -v error -show_entries format=duration,size,bit_rate,format_name \
+#       -show_entries stream=codec_name,codec_type,width,height,r_frame_rate,nb_frames,bit_rate \
+#       -of default=noprint_wrappers=0 media/videoTmp_11.mp4
+
+[STREAM]
+codec_name=h264
+codec_type=video
+width=1920
+height=1080
+r_frame_rate=299/12
+bit_rate=19939061
+nb_frames=332
+[/STREAM]
+[STREAM]
+codec_name=aac
+codec_type=audio
+r_frame_rate=0/0
+bit_rate=192000
+nb_frames=630
+[/STREAM]
+[FORMAT]
+format_name=mov,mp4,m4a,3gp,3g2,mj2
+duration=13.440000
+size=33594520
+bit_rate=19996738
+[/FORMAT]
+
+# Décodage intégral (détection de troncature) :
+# $ ffmpeg -v error -i media/videoTmp_11.mp4 -f null -
+# (aucune sortie ci-dessus = 0 erreur, code de sortie 0)

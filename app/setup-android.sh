@@ -45,6 +45,11 @@ python3 ../tests/poc/capture-profile-selection/patch/apply_capture_profile_patch
 # gpsFeature, audioMicFeature) — derive du POC capture-capabilities.
 python3 camera-patches/apply_capture_capabilities_patch.py .
 
+# J08 — permissions video : startRecordVideo n exige plus que CAMERA +
+# RECORD_AUDIO. Sans ce patch, les READ_MEDIA_* (API 33+) non declares au
+# manifest sont refuses et l enregistrement echoue avec "Illegal access".
+python3 camera-patches/apply_video_permission_patch.py .
+
 # Cordova copie les sources Java pendant l'installation du plugin. Comme le patch est
 # applique ensuite, on recopie explicitement les sources patchees vers celles compilees.
 mkdir -p "$CAMERA_PLATFORM_DIR"

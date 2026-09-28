@@ -9,6 +9,7 @@
 <link href="vendor/fontawesome/css/all.min.css" rel="stylesheet">
 <link href="css/app.css" rel="stylesheet">
 <link href="css/settings.css" rel="stylesheet">
+<link href="css/countdown.css" rel="stylesheet">
 </head>
 <body>
 <div class="root">
@@ -410,6 +411,94 @@
   </div>
 </div>
 
+<!-- ============ Écran 07 — Countdown / START synchronisé (J08) ============
+     Maquette validée ui/07-countdown : le countdown est STRICTEMENT visuel
+     (aucun son, aucune vibration), affiche 5→1 puis REC direct, jamais 0.
+     Trois vues dans un seul panneau, choisies par MultiCamCountdownScreen :
+     Master (chiffre géant + Annuler), Capture (vidéo locale + états locaux
+     seuls), et le placeholder minimal 08 en fin de plan. -->
+<section id="panel-countdown" class="screen cd-screen">
+  <!-- Vue Master -->
+  <div id="cdMaster" class="cd-view d-none">
+    <div class="cd-head text-center">
+      <div class="cd-session" id="cdSession">…</div>
+      <div class="cd-take" id="cdTake">…</div>
+    </div>
+    <div class="cd-digit" id="cdDigitMaster">5</div>
+    <div class="cd-wait small" id="cdWaitMaster"></div>
+    <div class="cd-foot">
+      <button id="cdCancel" class="btn btn-outline-light mainbtn" type="button"><i class="fa-solid fa-xmark me-2"></i>Annuler</button>
+    </div>
+  </div>
+
+  <!-- Vue Capture : RIEN sur les autres devices (invariant UI 07) -->
+  <div id="cdCapture" class="cd-view d-none">
+    <div class="vig vig-cd" aria-hidden="true"></div>
+    <div class="cd-overlay">
+      <div class="cd-head">
+        <div class="cd-session" id="cdSessionCap">…</div>
+        <div class="cd-take" id="cdTakeCap">…</div>
+        <div class="cd-device" id="cdDeviceCap">…</div>
+      </div>
+      <div class="cd-digit" id="cdDigitCap">5</div>
+      <div class="cd-local" id="cdLocalCap"></div>
+    </div>
+  </div>
+
+  <!-- Capture écartée : grosse icône d'erreur + cause, AUCUN bouton -->
+  <div id="cdExcluded" class="cd-view d-none cd-excluded">
+    <i class="fa-solid fa-triangle-exclamation cd-excl-icon"></i>
+    <div class="cd-excl-title">Capture écartée</div>
+    <div class="cd-excl-cause" id="cdExclCause">…</div>
+    <div class="cd-excl-sub small">Le départ de ce Take continue sans ce device.</div>
+  </div>
+
+  <!-- ============ Écran 08 — REC (placeholder J08, monitoring = J09) ============ -->
+  <div id="cdRec" class="cd-view d-none cd-rec">
+    <div class="cd-rec-top">
+      <span class="cd-rec-dot"></span>
+      <span class="cd-rec-label">REC</span>
+      <span class="cd-rec-timer" id="cdRecTimer">00:00</span>
+    </div>
+    <div class="cd-rec-meta">
+      <div id="cdRecSession">…</div>
+      <div id="cdRecTake">…</div>
+      <div class="cd-rec-delta small" id="cdRecDelta"></div>
+    </div>
+    <div class="cd-rec-note small">
+      Enregistrement effectif. Supervision multi-device, transfert et arrêt
+      global : <strong>jalon J09</strong>.
+    </div>
+    <div class="cd-foot">
+      <button id="cdEmergency" class="btn btn-outline-danger mainbtn d-none" type="button"><i class="fa-solid fa-stop me-2"></i>STOP local</button>
+    </div>
+  </div>
+</section>
+
+<!-- Confirmation du STOP local d'urgence (UI 07 : Annuler / Confirmer STOP).
+     Même convention .screenmodal que les autres modales (sans Bootstrap JS). -->
+<div id="cdStopModal" class="screenmodal" aria-hidden="true">
+  <div class="modal-backdrop" data-cdstop-close="1"></div>
+  <div class="modal-dialog card glass strong rounded-4">
+    <div class="card-body p-3">
+      <div class="fw-semibold fs-5">Arrêter cet enregistrement ?</div>
+      <div class="small muted mb-2" id="cdStopHint">Seul cet appareil sera arrêté. Les autres Captures du Take ne sont pas affectées et ce device ne pourra pas redémarrer dans ce Take.</div>
+      <div class="d-grid gap-2 mt-3">
+        <button id="cdStopConfirm" class="btn btn-danger mainbtn" type="button"><i class="fa-solid fa-stop me-2"></i>Confirmer STOP</button>
+        <button id="cdStopCancel" class="btn btn-outline-light" type="button">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Badge compact pour un device Storage : pas de vue countdown plein écran
+     (UI 07), un simple badge countdown puis REC mm:ss, visible quel que soit
+     l'écran courant. -->
+<div id="recBadge" class="rec-badge d-none" role="status" aria-live="polite">
+  <span class="rec-badge-take" id="recBadgeTake">…</span>
+  <span class="rec-badge-val" id="recBadgeVal">…</span>
+</div>
+
 <!-- ============ Écran 14 — Paramètres du device ============ -->
 <section id="panel-settings" class="screen">
 <header class="card glass strong rounded-4 mb-2">
@@ -503,12 +592,16 @@
 <script src="js/net/session-discovery.js"></script>
 <script src="js/state/arm-model.js"></script>
 <script src="js/state/arm-service.js"></script>
+<script src="js/state/start-model.js"></script>
+<script src="js/native/camera-record.js"></script>
+<script src="js/state/start-service.js"></script>
 <script src="js/ui/home.js"></script>
 <script src="js/ui/session-create.js"></script>
 <script src="js/ui/names.js"></script>
 <script src="js/ui/session.js"></script>
 <script src="js/ui/take.js"></script>
 <script src="js/ui/arm.js"></script>
+<script src="js/ui/countdown.js"></script>
 <script src="js/ui/settings.js"></script>
 <script src="js/main.js"></script>
 </body>
