@@ -277,9 +277,28 @@ Décision §34.1 du référentiel : pendant countdown et REC, **Master est prior
 sur Storage**. Le rôle Storage est principalement utile en fin de Take pour la
 réplication/transfert ; il ne masque pas les commandes Master pendant la prise.
 
+## Revue humaine — intégration effective d'un device ajouté
+
+La revue humaine a révélé qu'un device visible dans « Disponibles sur le LAN » pouvait
+être ajouté comme membre tout en restant inconnu de la session et donc réellement
+déconnecté. Le libellé « Déconnecté » était exact ; le défaut portait sur le workflow
+d'ajout, qui ne contactait pas le device distant.
+
+Le correctif `39faa53` implémente l'intégration effective décidée en §31.2 :
+endpoint WS device publié via TXT `wsep`, invitation `invite_req/invite_ok/invite_nack`,
+serveur WS disponible avant toute session locale et endpoint transmis lors de l'ajout.
+
+Smoke physique final A+B, sans interaction sur B : invitation acceptée, session et rôle
+Capture connus de B, connexion WS réelle visible par A, passage à « Déconnecté » après
+coupure puis reconnexion automatique au boot. Preuves :
+`d7-integration-add-device/`.
+
+Le device invité comme Capture n'est pas promu Master ; il mémorise le véritable Master
+pour permettre la reconnexion. Le PIN reste absent de DNS-SD.
+
 ## Synthèse technique finale J08
 
-**PASS technique.** D1, D2, D3 et D6 sont fermés par correction ou preuve ciblée ;
+**PASS technique.** D1, D2, D3 et D6 sont fermés par correction ou preuve ciblée ; l'intégration effective d'un device ajouté depuis le Master est corrigée et validée physiquement par `39faa53` ;
 D5 est clos sans correction ; D7 est tranché par décision produit. D4 est explicitement
 hors métrique de synchronisation logique J08 et reporté à la qualification média J09.
 L'acceptation humaine finale et le merge vers `main` restent distincts de ce PASS.
