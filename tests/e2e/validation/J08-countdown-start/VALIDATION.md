@@ -1,8 +1,8 @@
 # J08 — Countdown + START synchronisé — validation
 
 Jalon **J08** de `docs/PLAN-DEVELOPPEMENT-V1.md`. Campagne de validation **technique**
-sur 4 devices Android réels. **Aucune acceptation humaine n'est enregistrée à ce
-jour** (elle relève de l'humain, pas de ce dossier).
+sur 4 devices Android réels, complétée par des validations ciblées D1, D3 et D6.
+**Validation technique J08 : PASS. L'acceptation humaine finale reste à enregistrer.**
 
 - Branche : `feat/j08-countdown-start`
 - Base de la branche : `6017baa` (Merge J07 — ARM distribué + synchronisation horloge)
@@ -34,10 +34,10 @@ Les compteurs ci-dessous sont extraits des journaux `logs/<serial>-<section>.log
 | J08-03 | rôles A/B/C Capture, D Storage | `dumps/J08-03-*-members.json` | dumps |
 | J08-04 | Take 1 = 3 Captures + 1 Storage | `{"takeNumber":1,"captures":3,"storages":1}` | dump |
 | J08-05 | ARM distribué READY | `dumps/J08-05-A-arm.json`, `dumps/arm-view-*.json` | dumps |
-| J08-06 | appui REC → plan + countdown 5→1 | **3 `CAMERA_REC_OK`** (A, B, C), **0 sur D** ; countdown **NON VALIDÉ**, voir « D1 » plus bas | logs + 9 captures |
+| J08-06 | appui REC → plan + countdown 5→1 | **VALIDÉ** — 3 `CAMERA_REC_OK` (A, B, C), 0 sur D ; countdown 5→4→3→2→1 corrigé et re-validé en D1 | logs + `d1-countdown-decroissant/` |
 | J08-07 | enregistrement RÉEL par Capture | **VALIDÉ (D6)** — fichier réel mesuré : `videoTmp_11.mp4`, **33 594 520 octets**, **13,440 s**, h264 1920×1080 + aac, décodage sans erreur | `d6-fichier-video-produit/` |
 | J08-08 | écart de top sur 3+ Captures | `deltas = 2 / 3 / 2 ms` | `dumps/top-spread.csv` |
-| J08-09 | D = badge compact, **sans** plein écran | **NON PROUVÉ PHYSIQUEMENT** — voir Limites | dump + capture |
+| J08-09 | affichage selon rôles | **RÈGLE FIGÉE (D7)** — Master prioritaire sur Storage pendant countdown/REC ; badge compact réservé au Storage qui n'est ni Master ni Capture. Le chemin Storage seul reste couvert par les tests UI | `MULTICAM_DECISIONS_REFERENCE.md` §34.1 + tests UI |
 | J08-10 | arrêt local, preuve fichier | **3 `CAMERA_REC_STOP_OK`** avec `path=`, **0 sur D** ; le `path=` est désormais **ouvert et mesuré** — voir D6 | logs + 4 captures + `d6-fichier-video-produit/` |
 | J08-11 | plan annulé avant top → rien | **0 `CAMERA_REC_OK`** et `START_CANCEL sessionId=` + `START_PLAN_ABORTED` sur les **4** devices | logs + 4 captures |
 | J08-12 | 5 START successifs | **5/5**, `phase=REC` à chaque run, ≤1 ms d'écart | console run10 + 15 captures |
@@ -104,8 +104,7 @@ Preuve complète, correctif détaillé et inventaire sha256 :
 [`d1-countdown-decroissant/README.md`](d1-countdown-decroissant/README.md) (§7 à §12),
 artefacts dans `d1-countdown-decroissant/post-correctif/`.
 
-**D1 est donc validé.** Les autres écarts (J08-09, D2 à D8) sont traités séparément et ne
-sont pas concernés par ce correctif.
+**D1 est donc validé.**
 
 
 ## D6 — fichier vidéo réellement produit : VALIDÉ (preuve persistée)
@@ -181,14 +180,12 @@ horloges décalées.
 
 ## Limites connues, assumées
 
-- **J08-09 n'est pas prouvé sur matériel.** D est `Master+Storage` (il a créé la
-  session), donc le routeur lui rend la vue Master `cdRec` et n'affiche pas le
-  badge : `{"visibleViews":["cdRec"],"badgeHidden":true}`. Le chemin
-  `Storage → badge compact, aucun plein écran` est couvert par
-  `tests/plugin-lab/session/countdown-ui.test.js` (13 blocs, verts), pas par un
-  device. Lever cette limite demanderait un 5ᵉ device non-Master, une API de
-  rétrogradation Master→membre, ou une décision sur la **précédence
-  `Master+Storage`**, que `ui/07-countdown/README.md` ne tranche pas.
+- **J08-09 / D7 : ambiguïté levée par décision produit.** La précédence
+  `Master+Storage` est désormais figée dans `MULTICAM_DECISIONS_REFERENCE.md`
+  §34.1 : Master est prioritaire pendant countdown/REC. Le badge compact concerne
+  un Storage qui n'est ni Master ni Capture. Le chemin Storage seul reste couvert
+  par `tests/plugin-lab/session/countdown-ui.test.js` ; aucune nouvelle preuve
+  physique n'a été inventée pour ce cas.
 - **J08-12 : un seul run est dans les journaux par device.** Le script vide
   logcat entre chaque run (`logcat -c`) : `logs/<serial>-J08-12.log` contient le
   run 5. La preuve des 5 runs est dans `logs/campaign-console-run10.log` et les
@@ -255,6 +252,37 @@ une étape de mise en place, pas une correction.
 
 Preuve complète, chronologie, hypothèses écartées et inventaire :
 [`d3-perte-masters-countdown/README.md`](d3-perte-masters-countdown/README.md).
+
+## D4 — portée de la synchronisation J08
+
+J08 valide la **synchronisation du top logique START**. Les mesures de top corrigées
+des offsets d'horloge sont dans la cible du jalon (J08-08/J08-12).
+
+Le délai entre ce top logique et l'ACK du pipeline natif d'enregistrement
+(`CAMERA_REC_OK`) mesure la latence du plugin/encodeur ; il ne constitue pas
+l'erreur de synchronisation J08. L'alignement effectif des médias/images sera
+qualifié dans le jalon ultérieur prévu pour le REC multicam et ses médias (J09).
+Aucune correction J08 n'est donc ouverte sur la seule base de cette latence.
+
+## D5 — fraîcheur des offsets : clos sans correction
+
+Le Master rafraîchit les offsets immédiatement avant de verrouiller le plan START.
+Avec un countdown maximal de 10 s et sans mécanisme de replay/persistance des plans
+dans le transport WS, aucun TTL supplémentaire côté Capture n'est requis pour J08.
+Aucun défaut produit n'a été retenu.
+
+## D7 — précédence Master + Storage : décision produit
+
+Décision §34.1 du référentiel : pendant countdown et REC, **Master est prioritaire
+sur Storage**. Le rôle Storage est principalement utile en fin de Take pour la
+réplication/transfert ; il ne masque pas les commandes Master pendant la prise.
+
+## Synthèse technique finale J08
+
+**PASS technique.** D1, D2, D3 et D6 sont fermés par correction ou preuve ciblée ;
+D5 est clos sans correction ; D7 est tranché par décision produit. D4 est explicitement
+hors métrique de synchronisation logique J08 et reporté à la qualification média J09.
+L'acceptation humaine finale et le merge vers `main` restent distincts de ce PASS.
 
 ## Correctifs de code validés par cette campagne
 
