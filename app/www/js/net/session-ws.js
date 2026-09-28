@@ -109,6 +109,7 @@
     selfEndpoint: "",      /* "ip:effectivePort" (best-effort, rempli au start) */
     advertisedKey: {},     /* sessionId -> dernier TXT publié (dédup des ré-annonces) */
     lastResyncMs: 0,       /* anti-écho : throttle des sync_please (convergence) */
+    txtRepublished: false, /* le TXT device a déjà été republié avec wsep */
     armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
     startBridge: null      /* J08 : pont START (start-service) — idem, zéro logique ici */
   };
@@ -255,6 +256,9 @@
             + " attempts=" + JSON.stringify(tried) + " total=" + (nowMs() - t0) + "ms");
           startHeartbeat();
           refreshSelfEndpoint();
+          /* L'endpoint de transport n'est connu qu'ici : on republie le TXT device
+           * pour qu'un pair puisse nous dialer (§31.2). */
+          republishDeviceTxt();
           resolve({ port: effectivePort });
         }, function (err) {
           advance("execcb:" + JSON.stringify(err));
@@ -262,6 +266,21 @@
       };
       attempt();
     });
+  }
+
+  /* Republie l'annonce device (_multicam._tcp.) pour y faire figurer l'endpoint
+   * de transport de session. Best-effort : l'invitation §31.2 reste possible si
+   * le republi échoue (l'endpoint est alors relu à l'ajout du membre). */
+  function republishDeviceTxt() {
+    var d = global.MultiCamDiscovery;
+    if (!d || typeof d.reannounce !== "function") return;
+    if (state.txtRepublished) return;
+    state.txtRepublished = true;
+    try {
+      d.reannounce();
+    } catch (e) {
+      emit("WS_TXT_REPUBLISH_ERROR err=" + String((e && e.message) || e));
+    }
   }
 
   function stopServer() {
@@ -431,6 +450,15 @@
         break;
       case "join_nack":
         handleJoinNack(env);
+        break;
+      case "invite_req":
+        handleInviteRequest(env, entry, serverConn);
+        break;
+      case "invite_ok":
+        handleInviteOk(env);
+        break;
+      case "invite_nack":
+        handleInviteNack(env);
         break;
       case "member_add":
       case "member_update":
@@ -659,6 +687,168 @@ store().get(env.sessionId).then(function (local) {
   function handleJoinNack(env) {
     state.pendingJoin = { sid: env.sessionId, host: "", port: 0, ok: false, reason: env.reason || "unknown", atMs: nowMs() };
     emit("JOIN_REJECTED sessionId=" + (env.sessionId || "?") + " reason=" + (env.reason || "unknown"));
+    notifyChanged();
+  }
+
+  /* ---------- protocole : invitation (31.2) ---------- */
+
+  /* Décision 31.2 : ajouter un device DÉCOUVERT depuis un Master doit intégrer
+   * RÉELLEMENT ce device. Un broadcast ne suffit pas — tant que le device n'est
+   * pas connecté, peers=0 et rien ne lui parvient. On dialle donc l'endpoint
+   * découvert (mDNS = découverte seule, jamais le PIN) et on lui pousse l'état
+   * de la session ; sa reply invite_ok identifie la connexion des deux côtés
+   * (« Connecté »). Le PIN voyage sur le WS exactement comme join_req, et le
+   * device validé ne reçoit QUE les rôles accordés (modèle, jamais de rôle
+   * forcé). */
+
+  function parseEndpoint(ep) {
+    if (typeof ep !== "string" || !ep) return null;
+    var m = /^(.+):(\d{2,5})$/.exec(ep.trim());
+    if (!m) return null;
+    var port = parseInt(m[2], 10);
+    if (!m[1] || !(port > 0)) return null;
+    return { host: m[1], port: port };
+  }
+
+  function inviteAddedDevice(session, peer, roles) {
+    var sid = session ? session.sessionId : "";
+    var did = peer && peer.deviceId ? peer.deviceId : "";
+    if (!sid || !did) return Promise.resolve(false);
+    var ep = parseEndpoint(peer.endpoint);
+    if (!ep) {
+      emit("INVITE_SKIP sessionId=" + sid + " did=" + did + " reason=no_endpoint");
+      return Promise.resolve(false);
+    }
+    if (connectedPeers(sid)[did]) {
+      emit("INVITE_SKIP sessionId=" + sid + " did=" + did + " reason=already_connected");
+      return Promise.resolve(false);
+    }
+    var member = (session.members || []).filter(function (m) { return m.deviceId === did; })[0] || null;
+    var cfgv = cfg();
+    var payload = {
+      deviceName: state.localName || (cfgv ? cfgv.deviceName : ""),
+      endpoint: refreshSelfEndpoint(),
+      pin: session.pin,
+      roles: roles,
+      member: member ? {
+        deviceId: member.deviceId,
+        deviceName: member.deviceName,
+        enabledSkills: member.enabledSkills.slice()
+      } : null,
+      state: model().sharedView(session)
+    };
+    /* Dial borné : connectTo() ne rejette jamais (un dial impossible reste
+     * suspendu jusqu'au timeout WS), donc on plafonne l'attente pour ne pas
+     * laisser une connexion molle ouverte sur un device hors réseau. */
+    var dialTimeoutMs = 4000;
+    return new Promise(function (resolve, reject) {
+      var settled = false;
+      var timer = setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        reject(new Error("connect_timeout"));
+      }, dialTimeoutMs);
+      connectTo(ep.host, ep.port).then(function (ws) {
+        if (settled) { try { ws.close(); } catch (e) {} return; }
+        settled = true;
+        clearTimeout(timer);
+        resolve(ws);
+      }, function (err) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        reject(err);
+      });
+    }).then(function (ws) {
+      if (!sendOn(ws, envelope("invite_req", sid, payload))) throw new Error("send_failed");
+      emit("INVITE_SENT sessionId=" + sid + " did=" + did + " to=" + ep.host + ":" + ep.port
+        + " roles=[" + payload.roles.join(",") + "]");
+      return true;
+    }).catch(function (err) {
+      emit("INVITE_ERROR sessionId=" + sid + " did=" + did + " endpoint=" + ep.host + ":" + ep.port
+        + " err=" + String((err && err.message) || err));
+      return false;
+    });
+  }
+
+  /* Le device invité reste un membre de rôle (Capture) : il n'est PAS inscrit
+   * dans session.masters, sinon start-service.isMasterRole() lui accorderait le
+   * rôle Master (§34.1). Il enregistre en revanche le Master invitant (avec son
+   * endpoint) : c'est ce qui lui permet de re-dialer A au boot, donc de
+   * réintégrer le réseau sans action locale. Même disposition que le join
+   * manuel, où le joigneur devient Master de transport. */
+  function handleInviteRequest(env, entry, serverConn) {
+    var sid = env.sessionId || "";
+    var selfDid = state.localDid;
+    var refuse = function (reason) {
+      emit("INVITE_REJECT sessionId=" + (sid || "?") + " did=" + selfDid
+        + " reason=" + reason + " from=" + (env.from || "?"));
+      sendReply(entry, serverConn, "invite_nack", sid, { reason: reason });
+    };
+    if (!sid || !env.from || !env.state || !/^\d{4}$/.test(String(env.pin || ""))) { refuse("malformed"); return; }
+    if (env.state.sessionId !== sid) { refuse("session_mismatch"); return; }
+    if (!Array.isArray(env.roles) || !env.roles.length) { refuse("no_role"); return; }
+    var me = (env.member && env.member.deviceId === selfDid) ? env.member : null;
+    store().get(sid).then(function (local) {
+      var modelM = model();
+      var events = [];
+      var s = local;
+      if (!s) {
+        var view = env.state;
+        s = modelM.sanitizeSession({
+          sessionId: sid,
+          name: view.name, nameUpdatedMs: view.nameUpdatedMs, nameByDeviceId: view.nameByDeviceId,
+          state: view.state, stateUpdatedMs: view.stateUpdatedMs, stateByDeviceId: view.stateByDeviceId,
+          createdAtMs: view.createdAtMs, updatedAtMs: view.updatedAtMs,
+          masters: [], members: view.members || [], removedMembers: view.removedMembers || {},
+          takes: view.takes || []
+        });
+      } else {
+        var merged = modelM.mergeSessions(local, env.state);
+        s = merged.session;
+        events = events.concat(merged.events || []);
+      }
+      /* PIN : le Master invitant est l'autorité de la session qu'il héberge
+       * (même source que join_req côté Master). Un PIN déjà identique est un
+       * no-op ; il n'est jamais dérivé d'une annonce mDNS. */
+      if (s.pin !== env.pin) {
+        emit("INVITE_PIN_ADOPTED sessionId=" + sid + " from=" + env.from);
+        s.pin = env.pin;
+      }
+      var add = modelM.addMember(s, {
+        deviceId: selfDid,
+        deviceName: (me && me.deviceName) || state.localName,
+        enabledSkills: (me && me.enabledSkills) || []
+      }, env.roles, env.from);
+      if (!add.ok) { refuse(add.error || "role_rejected"); return; }
+      events = events.concat(add.events || []);
+      var withMaster = modelM.upsertMaster(add.session, {
+        deviceId: env.from, deviceName: env.deviceName, endpoint: env.endpoint, joinedAtMs: nowMs()
+      });
+      events.push({ type: "masterAdded", deviceId: env.from });
+      return store().save(withMaster.session).then(function () {
+        emit("INVITE_ACCEPTED sessionId=" + sid + " did=" + selfDid + " by=" + env.from
+          + " roles=[" + env.roles.join(",") + "]");
+        emitEvents(events, sid, env.from);
+        sendReply(entry, serverConn, "invite_ok", sid, { accepted: true, roles: env.roles });
+        advertiseOne(withMaster.session);
+        notifyChanged();
+      });
+    }).catch(function (err) {
+      emit("INVITE_ERROR sessionId=" + sid + " did=" + selfDid + " err=" + String((err && err.message) || err));
+      sendReply(entry, serverConn, "invite_nack", sid, { reason: "local_error" });
+    });
+  }
+
+  function handleInviteOk(env) {
+    emit("INVITE_OK sessionId=" + (env.sessionId || "?") + " from=" + (env.from || "?")
+      + " roles=[" + ((env.roles || []).join(",") || "?") + "]");
+    notifyChanged();
+  }
+
+  function handleInviteNack(env) {
+    emit("INVITE_NACK sessionId=" + (env.sessionId || "?") + " from=" + (env.from || "?")
+      + " reason=" + (env.reason || "unknown"));
     notifyChanged();
   }
 
@@ -1201,6 +1391,11 @@ store().get(env.sessionId).then(function (local) {
       broadcastMember("member_add", res.session, { member: res.session.members.filter(function (m) { return m.deviceId === peer.deviceId; })[0] });
       broadcast(res.session, "member_add", " did=" + peer.deviceId);
       notifyChanged();
+      /* 31.2 : l'ajout doit intégrer le device, pas seulement l'annoncer —
+       * invitation directe sur l'endpoint découvert. Délibérément NON attendu :
+       * l'écran 03 ne doit jamais rester bloqué sur un device injoignable, et le
+       * device reste membre (il rejoint par le flux normal ensuite). */
+      inviteAddedDevice(res.session, peer, roles);
       return res.session;
     });
   }

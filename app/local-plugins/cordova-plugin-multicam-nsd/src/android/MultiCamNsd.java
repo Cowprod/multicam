@@ -326,6 +326,12 @@ public class MultiCamNsd extends org.apache.cordova.CordovaPlugin {
         }
         if (version.length() > 0) info.setAttribute("ver", version);
         info.setAttribute("sver", String.valueOf(sver));
+        /* Endpoint de transport de session du device ("ip:port" du serveur WS,
+         * PAS le port health 45101). Necessaire pour qu'un pair ayant decouvert
+         * ce device puisse l'inviter sur son WebSocket de session (§31.2) ; sans
+         * secret, donc conforme decision 30.3/30.6 (jamais de PIN). */
+        String wsep = cfg.optString("wsEndpoint", "");
+        if (wsep.length() > 0) info.setAttribute("wsep", wsep);
         return info;
     }
 

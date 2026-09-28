@@ -63,12 +63,24 @@
       sver: 1,
       serviceType: SERVICE_TYPE,
       port: DEFAULT_PORT,
+      wsEndpoint: localWsEndpoint(),
       multicastLock: false
     };
   }
 
   function plugin() {
     return global.MultiCamNsd || null;
+  }
+
+  /* Endpoint de transport de session du device local ("ip:port" du serveur WS,
+   * pas le port health). Publié dans le TXT device (clé wsep) : sans lui, un
+   * pair qui découvre ce device ne peut pas le dialer — §31.2 exige que le
+   * transport de session soit atteignable, la découverte seule ne suffit pas. */
+  function localWsEndpoint() {
+    var ws = global.MultiCamSessionWs;
+    if (!ws || typeof ws.status !== "function") return "";
+    var st = ws.status() || {};
+    return st.selfEndpoint || "";
   }
 
   function notifyChanged() {
@@ -90,7 +102,7 @@
       return {
         deviceId: p.deviceId, name: p.name,
         supported: p.supportedSkills, enabled: p.enabledSkills,
-        version: p.version, endpoint: p.endpoint,
+        version: p.version, endpoint: p.endpoint, wsEndpoint: p.wsEndpoint,
         state: p.state, firstSeen: p.firstSeen, lastSeen: p.lastSeen
       };
     });
@@ -122,7 +134,8 @@
             supportedSkills: Array.isArray(p.supportedSkills) ? p.supportedSkills : splitSkills(p.supported),
             enabledSkills: Array.isArray(p.enabledSkills) ? p.enabledSkills : splitSkills(p.enabled),
             version: p.version || "", host: p.host || "", port: p.port || 0,
-            endpoint: p.endpoint || "", state: "online", firstSeen: now, lastSeen: now
+            endpoint: p.endpoint || "", wsEndpoint: p.wsEndpoint || "",
+            state: "online", firstSeen: now, lastSeen: now
           };
           restored++;
         }
@@ -144,6 +157,7 @@
     if (prev.enabledSkills.join(",") !== next.enabledSkills.join(",")) changed.push("enabled");
     if (prev.version !== next.version) changed.push("version");
     if (prev.endpoint !== next.endpoint) changed.push("endpoint");
+    if (prev.wsEndpoint !== next.wsEndpoint) changed.push("wsEndpoint");
     return changed;
   }
 
@@ -187,12 +201,16 @@
       host: host,
       port: port,
       endpoint: endpoint,
+      /* Endpoint de transport de session du pair (clé TXT wsep) : c'est celui
+       * qu'un Master doit dialer pour inviter/intégrer le device (§31.2). */
+      wsEndpoint: txt.wsep || "",
       state: "online",
       firstSeen: now,
       lastSeen: now,
       lastResolveMs: ev.ts || now
     };
-    emit("MDNS_RESOLVE deviceId=" + did + " result=OK host=" + host + " port=" + port + " service=" + (ev.serviceName || ""));
+    emit("MDNS_RESOLVE deviceId=" + did + " result=OK host=" + host + " port=" + port
+      + " wsep=" + (next.wsEndpoint || "-") + " service=" + (ev.serviceName || ""));
 
     if (!state.peers[did]) {
       state.peers[did] = next;
@@ -217,9 +235,10 @@
       prev.host = next.host;
       prev.port = next.port;
       prev.endpoint = next.endpoint;
+      prev.wsEndpoint = next.wsEndpoint;
       emit("MDNS_PEER_UPDATED deviceId=" + did + " fields=[" + changed.join(",") + "]"
         + " name=" + next.name + " enabled=[" + next.enabledSkills.join(",") + "]"
-        + " endpoint=" + endpoint);
+        + " endpoint=" + endpoint + " wsep=" + (next.wsEndpoint || "-"));
       dumpTable("updated");
       persistPeers("updated");
       notifyChanged();
@@ -422,7 +441,7 @@
       var p = state.peers[did];
       return {
         deviceId: did, name: p.name, supported: p.supportedSkills, enabled: p.enabledSkills,
-        version: p.version, endpoint: p.endpoint, state: p.state
+        version: p.version, endpoint: p.endpoint, wsEndpoint: p.wsEndpoint, state: p.state
       };
     });
   }

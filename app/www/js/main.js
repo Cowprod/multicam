@@ -160,9 +160,11 @@
 
   /* ---------- boot session (J04) ---------- */
 
-  /* Le serveur WebSocket est démarré dès qu'une session locale existe (ouverte ou
-   * fermée) ; ses événements ne dépendent pas de l'écran affiché (30.7). Les
-   * sessions ouvertes sont annoncées en DNS-SD (30.9/30.10). */
+  /* Le serveur WebSocket démarre TOUJOURS au boot, même sans session locale : un
+   * device qui n'a jamais été joint doit pouvoir être intégré par un Master sans
+   * manipulation locale (31.2) — sans écoute, aucune invitation ne peut aboutir.
+   * Ses événements ne dépendent pas de l'écran affiché (30.7) ; les sessions
+   * ouvertes sont annoncées en DNS-SD (30.9/30.10). */
   function bootSession(cfg) {
     global.MultiCamSessionWs.bind(cfg);
     if (global.MultiCamSessionDiscovery) global.MultiCamSessionDiscovery.attach();
@@ -176,7 +178,6 @@
       console.log("SESSION_BOOT stored=" + sessions.length
         + " open=" + sessions.filter(function (s) { return s.state === "open"; }).length
         + " closed=" + sessions.filter(function (s) { return s.state === "closed"; }).length);
-      if (!sessions.length) return;
       return global.MultiCamSessionWs.ensureServer().then(function () {
         return global.MultiCamSessionWs.advertiseOpenSessions().then(function () {
           sessions.forEach(function (s) {

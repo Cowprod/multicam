@@ -251,7 +251,15 @@
     if (member) {
       p = ops().updateMemberRoles(s, did, roles);
     } else {
-      p = ops().addMember(s, { deviceId: did, deviceName: humanName(device), enabledSkills: device.enabledSkills || [] }, roles);
+      p = ops().addMember(s, {
+        deviceId: did,
+        deviceName: humanName(device),
+        enabledSkills: device.enabledSkills || [],
+        /* Endpoint de TRANSPORT de session (TXT wsep) : c'est lui que le Master
+         * doit dialer pour intégrer le device (§31.2) — `endpoint` est le port
+         * health et n'accepterait pas une connexion WebSocket. */
+        endpoint: device.wsEndpoint || ""
+      }, roles);
     }
     p.then(function (upd) {
       console.log("SCREEN03_MEMBER_SAVE mode=" + (member ? "edit" : "add") + " did=" + did + " roles=[" + roles.join(",") + "]");

@@ -1,0 +1,28 @@
+{
+ "note": "lecture seule via devtools, aucune action sur B",
+ "sessionId": "ZUQFCMDV",
+ "name": "J31.2 final 13:25",
+ "state": "open",
+ "pin": "6429",
+ "pinIdentiqueAuMaster": true,
+ "members": [
+  {
+   "did": "7d1d4179-c52e-4260-92d1-3220c33296fd",
+   "roles": [
+    "capture"
+   ],
+   "enabledSkills": [
+    "capture",
+    "storage",
+    "controller"
+   ]
+  }
+ ],
+ "masters": [
+  "d5f6b2a1-2387-4207-836d-90b0072a6cee@192.168.92.57:45102"
+ ],
+ "connectedPeers": [
+  "d5f6b2a1-2387-4207-836d-90b0072a6cee"
+ ],
+ "self": "7d1d4179-c52e-4260-92d1-3220c33296fd"
+}
