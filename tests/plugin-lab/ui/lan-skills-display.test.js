@@ -234,9 +234,48 @@ const SESSION = {
   check(h.peers[0].enabled.join(",") === "capture,storage,controller",
     "DONNÉE INTACTE : le peer découvert est inchangé (aucun filtrage destructif)");
 
+  /* ---- 5. Un device SANS rôle attribuable (enabledSkills ∩ VALID_ROLES vide)
+   * ne doit pas apparaître dans « Disponibles sur le LAN » (§31.2), même
+   * s'il annonce `controller`. Rendu réel, un cas par combinaison. ---- */
+  const CASES = [
+    { skills: ["capture", "storage", "controller"], shown: true,  label: "capture · storage" },
+    { skills: ["capture", "controller"],           shown: true,  label: "capture" },
+    { skills: ["storage", "controller"],           shown: true,  label: "storage" },
+    { skills: ["capture", "storage"],              shown: true,  label: "capture · storage" },
+    { skills: ["controller"],                      shown: false, label: "" },
+    { skills: [],                                  shown: false, label: "" }
+  ];
+  for (const c of CASES) {
+    const skills = c.skills.join(",") || "(aucune)";
+    const peer = Object.assign({}, PEER, { enabledSkills: c.skills.slice(), enabled: c.skills.slice() });
+    const hc = harness([peer], SESSION);
+    hc.ctx.MultiCamSessionScreen.show({ deviceName: "Cam D1" }, { sid: "TESTP1N" });
+    await flush(); await flush(); await flush();
+
+    const cardHtml = hc.dom.els.availableList.innerHTML;
+    const listed = cardHtml.indexOf("Cam D4") >= 0;
+    if (c.shown) {
+      check(listed, "[" + skills + "] → device affiché dans les disponibles");
+      check(cardHtml.indexOf("<div class=\"small muted\">" + c.label + "</div>") >= 0,
+        "[" + skills + "] → affiche « " + c.label + " »");
+      check(cardHtml.indexOf("controller") < 0, "[" + skills + "] → aucun controller visible");
+      check(/member-add/.test(cardHtml), "[" + skills + "] → bouton [Ajouter] présent");
+      check(hc.dom.els.availableCount.textContent === "1", "[" + skills + "] → count=1");
+    } else {
+      check(!listed, "[" + skills + "] → device ABSENT de « Disponibles sur le LAN »");
+      check(hc.dom.els.availableCount.textContent === "0", "[" + skills + "] → count=0");
+      check(/Aucun device disponible sur le LAN/.test(cardHtml),
+        "[" + skills + "] → état vide « Aucun device disponible sur le LAN »");
+      check(/member-add/.test(cardHtml) === false, "[" + skills + "] → aucun bouton [Ajouter]");
+      /* masquage d'affichage seul : la donnée technique reste disponible */
+      check(JSON.stringify(hc.peers[0].enabledSkills) === JSON.stringify(c.skills),
+        "[" + skills + "] → DONNÉE INTACTE : le peer découvert est inchangé (aucun filtrage destructif)");
+    }
+  }
+
   if (failures > 0) {
     console.log("\n" + failures + " échec(s)");
     process.exit(1);
   }
-  console.log("\nOK — controller masqué dans le workflow d'ajout, donnée préservée");
+  console.log("\nOK — controller masqué, devices sans rôle attribuable absents, donnée préservée");
 })();

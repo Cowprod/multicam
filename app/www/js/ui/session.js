@@ -176,7 +176,14 @@
     var memberSet = {};
     members.forEach(function (m) { memberSet[m.deviceId] = true; });
     var peers = (global.MultiCamDiscovery && global.MultiCamDiscovery.peers) ? global.MultiCamDiscovery.peers() : [];
-    var available = peers.filter(function (p) { return p && p.deviceId && !memberSet[p.deviceId]; });
+    /* §31.2 : n'est listé que le device ayant au moins un rôle ATTRIBUABLE
+     * (enabledSkills ∩ VALID_ROLES non vide). Un device n'annonçant que
+     * `controller` (ou rien) n'a rien à proposer dans ce workflow : il est
+     * absent de la liste. Filtrage d'affichage uniquement — la table de
+     * découverte et le reste de l'app ignorent ce filtre. */
+    var available = peers.filter(function (p) {
+      return p && p.deviceId && !memberSet[p.deviceId] && displaySkills(p).length > 0;
+    });
     countEl.textContent = String(available.length);
     if (!available.length) {
       listEl.innerHTML = '<div class="empty-state">Aucun device disponible sur le LAN</div>';
