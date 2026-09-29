@@ -1,0 +1,13 @@
+# Preuve 1 — boot multi-session (11 sessions ouvertes, AUCUNE interaction ecran)
+# 8 sessions avec un Master connu : 8 RE_SYNC_START, 0 RE_SYNC_THROTTLED
+# AVANT le correctif : 1 RE_SYNC_START + 8 RE_SYNC_THROTTLED
+
+"SESSION_BOOT stored=11 open=11 closed=0"
+"RE_SYNC_START sessionId=5YZFC9KA peers=1 list=["
+"RE_SYNC_START sessionId=JB77VB64 peers=1 list=["
+"RE_SYNC_START sessionId=8UXGFXT2 peers=1 list=["
+"RE_SYNC_START sessionId=RGR4M7AA peers=1 list=["
+"RE_SYNC_START sessionId=ZUQFCMDV peers=1 list=["
+"RE_SYNC_START sessionId=YEQWN8BN peers=1 list=["
+"RE_SYNC_START sessionId=UX8ZA4FT peers=1 list=["
+"RE_SYNC_START sessionId=TQMPQ86M peers=4 list=["

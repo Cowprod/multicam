@@ -108,7 +108,7 @@
     localName: "",
     selfEndpoint: "",      /* "ip:effectivePort" (best-effort, rempli au start) */
     advertisedKey: {},     /* sessionId -> dernier TXT publié (dédup des ré-annonces) */
-    lastResyncMs: 0,       /* anti-écho : throttle des sync_please (convergence) */
+    lastResyncAt: {},      /* anti-écho PAR SESSION : sid -> dernier sync_please (convergence) */
     txtRepublished: false, /* le TXT device a déjà été republié avec wsep */
     armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
     startBridge: null      /* J08 : pont START (start-service) — idem, zéro logique ici */
@@ -1227,15 +1227,33 @@ store().get(env.sessionId).then(function (local) {
   }
 
   function reSyncSession(session) {
-    /* Throttle convergence (meilleure pratique anti-écho) : au plus une requête
-     * sync_please toutes les 1 500 ms. Les diff sont déjà portés en temps réel
-     * par le canal WS ; sync_please n'est qu'un mécanisme de réparation. */
-    var now = nowMs();
-    if (now - state.lastResyncMs < 1500) {
-      emit("RE_SYNC_THROTTLED sessionId=" + session.sessionId + " dt=" + (now - state.lastResyncMs) + "ms");
+    var sid = session && session.sessionId;
+    /* Garde-fou : sans sessionId on ne sait ni journaliser ni dédupliquer.
+     * On sort AVANT de toucher au throttle — sinon une session malformée
+     * consommerait le budget d'une session réelle et l'empêcherait de
+     * re-synchroniser au boot. */
+    if (!sid) {
+      emit("RE_SYNC_SKIP sessionId=? reason=no_session_id");
       return;
     }
-    state.lastResyncMs = now;
+    /* Throttle convergence (meilleure pratique anti-écho) : au plus une requête
+     * sync_please toutes les 1 500 ms POUR UNE MÊME SESSION. Les diff sont déjà
+     * portés en temps réel par le canal WS ; sync_please n'est qu'un mécanisme de
+     * réparation.
+     *
+     * Le throttle est VOLONTAIREMENT indexé par sessionId : au boot,
+     * `main.js:bootSession()` appelle cette fonction pour TOUTES les sessions
+     * ouvertes dans un `forEach` synchrone. Avec un compteur global, la première
+     * session consommait le quota et toutes les suivantes étaient rejetées à
+     * quelques ms près — sans jamais être rejouées, faute de retry : sur un
+     * device multi-sessions, une seule session re-rejoignait son Master au boot. */
+    var now = nowMs();
+    var last = state.lastResyncAt[sid] || 0;
+    if (now - last < 1500) {
+      emit("RE_SYNC_THROTTLED sessionId=" + sid + " dt=" + (now - last) + "ms");
+      return;
+    }
+    state.lastResyncAt[sid] = now;
     /* Reproche l'état aux Masters connus (endpoints persistés). Best-effort. */
     var knownMasterDid = [];
     (session.masters || []).forEach(function (m) {
