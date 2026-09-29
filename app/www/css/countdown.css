@@ -3,8 +3,11 @@
  * Fond SOMBRE STATIQUE (maquette 07) : pendant le countdown on évite tout fond
  * animé et toute mosaïque — le coût de rendu doit rester minimal à l'instant
  * exact du top. La preview native de la Capture est DERRIÈRE le WebView
- * (toBack:true), ce panneau n'est donc pas opaque : `.cd-screen` laisse
- * transparaître la couche `.vig`.
+ * (toBack:true) : ce panneau n'est donc pas opaque, et depuis J09 §35.1 la
+ * preview est un fond PERMANENT (ouverte dès le boot sur un device Capture,
+ * pas seulement pendant le countdown). La transparence réelle du document est
+ * conditionnée à l'état `camera-preview-active` posé par preview-service.js
+ * (voir css/app.css) : ici on ne fait que ne pas ajouter de fond par-dessus.
  *
  * Aucun son, aucune vibration : ce fichier ne contient que des règles
  * d'affichage (aucune animation de valeur, seulement l'apparition du chiffre).

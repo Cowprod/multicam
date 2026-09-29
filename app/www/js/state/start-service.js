@@ -18,6 +18,21 @@
  *   - le STOP d'urgence local passe par le modèle (stopLocal), qui appelle
  *     `deps.stopRecording` : le service ne fait JAMAIS de stop en doublon.
  *
+ * ---------- J09 §35.1 : la preview n'est plus une propriété du plan ----------
+ *
+ * La preview caméra locale est devenue le FOND PERMANENT d'un device Capture
+ * (skill Capture active + application au premier plan). Sa durée de vie
+ * appartient désormais à `state/preview-service.js`, et plus à un plan de
+ * START. Conséquences dans CE module :
+ *   - `prepareCapture()` reste le seul point de CONSOMMATION de la caméra au
+ *     top, mais il est idempotent : la preview étant déjà ouverte, il renvoie
+ *     `reused:true` sans rappeler `startCamera` (aucun clignotement, aucune
+ *     seconde caméra) ;
+ *   - la fin d'un plan (annulation, STOP local) n'appelle PLUS `releaseCapture` :
+ *     un plan abandonné ne doit pas éteindre le fond caméra (§35.1) ;
+ *   - `releaseIfIdle()` ne ferme plus la caméra : il demande au service de
+ *     preview de ré-évaluer son besoin.
+ *
  * Un point d'évaluation unique pour la readiness locale : captureReady(). Il
  * ne se contente pas de dire « le modèle est prêt » : il prépare réellement la
  * caméra si nécessaire et traduit l'échec en cause affichable. Une Capture
@@ -242,6 +257,17 @@
     });
   }
 
+  /* J09 §35.1 — PLUS AUCUN APPELANT.
+   *
+   * La fermeture de la caméra n'appartient plus à ce module : c'est
+   * `state/preview-service.js` qui décide de la durée de vie de la preview
+   * (skill Capture + premier plan). Appeler cette fonction depuis la fin d'un
+   * plan — annulation, STOP local, changement de Take — éteindrait le fond
+   * caméra, ce que §35.1 interdit explicitement.
+   *
+   * Conservée et exportée comme point de fermeture EXPLICITE, pour les jalons
+   * qui en auront besoin (teardown d'application, fermeture de session
+   * volontaire). Ne pas la réintroduire dans `cancel` / `stopLocal`. */
   function releaseCapture(reason) {
     if (!camera() || typeof camera().release !== "function") return Promise.resolve();
     return Promise.resolve(camera().release(reason)).catch(function () { });
@@ -482,22 +508,19 @@
   function cancel(reason) {
     var m = machine();
     if (!m) return Promise.reject(new Error("no_machine"));
-    return Promise.resolve(m.cancel(reason || "master_cancel")).then(function (v) {
-      /* Plan annulé : plus rien ne sera enregistré, on relâche la préparation
-       * (sauf si un enregistrement était déjà engagé). */
-      releaseCapture("cancel:" + (reason || "master_cancel"));
-      return v;
-    });
+    /* J09 §35.1 : la fin d'un plan n'éteint PAS la preview locale. La caméra est
+     * le fond permanent d'un device Capture ; elle est possédée par
+     * `preview-service.js` et survit à l'annulation. Libérer ici éteindrait le
+     * fond caméra à chaque plan abandonné. */
+    return Promise.resolve(m.cancel(reason || "master_cancel"));
   }
 
-  /* STOP d'urgence (écran 08, Master isolé) ou arrêt du placeholder. */
+  /* STOP d'urgence (écran 08, Master isolé) ou arrêt du placeholder.
+   * Même règle qu'au cancel : l'enregistrement s'arrête, la preview reste. */
   function stopLocal(reason) {
     var m = machine();
     if (!m) return Promise.reject(new Error("no_machine"));
-    return Promise.resolve(m.stopLocal(reason || "emergency")).then(function (v) {
-      releaseCapture("local_stop");
-      return v;
-    });
+    return Promise.resolve(m.stopLocal(reason || "emergency"));
   }
 
   /* Réévalue l'éligibilité locale (exclusion / réintégration). L'UI l'appelle
@@ -526,14 +549,19 @@
     return !!(camera() && camera().isRecording && camera().isRecording());
   }
 
-  /* Session fermée / changement de Take : on ne laisse ni préparation ni
-   * enregistrement dangling quand c'est possible sans arrêter un REC en cours. */
+  /* J09 §35.1 : ce point NE ferme plus la caméra. La preview permanente est
+   * possédée par `preview-service.js` (skill Capture + premier plan) ; un
+   * changement de session, un plan annulé ou un STOP local n'ont aucune
+   * raison de l'éteindre. La fonction demande donc au service de preview de
+   * RÉÉVALUER son besoin, et rien d'autre. */
   function releaseIfIdle(reason) {
     if (isRecording()) {
       log("START_SERVICE_RELEASE_SKIP reason=" + (reason || "—") + " note=recording_in_progress");
       return Promise.resolve(false);
     }
-    return releaseCapture(reason || "session_change").then(function () { return true; });
+    var pv = global.MultiCamPreviewService;
+    if (!pv || typeof pv.reconcile !== "function") return Promise.resolve(false);
+    return Promise.resolve(pv.reconcile(reason || "session_change")).then(function () { return true; });
   }
 
   global.MultiCamStartService = {

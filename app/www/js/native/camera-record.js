@@ -28,7 +28,24 @@
  * Toutes les fonctions renvoient des Promises et ne lèvent jamais dans le
  * WebView : un échec est un rejet porteur d'un message exploitable par le modèle
  * (START_LOCAL_ERROR status=ERROR) plutôt qu'une exception muette.
- */
+ *
+ * ---------- J09 (§35.1) : preview permanente ≠ enregistrement ----------
+ *
+ * La preview locale est devenue le FOND PERMANENT de l'application sur un
+ * device Capture ; sa durée de vie n'est donc plus pilotée par un plan de START
+ * mais par `state/preview-service.js` (skill Capture + premier plan Android).
+ * Ce module reste le SEUL possesseur de la caméra et expose désormais deux
+ * notions explicitement séparées :
+ *
+ *   - la PREVIEW  (`prepared`) : surface native ouverte, image locale visible
+ *     derrière le WebView. Elle survit à l'arrêt d'un enregistrement.
+ *   - l'ENREGISTREMENT (`recording`) : MediaRecorder en cours sur la MÊME
+ *     caméra. Il ne possède pas la caméra : il l'emprunte.
+ *
+ * Conséquence directe : `stopRecording()` ne ferme plus la caméra (§35.1
+ * « quitter le REC ne signifie pas fermer la preview »). La fermeture
+ * complète est une décision EXPLICITE, prise par le service de preview
+ * (`stopPreview`) ou par un teardown (`teardown`). */
 
 (function (global) {
   "use strict";
@@ -260,34 +277,80 @@
     });
   }
 
-  /* Arrête l'enregistrement et libère la caméra. Retour : { atMs, path, detail }
-   * (le chemin du fichier est celui que J09 exploitera ; J08 le journalise
-   * seulement). Résout même si rien n'était démarré (idempotent). */
+  /* Arrête l'enregistrement et RENVOIE la caméra à la preview permanente.
+   * Retour : { atMs, path, detail } (le chemin du fichier est celui que J09
+   * exploitera ; J08 le journalise seulement). Résout même si rien n'était
+   * démarré (idempotent).
+   *
+   * J09 §35.1 : NE ferme PLUS la caméra. La preview est un fond permanent
+   * dont la durée de vie appartient à `preview-service.js` ; seul un arrêt
+   * explicite de cette preview (arrière-plan, skill Capture désactivée) la
+   * ferme. Avant J09, cette fonction appelait `release("stopped")` et
+   * extinguishait donc la preview au STOP. */
   function stopRecording() {
     var cp = plugin();
     if (!state.recording) {
-      var t = nowMs();
-      return release("stop_no_recording").then(function () {
-        return { atMs: t, path: state.videoPath || "", detail: "not_recording" };
-      });
+      var t0 = nowMs();
+      return Promise.resolve({ atMs: t0, path: state.videoPath || "", detail: "not_recording" });
     }
     state.recording = false;
     return new Promise(function (resolve, reject) {
       cp.stopRecordVideo(function (p) {
         var atMs = nowMs();
         state.videoPath = (typeof p === "string") ? p : "";
-        log("CAMERA_REC_STOP_OK atMs=" + atMs + " path=" + (state.videoPath || "—"));
-        release("stopped").then(function () {
-          resolve({ atMs: atMs, path: state.videoPath, detail: "stopRecordVideo_ok" });
-        });
+        log("CAMERA_REC_STOP_OK atMs=" + atMs + " path=" + (state.videoPath || "—")
+          + " previewKept=" + (state.prepared ? 1 : 0));
+        resolve({ atMs: atMs, path: state.videoPath, detail: "stopRecordVideo_ok" });
       }, function (e) {
         state.lastError = String(e);
         log("CAMERA_REC_STOP_KO err=" + String(e));
-        release("stop_failed").then(function () {
-          reject(new Error("stopRecordVideo_failed:" + String(e)));
-        });
+        reject(new Error("stopRecordVideo_failed:" + String(e)));
       });
     });
+  }
+
+  /* ---------- J09 §35.1 : cycle de vie de la preview permanente ---------- */
+
+  /* Ouvre (ou réutilise) la preview locale. Idempotent : si la surface est
+   * déjà là — cas normal au top d'un plan, la preview étant permanente — on
+   * renvoie `reused:true` SANS rappeler startCamera. C'est ce qui garantit
+   * l'absence de double ouverture (et donc de clignotement) au passage
+   * COUNTDOWN → REC. */
+  function startPreview(opts) {
+    opts = opts || {};
+    return prepare(opts).then(function (r) {
+      var v = r || {};
+      log("CAMERA_PREVIEW_OPEN startPlanId=" + (opts.startPlanId || "—")
+        + " reused=" + (v.reused ? 1 : 0)
+        + " dt=" + ((v.preparedAtMs || 0) - (opts.atMs || 0)) + "ms");
+      return r;
+    });
+  }
+
+  /* Ferme la preview locale (libère la caméra).
+   *
+   * REFUS CONSCIENT de fermer pendant un enregistrement : la caméra est alors
+   * prêtée à MediaRecorder, et arrêter un REC parce que l'application passe en
+   * arrière-plan est une décision de produit qui appartient au jalon J10
+   * (STOP synchronisé), pas à J09. On diffère donc et on le journalise
+   * honnêtement plutôt que de tuer un enregistrement en cours. */
+  function stopPreview(reason) {
+    return release(reason).then(function (r) {
+      if (r && r.released === false) {
+        log("CAMERA_PREVIEW_STOP_DEFERRED reason=" + (reason || "—") + " note=recording_in_progress");
+      }
+      return r;
+    });
+  }
+
+  /* Fermeture COMPLÈTE et explicite : enregistrement puis preview. Réservé au
+   * cycle de vie de l'application (arrière-plan prolongé, changement de
+   * session, teardown de test) — jamais appelé par un simple STOP de plan. */
+  function teardown(reason) {
+    var r = reason || "teardown";
+    if (!state.recording) return stopPreview(r);
+    return stopRecording().then(function () { return stopPreview(r); },
+      function () { return stopPreview(r); });
   }
 
   /* `preparing` et `lastError` sont exposés PARCE QUE le point d'évaluation de
@@ -327,6 +390,9 @@
     release: release,
     startRecording: startRecording,
     stopRecording: stopRecording,
+    startPreview: startPreview,
+    stopPreview: stopPreview,
+    teardown: teardown,
     view: view,
     isRecording: isRecording,
     reset: reset,

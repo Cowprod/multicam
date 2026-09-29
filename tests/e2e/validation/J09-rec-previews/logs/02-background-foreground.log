@@ -1,0 +1,8 @@
+09-29 12:48:17.731 I/chromium(21299): [INFO:CONSOLE:65] "CAMERA_PREVIEW_LIFECYCLE event=pause foreground=0", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:48:17.732 I/chromium(21299): [INFO:CONSOLE:65] "CAMERA_PREVIEW_STOP reason=background", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:48:17.736 I/chromium(21299): [INFO:CONSOLE:65] "CAMERA_PREVIEW_STATE active=0 recording=0 reason=pause", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:48:21.717 I/chromium(21299): [INFO:CONSOLE:65] "CAMERA_PREVIEW_LIFECYCLE event=resume foreground=1", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:48:21.717 I/chromium(21299): [INFO:CONSOLE:65] "CAMERA_PREVIEW_START reason=resume camera=back toBack=1", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:48:21.875 I/chromium(21299): [INFO:CONSOLE:68] "CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=185ms", source: http://localhost/js/native/camera-record.js (68)
+09-29 12:48:21.875 I/chromium(21299): [INFO:CONSOLE:65] "CAMERA_PREVIEW_OK reused=0 recording=0", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:48:21.875 I/chromium(21299): [INFO:CONSOLE:65] "CAMERA_PREVIEW_STATE active=1 recording=0 reason=resume", source: http://localhost/js/state/preview-service.js (65)

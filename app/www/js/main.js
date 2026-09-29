@@ -212,6 +212,21 @@
       appCfg = cfg;
       bootSession(cfg);
 
+      /* J09 §35.1 : la preview caméra locale est un FOND PERMANENT sur un
+       * device dont la skill Capture est active — pas une conséquence d'un
+       * plan de START. Le service est donc lié au boot, AVANT tout écran, et
+       * c'est lui seul qui décide d'ouvrir/fermer la caméra. Il s'abonne au
+       * cycle de vie Android (pause/resume) et aux changements de skill. */
+      if (global.MultiCamPreviewService) {
+        global.MultiCamPreviewService.bind();
+        var pv = global.MultiCamPreviewService.view();
+        console.log("PREVIEW_SERVICE_READY captureSkill=" + (pv.captureEnabled ? 1 : 0)
+          + " foreground=" + (pv.foreground ? 1 : 0)
+          + " desired=" + (pv.desired ? 1 : 0));
+      } else {
+        console.log("PREVIEW_SERVICE_UNAVAILABLE reason=module_absent");
+      }
+
       global.MultiCamHome.render(cfg);
       global.MultiCamHome.bind();
       bindBackButtons();

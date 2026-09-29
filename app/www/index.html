@@ -12,8 +12,16 @@
 <link href="css/countdown.css" rel="stylesheet">
 </head>
 <body>
+<!-- Fond permanent = preview caméra locale (décision §35.1). Sur un device
+     Capture, la SurfaceView native est placée DERRIÈRE la WebView (toBack:true)
+     et le service de preview pose `camera-preview-active` sur <html>/<body> :
+     le fond devient alors transparent et ce rectangle est justement la zone à
+     travers laquelle la caméra apparaît. Sans cet état (device non-Capture,
+     caméra fermée ou en erreur), le fond sombre #111827 est conservé tel quel.
+     La couche .vig ci-dessous est le voile qui garantit la lisibilité par-
+     dessus cette image ; son intensité est renforcée quand la preview est
+     active (voir css/app.css). -->
 <div class="root">
-<!-- Reserve : preview camera native quelques jalons plus tard (J09). WebView transparente, toBack. -->
 <div class="vig"></div>
 <main class="shell">
 
@@ -594,6 +602,7 @@
 <script src="js/state/arm-service.js"></script>
 <script src="js/state/start-model.js"></script>
 <script src="js/native/camera-record.js"></script>
+<script src="js/state/preview-service.js"></script>
 <script src="js/state/start-service.js"></script>
 <script src="js/ui/home.js"></script>
 <script src="js/ui/session-create.js"></script>

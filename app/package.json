@@ -4,6 +4,7 @@
   "private": true,
   "description": "Application Cordova Android MultiCam — captation video multi-device sur LAN",
   "scripts": {
+    "test": "node tests/run.js",
     "build:android": "cordova build android",
     "run:android": "cordova run android"
   },

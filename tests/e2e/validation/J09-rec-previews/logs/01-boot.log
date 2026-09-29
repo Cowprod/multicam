@@ -1,0 +1,6 @@
+09-29 12:54:12.047 I/chromium(22722): [INFO:CONSOLE:208] "PIXELCOPY_READY method=1", source: http://localhost/js/main.js (208)
+09-29 12:54:12.102 I/chromium(22722): [INFO:CONSOLE:223] "PREVIEW_SERVICE_READY captureSkill=1 foreground=1 desired=1", source: http://localhost/js/main.js (223)
+09-29 12:54:12.121 I/chromium(22722): [INFO:CONSOLE:65] "CAMERA_PREVIEW_START reason=boot camera=back toBack=1", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:54:12.446 I/chromium(22722): [INFO:CONSOLE:68] "CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=319ms", source: http://localhost/js/native/camera-record.js (68)
+09-29 12:54:12.446 I/chromium(22722): [INFO:CONSOLE:65] "CAMERA_PREVIEW_OK reused=0 recording=0", source: http://localhost/js/state/preview-service.js (65)
+09-29 12:54:12.446 I/chromium(22722): [INFO:CONSOLE:65] "CAMERA_PREVIEW_STATE active=1 recording=0 reason=boot", source: http://localhost/js/state/preview-service.js (65)

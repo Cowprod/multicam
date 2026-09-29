@@ -23,6 +23,16 @@
   };
 
   var STATE = null;
+  var CHANGE_LISTENERS = [];
+
+  /* Notifie les abonnés de toute mutation PERSISTÉE de la configuration.
+   * J09 §35.1 : le service de preview locale doit savoir immédiatement si la
+   * skill Capture est activée/désactivée — il n'y a pas de Scruter ici. */
+  function emitChange(what) {
+    CHANGE_LISTENERS.slice().forEach(function (fn) {
+      try { fn(STATE, what); } catch (e) { /* un abonné ne casse pas la config */ }
+    });
+  }
 
   function defaultConfig() {
     return {
@@ -178,6 +188,7 @@
     STATE.deviceName = n;
     return persist().then(function () {
       console.log("DEVICE_NAME_SET name=" + STATE.deviceName);
+      emitChange("device_name");
       return STATE;
     });
   }
@@ -198,6 +209,7 @@
     else STATE.enabledSkills = STATE.enabledSkills.filter(function (s) { return s !== skill; });
     return persist().then(function () {
       console.log("SKILL_SET skill=" + skill + " enabled=" + (enabled ? 1 : 0) + " result=OK");
+      emitChange("skill:" + skill);
       return STATE;
     });
   }
@@ -234,6 +246,14 @@
     isControllerEnabled: function () {
       return STATE && STATE.enabledSkills.indexOf("controller") >= 0;
     },
-    skillMeta: SKILL_META
+    skillMeta: SKILL_META,
+    onChange: function (fn) {
+      if (typeof fn === "function" && CHANGE_LISTENERS.indexOf(fn) < 0) CHANGE_LISTENERS.push(fn);
+      return fn;
+    },
+    offChange: function (fn) {
+      var i = CHANGE_LISTENERS.indexOf(fn);
+      if (i >= 0) CHANGE_LISTENERS.splice(i, 1);
+    }
   };
 })(window);
