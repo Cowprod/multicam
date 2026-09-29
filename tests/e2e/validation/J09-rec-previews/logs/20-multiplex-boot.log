@@ -1,0 +1,17 @@
+# Preuve 20 — Multiplexage : 1 connexion physique, 2 sessions
+# Capture 61d54bba7d91 (Cam-B) au boot, S1=88FQCPDK S2=QXTFCUQ6, AUCUNE interaction ecran
+# Master = c0d8514d7d87 (Regie-M) sur <MASTER>
+
+## Connexions physiques vers le Master (1 seule attendue)
+
+"WS_CLIENT_OPEN endpoint=<MASTER>"
+
+## sync_please reellement emis (apres le WS_CLIENT_OPEN, plus de course)
+
+"SYNC_PLEASE_SENT sessionId=S2 to=92d58e97-c418-47cc-87c5-6a080aff5faf endpoint=<MASTER>"
+"SYNC_PLEASE_SENT sessionId=TQMPQ86M to=92d58e97-c418-47cc-87c5-6a080aff5faf endpoint=<MASTER>"
+"SYNC_PLEASE_SENT sessionId=S1 to=92d58e97-c418-47cc-87c5-6a080aff5faf endpoint=<MASTER>"
+
+## Aucun DROP (= aucun envoi refuse par sendOn)
+
+SYNC_PLEASE_DROP total : 0

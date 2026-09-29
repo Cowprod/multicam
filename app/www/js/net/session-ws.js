@@ -120,6 +120,35 @@
     state.listeners.slice().forEach(function (fn) { fn(); });
   }
 
+  /* ---------- présence par session sur une connexion multiplexée ----------
+   *
+   * MODÈLE : une connexion WS physique représente UN PAIR GLOBAL, pas une
+   * session. `connectTo()` indexe les connexions client par endpoint
+   * "host:port", et `reSyncSession()` rappelle `connectTo(host, port)` pour
+   * CHAQUE session d'un même Master : une seule connexion sert donc plusieurs
+   * sessions, chacune discriminée par le `sessionId` de son enveloppe.
+   *
+   * L'appartenance est donc un ENSEMBLE (`sessions`, sid -> dernier rx), et non
+   * un scalaire `sessionId` réécrit à chaque message reçu. Le scalaire faisait
+   * deux choses fausses : la présence disparaissait de `connectedPeers` pour les
+   * sessions.transportées mais non parlées en dernier, ET `broadcast()` skippait
+   * le pair pour ces mêmes sessions — perte de messages réelle.
+   *
+   * `sessions === null` = connexion jamais marquée (avant tout message
+   * identifiant une session) : fail-open historique conservé.
+   */
+  function markSession(entry, sid, now) {
+    if (!entry || !sid) return;
+    if (!entry.sessions) entry.sessions = {};
+    entry.sessions[sid] = now;
+  }
+
+  function inSession(entry, sid) {
+    if (!entry) return false;
+    if (!entry.sessions) return true;   /* jamais marquée : fail-open historique */
+    return !!entry.sessions[sid];
+  }
+
   function cfg() {
     return (global.MultiCamConfig && global.MultiCamConfig.get) ? global.MultiCamConfig.get() : null;
   }
@@ -166,7 +195,7 @@
       remoteAddr: conn.remoteAddr || "",
       resource: conn.resource || "",
       peerDid: null,
-      sessionId: null,
+      sessions: null,      /* sid -> dernier rx ; null = jamais marquée (fail-open) */
       anonymous: true,
       lastRxMs: nowMs()
     };
@@ -308,8 +337,11 @@
     if (prev && prev.ws && prev.ws.readyState === WebSocket.OPEN) {
       return Promise.resolve(prev.ws);
     }
-    if (prev && (prev.closing || prev.ws.readyState === WebSocket.CONNECTING)) {
-      return Promise.resolve(prev.ws);
+    if (prev && !prev.closing && prev.openPromise) {
+      /* Connexion EN COURS : on attend son ouverture au lieu de résoudre
+       * immédiatement. Résoudre sur un socket CONNECTING faisait perdre le
+       * message — `sendOn()` refuse un socket non ouvert. */
+      return prev.openPromise;
     }
     return new Promise(function (resolve, reject) {
       var url = "ws://" + key;
@@ -321,12 +353,16 @@
         reject(e);
         return;
       }
-      var entry = { ws: ws, did: null, sessionId: null, lastRxMs: nowMs(), closing: false };
+      var entry = { ws: ws, did: null, sessions: null, lastRxMs: nowMs(), closing: false, openPromise: null };
+      /* Résolue à l'ouverture : les appels concurrents à `connectTo` pour le même
+       * endpoint (une par session au boot) patientent au lieu d'écrire dans le vide. */
+      entry.openPromise = new Promise(function (res) { entry.resolveOpen = res; });
       state.clientConns[key] = entry;
       ws.binaryType = "arraybuffer";
       ws.onopen = function () {
         if (entry.closing) return;
         emit("WS_CLIENT_OPEN endpoint=" + key);
+        entry.resolveOpen(ws);
         resolve(ws);
         notifyChanged();
       };
@@ -336,7 +372,7 @@
           var env = parseEnvelope(ev.data);
           if (env) {
             if (env.from) entry.did = env.from;
-            if (env.sessionId) entry.sessionId = env.sessionId;
+            markSession(entry, env.sessionId, nowMs());
             handleIncoming(env, entry);
           } else {
             emit("WS_CLIENT_PARSE_ERROR endpoint=" + key);
@@ -419,7 +455,7 @@
     var entry = state.serverConns[conn.uuid];
     if (entry) entry.lastRxMs = nowMs();
     if (entry && env.from) entry.peerDid = env.from;
-    if (entry && env.sessionId) entry.sessionId = env.sessionId;
+    if (entry) markSession(entry, env.sessionId, nowMs());
     /* Lie le conn au deviceId/peer en amont du traitement (broadcast + PEER_CONNECTED). */
     if (entry && env.from) {
       var wasUnknown = !entry.peerDid;
@@ -1146,13 +1182,13 @@ store().get(env.sessionId).then(function (local) {
     var sent = 0;
     Object.keys(state.serverConns).forEach(function (uuid) {
       var entry = state.serverConns[uuid];
-      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId || !entry.peerDid)) {
+      if (entry && (inSession(entry, session.sessionId) || !entry.peerDid)) {
         if (sendServer(uuid, env)) sent++;
       }
     });
     Object.keys(state.clientConns).forEach(function (key) {
       var entry = state.clientConns[key];
-      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId)) {
+      if (entry && inSession(entry, session.sessionId)) {
         if (sendOn(entry.ws, env)) sent++;
       }
     });
@@ -1266,9 +1302,15 @@ store().get(env.sessionId).then(function (local) {
           knownMasterDid.push(m.deviceId);
           connectTo(host, port).then(function (ws) {
             var env = envelope("sync_please", session.sessionId, {});
-            sendOn(ws, env);
-            emit("SYNC_PLEASE_SENT sessionId=" + session.sessionId + " to=" + m.deviceId
-              + " endpoint=" + m.endpoint);
+            /* `SYNC_PLEASE_SENT` doit refléter un envoi RÉEL : sinon le log
+             * certifie des messages que `sendOn()` a refusés. */
+            if (sendOn(ws, env)) {
+              emit("SYNC_PLEASE_SENT sessionId=" + session.sessionId + " to=" + m.deviceId
+                + " endpoint=" + m.endpoint);
+            } else {
+              emit("SYNC_PLEASE_DROP sessionId=" + session.sessionId + " to=" + m.deviceId
+                + " endpoint=" + m.endpoint);
+            }
           }).catch(function () {
             emit("SYNC_PLEASE_CONNECT_FAIL sessionId=" + session.sessionId + " to=" + m.deviceId);
           });
@@ -1473,13 +1515,13 @@ store().get(env.sessionId).then(function (local) {
     var sent = 0;
     Object.keys(state.serverConns).forEach(function (uuid) {
       var entry = state.serverConns[uuid];
-      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId || !entry.peerDid)) {
+      if (entry && (inSession(entry, session.sessionId) || !entry.peerDid)) {
         if (sendServer(uuid, env)) sent++;
       }
     });
     Object.keys(state.clientConns).forEach(function (key) {
       var entry = state.clientConns[key];
-      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId)) {
+      if (entry && inSession(entry, session.sessionId)) {
         if (sendOn(entry.ws, env)) sent++;
       }
     });
@@ -1576,13 +1618,13 @@ store().get(env.sessionId).then(function (local) {
     var sent = 0;
     Object.keys(state.serverConns).forEach(function (uuid) {
       var entry = state.serverConns[uuid];
-      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId || !entry.peerDid)) {
+      if (entry && (inSession(entry, session.sessionId) || !entry.peerDid)) {
         if (sendServer(uuid, env)) sent++;
       }
     });
     Object.keys(state.clientConns).forEach(function (key) {
       var entry = state.clientConns[key];
-      if (entry && (!entry.sessionId || entry.sessionId === session.sessionId)) {
+      if (entry && inSession(entry, session.sessionId)) {
         if (sendOn(entry.ws, env)) sent++;
       }
     });
@@ -1607,7 +1649,7 @@ store().get(env.sessionId).then(function (local) {
           notifyChanged();
           return;
         }
-        sendServer(uuid, envelope("ping", entry.sessionId || null, {}));
+        sendServer(uuid, envelope("ping", null, {}));
       });
       /* Client. */
       Object.keys(state.clientConns).forEach(function (key) {
@@ -1623,7 +1665,7 @@ store().get(env.sessionId).then(function (local) {
           notifyChanged();
           return;
         }
-        sendOn(entry.ws, envelope("ping", entry.sessionId || null, {}));
+        sendOn(entry.ws, envelope("ping", null, {}));
       });
     };
     state.hbTimer = setInterval(probe, HB_INTERVAL_MS);
@@ -1641,13 +1683,13 @@ store().get(env.sessionId).then(function (local) {
     var out = {};
     Object.keys(state.serverConns).forEach(function (uuid) {
       var e = state.serverConns[uuid];
-      if (e.peerDid && (!sessionId || !e.sessionId || e.sessionId === sessionId)) {
+      if (e.peerDid && (!sessionId || inSession(e, sessionId))) {
         out[e.peerDid] = { via: "server", lastRxMs: e.lastRxMs };
       }
     });
     Object.keys(state.clientConns).forEach(function (key) {
       var e = state.clientConns[key];
-      if (e.did && (!sessionId || !e.sessionId || e.sessionId === sessionId)) {
+      if (e.did && (!sessionId || inSession(e, sessionId))) {
         var prev = out[e.did] || {};
         out[e.did] = { via: "client", lastRxMs: e.lastRxMs, server: prev.via || "" };
       }

@@ -1,0 +1,28 @@
+# Preuve 21 — connectedPeers cote Master, cycle complet
+# Presence par session sur UNE connexion physique multiplexee
+
+## Master : SYNC_SENT recus (un par session, meme peer)
+
+"SYNC_SENT sessionId=S1 to=7d1d4179-c52e-4260-92d1-3220c33296fd state=open"
+"SYNC_SENT sessionId=S2 to=7d1d4179-c52e-4260-92d1-3220c33296fd state=open"
+"SYNC_SENT sessionId=TQMPQ86M to=7d1d4179-c52e-4260-92d1-3220c33296fd state=open"
+
+## Master : PEER_CONNECTED / PEER_DISCONNECTED (cycle liveness)
+
+"PEER_DISCONNECTED did=7d1d4179-c52e-4260-92d1-3220c33296fd reason=ws_client_close"
+"PEER_DISCONNECTED did=7d1d4179-c52e-4260-92d1-3220c33296fd reason=ws_client_close"
+"PEER_DISCONNECTED did=7d1d4179-c52e-4260-92d1-3220c33296fd reason=ws_close"
+"PEER_DISCONNECTED did=7d1d4179-c52e-4260-92d1-3220c33296fd reason=ws_close"
+"PEER_DISCONNECTED did=7d1d4179-c52e-4260-92d1-3220c33296fd reason=ws_close"
+
+## connectedPeers() evalue via CDP sur le Master (appareil 7d1d4179-c52e-4260-92d1-3220c33296fd)
+
+Apres restart Capture (aucune interaction ecran) :
+  connectedPeers(S1) = 7d1d4179-c52e-4260-92d1-3220c33296fd      <- AVANT : vide (bug)
+  connectedPeers(S2) = 7d1d4179-c52e-4260-92d1-3220c33296fd
+Apres coupure physique (am force-stop) + 12s (> HB_TIMEOUT 8s) :
+  connectedPeers(S1) = VIDE
+  connectedPeers(S2) = VIDE
+Apres relancement Capture (+15s) :
+  connectedPeers(S1) = 7d1d4179-c52e-4260-92d1-3220c33296fd
+  connectedPeers(S2) = 7d1d4179-c52e-4260-92d1-3220c33296fd
