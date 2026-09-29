@@ -1069,3 +1069,21 @@ Décision produit validée :
 - le rôle Storage devient principalement utile en fin de Take, notamment pour la réplication et le transfert des fichiers ; il ne doit donc pas masquer l'interface Master pendant la prise.
 
 Cette règle lève l'ambiguïté relevée pendant la validation J08 sur la précédence `Master+Storage`.
+
+
+## 35. J09 — REC multicam + previews Master
+
+### 35.1 Preview caméra locale permanente sur un device Capture
+
+Décision produit validée avant implémentation J09 :
+
+- sur un device dont la skill **Capture est activée et disponible**, la preview caméra locale constitue le **fond permanent de l'application** tant que l'application est au premier plan ;
+- cette preview n'est pas limitée au countdown ou au REC : les écrans 01 à 08 se dessinent au-dessus de la preview native avec les voiles/contrastes nécessaires à la lisibilité ;
+- l'ouverture de la caméra ne doit donc plus être déclenchée uniquement par `requestStart()` : J09 doit introduire un cycle de vie local de preview indépendant du démarrage d'un Take ;
+- le passage COUNTDOWN → REC conserve la **même caméra / même surface de preview** ; le démarrage de `MediaRecorder` ne doit pas provoquer de coupure visuelle volontaire de la preview ;
+- pendant REC, la preview locale continue de servir de fond à l'UI Capture et peut simultanément alimenter PixelCopy pour les previews périodiques ;
+- quitter le REC ne signifie pas fermer la preview : tant que la skill Capture reste active et que l'application reste au premier plan, le fond caméra demeure ;
+- si la caméra est indisponible, permission refusée ou ouverture impossible, l'UI retombe proprement sur le fond sombre normal et expose l'état d'erreur approprié ; elle ne doit pas simuler une image caméra ;
+- le choix du moment exact de suspension/reprise lorsque l'application passe en arrière-plan doit respecter le cycle de vie Android et éviter de conserver inutilement la caméra hors premier plan.
+
+Cette règle formalise l'intention déjà présente dans les maquettes : la vidéo locale est un arrière-plan permanent du device Capture, et les écrans applicatifs sont des overlays au-dessus de cette image.
