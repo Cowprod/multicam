@@ -260,7 +260,7 @@
         trimSamples();
         log("PREVIEW_CAPTURE_OK " + stamp + " startPlanId=" + (planId || "—")
           + " durationMs=" + durationMs + " bytes=" + bytes + " base64Length=" + b64.length);
-        emit("ok", { seq: seq, durationMs: durationMs, bytes: bytes, base64Length: b64.length, base64: b64, sessionId: sid, takeNumber: take });
+        emit("ok", { seq: seq, durationMs: durationMs, bytes: bytes, base64Length: b64.length, base64: b64, sessionId: sid, takeNumber: take, startPlanId: planId, capturedAt: completedAt, completedAt: completedAt });
         emit("change", view());
       }, function (e) {
         if (settled) return;

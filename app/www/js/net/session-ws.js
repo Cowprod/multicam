@@ -111,7 +111,8 @@
     lastResyncAt: {},      /* anti-écho PAR SESSION : sid -> dernier sync_please (convergence) */
     txtRepublished: false, /* le TXT device a déjà été republié avec wsep */
     armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
-    startBridge: null      /* J08 : pont START (start-service) — idem, zéro logique ici */
+    startBridge: null,     /* J08 : pont START (start-service) — idem, zéro logique ici */
+    previewBridge: null    /* J09 : pont PREVIEW (preview-inbox) — idem, zéro logique ici */
   };
 
   var _ipCache = "";       /* IPv4 synchrone (warm-up asynchrone via MultiCamNative) */
@@ -151,6 +152,14 @@
 
   function cfg() {
     return (global.MultiCamConfig && global.MultiCamConfig.get) ? global.MultiCamConfig.get() : null;
+  }
+
+  /* `state.localDid` n'est renseigné qu'à l'`init()`. Une frame émise avant
+   * l'init (boot, écran non initialisé, test) n'aurait sinon ni `from` ni
+   * détection du self-loop : on retombe sur la config, comme le fait le reste
+   * du fichier. */
+  function localDid() {
+    return state.localDid || (cfg() ? cfg().deviceId : "") || "";
   }
 
   /* ---------- endpoint / interfaces ---------- */
@@ -426,7 +435,7 @@
   /* ---------- enveloppes ---------- */
 
   function envelope(kind, sessionId, extra) {
-    var e = { v: PROTOCOL_VERSION, kind: kind, from: state.localDid, ts: nowMs() };
+    var e = { v: PROTOCOL_VERSION, kind: kind, from: localDid(), ts: nowMs() };
     if (sessionId) e.sessionId = sessionId;
     if (extra) for (var k in extra) e[k] = extra[k];
     return e;
@@ -528,10 +537,148 @@
       case "start_probe_reply":
         handleStartMessage(env, entry, serverConn);
         break;
+      case "preview_frame":
+        handlePreviewFrame(env, entry);
+        break;
       default:
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
         break;
     }
+  }
+
+  /* ---------- J09 : transport des previews JPEG ----------
+   *
+   * DEUX FONCTIONS, ET C'EST TOUT.
+   *
+   * `handlePreviewFrame()` — ROUTAGE. Une seule ligne utile : remettre
+   * l'enveloppe au pont J09, qui décide si elle est recevable. Le WS ne
+   * hiérarchise pas les images, ne les garde pas, ne les recompose pas : il ne
+   * fait que transporter, comme pour `take_update`.
+   *
+   * `sendPreviewFrame()` — SÉLECTION DES DESTINATAIRES + SÉRIALISATION UNE FOIS.
+   * Deux filtres, dans cet ordre, et ils sont distincts :
+   *   1. la connexion parle-t-elle CETTE session ? (`inSession`, modèle J09-01) ;
+   *   2. cette session a-t-elle le CE device comme Master ? (`session.masters`).
+   * Un Master d'une autre session et une Capture ou un Storage-only de la même
+   * session sont donc écartés — et COMPTÉS, parce qu'un écart silencieux est
+   * indiscernable d'un bug. `selfSkipped` casse la boucle réseau quand un
+   * device est Master ET Capture : son propre JPEG lui reviendrait par le WS,
+   * alors que l'UI lira plus tard sa preview locale.
+   *
+   * RÈGLE ABSOLUE : ce fichier ne conserve AUCUNE image. Il sérialise, envoie,
+   * puis oublie — le `base64` n'est jamais recopié dans un état du module.
+   * Unavu de transport est signale par le retour `false` de `sendServer()` /
+   * `sendOn()` (socket fermé, ou `send()` qui lève) : c'est le SEUL signal de
+   * backpressure dont on dispose, et c'est à l'appelant de décider du DROP.
+   */
+  function handlePreviewFrame(env, entry) {
+    var bridge = state.previewBridge;
+    if (!bridge || typeof bridge.onPreviewFrame !== "function") {
+      emit("WS_DROP kind=preview_frame reason=no_preview_bridge from=" + (env.from || "?"));
+      return false;
+    }
+    try {
+      bridge.onPreviewFrame(env, entry);
+    } catch (e) {
+      emit("WS_PREVIEW_FRAME_ERROR from=" + (env.from || "?") + " err=" + e);
+      return false;
+    }
+    return true;
+  }
+
+  function isMasterDevice(session, deviceId) {
+    if (!session || !deviceId) return false;
+    var masters = session.masters || [];
+    for (var i = 0; i < masters.length; i++) {
+      if (masters[i] && masters[i].deviceId === deviceId) return true;
+    }
+    return false;
+  }
+
+  function sendPreviewFrame(session, frame) {
+    var st = {
+      sent: 0, recipients: 0, candidates: 0, duplicatesSkipped: 0,
+      nonMastersSkipped: 0, otherSessionSkipped: 0,
+      selfSkipped: 0, unknownPeerSkipped: 0, notOpenSkipped: 0,
+      jsonBytes: 0, reason: ""
+    };
+    var sid = (session && session.sessionId) || (frame && frame.sessionId) || "";
+    if (!session || !sid || !frame) {
+      st.reason = "invalid_target";
+      return st;
+    }
+    var env = envelope("preview_frame", sid, {
+      takeNumber: (typeof frame.takeNumber === "number") ? frame.takeNumber : null,
+      startPlanId: frame.startPlanId || "",
+      deviceId: frame.deviceId || localDid(),
+      seq: frame.seq,
+      capturedAt: frame.capturedAt || 0,
+      mime: frame.mime || "image/jpeg",
+      width: (typeof frame.width === "number") ? frame.width : null,
+      height: (typeof frame.height === "number") ? frame.height : null,
+      bytes: frame.bytes || 0,
+      jpegBase64: frame.jpegBase64
+    });
+    var json = JSON.stringify(env);
+    st.jsonBytes = json.length;
+    var self = localDid();
+
+    /* Un destinataire est un DEVICE, pas une connexion. Sur le terrain les deux
+     * devices tournent en serveur ET en client l'un vers l'autre : le Master est
+     * donc joignable par DEUX sockets pour la même session, et une diffusion par
+     * connexion lui aurait envoyé chaque image deux fois — deux fois le débit,
+     * deux fois le décodage, et un compteur de réception qui ne colle plus avec
+     * l'émission. On dé-duplique par deviceId, le premier chemin gagné restant
+     * prioritaire (connexion entrante, puis sortante). */
+    var targets = [];
+    var seen = {};
+
+    function consider(did, send) {
+      if (!did) { st.unknownPeerSkipped++; return; }
+      if (seen[did]) { st.duplicatesSkipped++; return; }
+      seen[did] = true;
+      st.candidates++;
+      targets.push({ did: did, send: send });
+    }
+
+    Object.keys(state.serverConns).forEach(function (uuid) {
+      var entry = state.serverConns[uuid];
+      if (!entry) return;
+      var did = entry.peerDid;
+      if (!did) { st.unknownPeerSkipped++; return; }
+      if (!inSession(entry, sid)) { st.otherSessionSkipped++; return; }
+      if (!isMasterDevice(session, did)) { st.nonMastersSkipped++; return; }
+      if (did === self) { st.selfSkipped++; return; }
+      consider(did, function () { return sendServer(uuid, env); });
+    });
+
+    Object.keys(state.clientConns).forEach(function (key) {
+      var entry = state.clientConns[key];
+      if (!entry) return;
+      var did = entry.did;
+      if (!did) { st.unknownPeerSkipped++; return; }
+      if (!inSession(entry, sid)) { st.otherSessionSkipped++; return; }
+      if (!isMasterDevice(session, did)) { st.nonMastersSkipped++; return; }
+      if (did === self) { st.selfSkipped++; return; }
+      consider(did, function () { return sendOn(entry.ws, env); });
+    });
+
+    targets.forEach(function (t) {
+      if (t.send()) st.sent++; else st.notOpenSkipped++;
+    });
+    st.recipients = st.sent;
+    if (!st.candidates) st.reason = st.unknownPeerSkipped ? "no_identified_peer" : "no_master_connected";
+    else if (!st.sent) st.reason = "not_open";
+    emit("PREVIEW_FRAME_TX sessionId=" + sid
+      + " seq=" + frame.seq
+      + " candidates=" + st.candidates
+      + " peers=" + st.sent
+      + " nonMastersSkipped=" + st.nonMastersSkipped
+      + " otherSessionSkipped=" + st.otherSessionSkipped
+      + " selfSkipped=" + st.selfSkipped
+      + " duplicateConnsSkipped=" + st.duplicatesSkipped
+      + " jsonBytes=" + st.jsonBytes);
+    return st;
   }
 
   /* envoie vers l'émetteur : si serverConn présent → via ws.send(conn), sinon client */
@@ -1747,6 +1894,10 @@ store().get(env.sessionId).then(function (local) {
     },
     setStartBridge: function (bridge) {
       state.startBridge = bridge || null;
+    },
+    sendPreviewFrame: sendPreviewFrame,
+    setPreviewBridge: function (bridge) {
+      state.previewBridge = bridge || null;
     },
     onChanged: function (fn) {
       if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);

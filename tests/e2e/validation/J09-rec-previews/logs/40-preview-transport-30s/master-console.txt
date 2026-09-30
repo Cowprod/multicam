@@ -1,0 +1,63 @@
+WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=68f01a99-254d-47d8-926b-bbf62be09230
+PEER_DISCONNECTED did=68f01a99-254d-47d8-926b-bbf62be09230 reason=ws_client_close
+WS_CONN_CLOSE uuid=f51507f5… code=1006 reason=Connection reset by peer clean=0 did=68f01a99-254d-47d8-926b-bbf62be09230
+PEER_DISCONNECTED did=68f01a99-254d-47d8-926b-bbf62be09230 reason=ws_close
+MDNS_PEER_LOST deviceId=68f01a99-254d-47d8-926b-bbf62be09230 reason=serviceLost service=Cam 07
+MDNS_PEER_TABLE lost peers=1 rows=[{"deviceId":"23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","name":"Cam D4","supported":["capture","storage","controller"],"enabled":["storage","controller","capture"],"version":"0.1.0","endpoint":"192.168.92.103:45101","wsEndpoint":"192.168.92.103:45102","state":"online","firstSeen":1790768463339,"lastSeen":1790768513742}]
+ARM_SERVICE_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+START_SERVICE_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+PREVIEW_SERVICE_READY captureSkill=1 foreground=1 desired=1
+PREVIEW_SAMPLER_READY intervalMs=1000 quality=60 running=0
+PREVIEW_INBOX_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf capacity=1_frame_per_device
+PREVIEW_FRAME_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf pendingSlot=1 policy=latest_frame_wins
+START_NAV_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+CAMERA_PREVIEW_START reason=boot camera=back toBack=1
+PREVIEW_TRANSPORT_READY policy=latest_frame_wins pendingSlot=1 inbox=1
+MDNS_PEER_FOUND deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 name=Cam D4 supported=[capture,storage,controller] enabled=[storage,controller,capture] version=0.1.0 endpoint=192.168.92.103:45101
+MDNS_PEER_TABLE found peers=1 rows=[{"deviceId":"23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","name":"Cam D4","supported":["capture","storage","controller"],"enabled":["storage","controller","capture"],"version":"0.1.0","endpoint":"192.168.92.103:45101","wsEndpoint":"192.168.92.103:45102","state":"online","firstSeen":1790768535492,"lastSeen":1790768535492}]
+CAMERA_PREP_OK startPlanId=— camera=back toBack=1 dt=928ms detail="Camera started"
+CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=933ms
+CAMERA_PREVIEW_OK reused=0 recording=0
+CAMERA_PREVIEW_STATE active=1 recording=0 reason=boot
+WS_EFFECTIVE_PORT port=45102 addr=:: attempts=[] total=271ms
+WS_HEARTBEAT_START interval=2000ms timeout=8000ms
+WS_CLIENT_OPEN endpoint=192.168.92.103:45102
+MDNS_PEER_FOUND deviceId=68f01a99-254d-47d8-926b-bbf62be09230 name=Cam 07 supported=[capture,storage,controller] enabled=[capture,storage] version=0.1.0 endpoint=192.168.92.76:45101
+MDNS_PEER_TABLE found peers=2 rows=[{"deviceId":"68f01a99-254d-47d8-926b-bbf62be09230","name":"Cam 07","supported":["capture","storage","controller"],"enabled":["capture","storage"],"version":"0.1.0","endpoint":"192.168.92.76:45101","wsEndpoint":"192.168.92.76:45102","state":"online","firstSeen":1790768536601,"lastSeen":1790768536601},{"deviceId":"23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","name":"Cam D4","supported":["capture","storage","controller"],"enabled":["storage","controller","capture"],"version":"0.1.0","endpoint":"192.168.92.103:45101","wsEndpoint":"192.168.92.103:45102","state":"online","firstSeen":1790768535492,"lastSeen":1790768535492}]
+WS_CLIENT_OPEN endpoint=192.168.92.76:45102
+WS_CLIENT_ERROR endpoint=192.168.92.57:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.57:45102 code=1006 reason= did=
+WS_CONN_OPEN uuid=ca20c290… remote=192.168.92.76 res=/
+JOIN_OK sessionId=TVAZXGHP did=68f01a99-254d-47d8-926b-bbf62be09230 name=Cam 07
+PEER_JOINED sessionId=TVAZXGHP did=68f01a99-254d-47d8-926b-bbf62be09230
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=1 bytes=41985 width=1339 height=752 sendToRxMs=36 total=1
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=2 bytes=71419 width=1339 height=752 sendToRxMs=0 total=2
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=3 bytes=36485 width=1339 height=752 sendToRxMs=0 total=3
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=4 bytes=36405 width=1339 height=752 sendToRxMs=0 total=4
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=5 bytes=36243 width=1339 height=752 sendToRxMs=190 total=5
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=6 bytes=36426 width=1339 height=752 sendToRxMs=0 total=6
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=7 bytes=36286 width=1339 height=752 sendToRxMs=0 total=7
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=8 bytes=36333 width=1339 height=752 sendToRxMs=0 total=8
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=9 bytes=36331 width=1339 height=752 sendToRxMs=0 total=9
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=10 bytes=36392 width=1339 height=752 sendToRxMs=0 total=10
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=11 bytes=36356 width=1339 height=752 sendToRxMs=0 total=11
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=12 bytes=36449 width=1339 height=752 sendToRxMs=0 total=12
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=13 bytes=36312 width=1339 height=752 sendToRxMs=0 total=13
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=14 bytes=36281 width=1339 height=752 sendToRxMs=0 total=14
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=15 bytes=36426 width=1339 height=752 sendToRxMs=0 total=15
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=16 bytes=36399 width=1339 height=752 sendToRxMs=0 total=16
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=17 bytes=36296 width=1339 height=752 sendToRxMs=0 total=17
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=18 bytes=36377 width=1339 height=752 sendToRxMs=0 total=18
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=19 bytes=36305 width=1339 height=752 sendToRxMs=0 total=19
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=20 bytes=36401 width=1339 height=752 sendToRxMs=0 total=20
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=21 bytes=36341 width=1339 height=752 sendToRxMs=9 total=21
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=22 bytes=36348 width=1339 height=752 sendToRxMs=0 total=22
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=23 bytes=36255 width=1339 height=752 sendToRxMs=0 total=23
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=24 bytes=36474 width=1339 height=752 sendToRxMs=5 total=24
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=25 bytes=36404 width=1339 height=752 sendToRxMs=64 total=25
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=26 bytes=36345 width=1339 height=752 sendToRxMs=0 total=26
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=27 bytes=36357 width=1339 height=752 sendToRxMs=40 total=27
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=28 bytes=36394 width=1339 height=752 sendToRxMs=0 total=28
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=29 bytes=36379 width=1339 height=752 sendToRxMs=12 total=29
+PREVIEW_FRAME_RECEIVED sessionId=TVAZXGHP deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=J0904#1#1#1 seq=30 bytes=36423 width=1339 height=752 sendToRxMs=0 total=30
+SESSION_CLOSE_LOCAL sessionId=TVAZXGHP by=92d58e97-c418-47cc-87c5-6a080aff5faf

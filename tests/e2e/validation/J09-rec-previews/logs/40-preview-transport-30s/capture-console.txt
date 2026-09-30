@@ -1,0 +1,143 @@
+ARM_SERVICE_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+START_SERVICE_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+PREVIEW_SERVICE_READY captureSkill=1 foreground=1 desired=1
+PREVIEW_SAMPLER_READY intervalMs=1000 quality=60 running=0
+PREVIEW_INBOX_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230 capacity=1_frame_per_device
+PREVIEW_FRAME_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230 pendingSlot=1 policy=latest_frame_wins
+START_NAV_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+CAMERA_PREVIEW_START reason=boot camera=back toBack=1
+PREVIEW_TRANSPORT_READY policy=latest_frame_wins pendingSlot=1 inbox=1
+MDNS_PEER_FOUND deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf name=Regie-M supported=[capture,storage,controller] enabled=[capture,storage,controller] version=0.1.0 endpoint=192.168.92.192:45101
+MDNS_PEER_TABLE found peers=1 rows=[{"deviceId":"92d58e97-c418-47cc-87c5-6a080aff5faf","name":"Regie-M","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.192:45101","wsEndpoint":"192.168.92.192:45102","state":"online","firstSeen":1790768530393,"lastSeen":1790768530393}]
+MDNS_PEER_FOUND deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 name=Cam D4 supported=[capture,storage,controller] enabled=[storage,controller,capture] version=0.1.0 endpoint=192.168.92.103:45101
+MDNS_PEER_TABLE found peers=2 rows=[{"deviceId":"23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","name":"Cam D4","supported":["capture","storage","controller"],"enabled":["storage","controller","capture"],"version":"0.1.0","endpoint":"192.168.92.103:45101","wsEndpoint":"192.168.92.103:45102","state":"online","firstSeen":1790768530395,"lastSeen":1790768530395},{"deviceId":"92d58e97-c418-47cc-87c5-6a080aff5faf","name":"Regie-M","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.192:45101","wsEndpoint":"192.168.92.192:45102","state":"online","firstSeen":1790768530393,"lastSeen":1790768530393}]
+CAMERA_PREP_OK startPlanId=— camera=back toBack=1 dt=735ms detail="Camera started"
+CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=743ms
+CAMERA_PREVIEW_OK reused=0 recording=0
+CAMERA_PREVIEW_STATE active=1 recording=0 reason=boot
+WS_EFFECTIVE_PORT port=45102 addr=:: attempts=[] total=146ms
+WS_HEARTBEAT_START interval=2000ms timeout=8000ms
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+MDNS_PEER_LOST deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf reason=serviceLost service=Regie-M
+MDNS_PEER_TABLE lost peers=1 rows=[{"deviceId":"23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","name":"Cam D4","supported":["capture","storage","controller"],"enabled":["storage","controller","capture"],"version":"0.1.0","endpoint":"192.168.92.103:45101","wsEndpoint":"192.168.92.103:45102","state":"online","firstSeen":1790768530395,"lastSeen":1790768530395}]
+MDNS_PEER_FOUND deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf name=Regie-M supported=[capture,storage,controller] enabled=[capture,storage,controller] version=0.1.0 endpoint=192.168.92.192:45101
+MDNS_PEER_TABLE found peers=2 rows=[{"deviceId":"23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","name":"Cam D4","supported":["capture","storage","controller"],"enabled":["storage","controller","capture"],"version":"0.1.0","endpoint":"192.168.92.103:45101","wsEndpoint":"192.168.92.103:45102","state":"online","firstSeen":1790768530395,"lastSeen":1790768530395},{"deviceId":"92d58e97-c418-47cc-87c5-6a080aff5faf","name":"Regie-M","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.192:45101","wsEndpoint":"","state":"online","firstSeen":1790768536227,"lastSeen":1790768536227}]
+WS_CONN_OPEN uuid=7ea1c5ac… remote=192.168.92.192 res=/
+MDNS_PEER_UPDATED deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf fields=[wsEndpoint] name=Regie-M enabled=[capture,storage,controller] endpoint=192.168.92.192:45101 wsep=192.168.92.192:45102
+MDNS_PEER_TABLE updated peers=2 rows=[{"deviceId":"23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","name":"Cam D4","supported":["capture","storage","controller"],"enabled":["storage","controller","capture"],"version":"0.1.0","endpoint":"192.168.92.103:45101","wsEndpoint":"192.168.92.103:45102","state":"online","firstSeen":1790768530395,"lastSeen":1790768530395},{"deviceId":"92d58e97-c418-47cc-87c5-6a080aff5faf","name":"Regie-M","supported":["capture","storage","controller"],"enabled":["capture","storage","controller"],"version":"0.1.0","endpoint":"192.168.92.192:45101","wsEndpoint":"192.168.92.192:45102","state":"online","firstSeen":1790768536227,"lastSeen":1790768537522}]
+WS_CLIENT_OPEN endpoint=192.168.92.192:45102
+JOIN_REQUEST sessionId=TVAZXGHP to=192.168.92.192:45102 did=68f01a99-254d-47d8-926b-bbf62be09230 name=Cam 07
+JOIN_ACCEPTED sessionId=TVAZXGHP state=open name=J09-04 smoke
+ARM_START sessionId=TVAZXGHP take=0 attempt=1 armCycleId=TVAZXGHP#0#1 targets=[] selected=0
+START_PLAN_ACCEPTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=J0904#1#1#1 sessionId=TVAZXGHP take=1 leader=0 countdown=0 target=13:42:25.030
+START_ACCEPTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=J0904#1#1#1 take=1 offsetMs=0 offsetKnown=1 localTop=13:42:25.030 countdown=0
+START_LOCAL deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=J0904#1#1#1 take=1 target=13:42:25.030 actual=13:42:25.032 deltaMs=2 countdown=0 status=OK
+START_PLAN_COMPLETE deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=J0904#1#1#1 take=1 reason=started peers=0
+CAMERA_REC_PROFILE_IGNORE profile=FHD reason=unsupported allowed=720P,1080P,2160P
+CAMERA_REC_REQUEST startPlanId=J0904#1#1#1 take=1 w=1280 h=720 quality=plugin_default qualityLabel=medium profile=auto targetLocalMs=1790768545030
+NAV_AUTO reason=start_plan target=countdown phase=REC from=arm
+START_SERVICE_START sessionId=TVAZXGHP isMaster=1 isCapture=0 isStorage=0 countdown=5
+SCREEN07_OPEN sessionId=TVAZXGHP phase=REC isMaster=1 isCapture=1 isStorage=0 countdown=0
+CAMERA_REC_OK startPlanId=J0904#1#1#1 take=1 ackAtMs=1790768545560 callDt=526ms detail="OK"
+PREVIEW_CAPTURE_START sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 status=OK intervalMs=1000 quality=60 atMs=1790768545566
+PREVIEW_FRAME_RUN_START sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1
+START_NATIVE_ACK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=J0904#1#1#1 take=1 ack=13:42:25.560 deltaMs=530 detail=startRecordVideo_ok
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=1 startPlanId=J0904#1#1#1 durationMs=65 bytes=41985 base64Length=55980
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=1 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=56302
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=1 peers=1 jpegBytes=41985 jsonBytes=56302 width=1339 height=752 sendMs=4 atMs=1790768545642
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=2 startPlanId=J0904#1#1#1 durationMs=47 bytes=71419 base64Length=95228
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=2 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=95550
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=2 peers=1 jpegBytes=71419 jsonBytes=95550 width=1339 height=752 sendMs=3 atMs=1790768546618
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=3 startPlanId=J0904#1#1#1 durationMs=46 bytes=36485 base64Length=48648
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=3 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48970
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=3 peers=1 jpegBytes=36485 jsonBytes=48970 width=1339 height=752 sendMs=2 atMs=1790768547616
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=4 startPlanId=J0904#1#1#1 durationMs=42 bytes=36405 base64Length=48540
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=4 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48862
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=4 peers=1 jpegBytes=36405 jsonBytes=48862 width=1339 height=752 sendMs=1 atMs=1790768548610
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=5 startPlanId=J0904#1#1#1 durationMs=49 bytes=36243 base64Length=48324
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=5 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48646
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=5 peers=1 jpegBytes=36243 jsonBytes=48646 width=1339 height=752 sendMs=1 atMs=1790768549618
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=6 startPlanId=J0904#1#1#1 durationMs=44 bytes=36426 base64Length=48568
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=6 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48890
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=6 peers=1 jpegBytes=36426 jsonBytes=48890 width=1339 height=752 sendMs=1 atMs=1790768550613
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=7 startPlanId=J0904#1#1#1 durationMs=49 bytes=36286 base64Length=48384
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=7 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48706
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=7 peers=1 jpegBytes=36286 jsonBytes=48706 width=1339 height=752 sendMs=0 atMs=1790768551617
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=8 startPlanId=J0904#1#1#1 durationMs=47 bytes=36333 base64Length=48444
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=8 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48766
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=8 peers=1 jpegBytes=36333 jsonBytes=48766 width=1339 height=752 sendMs=1 atMs=1790768552616
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=9 startPlanId=J0904#1#1#1 durationMs=43 bytes=36331 base64Length=48444
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=9 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48766
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=9 peers=1 jpegBytes=36331 jsonBytes=48766 width=1339 height=752 sendMs=1 atMs=1790768553611
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=10 startPlanId=J0904#1#1#1 durationMs=48 bytes=36392 base64Length=48524
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=10 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48847
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=10 peers=1 jpegBytes=36392 jsonBytes=48847 width=1339 height=752 sendMs=1 atMs=1790768554616
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=11 startPlanId=J0904#1#1#1 durationMs=41 bytes=36356 base64Length=48476
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=11 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48799
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=11 peers=1 jpegBytes=36356 jsonBytes=48799 width=1339 height=752 sendMs=1 atMs=1790768555609
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=12 startPlanId=J0904#1#1#1 durationMs=47 bytes=36449 base64Length=48600
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=12 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48923
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=12 peers=1 jpegBytes=36449 jsonBytes=48923 width=1339 height=752 sendMs=1 atMs=1790768556614
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=13 startPlanId=J0904#1#1#1 durationMs=49 bytes=36312 base64Length=48416
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=13 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48739
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=13 peers=1 jpegBytes=36312 jsonBytes=48739 width=1339 height=752 sendMs=1 atMs=1790768557618
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=14 startPlanId=J0904#1#1#1 durationMs=50 bytes=36281 base64Length=48376
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=14 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48699
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=14 peers=1 jpegBytes=36281 jsonBytes=48699 width=1339 height=752 sendMs=0 atMs=1790768558617
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=15 startPlanId=J0904#1#1#1 durationMs=48 bytes=36426 base64Length=48568
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=15 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48891
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=15 peers=1 jpegBytes=36426 jsonBytes=48891 width=1339 height=752 sendMs=1 atMs=1790768559616
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=16 startPlanId=J0904#1#1#1 durationMs=48 bytes=36399 base64Length=48532
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=16 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48855
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=16 peers=1 jpegBytes=36399 jsonBytes=48855 width=1339 height=752 sendMs=1 atMs=1790768560617
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=17 startPlanId=J0904#1#1#1 durationMs=48 bytes=36296 base64Length=48396
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=17 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48719
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=17 peers=1 jpegBytes=36296 jsonBytes=48719 width=1339 height=752 sendMs=1 atMs=1790768561616
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=18 startPlanId=J0904#1#1#1 durationMs=47 bytes=36377 base64Length=48504
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=18 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48827
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=18 peers=1 jpegBytes=36377 jsonBytes=48827 width=1339 height=752 sendMs=1 atMs=1790768562614
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=19 startPlanId=J0904#1#1#1 durationMs=48 bytes=36305 base64Length=48408
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=19 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48731
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=19 peers=1 jpegBytes=36305 jsonBytes=48731 width=1339 height=752 sendMs=1 atMs=1790768563616
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=20 startPlanId=J0904#1#1#1 durationMs=52 bytes=36401 base64Length=48536
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=20 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48859
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=20 peers=1 jpegBytes=36401 jsonBytes=48859 width=1339 height=752 sendMs=1 atMs=1790768564620
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=21 startPlanId=J0904#1#1#1 durationMs=56 bytes=36341 base64Length=48456
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=21 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48779
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=21 peers=1 jpegBytes=36341 jsonBytes=48779 width=1339 height=752 sendMs=2 atMs=1790768565626
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=22 startPlanId=J0904#1#1#1 durationMs=57 bytes=36348 base64Length=48464
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=22 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48787
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=22 peers=1 jpegBytes=36348 jsonBytes=48787 width=1339 height=752 sendMs=2 atMs=1790768566626
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=23 startPlanId=J0904#1#1#1 durationMs=62 bytes=36255 base64Length=48340
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=23 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48663
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=23 peers=1 jpegBytes=36255 jsonBytes=48663 width=1339 height=752 sendMs=1 atMs=1790768567630
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=24 startPlanId=J0904#1#1#1 durationMs=54 bytes=36474 base64Length=48632
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=24 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48955
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=24 peers=1 jpegBytes=36474 jsonBytes=48955 width=1339 height=752 sendMs=0 atMs=1790768568621
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=25 startPlanId=J0904#1#1#1 durationMs=58 bytes=36404 base64Length=48540
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=25 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48863
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=25 peers=1 jpegBytes=36404 jsonBytes=48863 width=1339 height=752 sendMs=1 atMs=1790768569627
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=26 startPlanId=J0904#1#1#1 durationMs=57 bytes=36345 base64Length=48460
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=26 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48783
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=26 peers=1 jpegBytes=36345 jsonBytes=48783 width=1339 height=752 sendMs=1 atMs=1790768570625
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=27 startPlanId=J0904#1#1#1 durationMs=55 bytes=36357 base64Length=48476
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=27 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48799
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=27 peers=1 jpegBytes=36357 jsonBytes=48799 width=1339 height=752 sendMs=2 atMs=1790768571626
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=28 startPlanId=J0904#1#1#1 durationMs=55 bytes=36394 base64Length=48528
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=28 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48851
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=28 peers=1 jpegBytes=36394 jsonBytes=48851 width=1339 height=752 sendMs=2 atMs=1790768572625
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=29 startPlanId=J0904#1#1#1 durationMs=52 bytes=36379 base64Length=48508
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=29 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48831
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=29 peers=1 jpegBytes=36379 jsonBytes=48831 width=1339 height=752 sendMs=1 atMs=1790768573621
+PREVIEW_CAPTURE_OK sessionId=TVAZXGHP take=1 seq=30 startPlanId=J0904#1#1#1 durationMs=56 bytes=36423 base64Length=48564
+PREVIEW_FRAME_TX sessionId=TVAZXGHP seq=30 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48887
+PREVIEW_FRAME_SENT sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 seq=30 peers=1 jpegBytes=36423 jsonBytes=48887 width=1339 height=752 sendMs=1 atMs=1790768574625
+PREVIEW_CAPTURE_STOP sessionId=TVAZXGHP take=1 startPlanId=J0904#1#1#1 reason=rec_stop seq=30 requested=30 ok=30 error=0 skipped=0 inFlight=0 runMs=29819
+PREVIEW_FRAME_RUN_STOP sessionId=TVAZXGHP take=1 sent=30 dropped=0 recipients=30 jpegAvgBytes=37721 jsonAvgBytes=50618 sendAvgMs=1
+CAMERA_REC_STOP_OK atMs=1790768575807 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_6.mp4 previewKept=1
+START_STOP_LOCAL deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=J0904#1#1#1 take=1 reason=smoke at=13:42:55.807
+START_PLAN_ABORTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=J0904#1#1#1 take=1 reason=local_stop
+ARM_CANCEL sessionId=TVAZXGHP armCycleId=TVAZXGHP#0#1 reason=restart
+ARM_START sessionId=TVAZXGHP take=0 attempt=2 armCycleId=TVAZXGHP#0#2 targets=[] selected=0
+SESSION_CLOSE_APPLIED sessionId=TVAZXGHP by=92d58e97-c418-47cc-87c5-6a080aff5faf

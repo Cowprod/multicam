@@ -284,6 +284,10 @@ function createEnv(opts) {
     setTimeout, clearTimeout, setInterval, clearInterval,
     Promise, Date, Math, JSON, Object, Array, String, Number, Boolean, Error, RegExp,
     Uint8Array, ArrayBuffer, isFinite, parseInt, parseFloat,
+    /* Globaux du WebView, absents du contexte vm : la lecture d'un en-tête JPEG
+     * (state/preview-transport.js) s'appuie sur `atob` comme sur le terrain. */
+    atob(s) { return Buffer.from(String(s), "base64").toString("binary"); },
+    btoa(s) { return Buffer.from(String(s), "binary").toString("base64"); },
     navigator: { userAgent: "node" },
     screen: { width: 800, height: 1280 },
     innerWidth: 800, innerHeight: 1280,

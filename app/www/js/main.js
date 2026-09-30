@@ -241,6 +241,21 @@
         console.log("PREVIEW_SAMPLER_UNAVAILABLE reason=module_absent");
       }
 
+      /* J09-04 : le transport des previews est branché APRÈS le sampler, car il
+       * s'abonne à ses images. Il installe le pont de réception côté Master et
+       * la file « latest frame wins » côté Capture ; il ne démarre aucun
+       * enregistrement et ne touche pas à la preview permanente. */
+      if (global.MultiCamPreviewTransport) {
+        global.MultiCamPreviewTransport.bind().then(function () {
+          console.log("PREVIEW_TRANSPORT_READY policy=latest_frame_wins pendingSlot=1"
+            + " inbox=" + (global.MultiCamPreviewInbox ? "1" : "0"));
+        }).catch(function (err) {
+          console.log("PREVIEW_TRANSPORT_ERROR " + String((err && err.message) || err));
+        });
+      } else {
+        console.log("PREVIEW_TRANSPORT_UNAVAILABLE reason=module_absent");
+      }
+
       global.MultiCamHome.render(cfg);
       global.MultiCamHome.bind();
       bindBackButtons();

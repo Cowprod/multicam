@@ -1,0 +1,233 @@
+{
+  "sessionId": "TVAZXGHP",
+  "capture": {
+    "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+    "ip": "192.168.92.76",
+    "wsPort": 45102
+  },
+  "master": {
+    "deviceId": "92d58e97-c418-47cc-87c5-6a080aff5faf"
+  },
+  "intervalMs": 1000,
+  "quality": 60,
+  "recRequestedMs": 30000,
+  "recMeasuredMs": 40439,
+  "submitted": 30,
+  "sent": 30,
+  "dropped": 0,
+  "droppedBy": {},
+  "recipients": 30,
+  "nonMastersSkipped": 0,
+  "otherSessionSkipped": 30,
+  "selfSkipped": 0,
+  "notOpenSkipped": 0,
+  "pendingDepthAtEnd": 0,
+  "jpegBytes": {
+    "sum": 1131627,
+    "min": 36243,
+    "max": 71419,
+    "avg": 37721
+  },
+  "jsonBytes": {
+    "sum": 1518545,
+    "min": 48646,
+    "max": 95550,
+    "avg": 50618
+  },
+  "sendMs": {
+    "sum": 37,
+    "max": 4,
+    "avg": 1
+  },
+  "lastDropReason": "",
+  "rxReceived": 30,
+  "rxDropped": 0,
+  "rxDroppedBy": {},
+  "rxStored": 1,
+  "rxDevices": [
+    {
+      "sessionId": "TVAZXGHP",
+      "devices": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ]
+    }
+  ],
+  "rxLastSeq": 30,
+  "callbacksOnFrame": 30,
+  "clock": {
+    "masterMinusCaptureMs": -116,
+    "maxRoundTripMs": 23,
+    "samples": [
+      {
+        "masterMinusCaptureMs": -106,
+        "roundTripMs": 23
+      },
+      {
+        "masterMinusCaptureMs": -117,
+        "roundTripMs": 13
+      },
+      {
+        "masterMinusCaptureMs": -116,
+        "roundTripMs": 10
+      },
+      {
+        "masterMinusCaptureMs": -116,
+        "roundTripMs": 13
+      },
+      {
+        "masterMinusCaptureMs": -115,
+        "roundTripMs": 14
+      }
+    ],
+    "note": "capturedAt est horodaté par la Capture, receivedAt par le Master : les deux baseurs sont independantes, la latence brute est donc un artefact."
+  },
+  "latency": {
+    "correctedSendToRxMs": {
+      "min": 48,
+      "max": 121,
+      "avg": 75
+    },
+    "intraDeviceSendMs": {
+      "sum": 37,
+      "max": 4,
+      "avg": 1
+    },
+    "note": "envoi WS mesure sur la Capture (avg/max) ; le reste du trajet inter-appareils n'est pas isolable ici, les deux bouts ne partageant pas d'horloge."
+  },
+  "coherence": {
+    "sentByCapture": 30,
+    "receivedByMaster": 30,
+    "lostInFlight": 0,
+    "masterCallbackCount": 30,
+    "inboxStored": 1
+  },
+  "sampler": {
+    "ok": 30,
+    "requested": 30,
+    "error": 0,
+    "noCallback": 0,
+    "runningAfterStop": false,
+    "inFlightAfterStop": false,
+    "timerPendingAfterStop": false
+  },
+  "framesOnMaster": [
+    {
+      "atMs": 4021,
+      "file": "master-frame-1-seq4.jpg",
+      "seq": 4,
+      "bytes": 36405,
+      "width": 1339,
+      "height": 752,
+      "capturedAt": 1790768548608,
+      "receivedAt": 1790768548548,
+      "takeNumber": 1,
+      "startPlanId": "J0904#1#1#1",
+      "mime": "image/jpeg",
+      "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+      "fileBytes": 36405,
+      "rawSendToRxMs": -60,
+      "correctedSendToRxMs": 56,
+      "clockOffsetAppliedMs": -116
+    },
+    {
+      "atMs": 14019,
+      "file": "master-frame-2-seq14.jpg",
+      "seq": 14,
+      "bytes": 36281,
+      "width": 1339,
+      "height": 752,
+      "capturedAt": 1790768558616,
+      "receivedAt": 1790768558548,
+      "takeNumber": 1,
+      "startPlanId": "J0904#1#1#1",
+      "mime": "image/jpeg",
+      "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+      "fileBytes": 36281,
+      "rawSendToRxMs": -68,
+      "correctedSendToRxMs": 48,
+      "clockOffsetAppliedMs": -116
+    },
+    {
+      "atMs": 24018,
+      "file": "master-frame-3-seq24.jpg",
+      "seq": 24,
+      "bytes": 36474,
+      "width": 1339,
+      "height": 752,
+      "capturedAt": 1790768568620,
+      "receivedAt": 1790768568625,
+      "takeNumber": 1,
+      "startPlanId": "J0904#1#1#1",
+      "mime": "image/jpeg",
+      "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+      "fileBytes": 36474,
+      "rawSendToRxMs": 5,
+      "correctedSendToRxMs": 121,
+      "clockOffsetAppliedMs": -116
+    }
+  ],
+  "jpegChecks": [
+    {
+      "bytes": 36405,
+      "soi": true,
+      "eoi": true,
+      "dims": {
+        "height": 752,
+        "width": 1339
+      },
+      "file": "master-frame-1-seq4.jpg",
+      "seq": 4,
+      "sha256": "6941868c149b0fc2"
+    },
+    {
+      "bytes": 36281,
+      "soi": true,
+      "eoi": true,
+      "dims": {
+        "height": 752,
+        "width": 1339
+      },
+      "file": "master-frame-2-seq14.jpg",
+      "seq": 14,
+      "sha256": "ae68e7d6d1526068"
+    },
+    {
+      "bytes": 36474,
+      "soi": true,
+      "eoi": true,
+      "dims": {
+        "height": 752,
+        "width": 1339
+      },
+      "file": "master-frame-3-seq24.jpg",
+      "seq": 24,
+      "sha256": "a9ba3d0465dc93ec"
+    }
+  ],
+  "finalPhase": "STOPPED",
+  "cameraPreparedAfterStop": true,
+  "cameraRecordingAfterStop": false,
+  "video": {
+    "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_6.mp4",
+    "pulled": {
+      "bytes": 72358330,
+      "ftyp": "ftyp",
+      "ftypOk": true,
+      "brand": "ftypmp42",
+      "file": "capture-take.mp4",
+      "sha256": "68216106128e06ad"
+    },
+    "error": null
+  },
+  "videoPath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_6.mp4",
+  "sessionClosedAtEnd": "session_fermee",
+  "recAck": {
+    "actualMs": 1790768545032,
+    "deltaMs": 2,
+    "status": "OK",
+    "ackMs": 1790768545560,
+    "ackDeltaMs": 530
+  },
+  "planOrigin": "start-service.machine().onIncoming (pont WS de production)",
+  "transportPath": "session-ws sendPreviewFrame -> WS LAN -> session-ws (serveur) -> preview-inbox"
+}
