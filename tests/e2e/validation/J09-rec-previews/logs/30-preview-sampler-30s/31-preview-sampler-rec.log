@@ -1,0 +1,93 @@
+START_PLAN_ACCEPTED deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 sessionId=88FQCPDK take=4 leader=0 countdown=0 target=12:09:52.892
+START_ACCEPTED deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 take=4 offsetMs=0 offsetKnown=1 localTop=12:09:52.892 countdown=0
+START_MASTER_LOST deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 take=4 phase=COUNTDOWN remainingMs=1798 countdownContinues=1
+START_LOCAL deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 take=4 target=12:09:52.892 actual=12:09:52.892 deltaMs=0 countdown=0 status=OK
+START_PLAN_COMPLETE deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 take=4 reason=started peers=0
+CAMERA_REC_PROFILE_IGNORE profile=FHD reason=unsupported allowed=720P,1080P,2160P
+CAMERA_REC_REQUEST startPlanId=J0903#1#1#1 take=4 w=1280 h=720 quality=plugin_default qualityLabel=medium profile=auto targetLocalMs=1790762992892
+START_SERVICE_START sessionId=88FQCPDK isMaster=0 isCapture=1 isStorage=0 countdown=5
+09-30 12:09:53.311 I/BWC     ( 1083): Profile_Change:[BWCPT_CAMERA_CAPTURE]:OFF,current concurrency is 0x0,DDR=,EMI scenario=BWL_SCN_ICFP OFF
+09-30 12:09:53.343 I/mtkcam-customer_scenario_mgr( 1083): [customer_get_features_table_by_scenario] find features for scenario(1 : MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) in logical map
+09-30 12:09:53.343 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:TP_FEATURE_HDR(0x100000000), feature combination:MTK_FEATURE_COMBINATION_HDR(0x1000100f0)
+09-30 12:09:53.343 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:MTK_FEATURE_MFNR(0x1), feature combination:MTK_FEATURE_COMBINATION_MFNR(0x100f9)
+09-30 12:09:53.343 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:MTK_FEATURE_REMOSAIC(0x4), feature combination:MTK_FEATURE_COMBINATION_REMOSAIC(0x100f4)
+09-30 12:09:53.343 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:NO_FEATURE_NORMAL(0), feature combination:MTK_FEATURE_COMBINATION_SINGLE(0x100f8)
+09-30 12:09:53.344 I/mtkcam-customer_scenario_mgr( 1083): [customer_get_features_table_by_scenario] find features for scenario(52 : MTK_CAMERA_SCENARIO_STREAMING_NORMAL_VIDEO) in logical map
+09-30 12:09:53.344 I/mtkcam-FeatureSettingPolicy( 1083): [updateStreamConfiguration] scenario(MTK_CAMERA_SCENARIO_STREAMING_NORMAL_VIDEO) for (openId:0, scenario:52, config: #fixedMargin=0, #queue=0 ) support feature:NO_FEATURE_NORMAL(0), feature combination:MTK_FEATURE_COMBINATION_VIDEO_NORMAL_VIDEO(0x1a400c00180020)
+09-30 12:09:53.345 W/MtkCam/HwInfoHelper( 1083): [quertMaxRrzoWidth] this platform not support ENPipeQueryCmd_MAX_PREVIEW_SIZE, use default value : 2560
+09-30 12:09:53.347 I/MtkCam/ppl_context( 1083): [dump]     [IMAGE-APP-PROVIDER]0 1280x720  OUT ImgFormat:0x11(NV21) BufPlanes(strides/sizeInBytes):[ 1280/921600 1280/493440 ] startOffset:0 bufStep:0 t:0/r:0 maxBuffers:12 d/s:0x00000000(UNKNOWN) s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER AllocImgFormat:0x11(NV21) AllocBufPlanes(strides/sizeInBytes):[ 1280/921600 1280/493440 ] Real:0x11(YCrCb_420_SP) Request:0x22(IMPLEMENTATION_DEFINED) Override:0x11(YCrCb_420_SP) Hal-Client-usage:0x900(0|HW_TEXTURE|HW_COMPOSER) Hal-usage:0x20033(0|SW_READ_OFTEN|SW_WRITE_OFTEN|HW_CAMERA_WRITE) HalStream::(consumer/producer)Usage:0/0x20033 0xb400006e6e2528d0 phy:-1
+09-30 12:09:53.347 I/MtkCam/ppl_context( 1083): [dump]     [IMAGE-APP-PROVIDER]0x1 1920x1088 OUT ImgFormat:0x2300(JPEG) BufPlanes(strides/sizeInBytes):[ 3446989/3447040 ] startOffset:0 bufStep:0 t:0/r:0 maxBuffers:6 d/s:0x08c20000(V0_JFIF|STANDARD_BT601_625|TRANSFER_SMPTE_170M|RANGE_FULL) s1:d0:App:BLOB:0|SW_READ_OFTEN AllocImgFormat:0x21(BLOB) AllocBufPlanes(strides/sizeInBytes):[ 3446989/3447040 ] Real:0x21(BLOB) Request:0x21(BLOB) Override:0x21(BLOB) Hal-Client-usage:0x3(0|SW_READ_OFTEN) Hal-usage:0x20033(0|SW_READ_OFTEN|SW_WRITE_OFTEN|HW_CAMERA_WRITE) HalStream::(consumer/producer)Usage:0/0x20033 0xb400006e6e271d50 phy:-1
+09-30 12:09:53.348 I/MtkCam/ppl_context( 1083): [dump]     [IMAGE-APP-PROVIDER]0x4 1920x1080 OUT ImgFormat:0x32315659(YV12) BufPlanes(strides/sizeInBytes):[ 1920/2073600 960/518400 960/544320 ] startOffset:0 bufStep:0 t:0/r:0 maxBuffers:12 d/s:0x00000104(BT709) s4:d0:App:YV12:0|HW_VIDEO_ENCODER AllocImgFormat:0x32315659(YV12) AllocBufPlanes(strides/sizeInBytes):[ 1920/2073600 960/518400 960/544320 ] Real:0x32315659(YV12) Request:0x22(IMPLEMENTATION_DEFINED) Override:0x22(IMPLEMENTATION_DEFINED) Hal-Client-usage:0x10000(0|HW_VIDEO_ENCODER) Hal-usage:0x20003(0|SW_READ_OFTEN|HW_CAMERA_WRITE) HalStream::(consumer/producer)Usage:0/0x20003 0xb400006e6e259a90 phy:-1
+CAMERA_REC_OK startPlanId=J0903#1#1#1 take=4 ackAtMs=1790762993372 callDt=479ms detail="OK"
+PREVIEW_CAPTURE_START sessionId=88FQCPDK take=4 startPlanId=J0903#1#1#1 startPlanId=J0903#1#1#1 status=OK intervalMs=1000 quality=60 atMs=1790762993372
+START_NATIVE_ACK deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 take=4 ack=12:09:53.372 deltaMs=480 detail=startRecordVideo_ok
+09-30 12:09:53.389 E/Hal3Av3 ( 1083): [parseConfig] MTK_LOGICAL_MULTI_CAMERA_PHYSICAL_IDS are not defined (parseConfig){#6009:vendor/mediatek/proprietary/hardware/mtkcam/aaa/source/common/hal3a/v1.0/Hal3AAdapter3.cpp}
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=1 startPlanId=J0903#1#1#1 durationMs=35 bytes=17689 base64Length=23588
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=2 startPlanId=J0903#1#1#1 durationMs=35 bytes=18683 base64Length=24912
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=3 startPlanId=J0903#1#1#1 durationMs=55 bytes=19949 base64Length=26600
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=4 startPlanId=J0903#1#1#1 durationMs=55 bytes=19983 base64Length=26644
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=5 startPlanId=J0903#1#1#1 durationMs=48 bytes=20096 base64Length=26796
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=6 startPlanId=J0903#1#1#1 durationMs=47 bytes=19963 base64Length=26620
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=7 startPlanId=J0903#1#1#1 durationMs=63 bytes=19954 base64Length=26608
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=8 startPlanId=J0903#1#1#1 durationMs=55 bytes=19965 base64Length=26620
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=9 startPlanId=J0903#1#1#1 durationMs=61 bytes=19961 base64Length=26616
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=10 startPlanId=J0903#1#1#1 durationMs=56 bytes=19942 base64Length=26592
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=11 startPlanId=J0903#1#1#1 durationMs=59 bytes=19983 base64Length=26644
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=12 startPlanId=J0903#1#1#1 durationMs=57 bytes=20009 base64Length=26680
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=13 startPlanId=J0903#1#1#1 durationMs=55 bytes=19931 base64Length=26576
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=14 startPlanId=J0903#1#1#1 durationMs=62 bytes=19955 base64Length=26608
+09-30 12:10:07.156 D/MiuiFastConnectService_Plugin( 2867): handleMessage: MSG_START_BLE_SCAN mode: 0
+09-30 12:10:07.174 I/BtGatt.ScanManager( 2064): msg.what = MSG_START_BLE_SCAN, msg.arg1 = None
+09-30 12:10:07.186 I/BtGatt.ScanManager( 2064): msg.what = MSG_START_BLE_SCAN, msg.arg1 = None
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=15 startPlanId=J0903#1#1#1 durationMs=54 bytes=19989 base64Length=26652
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=16 startPlanId=J0903#1#1#1 durationMs=62 bytes=19944 base64Length=26592
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=17 startPlanId=J0903#1#1#1 durationMs=58 bytes=19922 base64Length=26564
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=18 startPlanId=J0903#1#1#1 durationMs=58 bytes=19931 base64Length=26576
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=19 startPlanId=J0903#1#1#1 durationMs=51 bytes=19914 base64Length=26552
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=20 startPlanId=J0903#1#1#1 durationMs=47 bytes=19890 base64Length=26520
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=21 startPlanId=J0903#1#1#1 durationMs=54 bytes=19958 base64Length=26612
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=22 startPlanId=J0903#1#1#1 durationMs=47 bytes=19999 base64Length=26668
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=23 startPlanId=J0903#1#1#1 durationMs=56 bytes=19868 base64Length=26492
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=24 startPlanId=J0903#1#1#1 durationMs=58 bytes=19964 base64Length=26620
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=25 startPlanId=J0903#1#1#1 durationMs=54 bytes=19991 base64Length=26656
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=26 startPlanId=J0903#1#1#1 durationMs=60 bytes=19919 base64Length=26560
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=27 startPlanId=J0903#1#1#1 durationMs=51 bytes=19960 base64Length=26616
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=28 startPlanId=J0903#1#1#1 durationMs=55 bytes=19952 base64Length=26604
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=29 startPlanId=J0903#1#1#1 durationMs=53 bytes=19878 base64Length=26504
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=30 startPlanId=J0903#1#1#1 durationMs=54 bytes=19882 base64Length=26512
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=31 startPlanId=J0903#1#1#1 durationMs=58 bytes=19836 base64Length=26448
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=32 startPlanId=J0903#1#1#1 durationMs=58 bytes=19860 base64Length=26480
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=33 startPlanId=J0903#1#1#1 durationMs=56 bytes=19797 base64Length=26396
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=34 startPlanId=J0903#1#1#1 durationMs=51 bytes=19843 base64Length=26460
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=35 startPlanId=J0903#1#1#1 durationMs=58 bytes=19893 base64Length=26524
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=36 startPlanId=J0903#1#1#1 durationMs=49 bytes=19909 base64Length=26548
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=37 startPlanId=J0903#1#1#1 durationMs=64 bytes=19897 base64Length=26532
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=38 startPlanId=J0903#1#1#1 durationMs=60 bytes=19899 base64Length=26532
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=39 startPlanId=J0903#1#1#1 durationMs=60 bytes=19866 base64Length=26488
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=40 startPlanId=J0903#1#1#1 durationMs=57 bytes=19812 base64Length=26416
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=41 startPlanId=J0903#1#1#1 durationMs=55 bytes=19819 base64Length=26428
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=42 startPlanId=J0903#1#1#1 durationMs=51 bytes=19928 base64Length=26572
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=43 startPlanId=J0903#1#1#1 durationMs=58 bytes=19896 base64Length=26528
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=44 startPlanId=J0903#1#1#1 durationMs=52 bytes=19906 base64Length=26544
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=45 startPlanId=J0903#1#1#1 durationMs=56 bytes=19862 base64Length=26484
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=46 startPlanId=J0903#1#1#1 durationMs=56 bytes=19785 base64Length=26380
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=47 startPlanId=J0903#1#1#1 durationMs=63 bytes=19826 base64Length=26436
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=48 startPlanId=J0903#1#1#1 durationMs=51 bytes=19790 base64Length=26388
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=49 startPlanId=J0903#1#1#1 durationMs=41 bytes=19823 base64Length=26432
+PREVIEW_CAPTURE_OK sessionId=88FQCPDK take=4 seq=50 startPlanId=J0903#1#1#1 durationMs=54 bytes=19839 base64Length=26452
+PREVIEW_CAPTURE_STOP sessionId=88FQCPDK take=4 startPlanId=J0903#1#1#1 startPlanId=J0903#1#1#1 reason=rec_stop seq=50 requested=50 ok=50 error=0 skipped=0 inFlight=0 runMs=49799
+09-30 12:10:43.485 I/mtkcam-customer_scenario_mgr( 1083): [customer_get_features_table_by_scenario] find features for scenario(1 : MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) in logical map
+09-30 12:10:43.485 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:TP_FEATURE_HDR(0x100000000), feature combination:MTK_FEATURE_COMBINATION_HDR(0x1000100f0)
+09-30 12:10:43.485 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:MTK_FEATURE_MFNR(0x1), feature combination:MTK_FEATURE_COMBINATION_MFNR(0x100f9)
+09-30 12:10:43.485 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:MTK_FEATURE_REMOSAIC(0x4), feature combination:MTK_FEATURE_COMBINATION_REMOSAIC(0x100f4)
+09-30 12:10:43.485 I/mtkcam-FeatureSettingPolicy( 1083): [evaluateCaptureConfiguration] scenario(MTK_CAMERA_SCENARIO_CAPTURE_NORMAL) support feature:NO_FEATURE_NORMAL(0), feature combination:MTK_FEATURE_COMBINATION_SINGLE(0x100f8)
+09-30 12:10:43.485 I/mtkcam-customer_scenario_mgr( 1083): [customer_get_features_table_by_scenario] find features for scenario(51 : MTK_CAMERA_SCENARIO_STREAMING_NORMAL) in logical map
+09-30 12:10:43.485 I/mtkcam-FeatureSettingPolicy( 1083): [updateStreamConfiguration] scenario(MTK_CAMERA_SCENARIO_STREAMING_NORMAL) for (openId:0, scenario:51, config: #fixedMargin=0, #queue=0 ) support feature:NO_FEATURE_NORMAL(0), feature combination:MTK_FEATURE_COMBINATION_VIDEO_NORMAL(0x1a400c00180020)
+09-30 12:10:43.485 W/MtkCam/HwInfoHelper( 1083): [quertMaxRrzoWidth] this platform not support ENPipeQueryCmd_MAX_PREVIEW_SIZE, use default value : 2560
+09-30 12:10:43.486 I/BWC     ( 1083): Profile_Change:[BWCPT_CAMERA_CAPTURE]:ON,current concurrency is 0x10,DDR=,EMI scenario=BWL_SCN_ICFP ON
+09-30 12:10:43.488 I/MtkCam/ppl_context( 1083): [dump]     [IMAGE-APP-PROVIDER]0 1280x720  OUT ImgFormat:0x11(NV21) BufPlanes(strides/sizeInBytes):[ 1280/921600 1280/493440 ] startOffset:0 bufStep:0 t:0/r:0 maxBuffers:12 d/s:0x00000000(UNKNOWN) s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER AllocImgFormat:0x11(NV21) AllocBufPlanes(strides/sizeInBytes):[ 1280/921600 1280/493440 ] Real:0x11(YCrCb_420_SP) Request:0x22(IMPLEMENTATION_DEFINED) Override:0x11(YCrCb_420_SP) Hal-Client-usage:0x900(0|HW_TEXTURE|HW_COMPOSER) Hal-usage:0x20033(0|SW_READ_OFTEN|SW_WRITE_OFTEN|HW_CAMERA_WRITE) HalStream::(consumer/producer)Usage:0/0x20033 0xb400006e6e26ea90 phy:-1
+09-30 12:10:43.488 I/MtkCam/ppl_context( 1083): [dump]     [IMAGE-APP-PROVIDER]0x1 1920x1088 OUT ImgFormat:0x2300(JPEG) BufPlanes(strides/sizeInBytes):[ 3446989/3447040 ] startOffset:0 bufStep:0 t:0/r:0 maxBuffers:6 d/s:0x08c20000(V0_JFIF|STANDARD_BT601_625|TRANSFER_SMPTE_170M|RANGE_FULL) s1:d0:App:BLOB:0|SW_READ_OFTEN AllocImgFormat:0x21(BLOB) AllocBufPlanes(strides/sizeInBytes):[ 3446989/3447040 ] Real:0x21(BLOB) Request:0x21(BLOB) Override:0x21(BLOB) Hal-Client-usage:0x3(0|SW_READ_OFTEN) Hal-usage:0x20033(0|SW_READ_OFTEN|SW_WRITE_OFTEN|HW_CAMERA_WRITE) HalStream::(consumer/producer)Usage:0/0x20033 0xb400006e6e267fd0 phy:-1
+09-30 12:10:43.522 E/Hal3Av3 ( 1083): [parseConfig] MTK_LOGICAL_MULTI_CAMERA_PHYSICAL_IDS are not defined (parseConfig){#6009:vendor/mediatek/proprietary/hardware/mtkcam/aaa/source/common/hal3a/v1.0/Hal3AAdapter3.cpp}
+CAMERA_REC_STOP_OK atMs=1790763043644 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_5.mp4 previewKept=1
+START_STOP_LOCAL deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 take=4 reason=smoke at=12:10:43.644
+START_PLAN_ABORTED deviceId=7d1d4179-c52e-4260-92d1-3220c33296fd startPlanId=J0903#1#1#1 take=4 reason=local_stop

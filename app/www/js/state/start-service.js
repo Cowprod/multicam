@@ -61,6 +61,7 @@
   function store() { return global.MultiCamSessionStore; }
   function startModel() { return global.MultiCamStartModel; }
   function camera() { return global.MultiCamCameraRecord; }
+  function sampler() { return global.MultiCamPreviewSampler || null; }
   function armService() { return global.MultiCamArmService; }
 
   function selfDid() {
@@ -364,14 +365,32 @@
       sendStartState: function (sid, msg) { sendTargeted(sid, "start_state", msg); },
       sendStartCancel: function (sid, msg) { sendTargeted(sid, "start_cancel", msg); },
       sendStartProbe: function (sid, msg) { sendTargeted(sid, "start_probe", msg); },
+      /* J09-03 : le sampler de preview démarre UNIQUEMENT après l'accusé natif
+       * du REC (donc en phase REC effective) et s'arrête dès que le
+       * `stopRecording` est appelé. Il ne touche pas au protocole WS et sa vie
+       * n'est pas liée au rendu UI. */
       startRecording: function (opts) {
         if (!camera() || typeof camera().startRecording !== "function") {
           return Promise.reject(new Error("recorder_unavailable"));
         }
-        return Promise.resolve(camera().startRecording(opts));
+        var o = opts || {};
+        return Promise.resolve(camera().startRecording(opts)).then(function (res) {
+          var smp = sampler();
+          if (smp && typeof smp.start === "function") {
+            smp.start({
+              sessionId: o.sessionId || "",
+              takeNumber: o.takeNumber,
+              startPlanId: o.startPlanId || "",
+              reason: "rec_ack"
+            });
+          }
+          return res;
+        });
       },
       stopRecording: function () {
         if (!camera() || typeof camera().stopRecording !== "function") return Promise.resolve(null);
+        var smp = sampler();
+        if (smp && typeof smp.stop === "function") smp.stop("rec_stop");
         return Promise.resolve(camera().stopRecording());
       },
       log: log,

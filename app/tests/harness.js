@@ -95,7 +95,10 @@ function fakeDocument(env) {
  * ce qui permet de tester les démarrages concurrents. */
 function fakeCameraPreview(env, opts) {
   opts = opts || {};
-  const calls = { startCamera: 0, stopCamera: 0, startRecordVideo: 0, stopRecordVideo: 0 };
+  const calls = { startCamera: 0, stopCamera: 0, startRecordVideo: 0, stopRecordVideo: 0, capturePreviewSurface: 0 };
+  /* Les callbacks natifs passent par les timers de l'ENV : avec
+   * `createEnv({fakeClock:true})` ils deviennent virtuels et pilotables. */
+  const later = (fn, ms) => (env.setTimeout || setTimeout)(fn, ms);
   const api = {
     CAMERA_DIRECTION: { BACK: "back", FRONT: "front" },
     calls,
@@ -113,33 +116,162 @@ function fakeCameraPreview(env, opts) {
     startCamera(o, ok, ko) {
       calls.startCamera += 1;
       api.lastStartOptions = o;
-      setTimeout(() => {
+      later(() => {
         if (api.failStartCamera) { if (ko) ko(String(api.failStartCamera)); return; }
         if (ok) ok("Camera started");
       }, 0);
     },
     stopCamera(ok, ko) {
       calls.stopCamera += 1;
-      setTimeout(() => { if (ok) ok("Camera stopped"); }, 0);
+      later(() => { if (ok) ok("Camera stopped"); }, 0);
     },
     startRecordVideo(o, ok, ko) {
       calls.startRecordVideo += 1;
       api.lastRecordOptions = o;
-      setTimeout(() => {
+      later(() => {
         if (api.failRecord) { if (ko) ko("record_failed"); return; }
         if (ok) ok("OK");
       }, 0);
     },
     stopRecordVideo(ok, ko) {
       calls.stopRecordVideo += 1;
-      setTimeout(() => { if (ok) ok(api.videoPath); }, 0);
+      later(() => { if (ok) ok(api.videoPath); }, 0);
     },
-    capturePreviewSurface() { /* hors périmètre J09-02 */ }
+
+    /* ---------- PixelCopy (J09-03) ---------- */
+    /* `mode:"auto"` : le callback répond après `latencyMs` (timer virtuel si
+     * `createEnv({fakeClock:true})`). `mode:"manual"` : rien ne part tout seul,
+     * le test appelle `settlePixelCopy("ok"|"ko")` — c'est ce qui permet de
+     * prouver le verrou « une seule capture en vol » SANS dépendre du timing.
+     * `maxInFlight` est la métrique de non-concurrence du smoke. */
+    capturePreviewSurface(o, ok, ko) {
+      calls.capturePreviewSurface += 1;
+      api.pixelCopy.calls += 1;
+      const p = api.pixelCopy;
+      p.inFlight += 1;
+      if (p.inFlight > p.maxInFlight) p.maxInFlight = p.inFlight;
+      const job = {
+        opts: o,
+        settle(which, data) {
+          p.inFlight -= 1;
+          p.done += 1;
+          if (which === "ko") { if (ko) ko(p.failWith || "pixelcopy_error"); }
+          else if (ok) ok(data !== undefined ? data : p.payload()); }
+      };
+      p.pending.push(job);
+      if (p.mode === "auto") {
+        later(() => {
+          p.pending = p.pending.filter((j) => j !== job);
+          if (p.failWith) job.settle("ko"); else job.settle("ok");
+        }, p.latencyMs);
+      }
+    }
+  };
+
+  /* Base64 factice de taille contrôlée : sert à mesurer la taille d'image sans
+   * encoder un vrai JPEG. `len` = longueur base64 visée. */
+  api.pixelCopy = {
+    mode: opts.pixelCopyMode || "auto",
+    latencyMs: opts.pixelCopyLatencyMs || 0,
+    failWith: opts.pixelCopyFailWith || null,
+    base64Length: opts.pixelCopyBase64Length || 40000,
+    inFlight: 0, maxInFlight: 0, pending: [], calls: 0, done: 0,
+    payload() {
+      let s = "";
+      const A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+      while (s.length < this.base64Length) s += A.charAt(s.length % A.length);
+      return s.slice(0, this.base64Length);
+    },
+    /* Résout la capture en vol la plus ancienne. */
+    settle(which, data) {
+      const job = this.pending.shift();
+      if (!job) throw new Error("settlePixelCopy : aucune capture en vol");
+      job.settle(which, data);
+    }
   };
   return api;
 }
 
 /* ---------- environnement ---------- */
+
+/* ---------- horloge pilotable (J09-03) ---------- */
+
+/* Remplace `setTimeout`/`setInterval`/`clearTimeout`/`clearInterval` et
+ * `Date.now()` par un compteur virtual, piloté par `await env.clock.advance(ms)`.
+ *
+ * Pourquoi : le sampler PixelCopy a une cadence nominale de 1000 ms. Tester le
+ * rythme, l'absence de chevauchement et l'absence de timer résiduel avec de
+ * vraies secondes rendrait la suite lente (30 s+ par cas) et flaky. On vérifie
+ * ici la LOGIQUE de planification sur une horloge déterministe ; la cadence
+ * réelle est qualifiée séparément par le smoke physique.
+ *
+ * `advance()` alterne les timers virtuels et la micro-queue des Promises
+ * (comme `flush()` pour les macrotasks), sinon les assertions liraient un état
+ * antérieur à la résolution des Promises déclenchées par un timer. */
+function fakeClock(env) {
+  const RealDate = Date;
+  let now = 1700000000000;
+  let seq = 0;
+  const timers = new Map();
+
+  const settle = async () => {
+    for (let i = 0; i < 8; i++) {
+      await Promise.resolve();
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  };
+
+  function schedule(fn, ms, every) {
+    const id = ++seq;
+    const delay = Math.max(0, Number(ms) || 0);
+    timers.set(id, { id, at: now + delay, delay, every, fn });
+    return id;
+  }
+
+  env.setTimeout = (fn, ms) => schedule(fn, ms, 0);
+  env.setInterval = (fn, ms) => schedule(fn, ms, Math.max(1, Number(ms) || 1));
+  env.clearTimeout = (id) => { timers.delete(id); };
+  env.clearInterval = (id) => { timers.delete(id); };
+
+  class VirtualDate extends RealDate {
+    constructor(...a) { if (a.length === 0) super(now); else super(...a); }
+    static now() { return now; }
+  }
+  env.Date = VirtualDate;
+
+  env.clock = {
+    now: () => now,
+    /* Nombre de timers EN ATTENTE : permet d'affirmer « aucun timer résiduel ». */
+    pending: () => timers.size,
+    ids: () => [...timers.keys()],
+    async advance(ms) {
+      const target = now + (Number(ms) || 0);
+      let fired = 0;
+      for (;;) {
+        /* On laisse d'abord les Promises en VOL planifier leurs timers AVANT de
+         * scanner : une implémentation qui différе son travail (le
+         * `serialize(apply)` de preview-service) installerait sinon son timer
+         * APRÈS le scan, et il ne serait jamais déclenché. */
+        await settle();
+        let best = null;
+        for (const t of timers.values()) {
+          if (t.at > target) continue;
+          if (!best || t.at < best.at || (t.at === best.at && t.id < best.id)) best = t;
+        }
+        if (!best) break;
+        now = best.at;
+        if (best.every) best.at = now + best.delay;
+        else timers.delete(best.id);
+        best.fn();
+        if (++fired > 200000) throw new Error("clock.advance : boucle de timers sans fin");
+      }
+      now = target;
+      await settle();
+    },
+    reset() { timers.clear(); }
+  };
+  return env;
+}
 
 function createEnv(opts) {
   opts = opts || {};
@@ -171,6 +303,7 @@ function createEnv(opts) {
   env.window.dispatchEvent = env.document._fire.bind(env.document);
 
   env.CameraPreview = opts.noPlugin ? null : fakeCameraPreview(env, opts);
+  if (opts.fakeClock) fakeClock(env);
   env.MultiCamConfig = opts.config || {
     _cfg: { deviceId: "DEV-1", deviceName: "Cam 07", enabledSkills: opts.skills || ["capture", "controller"], supportedSkills: ["capture", "storage", "controller"], permissions: {} },
     load() { return Promise.resolve(this._cfg); },

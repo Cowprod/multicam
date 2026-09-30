@@ -1,0 +1,90 @@
+{
+  "sessionId": "88FQCPDK",
+  "intervalMs": 1000,
+  "quality": 60,
+  "recRequestedMs": 38000,
+  "recMeasuredMs": 54726,
+  "runningDuringRec": true,
+  "cameraRecordingDuringRec": true,
+  "runningAfterStop": false,
+  "timerPendingAfterStop": false,
+  "inFlightAfterStop": false,
+  "requested": 50,
+  "ok": 50,
+  "errors": 0,
+  "noCallback": 0,
+  "skipped": 0,
+  "lastError": "",
+  "finalPhase": "STOPPED",
+  "cameraPreparedAfterStop": true,
+  "cameraRecordingAfterStop": false,
+  "durationMs": {
+    "min": 35,
+    "max": 64,
+    "avg": 54
+  },
+  "intervalObservedMs": {
+    "min": 999,
+    "max": 1001,
+    "avg": 1000
+  },
+  "bytes": {
+    "min": 17689,
+    "max": 20096,
+    "avg": 19842
+  },
+  "base64Length": {
+    "min": 23588,
+    "max": 26796,
+    "avg": 26457
+  },
+  "jpegChecks": [
+    {
+      "file": "sample-1-seq3.jpg",
+      "bytes": 19949,
+      "soi": true,
+      "eoi": true
+    },
+    {
+      "file": "sample-2-seq17.jpg",
+      "bytes": 19922,
+      "soi": true,
+      "eoi": true
+    },
+    {
+      "file": "sample-3-seq31.jpg",
+      "bytes": 19836,
+      "soi": true,
+      "eoi": true
+    }
+  ],
+  "shots": [
+    {
+      "atMs": 3020,
+      "ok": 3,
+      "file": "sample-1-seq3.jpg",
+      "bytes": 19949
+    },
+    {
+      "atMs": 17026,
+      "ok": 17,
+      "file": "sample-2-seq17.jpg",
+      "bytes": 19922
+    },
+    {
+      "atMs": 31020,
+      "ok": 31,
+      "file": "sample-3-seq31.jpg",
+      "bytes": 19836
+    }
+  ],
+  "recAck": {
+    "actualMs": 1790762992892,
+    "deltaMs": 0,
+    "status": "OK",
+    "ackMs": 1790762993372,
+    "ackDeltaMs": 480
+  },
+  "stopPath": "capture_local",
+  "planOrigin": "onIncoming (pont WS de production)"
+}

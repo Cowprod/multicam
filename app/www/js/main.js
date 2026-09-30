@@ -227,6 +227,20 @@
         console.log("PREVIEW_SERVICE_UNAVAILABLE reason=module_absent");
       }
 
+      /* J09-03 : l'échantillonneur de preview (~1 img/s pendant REC) est une
+       * responsabilité DÉDIÉE, distincte de la preview permanente. On le lie
+       * au boot pour qu'il abonne ses propres règles de cycle de vie
+       * (pause/resume, perte de preview) ; il ne démarre pour autant qu'au
+       * top réel d'un Take, décidé par `start-service`. */
+      if (global.MultiCamPreviewSampler) {
+        global.MultiCamPreviewSampler.bind();
+        console.log("PREVIEW_SAMPLER_READY intervalMs=" + global.MultiCamPreviewSampler.INTERVAL_MS
+          + " quality=" + global.MultiCamPreviewSampler.QUALITY
+          + " running=" + (global.MultiCamPreviewSampler.view().running ? 1 : 0));
+      } else {
+        console.log("PREVIEW_SAMPLER_UNAVAILABLE reason=module_absent");
+      }
+
       global.MultiCamHome.render(cfg);
       global.MultiCamHome.bind();
       bindBackButtons();

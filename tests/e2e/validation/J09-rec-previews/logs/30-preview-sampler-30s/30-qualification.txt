@@ -1,0 +1,114 @@
+J09-03 — SAMPLER PIXELCOPY LOCAL ~1 fps PENDANT LE REC
+Preuve device unique (Capture), session 88FQCPDK, Take 4.
+Aucun transport JPEG : les images restent locales au device Capture.
+
+--------------------------------------------------------------------------
+1. PERIPHERIQUE ET REGLAGES
+--------------------------------------------------------------------------
+Device            : 61d54bba7d91  (Cap-B, Xiaomi 24075RP89G, sdk 36)
+Role session      : capture (membre de 88FQCPDK)
+Intervalle        : 1000 ms      (MultiCamPreviewSampler.INTERVAL_MS)
+Qualite JPEG      : 60           (valeur qualifiee au lab, plugin-lab)
+Shim natif        : CameraPreview.capturePreviewSurface (patch PixelCopy, inchange)
+Preview native    : active avant REC (document.body = camera-preview-active)
+
+--------------------------------------------------------------------------
+2. CYCLE DE VIE OBSERVE
+--------------------------------------------------------------------------
+Entree REC        : plan injecte via le PONT DE PRODUCTION machine().onIncoming
+                    (le WS appelle exactement cette entree ; le transport LAN du
+                    plan est le seul court-circuite, car l'armement master echoue
+                    en `clock_stale` sur ce LAN : echange d'horloge J07 non acheve.
+                    Le REC, la camera, le sampler et le STOP sont du code produit.
+Accuse natif REC  : CAMERA_REC_OK  deltaMs=0  ackDeltaMs=480
+Sampler demarre    : APRES l'accuse natif du REC, jamais pendant le countdown
+Phase finale      : STOPPED (STOP local de la capture, ecran REC)
+REC effectif      : 54.7 s (fenetre demandee 38 s)
+Run interne       : runMs=49799, seq=50
+
+--------------------------------------------------------------------------
+3. CADENCE ET MESURES (stats du service, 50 echantillons)
+--------------------------------------------------------------------------
+Demandes (requested) : 50
+Reussies  (ok)        : 50        -> 100 %
+Erreurs   (error)     : 0
+Sans rappel (noCallback) : 0
+Ignorees  (skipped)   : 0
+
+Intervalle observe entre 2 demandes :
+    min = 999 ms   moyen = 1000 ms   max = 1001 ms
+    -> aucune derive, aucune accumulation (backlog) sur 50 echantillons.
+
+Duree d'un PixelCopy (callback natif) :
+    min = 35 ms    moyen = 54 ms   max = 64 ms
+    -> tres inferieur a l'intervalle : aucun risque de capture concurrente.
+
+Taille JPEG decodee (octets) :
+    min = 17689    moyen = 19842   max = 20096
+Longueur base64 transmise au callback :
+    min = 23588    moyen = 26457   max = 26796
+
+--------------------------------------------------------------------------
+4. ARRET
+--------------------------------------------------------------------------
+PREVIEW_CAPTURE_STOP reason=rec_stop seq=50 requested=50 ok=50
+                    error=0 skipped=0 inFlight=0 runMs=49799
+Apres STOP :
+    sampler.running          = false
+    sampler.timerPending     = false
+    sampler.inFlight         = false
+    camera.recording         = false
+    camera.prepared          = true   (la preview native reste ouverte)
+    phase machine            = STOPPED
+
+--------------------------------------------------------------------------
+5. JPEG REELS (3 echantillons sauvegardes via peek())
+--------------------------------------------------------------------------
+sample-1-seq3.jpg   t+3.0s   19949 o   JPEG baseline JFIF 1339x752, 3 composantes, SOI+EOI OK
+sample-2-seq17.jpg  t+17.0s   19922 o   JPEG baseline JFIF 1339x752, 3 composantes, SOI+EOI OK
+sample-3-seq31.jpg  t+31.0s   19836 o   JPEG baseline JFIF 1339x752, 3 composantes, SOI+EOI OK
+
+--------------------------------------------------------------------------
+6. ENREGISTREMENT VIDEO (le REC n'est pas perturbe par le sampler)
+--------------------------------------------------------------------------
+Fichier            : cache/videoTmp_5.mp4
+Taille             : 122158877 octets
+Type               : ISO Media, MP4 v2 [ISO 14496-14]
+Atomes             : ftyp 24 / free 3248 / mdat 122137628 / moov 17977
+Duree movie        : 49.09 s (mvhd, timescale 10000)
+Piste video        : avc1 / avcC (H.264) 1920x1080
+Piste audio        : mp4a (AAC)
+Profile demande    : CAMERA_REC_REQUEST w=1280 h=720 profile=auto
+                    (CAMERA_REC_PROFILE_IGNORE profile=FHD reason=unsupported ;
+                     le profile retenu par le modele est 720P)
+-> Fait constate, sans interpretation : le codec video est bien AVC et le
+   fichier est complet ; l'ecart entre la resolution demandee et celle de la
+   piste appartient au recorder natif (hors perimetre J09-03).
+-> le fichier est complet et lisible : le sampler n'a ni interrompu ni ralenti
+   l'enregistrement.
+
+--------------------------------------------------------------------------
+7. SCENARIOS REJETS / NON COUVERTS PAR CE SMOKE
+--------------------------------------------------------------------------
+- `requestStart` cote MASTER refuse : un Master ne consomme pas la camera et
+  exige une Capture DISTANTE (`no_remote_capture`), puis refuse sur
+  `clock_stale` tant que l'echange d'horloge J07 n'a pas abouti.
+  Ces refus sont du perimetre J07/J08, volontairement non modifie ici.
+- Le STOP master ne s'est pas propage au device Capture isole (le plan injecte
+  n'existant que d'un seul cote) : le STOP local de la capture est utilise, ce
+  qui est le chemin de l'ecran REC du device lui-meme.
+- Le profile du plan injecte (FHD) est refuse par le modele
+  (`CAMERA_REC_PROFILE_IGNORE`) : le plan de production aurait porte 720P/1080P.
+- Endurance longue (>= 5 min) NON re-testee ici : la cadence derivee est nulle
+  sur 50 echantillons et la mesure par intervalle ancre, mais la qualification
+  d'endurance reste une decision a relier a docs/QUALIFICATION-TECHNIQUE-V1.md.
+
+--------------------------------------------------------------------------
+8. TRACABILITE
+--------------------------------------------------------------------------
+31-preview-sampler-rec.log       journal du REC (START_*, CAMERA_*, PREVIEW_*)
+preview-capture-events.log       52 lignes : 1 START + 50 OK + 1 STOP
+report.json                      toutes les mesures brutes
+sample-1/2/3-seq*.jpg            3 images reelles
+30-qualification.txt             ce fichier
+(toutes preuves dans logs/30-preview-sampler-30s/)
