@@ -41,7 +41,7 @@
 
   /* ---------- routeur panneaux (index.html monodocument) ---------- */
 
-  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown"];
+  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown", "live"];
   var current = "home";
 
   function panelEl(name) { return document.getElementById("panel-" + name); }
@@ -80,6 +80,13 @@
          * par le rôle (Master / Capture / excluée / REC). */
         global.MultiCamCountdownScreen.show(appCfg, params || {});
         break;
+      case "live":
+        /* Écran 08 : la mosaïque. Le panneau n'a rien d'initialisable de
+         * spécial — tout son contenu vient de `syncLive()` (modèle + rendu). On
+         * l'appelle quand même pour que l'ouverture soit immédiate et ne
+         * dépende pas du prochain tick du modèle START. */
+        syncLive(global.MultiCamStartService ? global.MultiCamStartService.view() : null);
+        break;
       case "settings":
         global.MultiCamSettings.show(appCfg);
         break;
@@ -88,10 +95,138 @@
     }
   }
 
+  /* ---------- J09-05 : mosaïque Master (écran 08) ----------
+   *
+   * UN SEUL endroit assemble les trois sources de la mosaïque, appelé sur chaque
+   * révision de la vue START :
+   *
+   *   1. le PLAN (participants, ordre, numéro de Take)  → state/live-model.js
+   *   2. les IMAGES (boîte de réception J09-04)           → onFrame + latest()
+   *   3. la VIVACITÉ (connexions WS de la session)        → connectedPeers()
+   *
+   * Pourquoi ici et pas dans l'écran : parce que ces trois sources vivent à des
+   * rythmes différents. Les images arrivent à ~1 img/s par Capture, la
+   * connectivité peut tomber à n'importe quel instant, et le plan ne change
+   * qu'au top. Un rafraîchissement à chaque tick du modèle START (200 ms) est
+   * le seul endroit où les trois sont vues « au même instant », et il évite un
+   * setInterval d'interface concurrent — même règle que l'écran 07.
+   *
+   * L'idempotence est portée par le modèle (un slot n'est créé qu'une fois, une
+   * image n'est peinte que si sa seq change) : appeler `syncLive()` dix fois par
+   * seconde coûte quelques comparaisons, pas un redessin. */
+
+  var liveBound = false;
+
+  /* Participants du Take, dans l'ordre du plan. Le modèle START est la seule
+   * vérité ; `machine().state.plan` est déjà lue par l'écran 07, donc aucune
+   * donnée n'est inventée ici. */
+  function liveParticipants(sid) {
+    var svc = global.MultiCamStartService;
+    if (!svc) return [];
+    var machine = svc.machine ? svc.machine() : null;
+    var plan = machine && machine.state ? machine.state.plan : null;
+    if (!plan) return [];
+    if (sid && plan.sessionId && plan.sessionId !== sid) return [];
+    return Array.isArray(plan.participants) ? plan.participants : [];
+  }
+
+  /* Une seule lecture par device, une seule fois par révision : la mosaïque ne
+   * doit pas devenir une seconde source de vérité sur les previews. */
+  function liveSeedFrames(model, sid, slots) {
+    var inbox = global.MultiCamPreviewInbox;
+    if (!inbox || typeof inbox.latest !== "function") return;
+    slots.forEach(function (slot) {
+      if (slot.hasFrame) return;                  /* déjà peint */
+      var f = inbox.latest(sid, slot.deviceId);
+      /* Le filtre session/Take reste au modèle : ici on ne fait que réveiller la
+       * boîte de réception pour une vignette qui n'a pas encore reçu d'image. */
+      if (f) model.onPreviewFrame(f);
+    });
+  }
+
+  function liveLiveness(sid) {
+    var peers = global.MultiCamSessionWs && global.MultiCamSessionWs.connectedPeers
+      ? global.MultiCamSessionWs.connectedPeers(sid)
+      : null;
+    return peers || {};
+  }
+
+  /* États RECORDER publiés par les pairs (`start_state` → START_STATE côté
+   * Master) + l'état local. `connectedPeers` ne dit QUE qui est joignable ; les
+   * deux informations restent distinctes jusqu'à l'affichage. */
+  function livePeerStates(v) {
+    var out = {};
+    var peers = (v && v.peers) || {};
+    Object.keys(peers).forEach(function (did) {
+      var st = peers[did] && peers[did].state;
+      if (st === "STARTED") out[did] = "REC";
+      else if (st === "STOPPED") out[did] = "STOPPED";
+      else if (st === "FAILED") out[did] = "ERROR";
+    });
+    return out;
+  }
+
+  function syncLive(v) {
+    var model = global.MultiCamLiveModel;
+    var screen = global.MultiCamLiveScreen;
+    if (!model || !screen) return null;
+    if (!liveBound) {
+      model.bind({
+        localDid: (appCfg && appCfg.deviceId) || "",
+        getParticipants: liveParticipants
+      });
+      /* Les images arrivent par abonnement, pas en polling : la mosaïque ne
+       * redemande jamais une frame, elle reçoit celle que le transport a déjà
+       * acceptée pour la boîte de réception. */
+      if (global.MultiCamPreviewInbox) {
+        global.MultiCamPreviewInbox.onFrame(function (frame) { model.onPreviewFrame(frame); });
+      }
+      liveBound = true;
+      console.log("LIVE_MOSAIC_READY localDid=" + (appCfg ? appCfg.deviceId : "—")
+        + " policy=plan_order_frozen transport=pure_ui=diff");
+    }
+    if (!v || !v.active) return null;
+
+    /* Le Take EST la grille : changer de Take reconstruit tout. */
+    model.setTake(v.sid, v.takeNumber);
+    model.syncParticipants(liveParticipants(v.sid));
+    var slots = model.view().slots;
+    liveSeedFrames(model, v.sid, slots);
+
+    /* Une seule lecture de la session et des états pairs par révision : ces
+     * données sont partagées par TOUTES les vignettes (un état global de
+     * connectivité), les relire par vignette serait du travail inutile à 5 Hz. */
+    var live = liveLiveness(v.sid);
+    var states = livePeerStates(v);
+    slots.forEach(function (slot) {
+      /* Le device local est joignable par construction ; `connectedPeers()` ne le
+       * liste pas (il n'a pas de socket à lui-même). */
+      model.setLiveness(slot.deviceId, slot.isLocal ? true : !!live[slot.deviceId]);
+      var st = slot.isLocal
+        ? (v.localStoppedTake ? "STOPPED" : "REC")
+        : states[slot.deviceId];
+      if (st) model.setStatus(slot.deviceId, st);
+    });
+
+    if (current !== "live") return null;
+    return screen.render(model.view(), {
+      sessionName: v.sessionName,
+      phase: v.phase,
+      recStartedAtMs: v.recStartedAtMs,
+      nowMs: Date.now()
+    });
+  }
+
   /* Fin de plan (annulation, refus, STOP local) : on revient à l'écran ARM
    * depuis le panneau 07. Sans ce rattrapage, l'utilisateur resterait sur une vue
    * de countdown à l'arrêt d'un plan. Le service reste maître de l'état. */
   function onStartEnded(v) {
+    if (current === "live") {
+      console.log("NAV_AUTO reason=plan_ended target=arm from=live"
+        + " sessionId=" + ((v && v.sid) || ""));
+      showPanel("arm", { sid: (v && v.sid) || null });
+      return;
+    }
     if (current !== "countdown") return;
     console.log("NAV_AUTO reason=plan_ended target=arm from=countdown"
       + " sessionId=" + ((v && v.sid) || (appCfg ? "?" : "?")));
@@ -136,6 +271,10 @@
     if (!v || !v.active) { onStartEnded(v); return; }
     /* Le rendu est toujours à jour, même quand on ne change pas de panneau. */
     if (current === "countdown") screen.render(v);
+    /* J09-05 : la mosaïque est alimentée par ce MÊME flux (200 ms), jamais par
+     * un setInterval concurrent — c'est ce qui garantit que l'image, la
+     * connectivité et le timer sont lus au même instant. */
+    syncLive(v);
     if (START_RESERVED_PANELS[current]) return;
     var target = screen.route(v);
     if (target && target !== current) {

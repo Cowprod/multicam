@@ -10,6 +10,7 @@
 <link href="css/app.css" rel="stylesheet">
 <link href="css/settings.css" rel="stylesheet">
 <link href="css/countdown.css" rel="stylesheet">
+<link href="css/live.css" rel="stylesheet">
 </head>
 <body>
 <!-- Fond permanent = preview caméra locale (décision §35.1). Sur un device
@@ -425,6 +426,45 @@
      Trois vues dans un seul panneau, choisies par MultiCamCountdownScreen :
      Master (chiffre géant + Annuler), Capture (vidéo locale + états locaux
      seuls), et le placeholder minimal 08 en fin de plan. -->
+<!-- ============ Écran 08 — REC Master (J09-05) ============
+     Maquette validée ui/08-live-recording. La mosaïque est produite par
+     js/ui/live.js à partir du modèle js/state/live-model.js ; ce panneau ne
+     contient QUE la structure d'accueil et le dock (VIDE en J09-05).
+     Le STOP global du §4 de la maquette est DIFFÉRÉ (J10) : aucun bouton
+     d'arrêt global n'est rendu ici, et donc aucun mock. -->
+<section id="panel-live" class="screen lv-screen">
+  <div class="lv-head card glass strong rounded-4">
+    <div class="lv-head-main">
+      <div class="lv-session small muted" id="liveSession">…</div>
+      <div class="lv-rec">
+        <span class="lv-rec-dot" aria-hidden="true"></span>
+        <span class="lv-rec-label">REC</span>
+        <span class="live-phase phase-rec" id="livePhase">REC</span>
+      </div>
+    </div>
+    <div class="lv-head-right">
+      <div class="lv-timer" id="liveTimer">00:00:00</div>
+      <div class="lv-take small muted" id="liveTake">Take 001</div>
+    </div>
+  </div>
+
+  <div class="lv-grid-label small text-uppercase muted px-1">
+    <span>Captures</span><span id="liveCount" class="ms-auto">0 Capture</span>
+  </div>
+
+  <!-- La grille est remplie par js/ui/live.js : un nœud par Capture du Take,
+       dans l'ordre FIGE du plan de START. -->
+  <section id="liveGrid" class="live-grid cols-1"></section>
+
+  <div id="liveEmpty" class="empty-state d-none">
+    Aucune Capture ne participe à ce Take.
+  </div>
+
+  <!-- Dock réservé au STOP global (§4 de la maquette) — voluntaryment VIDE en
+       J09-05 : aucun mock, aucun bouton qui ne fait rien. -->
+  <div class="lv-stop-dock" id="liveStopDock" aria-hidden="true"></div>
+</section>
+
 <section id="panel-countdown" class="screen cd-screen">
   <!-- Vue Master -->
   <div id="cdMaster" class="cd-view d-none">
@@ -606,6 +646,7 @@
 <script src="js/state/preview-sampler.js"></script>
 <script src="js/state/preview-inbox.js"></script>
 <script src="js/state/preview-transport.js"></script>
+<script src="js/state/live-model.js"></script>
 <script src="js/state/start-service.js"></script>
 <script src="js/ui/home.js"></script>
 <script src="js/ui/session-create.js"></script>
@@ -613,6 +654,7 @@
 <script src="js/ui/session.js"></script>
 <script src="js/ui/take.js"></script>
 <script src="js/ui/arm.js"></script>
+<script src="js/ui/live.js"></script>
 <script src="js/ui/countdown.js"></script>
 <script src="js/ui/settings.js"></script>
 <script src="js/main.js"></script>

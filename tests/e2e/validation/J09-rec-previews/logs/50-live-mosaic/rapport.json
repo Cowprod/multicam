@@ -1,0 +1,904 @@
+{
+  "mission": "J09-05",
+  "title": "Mosaïque Master REC — slots ordonnés par le plan de START",
+  "at": "2026-10-01T08:21:48.310Z",
+  "devices": {
+    "capture": {
+      "serial": "61d54bba7d91",
+      "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+      "endpoint": "192.168.92.76:45102"
+    },
+    "master": {
+      "serial": "c0d8514d7d87",
+      "deviceId": "92d58e97-c418-47cc-87c5-6a080aff5faf",
+      "endpoint": "192.168.92.192:45103"
+    }
+  },
+  "session": {
+    "sessionId": "N2UJKBCK",
+    "pin": "***"
+  },
+  "scenarios": [
+    {
+      "tag": "S1a-apres-top",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": false,
+          "placeholder": true,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:00",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 1,
+          "lastFrameAt": 1790842847304
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 15,
+        "framesApplied": 1,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S1b-attente-image",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:01",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 1,
+          "lastFrameAt": 1790842847304
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 18,
+        "framesApplied": 1,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": [
+        {
+          "file": "screenshots/50-master-mosaic-s1b-image.png",
+          "bytes": 447790,
+          "width": 1340,
+          "height": 800
+        }
+      ]
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:03",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 26,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:04",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 34,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:05",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 37,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:06",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 41,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:07",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 48,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:08",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 51,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:09",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 58,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:10",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 62,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:11",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 69,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S2-attente-coupure",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "DECONNECTED",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": true
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:12",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": false,
+          "displayState": "DECONNECTED",
+          "hasFrame": true,
+          "lastFrameSeq": 2,
+          "lastFrameAt": 1790842848257
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 73,
+        "framesApplied": 2,
+        "framesIgnored": 0,
+        "livenessUpdates": 2,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": [
+        {
+          "file": "screenshots/50-master-mosaic-s2-deconnecte.png",
+          "bytes": 137562,
+          "width": 1340,
+          "height": 800
+        }
+      ]
+    },
+    {
+      "tag": "S3-reconnecte-attente",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:19",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 20,
+          "lastFrameAt": 1790842866277
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 110,
+        "framesApplied": 6,
+        "framesIgnored": 0,
+        "livenessUpdates": 3,
+        "statusUpdates": 0,
+        "placeholders": 0
+      },
+      "screenshots": [
+        {
+          "file": "screenshots/50-master-mosaic-s3-reconnecte.png",
+          "bytes": 268994,
+          "width": 1340,
+          "height": 800
+        }
+      ]
+    },
+    {
+      "tag": "S4-stopped-attente",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "STOPPED",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:21",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "STOPPED",
+          "connected": true,
+          "displayState": "STOPPED",
+          "hasFrame": true,
+          "lastFrameSeq": 21,
+          "lastFrameAt": 1790842867251
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 121,
+        "framesApplied": 7,
+        "framesIgnored": 0,
+        "livenessUpdates": 3,
+        "statusUpdates": 1,
+        "placeholders": 0
+      },
+      "screenshots": [
+        {
+          "file": "screenshots/50-master-mosaic-s4-stopped.png",
+          "bytes": 266571,
+          "width": 1340,
+          "height": 800
+        }
+      ]
+    },
+    {
+      "tag": "S4b-stopped-4s-plus-tard",
+      "domOrder": [
+        "Cam 07"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "STOPPED",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-1",
+      "timer": "00:00:26",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "STOPPED",
+          "connected": true,
+          "displayState": "STOPPED",
+          "hasFrame": true,
+          "lastFrameSeq": 21,
+          "lastFrameAt": 1790842867251
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230"
+      ],
+      "stats": {
+        "participantSyncs": 144,
+        "framesApplied": 7,
+        "framesIgnored": 0,
+        "livenessUpdates": 3,
+        "statusUpdates": 1,
+        "placeholders": 0
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S5-master-capture-attente",
+      "domOrder": [
+        "Cam 07",
+        "Regie-M"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": false,
+          "placeholder": true,
+          "native": false,
+          "local": false,
+          "offline": false
+        },
+        {
+          "name": "Regie-M",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": false,
+          "placeholder": false,
+          "native": true,
+          "local": true,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-2",
+      "timer": "00:00:00",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 1,
+          "lastFrameAt": 1790842904594
+        },
+        {
+          "deviceId": "92d58e97-c418-47cc-87c5-6a080aff5faf",
+          "deviceName": "Regie-M",
+          "isLocal": true,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": false,
+          "lastFrameSeq": 0,
+          "lastFrameAt": 0
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230",
+        "92d58e97-c418-47cc-87c5-6a080aff5faf"
+      ],
+      "stats": {
+        "participantSyncs": 14,
+        "framesApplied": 1,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 1
+      },
+      "screenshots": []
+    },
+    {
+      "tag": "S5-master-capture-attente",
+      "domOrder": [
+        "Cam 07",
+        "Regie-M"
+      ],
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": true,
+          "placeholder": false,
+          "native": false,
+          "local": false,
+          "offline": false
+        },
+        {
+          "name": "Regie-M",
+          "state": "REC",
+          "hasImgNode": true,
+          "hasSrc": false,
+          "placeholder": false,
+          "native": true,
+          "local": true,
+          "offline": false
+        }
+      ],
+      "gridClass": "live-grid cols-2",
+      "timer": "00:00:01",
+      "take": "Take 001",
+      "modelSlots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 1,
+          "lastFrameAt": 1790842904594
+        },
+        {
+          "deviceId": "92d58e97-c418-47cc-87c5-6a080aff5faf",
+          "deviceName": "Regie-M",
+          "isLocal": true,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": false,
+          "lastFrameSeq": 0,
+          "lastFrameAt": 0
+        }
+      ],
+      "order": [
+        "68f01a99-254d-47d8-926b-bbf62be09230",
+        "92d58e97-c418-47cc-87c5-6a080aff5faf"
+      ],
+      "stats": {
+        "participantSyncs": 19,
+        "framesApplied": 1,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "placeholders": 1
+      },
+      "screenshots": [
+        {
+          "file": "screenshots/50-master-mosaic-s5-master-capture-local.png",
+          "bytes": 653756,
+          "width": 1340,
+          "height": 800
+        }
+      ]
+    }
+  ],
+  "logCounts": {
+    "screen08Route": 2,
+    "liveReady": 2,
+    "liveSlotsAdded": 2,
+    "liveLiveness": 8,
+    "liveStatus": 1,
+    "liveFrameIgnored": 0,
+    "liveTakeSet": 2
+  },
+  "verdict": {
+    "s1_uneCapture_uneVignette": true,
+    "placeholderAvantPremiereImage": true,
+    "s2_deconnexion": true,
+    "s3_reconnexion": true,
+    "s4_stopLocal": true,
+    "s5_masterCaptureLocal": true,
+    "ordreJamaisBouge": true
+  }
+}

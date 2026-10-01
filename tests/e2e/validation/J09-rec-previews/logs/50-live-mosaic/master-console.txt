@@ -1,0 +1,239 @@
+WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=68f01a99-254d-47d8-926b-bbf62be09230
+START_MASTER_LOST deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=VMQF3QDW#1#1#1 take=1 phase=REC remainingMs=163 countdownContinues=1
+LIVE_LIVENESS sessionId=VMQF3QDW take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=false frameFigee=141
+PREVIEW_CAPTURE_OK sessionId=VMQF3QDW take=1 seq=142 startPlanId=VMQF3QDW#1#1#1 durationMs=62 bytes=14617 base64Length=19492
+PREVIEW_FRAME_TX sessionId=VMQF3QDW seq=142 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=2 duplicateConnsSkipped=0 jsonBytes=19819
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=VMQF3QDW take=1 seq=142 dropped=1 pending=0
+WS_CLIENT_ERROR endpoint=192.168.92.76:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=
+PREVIEW_CAPTURE_OK sessionId=VMQF3QDW take=1 seq=143 startPlanId=VMQF3QDW#1#1#1 durationMs=49 bytes=14658 base64Length=19544
+PREVIEW_FRAME_TX sessionId=VMQF3QDW seq=143 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=2 duplicateConnsSkipped=0 jsonBytes=19871
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=VMQF3QDW take=1 seq=143 dropped=2 pending=0
+PREVIEW_CAPTURE_OK sessionId=VMQF3QDW take=1 seq=144 startPlanId=VMQF3QDW#1#1#1 durationMs=55 bytes=14631 base64Length=19508
+PREVIEW_FRAME_TX sessionId=VMQF3QDW seq=144 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=2 duplicateConnsSkipped=0 jsonBytes=19835
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=VMQF3QDW take=1 seq=144 dropped=3 pending=0
+WS_CLIENT_ERROR endpoint=192.168.92.76:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=
+PREVIEW_CAPTURE_OK sessionId=VMQF3QDW take=1 seq=145 startPlanId=VMQF3QDW#1#1#1 durationMs=59 bytes=14777 base64Length=19704
+PREVIEW_FRAME_TX sessionId=VMQF3QDW seq=145 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=2 duplicateConnsSkipped=0 jsonBytes=20031
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=VMQF3QDW take=1 seq=145 dropped=4 pending=0
+WS_CONN_OPEN uuid=bd13d611… remote=192.168.92.76 res=/
+PREVIEW_CAPTURE_OK sessionId=VMQF3QDW take=1 seq=146 startPlanId=VMQF3QDW#1#1#1 durationMs=58 bytes=14693 base64Length=19592
+PREVIEW_FRAME_TX sessionId=VMQF3QDW seq=146 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=1 selfSkipped=2 duplicateConnsSkipped=0 jsonBytes=19919
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=VMQF3QDW take=1 seq=146 dropped=5 pending=0
+LIVE_LIVENESS sessionId=VMQF3QDW take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=true frameFigee=141
+WS_CLIENT_OPEN endpoint=192.168.92.76:45102
+ARM_SERVICE_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+START_SERVICE_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+PREVIEW_SERVICE_READY captureSkill=1 foreground=1 desired=1
+PREVIEW_SAMPLER_READY intervalMs=1000 quality=60 running=0
+PREVIEW_INBOX_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf capacity=1_frame_per_device
+PREVIEW_FRAME_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf pendingSlot=1 policy=latest_frame_wins
+START_NAV_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+CAMERA_PREVIEW_START reason=boot camera=back toBack=1
+PREVIEW_TRANSPORT_READY policy=latest_frame_wins pendingSlot=1 inbox=1
+CAMERA_PREP_OK startPlanId=— camera=back toBack=1 dt=1198ms detail="Camera started"
+CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=1203ms
+CAMERA_PREVIEW_OK reused=0 recording=0
+CAMERA_PREVIEW_STATE active=1 recording=0 reason=boot
+WS_FALLBACK_BUSY port=45102 via=onFailure:Address already in use dt=369ms
+WS_EFFECTIVE_PORT port=45103 addr=:: attempts=[":45102(onFailure:Address already in use,369ms)"] total=621ms
+WS_HEARTBEAT_START interval=2000ms timeout=8000ms
+CAMERA_PREVIEW_LIFECYCLE event=config_change capture=0
+CAMERA_PREVIEW_STOP reason=capture_skill_off
+CAMERA_RELEASE_OK reason=preview:capture_skill_off detail="OK"
+CAMERA_PREVIEW_STATE active=0 recording=0 reason=config_change
+WS_CLIENT_OPEN endpoint=192.168.92.76:45102
+WS_CLIENT_OPEN endpoint=192.168.92.57:45102
+WS_CLIENT_OPEN endpoint=192.168.92.103:45102
+WS_CONN_OPEN uuid=f80b6c61… remote=192.168.92.76 res=/
+JOIN_OK sessionId=N2UJKBCK did=68f01a99-254d-47d8-926b-bbf62be09230 name=Cam 07
+TAKE_UPDATE_LOCAL sessionId=N2UJKBCK take=1 event=takeAdded by=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_ADDED sessionId=N2UJKBCK take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+SCREEN05_TAKE_AUTO sessionId=N2UJKBCK take=1
+TAKE_UPDATE_LOCAL sessionId=N2UJKBCK take=1 event=takeChanged by=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_CHANGED sessionId=N2UJKBCK take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+SCREEN05_ARM_GO sessionId=N2UJKBCK take=1
+ARM_START sessionId=N2UJKBCK take=1 attempt=1 armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230] selected=1
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=105ms rtt=117ms samples=1 dispersion=0ms
+ARM_STATE_CHANGED sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING check=sync
+REC_ELIGIBILITY sessionId=N2UJKBCK take=1 armCycleId=N2UJKBCK#1#1 eligible=1 readyOrWarningCaptures=1
+CLOCK_SYNC_IGNORE sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 req=1 expected=none reason=request_mismatch
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=99ms rtt=100ms samples=2 dispersion=6ms
+CLOCK_SYNC_IGNORE sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 req=2 expected=none reason=request_mismatch
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=99ms rtt=100ms samples=3 dispersion=6ms
+CLOCK_SYNC_IGNORE sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 req=3 expected=none reason=request_mismatch
+SCREEN06_REC_INCIDENT sessionId=N2UJKBCK n=1
+REC_ELIGIBLE sessionId=N2UJKBCK take=1 armCycleId=N2UJKBCK#1#1 via=incident_continue
+ARM_CLOCK_FRESH_SAMPLE peer=68f01a99-254d-47d8-926b-bbf62be09230 reason=on_demand
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=51ms rtt=29ms samples=4 dispersion=54ms
+CLOCK_SYNC_IGNORE sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 req=4 expected=none reason=request_mismatch
+ARM_CLOCK_FRESH_OK waitedMs=54 maxWaitMs=4000 peers=1
+START_SERVICE_CLOCK_READY fresh=1 waitedMs=54 reason=—
+START_CLOCK_FRESHNESS deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf peer=68f01a99-254d-47d8-926b-bbf62be09230 offsetMs=51 ageMs=25 maxAgeMs=12000 ok=1
+START_PLAN_CREATED deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 sessionId=N2UJKBCK take=1 countdown=5 dispatchLeadMs=5000 target=10:20:46.461 participants=[68f01a99-254d-47d8-926b-bbf62be09230:capture]
+START_REQUEST sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1 by=92d58e97-c418-47cc-87c5-6a080aff5faf targetStart=10:20:46.461 countdown=5
+START_PLAN_ACCEPTED deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 sessionId=N2UJKBCK take=1 leader=1 countdown=5 target=10:20:46.461
+LIVE_MODEL_READY localDid=92d58e97-c418-47cc-87c5-6a080aff5faf policy=take_order_frozen
+LIVE_MOSAIC_READY localDid=92d58e97-c418-47cc-87c5-6a080aff5faf policy=plan_order_frozen transport=pure_ui=diff
+LIVE_TAKE_SET sessionId=N2UJKBCK take=1 slots_reset=1
+LIVE_SLOTS_ADDED sessionId=N2UJKBCK take=1 added=1 order=[68f01a99-254d-47d8-926b-bbf62be09230]
+LIVE_LIVENESS sessionId=N2UJKBCK take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=true frameFigee=—
+NAV_AUTO reason=start_plan target=countdown phase=COUNTDOWN from=arm
+START_SERVICE_START sessionId=N2UJKBCK isMaster=1 isCapture=0 isStorage=0 countdown=5
+START_SERVICE_REQUEST_OK startPlanId=N2UJKBCK#1#1#1
+SCREEN06_REC_STARTED origin=incident_continue sessionId=N2UJKBCK startPlanId=N2UJKBCK#1#1#1 take=1 countdown=5
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+START_STATE deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 state=ACCEPTED
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+START_LOCAL deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 target=10:20:46.461 actual=10:20:46.463 deltaMs=2 status=OBSERVER note=no_capture
+START_PLAN_COMPLETE deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 take=1 reason=started_observer peers=1
+SCREEN08_ROUTE decision=regie sessionId=N2UJKBCK take=1 isMaster=1 isCapture=0 rule=isMaster_AND_controller_skill
+NAV_AUTO reason=start_plan target=live phase=REC from=countdown
+START_STATE deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 state=STARTED from=ACCEPTED
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=1 bytes=43774 width=1339 height=752 sendToRxMs=5 total=1
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=2 bytes=30962 width=1339 height=752 sendToRxMs=0 total=2
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+WS_CONN_TIMEOUT uuid=f80b6c61… did=68f01a99-254d-47d8-926b-bbf62be09230
+WS_CLIENT_TIMEOUT endpoint=192.168.92.76:45102 did=68f01a99-254d-47d8-926b-bbf62be09230
+START_MASTER_LOST deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 take=1 phase=REC remainingMs=170 countdownContinues=1
+LIVE_LIVENESS sessionId=N2UJKBCK take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=false frameFigee=2
+WS_CLIENT_OPEN endpoint=192.168.92.76:45102
+LIVE_LIVENESS sessionId=N2UJKBCK take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=true frameFigee=2
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=17 bytes=45717 width=1339 height=752 sendToRxMs=131 total=3
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=18 bytes=31333 width=1339 height=752 sendToRxMs=215 total=4
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=19 bytes=26421 width=1339 height=752 sendToRxMs=0 total=5
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=20 bytes=26331 width=1339 height=752 sendToRxMs=4 total=6
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=21 bytes=26352 width=1339 height=752 sendToRxMs=0 total=7
+START_STATE deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 state=STOPPED from=STARTED message=smoke_j0905
+LIVE_STATUS sessionId=N2UJKBCK take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 status=STOPPED connected=true
+WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=68f01a99-254d-47d8-926b-bbf62be09230
+WS_CONN_CLOSE uuid=f80b6c61… code=1006 reason=Connection reset by peer clean=0
+WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=68f01a99-254d-47d8-926b-bbf62be09230
+LIVE_LIVENESS sessionId=N2UJKBCK take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=false frameFigee=21
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_STATE_CHANGED sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=ERROR check=connection
+REC_ELIGIBILITY sessionId=N2UJKBCK take=1 armCycleId=N2UJKBCK#1#1 eligible=0 readyOrWarningCaptures=0
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+WS_CLIENT_ERROR endpoint=192.168.92.76:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.76:45102 code=1006 reason= did=
+WS_CONN_OPEN uuid=3d88493b… remote=192.168.92.76 res=/
+LIVE_LIVENESS sessionId=N2UJKBCK take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=true frameFigee=21
+ARM_SERVICE_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+START_SERVICE_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+PREVIEW_SERVICE_READY captureSkill=0 foreground=1 desired=0
+PREVIEW_SAMPLER_READY intervalMs=1000 quality=60 running=0
+PREVIEW_INBOX_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf capacity=1_frame_per_device
+PREVIEW_FRAME_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf pendingSlot=1 policy=latest_frame_wins
+START_NAV_READY deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf
+PREVIEW_TRANSPORT_READY policy=latest_frame_wins pendingSlot=1 inbox=1
+WS_EFFECTIVE_PORT port=45102 addr=:: attempts=[] total=38ms
+WS_HEARTBEAT_START interval=2000ms timeout=8000ms
+WS_CLIENT_OPEN endpoint=192.168.92.103:45102
+WS_CLIENT_OPEN endpoint=192.168.92.76:45102
+WS_CLIENT_OPEN endpoint=192.168.92.57:45102
+CAMERA_PREVIEW_LIFECYCLE event=config_change capture=1
+CAMERA_PREVIEW_START reason=config_change camera=back toBack=1
+CAMERA_PREP_OK startPlanId=— camera=back toBack=1 dt=294ms detail="Camera started"
+CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=295ms
+CAMERA_PREVIEW_OK reused=0 recording=0
+CAMERA_PREVIEW_STATE active=1 recording=0 reason=config_change
+WS_CLIENT_ERROR endpoint=192.168.92.192:45103
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45103 code=1006 reason= did=
+TAKE_UPDATE_LOCAL sessionId=N2UJKBCK take=1 event=takeChanged by=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_CHANGED sessionId=N2UJKBCK take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+SCREEN05_ARM_GO sessionId=N2UJKBCK take=1
+ARM_START sessionId=N2UJKBCK take=1 attempt=1 armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230,92d58e97-c418-47cc-87c5-6a080aff5faf] selected=2
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=69ms rtt=52ms samples=1 dispersion=0ms
+ARM_STATE_CHANGED sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING check=sync
+REC_ELIGIBILITY sessionId=N2UJKBCK take=1 armCycleId=N2UJKBCK#1#1 eligible=1 readyOrWarningCaptures=1
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=capture status=READY from=ARMING
+ARM_STATE_CHANGED sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=capture status=READY
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=69ms rtt=52ms samples=2 dispersion=93ms
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=69ms rtt=52ms samples=3 dispersion=135ms
+SCREEN06_REC_INCIDENT sessionId=N2UJKBCK n=1
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=capture status=READY
+REC_ELIGIBLE sessionId=N2UJKBCK take=1 armCycleId=N2UJKBCK#1#1 via=incident_continue
+CAMERA_PREP_SKIP startPlanId=— reason=already_prepared
+START_SERVICE_PREP_OK startPlanId=— preparedAtMs=1790842886019 reused=1
+ARM_CLOCK_FRESH_SAMPLE peer=68f01a99-254d-47d8-926b-bbf62be09230 reason=on_demand
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+CLOCK_SYNC peer=68f01a99-254d-47d8-926b-bbf62be09230 offset=54ms rtt=19ms samples=4 dispersion=135ms
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_CLOCK_FRESH_OK waitedMs=53 maxWaitMs=4000 peers=1
+START_SERVICE_CLOCK_READY fresh=1 waitedMs=53 reason=—
+START_CLOCK_FRESHNESS deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf peer=68f01a99-254d-47d8-926b-bbf62be09230 offsetMs=54 ageMs=34 maxAgeMs=12000 ok=1
+START_PLAN_CREATED deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 sessionId=N2UJKBCK take=1 countdown=5 dispatchLeadMs=5000 target=10:21:43.908 participants=[68f01a99-254d-47d8-926b-bbf62be09230:capture,92d58e97-c418-47cc-87c5-6a080aff5faf:capture]
+START_REQUEST sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1 by=92d58e97-c418-47cc-87c5-6a080aff5faf targetStart=10:21:43.908 countdown=5
+START_PLAN_ACCEPTED deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 sessionId=N2UJKBCK take=1 leader=1 countdown=5 target=10:21:43.908
+START_ACCEPTED deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 take=1 offsetMs=0 offsetKnown=1 localTop=10:21:43.908 countdown=5
+LIVE_MODEL_READY localDid=92d58e97-c418-47cc-87c5-6a080aff5faf policy=take_order_frozen
+LIVE_MOSAIC_READY localDid=92d58e97-c418-47cc-87c5-6a080aff5faf policy=plan_order_frozen transport=pure_ui=diff
+LIVE_TAKE_SET sessionId=N2UJKBCK take=1 slots_reset=1
+LIVE_SLOTS_ADDED sessionId=N2UJKBCK take=1 added=2 order=[68f01a99-254d-47d8-926b-bbf62be09230,92d58e97-c418-47cc-87c5-6a080aff5faf]
+LIVE_LIVENESS sessionId=N2UJKBCK take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 connected=true frameFigee=—
+NAV_AUTO reason=start_plan target=countdown phase=COUNTDOWN from=arm
+START_SERVICE_START sessionId=N2UJKBCK isMaster=1 isCapture=1 isStorage=0 countdown=5
+START_SERVICE_REQUEST_OK startPlanId=N2UJKBCK#1#1#1
+SCREEN06_REC_STARTED origin=incident_continue sessionId=N2UJKBCK startPlanId=N2UJKBCK#1#1#1 take=1 countdown=5
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=capture status=READY
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+START_STATE deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 state=ACCEPTED
+START_LOCAL deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 take=1 target=10:21:43.908 actual=10:21:43.909 deltaMs=1 countdown=5 status=OK
+START_PLAN_COMPLETE deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 take=1 reason=started peers=1
+CAMERA_REC_REQUEST startPlanId=N2UJKBCK#1#1#1 take=1 w=1280 h=720 quality=plugin_default qualityLabel=medium profile=auto targetLocalMs=1790842903908
+SCREEN08_ROUTE decision=regie sessionId=N2UJKBCK take=1 isMaster=1 isCapture=1 rule=isMaster_AND_controller_skill
+NAV_AUTO reason=start_plan target=live phase=REC from=countdown
+START_STATE deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 peer=68f01a99-254d-47d8-926b-bbf62be09230 state=STARTED from=ACCEPTED
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=1 bytes=22092 width=1339 height=752 sendToRxMs=37 total=1
+CAMERA_REC_OK startPlanId=N2UJKBCK#1#1#1 take=1 ackAtMs=1790842904684 callDt=773ms detail="OK"
+PREVIEW_CAPTURE_START sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1 status=OK intervalMs=1000 quality=60 atMs=1790842904686
+PREVIEW_FRAME_RUN_START sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1
+START_NATIVE_ACK deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf startPlanId=N2UJKBCK#1#1#1 take=1 ack=10:21:44.684 deltaMs=776 detail=startRecordVideo_ok
+PREVIEW_CAPTURE_OK sessionId=N2UJKBCK take=1 seq=1 startPlanId=N2UJKBCK#1#1#1 durationMs=77 bytes=15131 base64Length=20176
+PREVIEW_FRAME_TX sessionId=N2UJKBCK seq=1 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=2 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=20501
+PREVIEW_FRAME_SENT sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1 seq=1 peers=1 jpegBytes=15131 jsonBytes=20501 width=1339 height=752 sendMs=1 atMs=1790842904770
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=2 bytes=27718 width=1339 height=752 sendToRxMs=38 total=2
+PREVIEW_CAPTURE_OK sessionId=N2UJKBCK take=1 seq=2 startPlanId=N2UJKBCK#1#1#1 durationMs=99 bytes=20623 base64Length=27500
+PREVIEW_FRAME_TX sessionId=N2UJKBCK seq=2 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=2 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=27825
+PREVIEW_FRAME_SENT sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1 seq=2 peers=1 jpegBytes=20623 jsonBytes=27825 width=1339 height=752 sendMs=3 atMs=1790842905790
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+ARM_REQUEST sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230]
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=3 bytes=32260 width=1339 height=752 sendToRxMs=187 total=3
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=WARNING
+PREVIEW_CAPTURE_OK sessionId=N2UJKBCK take=1 seq=3 startPlanId=N2UJKBCK#1#1#1 durationMs=117 bytes=13522 base64Length=18032
+PREVIEW_FRAME_TX sessionId=N2UJKBCK seq=3 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=2 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=18357
+PREVIEW_FRAME_SENT sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1 seq=3 peers=1 jpegBytes=13522 jsonBytes=18357 width=1339 height=752 sendMs=4 atMs=1790842906840
+ARM_RESULT sessionId=N2UJKBCK armCycleId=N2UJKBCK#1#1 deviceId=92d58e97-c418-47cc-87c5-6a080aff5faf skill=capture status=READY
+PREVIEW_FRAME_RECEIVED sessionId=N2UJKBCK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 take=1 startPlanId=N2UJKBCK#1#1#1 seq=4 bytes=28389 width=1339 height=752 sendToRxMs=7 total=4
+PREVIEW_CAPTURE_OK sessionId=N2UJKBCK take=1 seq=4 startPlanId=N2UJKBCK#1#1#1 durationMs=90 bytes=15598 base64Length=20800
+PREVIEW_FRAME_TX sessionId=N2UJKBCK seq=4 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=2 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=21125
+PREVIEW_FRAME_SENT sessionId=N2UJKBCK take=1 startPlanId=N2UJKBCK#1#1#1 seq=4 peers=1 jpegBytes=15598 jsonBytes=21125 width=1339 height=752 sendMs=0 atMs=1790842907778

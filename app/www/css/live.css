@@ -1,0 +1,71 @@
+/* MultiCam — écran 08 REC Master : mosaïque des previews (J09-05).
+ * Maquette validée ui/08-live-recording (variables `--g/--gs/--b/--m/--local`
+ * définies dans css/app.css). Ce fichier ne fait QUE la mise en page de la
+ * grille et de ses états — aucune logique. */
+
+.lv-screen{gap:.6rem}
+/* ---------- en-tête : session, REC, timer global ---------- */
+.lv-head{display:flex;align-items:center;gap:.75rem;padding:.7rem .9rem;margin:0}
+.lv-head-main{flex:1;min-width:0}
+.lv-session{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv-rec{display:flex;align-items:center;gap:.45rem;margin-top:.15rem}
+.lv-rec-dot{width:12px;height:12px;border-radius:50%;background:#ff3b30;display:inline-block;box-shadow:0 0 0 4px rgba(255,59,48,.16);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}
+.lv-rec-label{font-weight:700;letter-spacing:.04em}
+.lv-head-right{text-align:right;flex:none}
+.lv-timer{font-size:clamp(1.5rem,6vw,2.1rem);font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.lv-take{margin-top:.1rem}
+
+/* ---------- libellé de section ---------- */
+.lv-grid-label{display:flex;align-items:center}
+
+/* ---------- grille ----------
+ *
+ * Le nombre de COLONNES est choisi par js/ui/live.js (classe `cols-N`) à partir
+ * du seul nombre de Captures du Take : une déconnexion ne change donc jamais la
+ * géométrie, et l'opérateur ne voit pas la mosaïque se recomposer sous ses
+ * yeux. 1 Capture → pleine largeur, 2 → deux colonnes, 3/4 → 2×2, au-delà →
+ * 3 colonnes puis défilement. */
+.live-grid{display:grid;gap:.5rem;align-items:stretch}
+.live-grid.cols-1{grid-template-columns:minmax(0,1fr)}
+.live-grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.live-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* Au-delà de 4 vignettes la grille défile : l'écran reste lisible sur un
+ * téléphone au lieu de réduire chaque image à un timbre. */
+.live-grid.cols-many{max-height:none}
+@media (max-height:640px){.live-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---------- vignette ---------- */
+.live-tile{position:relative;overflow:hidden;border-radius:14px;background:rgba(4,7,11,.72)}
+.tile-media{position:relative;aspect-ratio:16/10;background:#05070b;overflow:hidden}
+@media (min-width:720px){.tile-media{aspect-ratio:4/3}}
+.tile-img{width:100%;height:100%;object-fit:cover;display:block}
+/* Placeholder : la vignette existe (la Capture participe au Take) mais aucune
+ * image n'est encore arrivée. On rend un cadre explicitement vide plutôt qu'un
+ * trou, et un texte qui dit CE QUI MANQUE au lieu d'invoquer une panne. */
+.tile-media.is-placeholder::after{content:"En attente de preview";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.74rem;color:var(--m);text-align:center;padding:.4rem}
+/* Vignette locale (Master qui est aussi Capture, §Device local de la maquette) :
+ * AUCUNE image réseau n'y est peinte — le transport écarte le self-loop. Le fond
+ * RESTE TRANSPARENT pour laisser voir la preview native permanente déjà rendue
+ * derrière la WebView (§35.1), exactement comme dans la maquette où le fond
+ * général est la caméra locale. Seul le contour identifie le device. */
+.tile-media.is-native{background:transparent}
+.tile-info{display:flex;align-items:center;gap:.4rem;padding:.35rem .5rem;background:rgba(4,7,11,.55)}
+.tile-name{flex:1;min-width:0;font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile-state{display:inline-flex;align-items:center;gap:.25rem;font-size:.68rem;padding:.12rem .4rem;border-radius:999px;background:rgba(255,255,255,.12);white-space:nowrap}
+.tile-state.st-rec{background:rgba(232,73,96,.22)}
+.tile-state.st-offline{background:rgba(138,143,152,.28)}
+.tile-state.st-warning{background:rgba(255,193,7,.2)}
+.tile-state.st-error{background:rgba(232,73,96,.3)}
+/* Hors ligne : l'image reste VISIBLE mais figée, en niveaux de gris et
+ * assombrie. C'est une information (« je l'ai perdu de vue »), pas une sanction ;
+ * un cadre vide ferait croire à une panne de la Capture. */
+.live-tile.offline .tile-img{filter:grayscale(1) brightness(.55)}
+.live-tile.offline .tile-media{box-shadow:inset 0 0 0 2px rgba(138,143,152,.5)}
+/* Contour bleu = device LOCAL, jamais son état technique (§55 de la maquette) :
+ * le même device reste STOPPED ou DÉCONNECTÉ sans que ce trait bouge. */
+.live-tile.local{border:3px solid var(--local,#38bdf8)!important;box-shadow:0 0 0 2px rgba(56,189,248,.15)}
+
+/* ---------- dock réservé au STOP global (§4, J10) ---------- */
+.lv-stop-dock{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:10px 12px max(10px,env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(8,12,20,.98),rgba(8,12,20,.88),rgba(8,12,20,0));pointer-events:none}
+.lv-stop-dock:empty{display:none}

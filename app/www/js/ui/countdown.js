@@ -53,7 +53,7 @@
     return (m < 10 ? "0" : "") + m + ":" + (r < 10 ? "0" : "") + r;
   }
 
-  var state = { sid: null, bound: false, lastView: null, stopModalOpen: false, skipLogged: false };
+  var state = { sid: null, bound: false, lastView: null, stopModalOpen: false, skipLogged: false, regieLogged: false };
 
   /* ---------- ligne d'état local (Capture uniquement) ---------- */
 
@@ -180,6 +180,28 @@
   /* ---------- routeur (appelé par main.js) ---------- */
 
   /* Renvoie le nom de panneau à afficher, ou "" pour rester où l'on est. */
+  /* J09-05 : la mosaïque (écran 08) est un écran de RÉGIE. Décider « qui voit les
+   * previews des autres » à partir du seul `isMaster` du modèle START serait
+   * FAUX : une Capture qui rejoint une session par son PIN est enregistrée dans
+   * `session.masters` (upsertMaster, §J09-04) et ressort donc `isMaster=1`.
+   *
+   * On exige donc un FAIT LOCAL et non ambigu : la skill « controller » ACTIVE.
+   * Un device qui sait régir est un Master par construction du modèle de rôles
+   * (J03), qu'il soit ou non aussi Capture — c'est ce qui donne le cas
+   * Master+Capture, où la mosaïque doit afficher sa propre vignette locale.
+   *
+   * Ce n'est PAS une correction du modèle START (hors périmètre de J09-05,
+   * décision à remonter) : c'est une règle de routage d'écran, journalisée pour
+   * qu'une classification litigieuse reste visible dans les logs. */
+  function isRegie(v) {
+    if (!v || !v.isMaster) return false;
+    var cfgm = global.MultiCamConfig;
+    if (cfgm && typeof cfgm.isControllerEnabled === "function") {
+      return cfgm.isControllerEnabled() === true;
+    }
+    return true;   /* module indisponible : on retombe sur le rôle START */
+  }
+
   function route(v) {
     if (!v || !v.active) return "";
     var isFull = v.isMaster || v.isCapture;         /* le Storage garde son écran */
@@ -194,7 +216,22 @@
       }
       return "";
     }
-    if (v.phase === "REC" || v.phase === "EXCLUDED") return "countdown";  /* 07 (erreur) ou 08 */
+    if (v.phase === "EXCLUDED") return "countdown";   /* 07 : erreur + cause */
+    if (v.phase === "REC") {
+      /* Capture : AUCUNE vue sur les autres devices (invariant UI 07/08) —
+       * elle reste sur le placeholder 08 du panneau 07, inchangé. */
+      if (isRegie(v)) {
+        if (!state.regieLogged) {
+          state.regieLogged = true;
+          console.log("SCREEN08_ROUTE decision=regie sessionId=" + (v.sid || "—")
+            + " take=" + v.takeNumber + " isMaster=" + (v.isMaster ? 1 : 0)
+            + " isCapture=" + (v.isCapture ? 1 : 0)
+            + " rule=isMaster_AND_controller_skill");
+        }
+        return "live";
+      }
+      return "countdown";
+    }
     return "";
   }
 
@@ -255,6 +292,7 @@
     var sid = params.sid || state.sid;
     state.sid = sid;
     state.lastRev = -1;
+    state.regieLogged = false;
     bind();
     if (cfg) {
       var lbl = byId("cdDeviceCap");
