@@ -1,0 +1,204 @@
+ARM_SERVICE_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+START_SERVICE_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+PREVIEW_SERVICE_READY captureSkill=1 foreground=1 desired=1
+PREVIEW_SAMPLER_READY intervalMs=1000 quality=60 running=0
+PREVIEW_INBOX_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230 capacity=1_frame_per_device
+PREVIEW_FRAME_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230 pendingSlot=1 policy=latest_frame_wins
+START_NAV_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+CAMERA_PREVIEW_START reason=boot camera=back toBack=1
+PREVIEW_TRANSPORT_READY policy=latest_frame_wins pendingSlot=1 inbox=1
+WS_EFFECTIVE_PORT port=45102 addr=:: attempts=[] total=156ms
+WS_HEARTBEAT_START interval=2000ms timeout=8000ms
+CAMERA_PREP_OK startPlanId=— camera=back toBack=1 dt=1089ms detail="Camera started"
+CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=1094ms
+CAMERA_PREVIEW_OK reused=0 recording=0
+CAMERA_PREVIEW_STATE active=1 recording=0 reason=boot
+WS_CLIENT_OPEN endpoint=192.168.92.192:45102
+WS_CONN_OPEN uuid=7c3d8305… remote=192.168.92.192 res=/
+WS_CONN_CLOSE uuid=7c3d8305… code=1001 reason= clean=0
+WS_CONN_OPEN uuid=949ab9f1… remote=192.168.92.192 res=/
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=92d58e97-c418-47cc-87c5-6a080aff5faf
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=500ms reason=close_1006 sessions=1
+WS_CONN_CLOSE uuid=949ab9f1… code=1006 reason=Connection reset by peer clean=0 did=92d58e97-c418-47cc-87c5-6a080aff5faf
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=500ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=1000ms reason=close_1006 sessions=1
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=1000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=2000ms reason=close_1006 sessions=1
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=2000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1
+WS_CONN_OPEN uuid=e390ae14… remote=192.168.92.192 res=/
+SESSION_CLOSE_LOCAL sessionId=JKWMNJKQ by=68f01a99-254d-47d8-926b-bbf62be09230
+WS_RETRY_CANCEL endpoint=192.168.92.192:45102
+WS_CLIENT_OPEN endpoint=192.168.92.192:45102
+JOIN_REQUEST sessionId=GVB6FNSB to=192.168.92.192:45102 did=68f01a99-254d-47d8-926b-bbf62be09230 name=Cam 07
+JOIN_ACCEPTED sessionId=GVB6FNSB state=open name=J09-06 reconnexion
+TAKE_ADDED sessionId=GVB6FNSB take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_RECEIVED sessionId=GVB6FNSB take=1 event=takeAdded from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_ADDED sessionId=GVB6FNSB take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_CHANGED sessionId=GVB6FNSB take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_RECEIVED sessionId=GVB6FNSB take=1 event=takeChanged from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_CHANGED sessionId=GVB6FNSB take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_CHANGED sessionId=GVB6FNSB take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_RECEIVED sessionId=GVB6FNSB take=1 event=takeChanged from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_CHANGED sessionId=GVB6FNSB take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+START_PLAN_ACCEPTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 sessionId=GVB6FNSB take=1 leader=0 countdown=5 target=13:22:27.925
+START_ACCEPTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 offsetMs=41 offsetKnown=1 localTop=13:22:27.966 countdown=5
+LIVE_MODEL_READY localDid=68f01a99-254d-47d8-926b-bbf62be09230 policy=take_order_frozen
+LIVE_MOSAIC_READY localDid=68f01a99-254d-47d8-926b-bbf62be09230 policy=plan_order_frozen transport=pure_ui=diff
+LIVE_TAKE_SET sessionId=GVB6FNSB take=1 slots_reset=1
+LIVE_SLOTS_ADDED sessionId=GVB6FNSB take=1 added=1 order=[68f01a99-254d-47d8-926b-bbf62be09230]
+NAV_AUTO reason=start_plan target=countdown phase=COUNTDOWN from=home
+START_SERVICE_START sessionId=GVB6FNSB isMaster=1 isCapture=1 isStorage=0 countdown=5
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+START_PLAN_DUPLICATE deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+START_LOCAL deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 target=13:22:27.966 actual=13:22:27.968 deltaMs=2 countdown=5 status=OK
+START_PLAN_COMPLETE deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 reason=started peers=0
+CAMERA_REC_REQUEST startPlanId=GVB6FNSB#1#1#1 take=1 w=1280 h=720 quality=plugin_default qualityLabel=medium profile=auto targetLocalMs=1790853747966
+CAMERA_REC_OK startPlanId=GVB6FNSB#1#1#1 take=1 ackAtMs=1790853748604 callDt=635ms detail="OK"
+PREVIEW_CAPTURE_START sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 status=OK intervalMs=1000 quality=60 atMs=1790853748606
+PREVIEW_FRAME_RUN_START sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1
+START_NATIVE_ACK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 ack=13:22:28.604 deltaMs=638 detail=startRecordVideo_ok
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=1 startPlanId=GVB6FNSB#1#1#1 durationMs=81 bytes=50259 base64Length=67012
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=1 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=67337
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=1 peers=1 jpegBytes=50259 jsonBytes=67337 width=1339 height=752 sendMs=17 atMs=1790853748711
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=2 startPlanId=GVB6FNSB#1#1#1 durationMs=45 bytes=24642 base64Length=32856
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=2 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=33181
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=2 peers=1 jpegBytes=24642 jsonBytes=33181 width=1339 height=752 sendMs=7 atMs=1790853749658
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=3 startPlanId=GVB6FNSB#1#1#1 durationMs=48 bytes=18607 base64Length=24812
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=3 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=25137
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=3 peers=1 jpegBytes=18607 jsonBytes=25137 width=1339 height=752 sendMs=6 atMs=1790853750661
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=4 startPlanId=GVB6FNSB#1#1#1 durationMs=53 bytes=28103 base64Length=37472
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=4 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=37797
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=4 peers=1 jpegBytes=28103 jsonBytes=37797 width=1339 height=752 sendMs=6 atMs=1790853751666
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=5 startPlanId=GVB6FNSB#1#1#1 durationMs=53 bytes=40419 base64Length=53892
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=5 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=54217
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=5 peers=1 jpegBytes=40419 jsonBytes=54217 width=1339 height=752 sendMs=8 atMs=1790853752669
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=6 startPlanId=GVB6FNSB#1#1#1 durationMs=61 bytes=34241 base64Length=45656
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=6 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=45981
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=6 peers=1 jpegBytes=34241 jsonBytes=45981 width=1339 height=752 sendMs=8 atMs=1790853753676
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=92d58e97-c418-47cc-87c5-6a080aff5faf
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=500ms reason=close_1006 sessions=1
+WS_CONN_CLOSE uuid=e390ae14… code=1006 reason=Software caused connection abort clean=0 did=92d58e97-c418-47cc-87c5-6a080aff5faf
+START_MASTER_LOST deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 phase=REC remainingMs=131 countdownContinues=1
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=500ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=1000ms reason=close_1006 sessions=1
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=7 startPlanId=GVB6FNSB#1#1#1 durationMs=38 bytes=28495 base64Length=37996
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=7 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=38321
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=7 dropped=1 pending=0
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=1000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=2000ms reason=close_1006 sessions=1
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=8 startPlanId=GVB6FNSB#1#1#1 durationMs=55 bytes=36085 base64Length=48116
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=8 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48441
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=8 dropped=2 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=9 startPlanId=GVB6FNSB#1#1#1 durationMs=49 bytes=36106 base64Length=48144
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=9 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48469
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=9 dropped=3 pending=0
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=2000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=10 startPlanId=GVB6FNSB#1#1#1 durationMs=49 bytes=36079 base64Length=48108
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=10 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48434
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=10 dropped=4 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=11 startPlanId=GVB6FNSB#1#1#1 durationMs=51 bytes=36204 base64Length=48272
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=11 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48598
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=11 dropped=5 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=12 startPlanId=GVB6FNSB#1#1#1 durationMs=55 bytes=36268 base64Length=48360
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=12 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48686
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=12 dropped=6 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=13 startPlanId=GVB6FNSB#1#1#1 durationMs=62 bytes=36177 base64Length=48236
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=13 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48562
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=13 dropped=7 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=14 startPlanId=GVB6FNSB#1#1#1 durationMs=53 bytes=36137 base64Length=48184
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=14 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48510
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=14 dropped=8 pending=0
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=5000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=15 startPlanId=GVB6FNSB#1#1#1 durationMs=64 bytes=36302 base64Length=48404
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=15 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48730
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=15 dropped=9 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=16 startPlanId=GVB6FNSB#1#1#1 durationMs=60 bytes=36287 base64Length=48384
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=16 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48710
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=16 dropped=10 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=17 startPlanId=GVB6FNSB#1#1#1 durationMs=62 bytes=45002 base64Length=60004
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=17 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=60330
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=17 dropped=11 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=18 startPlanId=GVB6FNSB#1#1#1 durationMs=61 bytes=43109 base64Length=57480
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=18 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=57806
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=18 dropped=12 pending=0
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=19 startPlanId=GVB6FNSB#1#1#1 durationMs=64 bytes=43267 base64Length=57692
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=19 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=58018
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=19 dropped=13 pending=0
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=5000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=20 startPlanId=GVB6FNSB#1#1#1 durationMs=52 bytes=43148 base64Length=57532
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=20 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=57858
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=20 dropped=14 pending=0
+WS_CONN_OPEN uuid=c9839681… remote=192.168.92.192 res=/
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=21 startPlanId=GVB6FNSB#1#1#1 durationMs=53 bytes=39336 base64Length=52448
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=21 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=52774
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=21 peers=1 jpegBytes=39336 jsonBytes=52774 width=1339 height=752 sendMs=11 atMs=1790853768672
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=22 startPlanId=GVB6FNSB#1#1#1 durationMs=50 bytes=30081 base64Length=40108
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=22 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=40434
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=22 peers=1 jpegBytes=30081 jsonBytes=40434 width=1339 height=752 sendMs=7 atMs=1790853769665
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=23 startPlanId=GVB6FNSB#1#1#1 durationMs=52 bytes=20211 base64Length=26948
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=23 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=27274
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=23 peers=1 jpegBytes=20211 jsonBytes=27274 width=1339 height=752 sendMs=5 atMs=1790853770666
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=24 startPlanId=GVB6FNSB#1#1#1 durationMs=49 bytes=26046 base64Length=34728
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=24 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=35054
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=24 peers=1 jpegBytes=26046 jsonBytes=35054 width=1339 height=752 sendMs=9 atMs=1790853771665
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=5000ms reason=close_1006
+WS_CLIENT_OPEN endpoint=192.168.92.192:45102
+WS_RESYNC_SESSIONS endpoint=192.168.92.192:45102 sessions=1 ids=["GVB6FNSB"]
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=25 startPlanId=GVB6FNSB#1#1#1 durationMs=53 bytes=24468 base64Length=32624
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=25 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=32950
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=25 peers=1 jpegBytes=24468 jsonBytes=32950 width=1339 height=752 sendMs=4 atMs=1790853772664
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=26 startPlanId=GVB6FNSB#1#1#1 durationMs=57 bytes=27120 base64Length=36160
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=26 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=36486
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=26 peers=1 jpegBytes=27120 jsonBytes=36486 width=1339 height=752 sendMs=15 atMs=1790853773679
+PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=27 startPlanId=GVB6FNSB#1#1#1 durationMs=53 bytes=28393 base64Length=37860
+PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=27 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=38186
+PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=27 peers=1 jpegBytes=28393 jsonBytes=38186 width=1339 height=752 sendMs=12 atMs=1790853774672
+PREVIEW_CAPTURE_STOP sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 reason=rec_stop seq=27 requested=27 ok=27 error=0 skipped=0 inFlight=0 runMs=26856
+PREVIEW_FRAME_RUN_STOP sessionId=GVB6FNSB take=1 sent=13 dropped=14 recipients=13 jpegAvgBytes=30148 jsonAvgBytes=40524 sendAvgMs=9
+CAMERA_REC_STOP_OK atMs=1790853775939 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_29.mp4 previewKept=1
+START_STOP_LOCAL deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 reason=smoke_reconnexion at=13:22:55.939
+START_PLAN_ABORTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 reason=local_stop
+NAV_AUTO reason=plan_ended target=arm from=countdown sessionId=GVB6FNSB
+ARM_START sessionId=GVB6FNSB take=1 attempt=1 armCycleId=GVB6FNSB#1#1 targets=[68f01a99-254d-47d8-926b-bbf62be09230] selected=1
+ARM_RESULT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=READY from=ARMING
+ARM_STATE_CHANGED sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 skill=capture status=READY
+REC_ELIGIBILITY sessionId=GVB6FNSB take=1 armCycleId=GVB6FNSB#1#1 eligible=1 readyOrWarningCaptures=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=GVB6FNSB armCycleId=GVB6FNSB#1#1 to=? n=1

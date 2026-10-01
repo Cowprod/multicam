@@ -40,6 +40,33 @@
   var HB_INTERVAL_MS = 2000;
   var HB_TIMEOUT_MS = 8000;
 
+  /* ---------- reprise automatique d'une connexion client (J09) ----------
+   *
+   * AVANT : `ws.onclose` supprimait l'entrée de `clientConns` et s'arrêtait là.
+   * Les seuls chemins de re-dial étaient explicites (`reSyncSession()`,
+   * `inviteAddedDevice()`, `joinSession()`, boucle de boot de `main.js`) : après
+   * une coupure réseau, la présence par session ne se reconstruisait JAMAIS
+   * seule et les previews ne repartaient pas — la maquette exige l'inverse
+   * (« reconnexion réseau → même slot → reprise des previews »).
+   *
+   * CHOIX : la boucle de retry est indexée par ENDPOINT (un endpoint = un pair
+   * global, éventuellement plusieurs sessions), jamais par session — sinon un
+   * Master multi-sessions déclencherait N dialers concurrents vers le même hôte.
+   * Le « pair est-il encore voulu ? » n'est PAS une comptabilité à part : il se
+   * déduit des sessions OUVERTES qui référencent cet endpoint. Une session fermée
+   * fait donc tomber la boucle toute seule, sans état à resynchroniser.
+   *
+   * Bornes : le délai croît (500 → 1000 → 2000 → 5000 ms) et reste plafonné à
+   * 5 s ; le retry est annulé dès qu'un dial explicite arrive, dès l'ouverture
+   * du socket, et à l'arrêt du serveur. Un dial qui ne s'ouvre pas est abandonné
+   * après `DIAL_TIMEOUT_MS` (même valeur que le timeout d'invitation) : sans
+   * lui, un pair injoignable laisserait le dialer suspendu indéfiniment et
+   * aucun retry ne partirait jamais.
+   */
+  var RETRY_STEPS_MS = [500, 1000, 2000, 5000];
+  var RETRY_CAP_MS = 5000;
+  var DIAL_TIMEOUT_MS = 4000;
+
   function emit(line) { console.log(line); }
 
   function nowMs() { return Date.now(); }
@@ -110,6 +137,9 @@
     advertisedKey: {},     /* sessionId -> dernier TXT publié (dédup des ré-annonces) */
     lastResyncAt: {},      /* anti-écho PAR SESSION : sid -> dernier sync_please (convergence) */
     txtRepublished: false, /* le TXT device a déjà été republié avec wsep */
+    clientRetry: {},       /* key "host:port" -> { backoffMs, timer } — retry de reconnexion */
+    foreground: true,      /* false en arrière-plan : plus de retry, reprise au resume */
+    lifecycleBound: false, /* pause/resume déjà branchés sur le document */
     armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
     startBridge: null,     /* J08 : pont START (start-service) — idem, zéro logique ici */
     previewBridge: null    /* J09 : pont PREVIEW (preview-inbox) — idem, zéro logique ici */
@@ -328,6 +358,9 @@
       try { ws.stop(function () {}, function () {}); } catch (e) {}
     }
     stopHeartbeat();
+    /* Les retries programmés appartiennent au serveur arrêté : les laisser
+     * tourner rouvrirait des sockets alors que l'app a tout fermé. */
+    cancelAllRetries();
     state.serverRunning = false;
     state.effectivePort = -1;
     state.serverConns = {};
@@ -336,21 +369,224 @@
     notifyChanged();
   }
 
+  /* ---------- reconnexion automatique (client) ----------
+   *
+   * Toutes les fonctions ci-dessous vivent dans la couche transport : aucun
+   * écran, aucun panneau, aucun état de navigation n'intervient, et ce fichier
+   * reste un transport pur (garde T12). Les couches au-dessus n'ont rien à
+   * savoir de la reprise : elles observent `connectedPeers()` et le heartbeat,
+   * qui convergent dès que la session a été re-synchronisée. */
+
+  function retryOf(key) {
+    if (!state.clientRetry[key]) state.clientRetry[key] = { backoffMs: 0, timer: null };
+    return state.clientRetry[key];
+  }
+
+  function cancelRetry(key) {
+    var r = state.clientRetry[key];
+    if (!r || !r.timer) return;
+    clearTimeout(r.timer);
+    r.timer = null;
+    emit("WS_RETRY_CANCEL endpoint=" + key);
+  }
+
+  function cancelAllRetries() {
+    Object.keys(state.clientRetry).forEach(cancelRetry);
+    state.clientRetry = {};
+  }
+
+  /* Sessions OUVERTES qui référencent cet endpoint, soit comme Master connu
+   * (notre dial vers un esclave), soit comme pair connu. C'est l'unique
+   * définition de « endpoint encore voulu » : pas de comptabilité parallèle à
+   * resynchroniser, et une session fermée fait tomber la boucle toute seule. */
+  function openSessionsFor(key) {
+    var st = store();
+    if (!st || typeof st.list !== "function") return Promise.resolve([]);
+    return Promise.resolve(st.list()).catch(function () { return []; }).then(function (list) {
+      return (list || []).filter(function (s) {
+        if (!s || s.state !== "open" || !s.sessionId) return false;
+        var pools = [s.masters || [], s.members || []];
+        for (var i = 0; i < pools.length; i++) {
+          for (var j = 0; j < pools[i].length; j++) {
+            if (pools[i][j] && pools[i][j].endpoint === key) return true;
+          }
+        }
+        return false;
+      });
+    });
+  }
+
+  function hostPortOf(key) {
+    var i = key.lastIndexOf(":");
+    if (i <= 0) return null;
+    return { host: key.slice(0, i), port: parseInt(key.slice(i + 1), 10) };
+  }
+
+  /* Après (re)connexion physique : re-synchroniser TOUTES les sessions portées
+   * par cet endpoint. Leur quota d'anti-écho est purgé : il n'existe que pour
+   * amortir les échos d'une connexion VIVANTE, et une connexion neuve n'a aucun
+   * écho à amortir. Le garder bloquerait la reconstruction de présence. */
+  function reSyncSessionsFor(key) {
+    return openSessionsFor(key).then(function (list) {
+      if (!list.length) return 0;
+      var n = 0;
+      list.forEach(function (s) {
+        delete state.lastResyncAt[s.sessionId];
+        reSyncSession(s);
+        n++;
+      });
+      emit("WS_RESYNC_SESSIONS endpoint=" + key + " sessions=" + n
+        + " ids=" + JSON.stringify(list.map(function (s) { return s.sessionId; })));
+      return n;
+    }).catch(function (e) {
+      emit("WS_RESYNC_ERROR endpoint=" + key + " err=" + String((e && e.message) || e));
+      return 0;
+    });
+  }
+
+  function scheduleRetry(key, reason) {
+    if (!state.foreground) {
+      emit("WS_RETRY_SKIP endpoint=" + key + " reason=background");
+      return;
+    }
+    var hp = hostPortOf(key);
+    if (!hp) {
+      emit("WS_RETRY_SKIP endpoint=" + key + " reason=bad_endpoint");
+      return;
+    }
+    /* Un dial explicite peut être en vol ou une connexion déjà ouverte : dans les
+     * deux cas il n'y a rien à rattraper. */
+    var live = state.clientConns[key];
+    if (live && live.ws && (live.ws.readyState === WebSocket.OPEN || live.ws.readyState === WebSocket.CONNECTING)) {
+      emit("WS_RETRY_SKIP endpoint=" + key + " reason=already_" + (live.ws.readyState === WebSocket.OPEN ? "open" : "connecting"));
+      return;
+    }
+    openSessionsFor(key).then(function (list) {
+      if (!list.length) {
+        emit("WS_RETRY_SKIP endpoint=" + key + " reason=no_open_session");
+        return;
+      }
+      /* `openSessionsFor()` est asynchrone : l'app a pu passer en arrière-plan
+       * entre l'appel et ici. Re-contrôler au moment d'ARMER le timer, sinon un
+       * retry programmé juste avant `pause` partirait quand même en fond
+       * d'écran — exactement ce que la pause doit interdire. */
+      if (!state.foreground) {
+        /* L'endpoint reste RÉPERTORIÉ sans timer : c'est la seule mémoire qui
+         * permet au `resume` de savoir quoi rouvrir. L'oublier ici rendrait la
+         * reprise au premier plan impossible après un simple passage en fond. */
+        retryOf(key);
+        emit("WS_RETRY_SKIP endpoint=" + key + " reason=background");
+        return;
+      }
+      var r = retryOf(key);
+      var delay = r.backoffMs || RETRY_STEPS_MS[0];
+      r.backoffMs = Math.min(RETRY_CAP_MS, delay);
+      r.timer = setTimeout(function () {
+        r.timer = null;
+        emit("WS_RETRY_ATTEMPT endpoint=" + key + " attempt_delay=" + r.backoffMs + "ms reason=" + reason);
+        /* La progression du backoff appartient à l'ÉCHEC, pas à l'attente : un
+         * dial réussi remet le compteur à zéro (cf. `ws.onopen`). */
+        r.backoffMs = Math.min(RETRY_CAP_MS,
+          r.backoffMs >= RETRY_STEPS_MS[RETRY_STEPS_MS.length - 1]
+            ? RETRY_CAP_MS
+            : (RETRY_STEPS_MS.filter(function (d) { return d > r.backoffMs; })[0] || RETRY_CAP_MS));
+        connectTo(hp.host, hp.port, true).then(function () {
+          /* La reconnexion physique est faite : la présence se reconstruit par
+           * le reSync des sessions transportées par ce socket. */
+        }, function () {
+          /* Échec : le watchdog du dial ou son onclose réarmera le backoff. */
+        });
+      }, delay);
+      emit("WS_RETRY_SCHEDULE endpoint=" + key + " delay=" + delay + "ms reason=" + reason
+        + " sessions=" + list.length);
+    });
+  }
+
+  /* Cycle de vie Android : en arrière-plan on ne martèle pas le réseau ; au
+   * retour au premier plan on rouvre immédiatement (le réseau a souvent changé
+   * d'IP ou de Wi-Fi entre-temps). */
+  function onLifecycle(foreground) {
+    if (state.foreground === foreground) return;
+    state.foreground = foreground;
+    emit("WS_LIFECYCLE foreground=" + (foreground ? 1 : 0));
+    if (!foreground) {
+      Object.keys(state.clientRetry).forEach(cancelRetry);
+      return;
+    }
+    /* Au resume : une seule tentative par endpoint, et le backoff repart de zéro
+     * (le réseau est revenu, inutile d'attendre le délai de la coupure). Même
+     * filtre que le retry : une session fermée pendant le passage en fond ne
+     * doit pas ressusciter un dial. */
+    Object.keys(state.clientRetry).forEach(function (key) {
+      var hp = hostPortOf(key);
+      if (!hp) return;
+      openSessionsFor(key).then(function (list) {
+        if (!list.length || !state.foreground) return;
+        state.clientRetry[key].backoffMs = 0;
+        emit("WS_RESUME_DIAL endpoint=" + key + " sessions=" + list.length);
+        connectTo(hp.host, hp.port);
+      });
+    });
+  }
+
+  /* Endpoints dont le socket a été OUVERT puis perdu : la prochaine ouverture
+   * est une RECONNEXION et doit donc déclencher le reSync de rattrapage. La
+   * première ouverture d'une connexion ne le doit pas : elle est déjà couverte
+   * par son appelant (reSyncSession, invitation, adhésion). */
+  var reconnects = {};
+
+  /* Libère les deux promesses d'un dialer : l'interne (`openPromise`, qui
+   * bloquait les dialers concurrents) et celle de l'appelant. Idempotent :
+   * une ouverture passée ne doit jamais être rejetée après coup. */
+  function settleDial(entry, err) {
+    if (entry.dialSettled) return;
+    entry.dialSettled = true;
+    entry.rejectOpen(err);
+    /* Avant, un dial qui n'ouvrait jamais laissait l'appelant suspendu a vie
+     * (seul `inviteAddedDevice()` se protegeait avec son propre minuteur) :
+     * l'échec doit être remonté : c'est ce qui permet à l'appelant de logger
+     * SYNC_PLEASE_CONNECT_FAIL et au retry de repartir. */
+    if (entry.rejectDial) entry.rejectDial(err);
+  }
+
   /* ---------- client (standard WebView WebSocket) ---------- */
 
   /* Ouvre (ou ressort) une connexion client vers host:port. Résout le WebSocket
-   * ouvert. Les messages entrants sont routés comme ceux du serveur. */
-  function connectTo(host, port) {
+   * ouvert. Les messages entrants sont routés comme ceux du serveur.
+   *
+   * Un dial EXPLICITE (reSyncSession, invitation, adhésion) prend toujours le
+   * pas sur une reconnexion en attente : il annule le timer plutôt que de créer
+   * un second socket vers le même endpoint.
+   *
+   * `fromRetry` distingue les deux origines. C'est nécessaire parce qu'un socket
+   * de RETRY porte le budget de 4 s qui lui a été accordé : sur un réseau mort,
+   * il reste CONNECTING quelques secondes après que le réseau soit revenu. Un
+   * dial explicite qui s'y accole hériterait de ce `dial_timeout` alors que tout
+   * va bien côté réseau — constaté sur le device (une adhésion échouait alors
+   * que le Master écoutait). Le dial explicite prend donc un socket neuf, et
+   * ferme l'ancien. */
+  function connectTo(host, port, fromRetry) {
     var key = host + ":" + port;
+    cancelRetry(key);   /* un dial demandé ne double jamais le retry programmé */
     var prev = state.clientConns[key];
     if (prev && prev.ws && prev.ws.readyState === WebSocket.OPEN) {
       return Promise.resolve(prev.ws);
     }
     if (prev && !prev.closing && prev.openPromise) {
-      /* Connexion EN COURS : on attend son ouverture au lieu de résoudre
-       * immédiatement. Résoudre sur un socket CONNECTING faisait perdre le
-       * message — `sendOn()` refuse un socket non ouvert. */
-      return prev.openPromise;
+      if (!fromRetry && prev.fromRetry) {
+        emit("WS_DIAL_TAKEOVER endpoint=" + key + " from=retry");
+        prev.closing = true;
+        settleDial(prev, new Error("superseded_by_explicit_dial"));
+        try { prev.ws.close(); } catch (e) {}
+        /* On laisse la place : l'entrée sera écrasée ci-dessous, et le
+         * `onclose` de l'ancien socket ne supprimera PAS la nouvelle (test
+         * d'identité sur `state.clientConns[key]`). */
+      } else {
+        /* Connexion EN COURS : on attend son ouverture au lieu de résoudre
+         * immédiatement. Résoudre sur un socket CONNECTING faisait perdre le
+         * message — `sendOn()` refuse un socket non ouvert. */
+        return prev.openPromise;
+      }
     }
     return new Promise(function (resolve, reject) {
       var url = "ws://" + key;
@@ -365,15 +601,53 @@
       var entry = { ws: ws, did: null, sessions: null, lastRxMs: nowMs(), closing: false, openPromise: null };
       /* Résolue à l'ouverture : les appels concurrents à `connectTo` pour le même
        * endpoint (une par session au boot) patientent au lieu d'écrire dans le vide. */
-      entry.openPromise = new Promise(function (res) { entry.resolveOpen = res; });
+      entry.openPromise = new Promise(function (res, rej) {
+        entry.resolveOpen = res;
+        entry.rejectOpen = rej;
+      });
+      /* Ce rejet interne n'a pas toujours de consommateur (un seul dialer, ou
+       * personne en attente) : sans ce rattrapage, un dial avorté devient un
+       * rejet non traité et casse la WebView comme le runner de tests. */
+      entry.openPromise.catch(function () {});
       state.clientConns[key] = entry;
       ws.binaryType = "arraybuffer";
+      /* Chien de garde du dial : un pair injoignable peut laisser le socket
+       * CONNECTING indéfiniment (aucun onclose). Sans abandon, `connectTo()`
+       * ne rejette jamais et la boucle de retry n'aurait jamais de départ. On
+       * abandonne au même délai que l'invitation (4 s) et on laisse le retry
+       * reprendre la main. */
+      entry.rejectDial = reject;   /* libère l'appelant si le dial échoue */
+      entry.fromRetry = !!fromRetry;   /* origine : retry (spéculatif) ou explicite */
+      entry.dialTimer = setTimeout(function () {
+        if (state.clientConns[key] !== entry) return;
+        if (ws.readyState !== WebSocket.CONNECTING) return;
+        emit("WS_DIAL_TIMEOUT endpoint=" + key + " after=" + DIAL_TIMEOUT_MS + "ms");
+        entry.closing = true;
+        settleDial(entry, new Error("dial_timeout"));
+        reconnects[key] = true;
+        try { ws.close(); } catch (e) {}
+        if (state.clientConns[key] === entry) delete state.clientConns[key];
+        notifyChanged();
+        scheduleRetry(key, "dial_timeout");
+      }, DIAL_TIMEOUT_MS);
       ws.onopen = function () {
+        if (entry.dialTimer) { clearTimeout(entry.dialTimer); entry.dialTimer = null; }
         if (entry.closing) return;
+        entry.dialSettled = true;   /* résolu : une fermeture ultérieure ne rejette plus */
         emit("WS_CLIENT_OPEN endpoint=" + key);
+        /* Connexion rétablie : le backoff repart de zéro — l'incident est clos. */
+        var r = state.clientRetry[key];
+        if (r) r.backoffMs = 0;
         entry.resolveOpen(ws);
         resolve(ws);
         notifyChanged();
+        /* Reconstruction de la présence : les sessions transportées par ce
+         * socket sont re-synchronisées. Une reconnexion SANS reSync laisserait
+         * les pairs « déconnectés » alors que le lien est revenu. */
+        if (reconnects[key]) {
+          delete reconnects[key];
+          reSyncSessionsFor(key);
+        }
       };
       ws.onmessage = function (ev) {
         entry.lastRxMs = nowMs();
@@ -389,12 +663,22 @@
         }
       };
       ws.onclose = function (ev) {
+        if (entry.dialTimer) { clearTimeout(entry.dialTimer); entry.dialTimer = null; }
         if (state.clientConns[key] === entry) delete state.clientConns[key];
         var did = entry.did;
         emit("WS_CLIENT_CLOSE endpoint=" + key + " code=" + ev.code + " reason=" + ev.reason
           + " did=" + (did || ""));
+        /* Le dialer doit être libéré même si le socket n'a jamais ouvert : sans
+         * rejet, un appelant concurrent resterait suspendu sur une promesse
+         * morte, et `connectTo()` refuserait tout nouveau dial. */
+        settleDial(entry, new Error("closed_before_open"));
         if (did) emit("PEER_DISCONNECTED did=" + did + " reason=ws_client_close");
         notifyChanged();
+        reconnects[key] = true;          /* la prochaine ouverture est une reconnexion */
+        if (entry.closing) return;       /* arrêt explicite : pas de retry */
+        /* Une session ouverte référençant encore cet endpoint suffit à re-dialer :
+         * `scheduleRetry` ignore le cas « plus aucune session ouverte ». */
+        scheduleRetry(key, "close_" + (ev && ev.code !== undefined ? ev.code : "?"));
       };
       ws.onerror = function () {
         emit("WS_CLIENT_ERROR endpoint=" + key);
@@ -1351,6 +1635,7 @@ store().get(env.sessionId).then(function (local) {
      * comporte AUCUNE action `status` (pas de logique MultiCam dans le plugin,
      * décision 30.10). L'état JS de ce document persiste, donc pas de double
      * démarrage possible. */
+    bindLifecycle();
     return startServer().then(function (res) { return res.port; });
   }
 
@@ -1808,6 +2093,8 @@ store().get(env.sessionId).then(function (local) {
           delete state.clientConns[key];
           emit("WS_CLIENT_TIMEOUT endpoint=" + key + " did=" + (did || "?"));
           if (did) emit("PEER_DISCONNECTED did=" + did + " reason=heartbeat_timeout");
+          /* Le `close()` déclenche `ws.onclose`, qui arme le retry : rien de plus
+           * à faire ici — un lien muet est un lien à reprendre, pas à oublier. */
           try { entry.ws.close(); } catch (e) {}
           notifyChanged();
           return;
@@ -1857,10 +2144,24 @@ store().get(env.sessionId).then(function (local) {
     };
   }
 
+  /* Cycle de vie Android : en arrière-plan le transport ne martèle pas le
+   * réseau, et le retour au premier plan rouvre ce qui doit l'être (30.7 : la
+   * connexion ne dépend pas de l'écran affiché). Branché sur `bind()` ET sur
+   * `ensureServer()` : la reprise réseau est critique, elle ne doit pas
+   * dépendre du seul chemin de boot UI. */
+  function bindLifecycle() {
+    var d = global.document;
+    if (state.lifecycleBound || !d || typeof d.addEventListener !== "function") return;
+    d.addEventListener("pause", function () { onLifecycle(false); });
+    d.addEventListener("resume", function () { onLifecycle(true); });
+    state.lifecycleBound = true;
+  }
+
   function bind(cfgv) {
     state.localDid = cfgv.deviceId;
     state.localName = cfgv.deviceName;
     warmIpCache();
+    bindLifecycle();
   }
 
   global.MultiCamSessionWs = {

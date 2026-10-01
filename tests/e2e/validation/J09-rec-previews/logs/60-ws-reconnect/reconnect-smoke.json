@@ -1,0 +1,465 @@
+{
+  "devices": {
+    "capture": {
+      "did": "68f01a99-254d-47d8-926b-bbf62be09230",
+      "name": "Cam 07",
+      "skills": [
+        "capture",
+        "storage"
+      ]
+    },
+    "master": {
+      "did": "92d58e97-c418-47cc-87c5-6a080aff5faf",
+      "name": "Regie-M",
+      "skills": [
+        "storage",
+        "controller"
+      ]
+    },
+    "capEndpoint": "192.168.92.76:45102",
+    "masEndpoint": "192.168.92.192:45102"
+  },
+  "sessionId": "GVB6FNSB",
+  "coupesReseau": {
+    "cutMs": 9000,
+    "recoverBudgetMs": 15000
+  },
+  "mesures": {
+    "lanPreflight": {
+      "captureVersMaster": true,
+      "masterVersCapture": true,
+      "portWsurMaster": true,
+      "routeCapture": "0",
+      "ipCapture": "192.168.92.76",
+      "ipMaster": "192.168.92.192"
+    },
+    "seqAvant": 4,
+    "coupeLogT": 48153678,
+    "coupeT0": "2026-10-01T11:22:34.089Z",
+    "detectionMasterMs": 10408,
+    "coupure": {
+      "retries": 9,
+      "dialTimeouts": 0,
+      "delais": [
+        500,
+        1000,
+        2000,
+        5000,
+        5000
+      ],
+      "lignes": [
+        "PREVIEW_FRAME_SENT sessionId=GVB6FNSB take=1 startPlanId=GVB6FNSB#1#1#1 seq=6 peers=1 jpegBytes=34241 jsonBytes=45981 width=1339 height=752 sendMs=8 atMs=1790853753676",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=92d58e97-c418-47cc-87c5-6a080aff5faf",
+        "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=500ms reason=close_1006 sessions=1",
+        "WS_CONN_CLOSE uuid=e390ae14… code=1006 reason=Software caused connection abort clean=0 did=92d58e97-c418-47cc-87c5-6a080aff5faf",
+        "START_MASTER_LOST deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=GVB6FNSB#1#1#1 take=1 phase=REC remainingMs=131 countdownContinues=1",
+        "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=500ms reason=close_1006",
+        "WS_CLIENT_ERROR endpoint=192.168.92.192:45102",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=1000ms reason=close_1006 sessions=1",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=7 startPlanId=GVB6FNSB#1#1#1 durationMs=38 bytes=28495 base64Length=37996",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=7 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=38321",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=7 dropped=1 pending=0",
+        "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=1000ms reason=close_1006",
+        "WS_CLIENT_ERROR endpoint=192.168.92.192:45102",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=2000ms reason=close_1006 sessions=1",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=8 startPlanId=GVB6FNSB#1#1#1 durationMs=55 bytes=36085 base64Length=48116",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=8 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48441",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=8 dropped=2 pending=0",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=9 startPlanId=GVB6FNSB#1#1#1 durationMs=49 bytes=36106 base64Length=48144",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=9 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48469",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=9 dropped=3 pending=0",
+        "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=2000ms reason=close_1006",
+        "WS_CLIENT_ERROR endpoint=192.168.92.192:45102",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=10 startPlanId=GVB6FNSB#1#1#1 durationMs=49 bytes=36079 base64Length=48108",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=10 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48434",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=10 dropped=4 pending=0",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=11 startPlanId=GVB6FNSB#1#1#1 durationMs=51 bytes=36204 base64Length=48272",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=11 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48598",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=11 dropped=5 pending=0",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=12 startPlanId=GVB6FNSB#1#1#1 durationMs=55 bytes=36268 base64Length=48360",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=12 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48686",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=12 dropped=6 pending=0",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=13 startPlanId=GVB6FNSB#1#1#1 durationMs=62 bytes=36177 base64Length=48236",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=13 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48562",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=13 dropped=7 pending=0",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=14 startPlanId=GVB6FNSB#1#1#1 durationMs=53 bytes=36137 base64Length=48184",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=14 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48510",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=14 dropped=8 pending=0",
+        "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=5000ms reason=close_1006",
+        "WS_CLIENT_ERROR endpoint=192.168.92.192:45102",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=15 startPlanId=GVB6FNSB#1#1#1 durationMs=64 bytes=36302 base64Length=48404",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=15 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48730",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=15 dropped=9 pending=0",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=16 startPlanId=GVB6FNSB#1#1#1 durationMs=60 bytes=36287 base64Length=48384",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=16 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=48710",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=16 dropped=10 pending=0",
+        "PREVIEW_CAPTURE_OK sessionId=GVB6FNSB take=1 seq=17 startPlanId=GVB6FNSB#1#1#1 durationMs=62 bytes=45002 base64Length=60004",
+        "PREVIEW_FRAME_TX sessionId=GVB6FNSB seq=17 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=60330",
+        "PREVIEW_FRAME_DROP reason=no_master_connected sessionId=GVB6FNSB take=1 seq=17 dropped=11 pending=0"
+      ]
+    },
+    "restaurationLogT": 48164673,
+    "lanRstT0": "2026-10-01T11:22:48.636Z",
+    "lanRetourMs": 3269,
+    "lignesReprise": {
+      "close": [
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=92d58e97-c418-47cc-87c5-6a080aff5faf",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+        "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did="
+      ],
+      "open": "WS_CLIENT_OPEN endpoint=192.168.92.192:45102",
+      "resync": "WS_RESYNC_SESSIONS endpoint=192.168.92.192:45102 sessions=1 ids=[\"GVB6FNSB\"]"
+    },
+    "ordreLog": [
+      "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=92d58e97-c418-47cc-87c5-6a080aff5faf",
+      "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=500ms reason=close_1006 sessions=1",
+      "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=500ms reason=close_1006",
+      "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+      "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=1000ms reason=close_1006 sessions=1",
+      "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=1000ms reason=close_1006",
+      "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+      "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=2000ms reason=close_1006 sessions=1",
+      "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=2000ms reason=close_1006",
+      "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+      "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1",
+      "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=5000ms reason=close_1006",
+      "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+      "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1",
+      "WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=5000ms reason=close_1006",
+      "WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=",
+      "WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=1"
+    ],
+    "reprise": {
+      "presenceMs": 13,
+      "previewMs": 4,
+      "seqAvant": 4,
+      "seqApres": 6,
+      "wsClientCloseOffsetMs": 208,
+      "wsClientOpenOffsetMs": 18849,
+      "wsResyncSessionsOffsetMs": 18852,
+      "repriseApresCloseMs": 18641,
+      "repriseApresReseauMs": 7854,
+      "lanRetourWifiMs": 3269
+    },
+    "ouverturesApresCoupure": {
+      "opens": 1,
+      "closes": 6
+    }
+  },
+  "verifications": [
+    {
+      "ok": true,
+      "msg": "les deux devices se joignent sur le LAN : {\"captureVersMaster\":true,\"masterVersCapture\":true,\"portWsurMaster\":true,\"routeCapture\":\"0\",\"ipCapture\":\"192.168.92.76\",\"ipMaster\":\"192.168.92.192\"}"
+    },
+    {
+      "ok": true,
+      "msg": "le port WS du Master repond depuis la Capture"
+    },
+    {
+      "ok": true,
+      "msg": "les deux devices ont des identites distinctes"
+    },
+    {
+      "ok": true,
+      "msg": "le Master garde controller"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture garde capture"
+    },
+    {
+      "ok": true,
+      "msg": "session creee avec un PIN sid=GVB6FNSB"
+    },
+    {
+      "ok": true,
+      "msg": "adhésion de la Capture acceptee"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture a recu les roles du Master"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture est membre de la session (role capture)"
+    },
+    {
+      "ok": true,
+      "msg": "le bouton Toutes Captures est actif (avant-coupure)"
+    },
+    {
+      "ok": true,
+      "msg": "la selection = tous les membres Capture (avant-coupure) : 1"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture enregistre (cadence de previews active) : {\"recording\":true,\"phase\":\"REC\",\"screen\":\"panel-countdown\"}"
+    },
+    {
+      "ok": true,
+      "msg": "le slot de la Capture affiche une image reelle AVANT la coupure"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture voit la presence du Master AVANT la coupure"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture a perdu son adresse Wi-Fi (coupure reelle) : aucune"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture a vu partir le Master immediatement (son socket est mort)"
+    },
+    {
+      "ok": true,
+      "msg": "le Master voit la Capture DECONNECTEE pendant la coupure apres 10408 ms (heartbeat)"
+    },
+    {
+      "ok": true,
+      "msg": "le slot de la Capture est marque non connecte (meme slot conserve)"
+    },
+    {
+      "ok": true,
+      "msg": "la vignette reste en place et conserve la derniere image"
+    },
+    {
+      "ok": true,
+      "msg": "chaque delai de retry est plafonne a 5000 ms : [500,1000,2000,5000,5000]"
+    },
+    {
+      "ok": true,
+      "msg": "les delais ne decroissent jamais : [500,1000,2000,5000,5000]"
+    },
+    {
+      "ok": true,
+      "msg": "le nombre de tentatives reste borne : 5 en ~9000 ms"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture a retrouve le LAN a la meme adresse (192.168.92.76)"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture a rouvre son WS toute seule (WS_CLIENT_OPEN)"
+    },
+    {
+      "ok": true,
+      "msg": "le reSync de rattrapage a ete declenche par la reconnexion (WS_RESYNC_SESSIONS)"
+    },
+    {
+      "ok": true,
+      "msg": "l'ouverture precede le reSync (18849 ms puis 18852 ms) : la presence est reconstruite PAR la reconnexion"
+    },
+    {
+      "ok": true,
+      "msg": "le Master revoit la Capture presente apres retour du reseau"
+    },
+    {
+      "ok": true,
+      "msg": "presence reconstruite en 13 ms (<= 15000 ms)"
+    },
+    {
+      "ok": true,
+      "msg": "reprise du WS 7854 ms apres le retour du reseau (<= 15000 ms), Wi-Fi reassocie en 3269 ms"
+    },
+    {
+      "ok": true,
+      "msg": "les previews repartent : seq 4 -> 6 en 4 ms"
+    },
+    {
+      "ok": true,
+      "msg": "la Capture voit a nouveau la presence du Master"
+    },
+    {
+      "ok": true,
+      "msg": "le meme slot est conserve (aucun device ajoute/supprime)"
+    },
+    {
+      "ok": true,
+      "msg": "une seule reconnexion physique, pas de rafale : 1 WS_CLIENT_OPEN pour 6 fermetures"
+    },
+    {
+      "ok": true,
+      "msg": "l'enregistrement local est bien arrêté sur la Capture"
+    }
+  ],
+  "sondes": [
+    {
+      "tag": "rec-avant",
+      "at": "2026-10-01T11:22:29.010Z",
+      "value": {
+        "recording": true,
+        "phase": "REC",
+        "screen": "panel-countdown"
+      }
+    },
+    {
+      "tag": "avant",
+      "at": "2026-10-01T11:22:33.087Z",
+      "value": {
+        "live": {
+          "sid": "GVB6FNSB",
+          "takeNumber": 1,
+          "slots": [
+            {
+              "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+              "status": "REC",
+              "connected": true,
+              "displayState": "REC",
+              "hasFrame": true,
+              "lastFrameSeq": 4
+            }
+          ]
+        },
+        "presence": {
+          "endpoint": "192.168.92.76:45102",
+          "peers": [
+            "92d58e97-c418-47cc-87c5-6a080aff5faf"
+          ]
+        },
+        "tuiles": {
+          "screen": "panel-live",
+          "tiles": [
+            {
+              "name": "Cam 07",
+              "state": "REC",
+              "hasSrc": true,
+              "offline": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "pendant",
+      "at": "2026-10-01T11:22:44.533Z",
+      "value": {
+        "presenceCapture": {
+          "endpoint": "192.168.92.76:45102",
+          "peers": []
+        },
+        "presenceMaster": {
+          "endpoint": "192.168.92.192:45102",
+          "peers": []
+        },
+        "tuiles": {
+          "screen": "panel-live",
+          "tiles": [
+            {
+              "name": "Cam 07",
+              "state": "DECONNECTED",
+              "hasSrc": true,
+              "offline": true
+            }
+          ]
+        },
+        "slot": {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "status": "REC",
+          "connected": false,
+          "displayState": "DECONNECTED",
+          "hasFrame": true,
+          "lastFrameSeq": 6
+        }
+      }
+    },
+    {
+      "tag": "apres-presence",
+      "at": "2026-10-01T11:22:48.649Z",
+      "value": {
+        "tPresence": 13
+      }
+    },
+    {
+      "tag": "apres-preview",
+      "at": "2026-10-01T11:22:48.653Z",
+      "value": {
+        "live": {
+          "sid": "GVB6FNSB",
+          "takeNumber": 1,
+          "slots": [
+            {
+              "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+              "status": "REC",
+              "connected": true,
+              "displayState": "REC",
+              "hasFrame": true,
+              "lastFrameSeq": 6
+            }
+          ]
+        },
+        "at": "2026-10-01T11:22:48.653Z"
+      }
+    },
+    {
+      "tag": "apres",
+      "at": "2026-10-01T11:22:53.477Z",
+      "value": {
+        "presenceCapture": {
+          "endpoint": "192.168.92.76:45102",
+          "peers": [
+            "92d58e97-c418-47cc-87c5-6a080aff5faf"
+          ]
+        },
+        "tuiles": {
+          "screen": "panel-live",
+          "tiles": [
+            {
+              "name": "Cam 07",
+              "state": "REC",
+              "hasSrc": true,
+              "offline": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tag": "rec-apres",
+      "at": "2026-10-01T11:22:59.337Z",
+      "value": {
+        "recording": false,
+        "phase": "STOPPED",
+        "screen": "panel-arm"
+      }
+    }
+  ],
+  "captures": [
+    {
+      "file": "screenshots/60-recon-1-avant.png",
+      "bytes": 402302,
+      "width": 1340,
+      "height": 800
+    },
+    {
+      "file": "screenshots/60-recon-2-coupure.png",
+      "bytes": 182929,
+      "width": 1340,
+      "height": 800
+    },
+    {
+      "file": "screenshots/60-recon-3-apres.png",
+      "bytes": 256361,
+      "width": 1340,
+      "height": 800
+    },
+    {
+      "file": "screenshots/60-recon-4-capture-apres.png",
+      "bytes": 922502,
+      "width": 1340,
+      "height": 800
+    }
+  ],
+  "aucunMP4Recupere": true,
+  "dureeMs": 59034
+}

@@ -1,0 +1,55 @@
+=== SMOKE reconnexion automatique WS ===
+COLD_START capture serial=61d54bba7d91 pid=27333 cdp=9223
+COLD_START master serial=c0d8514d7d87 pid=28799 cdp=9224
+LAN_PREFLIGHT {"captureVersMaster":true,"masterVersCapture":true,"portWsurMaster":true,"routeCapture":"0","ipCapture":"192.168.92.76","ipMaster":"192.168.92.192"}
+  OK    les deux devices se joignent sur le LAN : {"captureVersMaster":true,"masterVersCapture":true,"portWsurMaster":true,"routeCapture":"0","ipCapture":"192.168.92.76","ipMaster":"192.168.92.192"}
+  OK    le port WS du Master repond depuis la Capture
+PURGE sessions ouvertes {"fermees":1}
+SKILLS {"master":{"did":"92d58e97-c418-47cc-87c5-6a080aff5faf","name":"Regie-M","skills":["storage","controller"]},"capture":{"did":"68f01a99-254d-47d8-926b-bbf62be09230","name":"Cam 07","skills":["capture","storage"]}}
+  OK    les deux devices ont des identites distinctes
+  OK    le Master garde controller
+  OK    la Capture garde capture
+LINK master=92d58e97-c418-47cc-87c5-6a080aff5faf @192.168.92.192:45102 capture=68f01a99-254d-47d8-926b-bbf62be09230 @192.168.92.76:45102
+  OK    session creee avec un PIN sid=GVB6FNSB
+  OK    adhésion de la Capture acceptee
+  OK    la Capture a recu les roles du Master
+  OK    la Capture est membre de la session (role capture)
+  OK    le bouton Toutes Captures est actif (avant-coupure)
+  OK    la selection = tous les membres Capture (avant-coupure) : 1
+REC_DOCK avant-coupure REC_CLIQUE
+REC_INCIDENT avant-coupure levee
+REC recording=true
+  OK    la Capture enregistre (cadence de previews active) : {"recording":true,"phase":"REC","screen":"panel-countdown"}
+AVANT {"slot":[{"deviceId":"68f01a99-254d-47d8-926b-bbf62be09230","status":"REC","connected":true,"displayState":"REC","hasFrame":true,"lastFrameSeq":4}],"presence":{"endpoint":"192.168.92.76:45102","peers":["92d58e97-c418-47cc-87c5-6a080aff5faf"]}}
+  OK    le slot de la Capture affiche une image reelle AVANT la coupure
+  OK    la Capture voit la presence du Master AVANT la coupure
+SHOT 60-recon-1-avant.png 1340x800 402302 octets
+COUPURE wifi disable sur la Capture, 9000 ms
+  OK    la Capture a perdu son adresse Wi-Fi (coupure reelle) : aucune
+PENDANT {"capture":{"endpoint":"192.168.92.76:45102","peers":[]},"master":{"endpoint":"192.168.92.192:45102","peers":[]},"tuiles":{"screen":"panel-live","tiles":[{"name":"Cam 07","state":"DECONNECTED","hasSrc":true,"offline":true}]},"slot":{"deviceId":"68f01a99-254d-47d8-926b-bbf62be09230","status":"REC","connected":false,"displayState":"DECONNECTED","hasFrame":true,"lastFrameSeq":6},"detectionMasterMs":10408}
+  OK    la Capture a vu partir le Master immediatement (son socket est mort)
+  OK    le Master voit la Capture DECONNECTEE pendant la coupure apres 10408 ms (heartbeat)
+  OK    le slot de la Capture est marque non connecte (meme slot conserve)
+  OK    la vignette reste en place et conserve la derniere image
+SHOT 60-recon-2-coupure.png 1340x800 182929 octets
+RETRY pendant coupure {"retries":9,"dialTimeouts":0,"delais":[500,1000,2000,5000,5000]}
+  OK    chaque delai de retry est plafonne a 5000 ms : [500,1000,2000,5000,5000]
+  OK    les delais ne decroissent jamais : [500,1000,2000,5000,5000]
+  OK    le nombre de tentatives reste borne : 5 en ~9000 ms
+RESTAURATION wifi enable sur la Capture
+  OK    la Capture a retrouve le LAN a la meme adresse (192.168.92.76)
+APRES {"presenceMs":13,"previewMs":4,"seqAvant":4,"seqApres":6,"wsClientCloseOffsetMs":208,"wsClientOpenOffsetMs":18849,"wsResyncSessionsOffsetMs":18852,"repriseApresCloseMs":18641,"repriseApresReseauMs":7854,"lanRetourWifiMs":3269}
+SHOT 60-recon-3-apres.png 1340x800 256361 octets
+SHOT 60-recon-4-capture-apres.png 1340x800 922502 octets
+  OK    la Capture a rouvre son WS toute seule (WS_CLIENT_OPEN)
+  OK    le reSync de rattrapage a ete declenche par la reconnexion (WS_RESYNC_SESSIONS)
+  OK    l'ouverture precede le reSync (18849 ms puis 18852 ms) : la presence est reconstruite PAR la reconnexion
+  OK    le Master revoit la Capture presente apres retour du reseau
+  OK    presence reconstruite en 13 ms (<= 15000 ms)
+  OK    reprise du WS 7854 ms apres le retour du reseau (<= 15000 ms), Wi-Fi reassocie en 3269 ms
+  OK    les previews repartent : seq 4 -> 6 en 4 ms
+  OK    la Capture voit a nouveau la presence du Master
+  OK    le meme slot est conserve (aucun device ajoute/supprime)
+  OK    une seule reconnexion physique, pas de rafale : 1 WS_CLIENT_OPEN pour 6 fermetures
+STOP_LOCAL STOP_ENVOYE
+  OK    l'enregistrement local est bien arrêté sur la Capture
