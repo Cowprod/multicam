@@ -309,12 +309,20 @@ function lanUp(serial, targetIp) {
  * accuse le code alors que la cause est_materiale : le réseau du laboratoire.
  * On vérifie donc, depuis CHAQUE device, que l'autre est joignable ET que le
  * port WS du Master répond. */
-function lanPreflight() {
+/* Le port sondé est le port RÉELLEMENT annoncé par l'application
+ * (`status().effectivePort`), pas une constante : le serveur WS NATIF se
+ * réattribue le port suivant quand l'ancien est encore occupé (constaté en
+ * campagne : 45102 encore pris -> 45103). Sonder le port codé en dur testait
+ * donc un port MORT et faisait échouer le smoke pour une raison étrangère au
+ * produit, alors que la Capture rejoint bien l'endpoint annoncé. */
+function lanPreflight(effectivePort) {
+  const port = effectivePort || MASTER_PORT_LAN;
   const out = {};
   out.captureVersMaster = lanUp(CAP_SERIAL, MASTER_IP_LAN);
   out.masterVersCapture = lanUp(MASTER_SERIAL, CAPTURE_IP_LAN);
+  out.portSonde = port;
   out.portWsurMaster = /TCP_OK/.test(adbTry(["-s", CAP_SERIAL, "shell",
-    "echo | timeout 3 nc " + MASTER_IP_LAN + " " + MASTER_PORT_LAN + " && echo TCP_OK"]));
+    "echo | timeout 3 nc " + MASTER_IP_LAN + " " + port + " && echo TCP_OK"]));
   out.routeCapture = adbTry(["-s", CAP_SERIAL, "shell", "ip route | grep -c default"]).trim();
   out.ipCapture = wifiIp(CAP_SERIAL);
   out.ipMaster = wifiIp(MASTER_SERIAL);
@@ -386,7 +394,9 @@ async function main() {
   const mas = (await attach(coldStart(MASTER_SERIAL, MASTER_PORT, "master"), "master", READY_MAS)).ev;
 
   /* ---------- 0a. pré-vol réseau ---------- */
-  const lan = lanPreflight();
+  const portEffectif = JSON.parse(
+    await mas("JSON.stringify(MultiCamSessionWs.status())", false)).effectivePort;
+  const lan = lanPreflight(portEffectif);
   console.log("LAN_PREFLIGHT " + json(lan));
   ev.mesures.lanPreflight = lan;
   check(lan.captureVersMaster && lan.masterVersCapture,

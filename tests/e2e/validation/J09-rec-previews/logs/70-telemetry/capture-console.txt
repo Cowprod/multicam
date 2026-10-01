@@ -1,0 +1,553 @@
+PREVIEW_CAPTURE_OK sessionId=TKKWPXPB take=1 seq=58 startPlanId=TKKWPXPB#1#1#1 durationMs=47 bytes=30373 base64Length=40500
+PREVIEW_FRAME_TX sessionId=TKKWPXPB seq=58 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40826
+PREVIEW_FRAME_SENT sessionId=TKKWPXPB take=1 startPlanId=TKKWPXPB#1#1#1 seq=58 peers=1 jpegBytes=30373 jsonBytes=40826 width=1339 height=752 sendMs=19 atMs=1790858630777
+LIVE_TELEMETRY_SET sessionId=TKKWPXPB take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858627743 battery=100 free=10381737984 local=1
+ARM_SERVICE_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+START_SERVICE_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+PREVIEW_SERVICE_READY captureSkill=1 foreground=1 desired=1
+PREVIEW_SAMPLER_READY intervalMs=1000 quality=60 running=0
+PREVIEW_INBOX_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230 capacity=1_frame_per_device
+PREVIEW_FRAME_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230 pendingSlot=1 policy=latest_frame_wins
+START_NAV_READY deviceId=68f01a99-254d-47d8-926b-bbf62be09230
+CAMERA_PREVIEW_START reason=boot camera=back toBack=1
+PREVIEW_TRANSPORT_READY policy=latest_frame_wins pendingSlot=1 inbox=1
+CAMERA_PREP_OK startPlanId=— camera=back toBack=1 dt=495ms detail="Camera started"
+CAMERA_PREVIEW_OPEN startPlanId=— reused=0 dt=501ms
+CAMERA_PREVIEW_OK reused=0 recording=0
+CAMERA_PREVIEW_STATE active=1 recording=0 reason=boot
+WS_EFFECTIVE_PORT port=45102 addr=:: attempts=[] total=224ms
+WS_HEARTBEAT_START interval=2000ms timeout=8000ms
+WS_CONN_OPEN uuid=93ccc665… remote=192.168.92.192 res=/
+WS_CLIENT_OPEN endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=92d58e97-c418-47cc-87c5-6a080aff5faf
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=500ms reason=close_1006 sessions=4
+WS_CONN_CLOSE uuid=93ccc665… code=1006 reason=Connection reset by peer clean=0 did=92d58e97-c418-47cc-87c5-6a080aff5faf
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=500ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=1000ms reason=close_1006 sessions=4
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=1000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=2000ms reason=close_1006 sessions=4
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=2000ms reason=close_1006
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=5000ms reason=close_1006 sessions=4
+WS_CONN_OPEN uuid=54a98d78… remote=192.168.92.192 res=/
+WS_RETRY_CANCEL endpoint=192.168.92.192:45102
+WS_CLIENT_OPEN endpoint=192.168.92.192:45102
+WS_RESYNC_SESSIONS endpoint=192.168.92.192:45102 sessions=4 ids=["TKKWPXPB","FTCBB75H","PY75RPZD","GVB6FNSB"]
+TAKE_UPDATE_LOCAL sessionId=NH2AEG89 take=1 event=takeAdded by=68f01a99-254d-47d8-926b-bbf62be09230
+TAKE_ADDED sessionId=NH2AEG89 take=1 learned_from=68f01a99-254d-47d8-926b-bbf62be09230
+SCREEN05_TAKE_AUTO sessionId=NH2AEG89 take=1
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TELEMETRY_COLLECTOR_START did=68f01a99-254d-47d8-926b-bbf62be09230 sessionId=NH2AEG89 cadenceMs=5000 measureTtlMs=15000
+TELEMETRY_TRIGGER reason=open
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858642948
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=— charging=— free=10347782144 net=wifi rec=false bytes=371
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TAKE_ADDED sessionId=NH2AEG89 take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_RECEIVED sessionId=NH2AEG89 take=1 event=takeAdded from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TAKE_ADDED sessionId=NH2AEG89 take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TAKE_RECEIVED sessionId=NH2AEG89 take=1 event=takeAdded from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TAKE_ADDED sessionId=NH2AEG89 take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TAKE_ADDED sessionId=NH2AEG89 take=1 learned_from=92d58e97-c418-47cc-87c5-6a080aff5faf
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858647851
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10347782144 net=wifi rec=false bytes=413
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858652852
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10347782144 net=wifi rec=false bytes=413
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+START_PLAN_ACCEPTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=NH2AEG89#1#1#1 sessionId=NH2AEG89 take=1 leader=0 countdown=5 target=14:44:18.194
+START_ACCEPTED deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=NH2AEG89#1#1#1 take=1 offsetMs=30 offsetKnown=1 localTop=14:44:18.224 countdown=5
+LIVE_MODEL_READY localDid=68f01a99-254d-47d8-926b-bbf62be09230 policy=take_order_frozen
+LIVE_MOSAIC_READY localDid=68f01a99-254d-47d8-926b-bbf62be09230 policy=plan_order_frozen transport=pure_ui=diff
+LIVE_TAKE_SET sessionId=NH2AEG89 take=1 slots_reset=1 telemetry_reset=1
+LIVE_SLOTS_ADDED sessionId=NH2AEG89 take=1 added=1 order=[68f01a99-254d-47d8-926b-bbf62be09230]
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858652852 battery=100 free=10347782144 local=1
+NAV_AUTO reason=start_plan target=countdown phase=COUNTDOWN from=take
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858652852 battery=100 free=10347782144 local=1
+START_SERVICE_START sessionId=NH2AEG89 isMaster=1 isCapture=1 isStorage=0 countdown=5
+START_PLAN_DUPLICATE deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=NH2AEG89#1#1#1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858652852 battery=100 free=10347782144 local=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858652852 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858652852 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858652852 battery=100 free=10347782144 local=1
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858657851
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10347782144 net=wifi rec=false bytes=413
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+START_LOCAL deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=NH2AEG89#1#1#1 take=1 target=14:44:18.224 actual=14:44:18.225 deltaMs=1 countdown=5 status=OK
+START_PLAN_COMPLETE deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=NH2AEG89#1#1#1 take=1 reason=started peers=0
+CAMERA_REC_REQUEST startPlanId=NH2AEG89#1#1#1 take=1 w=1280 h=720 quality=plugin_default qualityLabel=medium profile=auto targetLocalMs=1790858658224
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+CAMERA_REC_OK startPlanId=NH2AEG89#1#1#1 take=1 ackAtMs=1790858658781 callDt=554ms detail="OK"
+PREVIEW_CAPTURE_START sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 status=OK intervalMs=1000 quality=60 atMs=1790858658782
+PREVIEW_FRAME_RUN_START sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1
+START_NATIVE_ACK deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=NH2AEG89#1#1#1 take=1 ack=14:44:18.781 deltaMs=557 detail=startRecordVideo_ok
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=1 startPlanId=NH2AEG89#1#1#1 durationMs=61 bytes=48842 base64Length=65124
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=1 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=65449
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=1 peers=1 jpegBytes=48842 jsonBytes=65449 width=1339 height=752 sendMs=15 atMs=1790858658859
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=2 startPlanId=NH2AEG89#1#1#1 durationMs=45 bytes=24351 base64Length=32468
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=2 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=32793
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=2 peers=1 jpegBytes=24351 jsonBytes=32793 width=1339 height=752 sendMs=7 atMs=1790858659837
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=3 startPlanId=NH2AEG89#1#1#1 durationMs=45 bytes=23181 base64Length=30908
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=3 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=31233
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=3 peers=1 jpegBytes=23181 jsonBytes=31233 width=1339 height=752 sendMs=7 atMs=1790858660834
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=4 startPlanId=NH2AEG89#1#1#1 durationMs=51 bytes=28208 base64Length=37612
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=4 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=37937
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=4 peers=1 jpegBytes=28208 jsonBytes=37937 width=1339 height=752 sendMs=7 atMs=1790858661842
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858657851 battery=100 free=10347782144 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=5 startPlanId=NH2AEG89#1#1#1 durationMs=49 bytes=30064 base64Length=40088
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=5 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40413
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=5 peers=1 jpegBytes=30064 jsonBytes=40413 width=1339 height=752 sendMs=5 atMs=1790858662837
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858662856
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10339401728 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=6 startPlanId=NH2AEG89#1#1#1 durationMs=47 bytes=31702 base64Length=42272
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=6 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=42597
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=6 peers=1 jpegBytes=31702 jsonBytes=42597 width=1339 height=752 sendMs=8 atMs=1790858663839
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=7 startPlanId=NH2AEG89#1#1#1 durationMs=46 bytes=31165 base64Length=41556
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=7 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=41881
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=7 peers=1 jpegBytes=31165 jsonBytes=41881 width=1339 height=752 sendMs=6 atMs=1790858664836
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=8 startPlanId=NH2AEG89#1#1#1 durationMs=39 bytes=30987 base64Length=41316
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=8 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=41641
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=8 peers=1 jpegBytes=30987 jsonBytes=41641 width=1339 height=752 sendMs=6 atMs=1790858665828
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=9 startPlanId=NH2AEG89#1#1#1 durationMs=49 bytes=31818 base64Length=42424
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=9 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=42749
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=9 peers=1 jpegBytes=31818 jsonBytes=42749 width=1339 height=752 sendMs=10 atMs=1790858666843
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858662856 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=10 startPlanId=NH2AEG89#1#1#1 durationMs=50 bytes=30111 base64Length=40148
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=10 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40474
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=10 peers=1 jpegBytes=30111 jsonBytes=40474 width=1339 height=752 sendMs=8 atMs=1790858667843
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858667851
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10339401728 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=11 startPlanId=NH2AEG89#1#1#1 durationMs=41 bytes=30040 base64Length=40056
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=11 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40382
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=11 peers=1 jpegBytes=30040 jsonBytes=40382 width=1339 height=752 sendMs=6 atMs=1790858668831
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=12 startPlanId=NH2AEG89#1#1#1 durationMs=66 bytes=30119 base64Length=40160
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=12 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40486
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=12 peers=1 jpegBytes=30119 jsonBytes=40486 width=1339 height=752 sendMs=15 atMs=1790858669865
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=13 startPlanId=NH2AEG89#1#1#1 durationMs=47 bytes=31833 base64Length=42444
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=13 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=42770
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=13 peers=1 jpegBytes=31833 jsonBytes=42770 width=1339 height=752 sendMs=10 atMs=1790858670851
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=14 startPlanId=NH2AEG89#1#1#1 durationMs=50 bytes=31674 base64Length=42232
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=14 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=42558
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=14 peers=1 jpegBytes=31674 jsonBytes=42558 width=1339 height=752 sendMs=11 atMs=1790858671844
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858667851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=15 startPlanId=NH2AEG89#1#1#1 durationMs=57 bytes=30229 base64Length=40308
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=15 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40634
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=15 peers=1 jpegBytes=30229 jsonBytes=40634 width=1339 height=752 sendMs=8 atMs=1790858672849
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858672851
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10339401728 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=16 startPlanId=NH2AEG89#1#1#1 durationMs=63 bytes=30443 base64Length=40592
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=16 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40918
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=16 peers=1 jpegBytes=30443 jsonBytes=40918 width=1339 height=752 sendMs=13 atMs=1790858673860
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=17 startPlanId=NH2AEG89#1#1#1 durationMs=60 bytes=30966 base64Length=41288
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=17 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=41614
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=17 peers=1 jpegBytes=30966 jsonBytes=41614 width=1339 height=752 sendMs=14 atMs=1790858674859
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=18 startPlanId=NH2AEG89#1#1#1 durationMs=51 bytes=30467 base64Length=40624
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=18 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40950
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=18 peers=1 jpegBytes=30467 jsonBytes=40950 width=1339 height=752 sendMs=9 atMs=1790858675844
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=19 startPlanId=NH2AEG89#1#1#1 durationMs=58 bytes=30653 base64Length=40872
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=19 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=41198
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=19 peers=1 jpegBytes=30653 jsonBytes=41198 width=1339 height=752 sendMs=9 atMs=1790858676850
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858672851 battery=100 free=10339401728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=20 startPlanId=NH2AEG89#1#1#1 durationMs=68 bytes=45780 base64Length=61040
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=20 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=61366
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=20 peers=1 jpegBytes=45780 jsonBytes=61366 width=1339 height=752 sendMs=12 atMs=1790858677863
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858677868
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10301513728 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=21 startPlanId=NH2AEG89#1#1#1 durationMs=64 bytes=35667 base64Length=47556
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=21 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=47882
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=21 peers=1 jpegBytes=35667 jsonBytes=47882 width=1339 height=752 sendMs=12 atMs=1790858678864
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=22 startPlanId=NH2AEG89#1#1#1 durationMs=59 bytes=28515 base64Length=38020
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=22 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=38346
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=22 peers=1 jpegBytes=28515 jsonBytes=38346 width=1339 height=752 sendMs=11 atMs=1790858679852
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=23 startPlanId=NH2AEG89#1#1#1 durationMs=54 bytes=28092 base64Length=37456
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=23 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=37782
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=23 peers=1 jpegBytes=28092 jsonBytes=37782 width=1339 height=752 sendMs=11 atMs=1790858680849
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=24 startPlanId=NH2AEG89#1#1#1 durationMs=64 bytes=34207 base64Length=45612
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=24 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=45938
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=24 peers=1 jpegBytes=34207 jsonBytes=45938 width=1339 height=752 sendMs=11 atMs=1790858681859
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858677868 battery=100 free=10301513728 local=1
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=25 startPlanId=NH2AEG89#1#1#1 durationMs=60 bytes=34672 base64Length=46232
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=25 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=46558
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=25 peers=1 jpegBytes=34672 jsonBytes=46558 width=1339 height=752 sendMs=11 atMs=1790858682855
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858682856
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10301513728 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=26 startPlanId=NH2AEG89#1#1#1 durationMs=61 bytes=34587 base64Length=46116
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=26 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=46442
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=26 peers=1 jpegBytes=34587 jsonBytes=46442 width=1339 height=752 sendMs=8 atMs=1790858683853
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=27 startPlanId=NH2AEG89#1#1#1 durationMs=54 bytes=34530 base64Length=46040
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=27 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=46366
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=27 peers=1 jpegBytes=34530 jsonBytes=46366 width=1339 height=752 sendMs=13 atMs=1790858684851
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=28 startPlanId=NH2AEG89#1#1#1 durationMs=45 bytes=34412 base64Length=45884
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=28 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=46210
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=28 peers=1 jpegBytes=34412 jsonBytes=46210 width=1339 height=752 sendMs=11 atMs=1790858685840
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=29 startPlanId=NH2AEG89#1#1#1 durationMs=55 bytes=34453 base64Length=45940
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=29 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=46266
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=29 peers=1 jpegBytes=34453 jsonBytes=46266 width=1339 height=752 sendMs=12 atMs=1790858686850
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858682856 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=30 startPlanId=NH2AEG89#1#1#1 durationMs=63 bytes=34546 base64Length=46064
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=30 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=46390
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=30 peers=1 jpegBytes=34546 jsonBytes=46390 width=1339 height=752 sendMs=20 atMs=1790858687868
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858687869
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10301513728 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=31 startPlanId=NH2AEG89#1#1#1 durationMs=63 bytes=34535 base64Length=46048
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=31 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=46374
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=31 peers=1 jpegBytes=34535 jsonBytes=46374 width=1339 height=752 sendMs=14 atMs=1790858688862
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+WS_CONN_TIMEOUT uuid=54a98d78… did=92d58e97-c418-47cc-87c5-6a080aff5faf
+WS_CLIENT_TIMEOUT endpoint=192.168.92.192:45102 did=92d58e97-c418-47cc-87c5-6a080aff5faf
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+START_MASTER_LOST deviceId=68f01a99-254d-47d8-926b-bbf62be09230 startPlanId=NH2AEG89#1#1#1 take=1 phase=REC remainingMs=128 countdownContinues=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=32 startPlanId=NH2AEG89#1#1#1 durationMs=55 bytes=34528 base64Length=46040
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=32 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46366
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=32 dropped=1 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=33 startPlanId=NH2AEG89#1#1#1 durationMs=59 bytes=34468 base64Length=45960
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=33 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46286
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=33 dropped=2 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=34 startPlanId=NH2AEG89#1#1#1 durationMs=59 bytes=34492 base64Length=45992
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=34 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46318
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=34 dropped=3 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858687869 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=35 startPlanId=NH2AEG89#1#1#1 durationMs=59 bytes=34458 base64Length=45944
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=35 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46270
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=35 dropped=4 pending=0
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858692851
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10301513728 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+WS_DIAL_TIMEOUT endpoint=192.168.92.192:45102 after=4000ms
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+WS_RETRY_SCHEDULE endpoint=192.168.92.192:45102 delay=500ms reason=dial_timeout sessions=5
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=36 startPlanId=NH2AEG89#1#1#1 durationMs=61 bytes=34499 base64Length=46000
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=36 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46326
+PREVIEW_FRAME_DROP reason=no_master_connected sessionId=NH2AEG89 take=1 seq=36 dropped=5 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+WS_RETRY_ATTEMPT endpoint=192.168.92.192:45102 attempt_delay=500ms reason=dial_timeout
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=37 startPlanId=NH2AEG89#1#1#1 durationMs=54 bytes=34439 base64Length=45920
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=37 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46246
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=37 dropped=6 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=38 startPlanId=NH2AEG89#1#1#1 durationMs=63 bytes=34630 base64Length=46176
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=38 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46502
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=38 dropped=7 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=39 startPlanId=NH2AEG89#1#1#1 durationMs=59 bytes=34543 base64Length=46060
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=39 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46386
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=39 dropped=8 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858692851 battery=100 free=10301513728 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=40 startPlanId=NH2AEG89#1#1#1 durationMs=53 bytes=34593 base64Length=46124
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=40 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46450
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=40 dropped=9 pending=0
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858697859
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10251771904 net=wifi rec=true bytes=412
+WS_DIAL_TAKEOVER endpoint=192.168.92.192:45102 from=retry
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+WS_CLIENT_ERROR endpoint=192.168.92.192:45102
+WS_CLIENT_CLOSE endpoint=192.168.92.192:45102 code=1006 reason= did=
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=41 startPlanId=NH2AEG89#1#1#1 durationMs=52 bytes=34544 base64Length=46060
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=41 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46386
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=41 dropped=10 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=42 startPlanId=NH2AEG89#1#1#1 durationMs=57 bytes=34501 base64Length=46004
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=42 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46330
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=42 dropped=11 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=43 startPlanId=NH2AEG89#1#1#1 durationMs=66 bytes=34578 base64Length=46104
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=43 candidates=0 peers=0 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=0 jsonBytes=46430
+PREVIEW_FRAME_DROP reason=no_identified_peer sessionId=NH2AEG89 take=1 seq=43 dropped=12 pending=0
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+WS_CLIENT_OPEN endpoint=192.168.92.192:45102
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+WS_RESYNC_SESSIONS endpoint=192.168.92.192:45102 sessions=5 ids=["NH2AEG89","TKKWPXPB","FTCBB75H","PY75RPZD","GVB6FNSB"]
+WS_CONN_OPEN uuid=45ce9ecc… remote=192.168.92.192 res=/
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=44 startPlanId=NH2AEG89#1#1#1 durationMs=42 bytes=29281 base64Length=39044
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=44 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=39370
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=44 peers=1 jpegBytes=29281 jsonBytes=39370 width=1339 height=752 sendMs=6 atMs=1790858701831
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+ARM_RESULT_SENT sessionId=NH2AEG89 armCycleId=NH2AEG89#1#1 to=? n=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=45 startPlanId=NH2AEG89#1#1#1 durationMs=55 bytes=31037 base64Length=41384
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=45 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=41710
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=45 peers=1 jpegBytes=31037 jsonBytes=41710 width=1339 height=752 sendMs=12 atMs=1790858702850
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858697859 battery=100 free=10251771904 local=1
+TELEMETRY_STORE_SET sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 local=1 atMs=1790858702851
+TELEMETRY_UPDATE_LOCAL sessionId=NH2AEG89 did=68f01a99-254d-47d8-926b-bbf62be09230 by=68f01a99-254d-47d8-926b-bbf62be09230
+TELEMETRY_SENT did=68f01a99-254d-47d8-926b-bbf62be09230 battery=100 charging=true free=10251771904 net=wifi rec=true bytes=412
+TELEMETRY_COLLECTOR_READY did=68f01a99-254d-47d8-926b-bbf62be09230 cadenceMs=5000 measureTtlMs=15000 batteryWarn=25
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858702851 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858702851 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858702851 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858702851 battery=100 free=10251771904 local=1
+PREVIEW_CAPTURE_OK sessionId=NH2AEG89 take=1 seq=46 startPlanId=NH2AEG89#1#1#1 durationMs=57 bytes=30123 base64Length=40164
+PREVIEW_FRAME_TX sessionId=NH2AEG89 seq=46 candidates=1 peers=1 nonMastersSkipped=0 otherSessionSkipped=0 selfSkipped=0 duplicateConnsSkipped=1 jsonBytes=40490
+PREVIEW_FRAME_SENT sessionId=NH2AEG89 take=1 startPlanId=NH2AEG89#1#1#1 seq=46 peers=1 jpegBytes=30123 jsonBytes=40490 width=1339 height=752 sendMs=11 atMs=1790858703853
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858702851 battery=100 free=10251771904 local=1
+LIVE_TELEMETRY_SET sessionId=NH2AEG89 take=1 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 atMs=1790858702851 battery=100 free=10251771904 local=1

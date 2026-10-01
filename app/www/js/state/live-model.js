@@ -7,7 +7,22 @@
  *   participants du plan de START   → QUELS slots existent, et dans quel ORDRE
  *   boîte de réception (J09-04)      → QUELLE image montre chaque vignette
  *   vivacité de la session (WS)     → la vignette est-elle en ligne
+ *   mémoire de supervision (J09-06) → QUELS sont l'état batterie / stockage
  *
+ * ---------- TÉLÉMÉTRIE : MESURÉE, ET JAMAIS DÉCIDÉE ICI ----------
+ *
+ * Le modèle ne fait que RANGER le dernier snapshot mesuré par la Capture. Il ne
+ * l'évalue pas, ne l'invente pas, et surtout ne s'en sert JAMAIS pour décider
+ * qu'une Capture est déconnectée : `connected` reste une information de
+ * LIVENESS, parce qu'une Capture ne peut pas s'auto-déclarer connectée après une
+ * coupure réseau. Le filtrage est STRICT, comme pour les frames : un device qui
+ * ne participe pas à ce Take est ignoré ET compté — afficher la batterie du
+ * mauvais device serait le pire défaut possible d'une mosaïque de régie.
+ *
+ * Rien n'est purgé quand le lien tombe : la dernière télémétrie connue reste
+ * affichée, datée. C'est une information (« voici ce qu'on savait »), pas un
+ * mensonge, et l'UI la signale comme ancienne au lieu d'en faire un état.
+
  * Il ne connaît NI le DOM, NI le WebSocket, NI la caméra. C'est ce qui permet
  * de le tester seul, et c'est ce qui empêche la mosaïque de devenir un puits de
  * logique réseau (cf. `net/session-ws.js`, qui n'apprend rien de ce fichier).
@@ -77,7 +92,9 @@
       framesApplied: 0,
       framesIgnored: 0,        /* mauvais device / session / Take / seq périmée */
       livenessUpdates: 0,
-      statusUpdates: 0
+      statusUpdates: 0,
+      telemetryUpdates: 0,     /* snapshots appliqués à un slot du Take */
+      telemetryIgnored: 0      /* device hors Take, ou snapshot plus ancien */
     };
   }
 
@@ -121,6 +138,10 @@
       lastFrame: null,        /* PAS d'image tant qu'aucune preview n'est arrivée */
       lastFrameSeq: 0,
       lastFrameAt: 0,
+      /* Dernier snapshot MESURÉ par ce device (J09-06). `null` = jamais mesuré :
+       * l'UI affiche alors un état neutre, surtout pas 0 % / 0 octet. */
+      telemetry: null,
+      telemetryAt: 0,
       /* `connected` : le device local est Joignable par construction, un device
        * distant ne l'est pas tant que le WS ne l'a pas prouvé. On ne suppose
        * JAMAIS une Capture distante connectée. */
@@ -151,7 +172,7 @@
     S.order = [];
     S.byId = {};
     S.stats = freshStats();
-    log("LIVE_TAKE_SET sessionId=" + (sid || "—") + " take=" + take + " slots_reset=1");
+    log("LIVE_TAKE_SET sessionId=" + (sid || "—") + " take=" + take + " slots_reset=1 telemetry_reset=1");
     emitChange();
     return view();
   }
@@ -271,6 +292,69 @@
     return true;
   }
 
+  /* ---------- J09-06 : SUPERVISION (batterie / stockage / réseau) ----------
+   *
+   * `entry` vient du store de télémétrie : { telemetry, atMs, local }. Le modèle
+   * n'invente RIEN : si le device n'a jamais mesuré, la valeur reste `null` et
+   * l'UI affiche « inconnu », pas zéro.
+   *
+   * Deux garde-fous, les mêmes que pour les images :
+   *   - device absent du plan de START -> IGNORÉ et COMPTÉ ;
+   *   - snapshot plus ancien que celui déjà rangé -> IGNORÉ (une reconnexion peut
+   *     rejouer un tampon ; « dernier état connu » doit rester le plus récent).
+   */
+  function setTelemetry(deviceId, entry, atMs) {
+    var slot = slotOf(deviceId);
+    if (!slot) {
+      S.stats.telemetryIgnored += 1;
+      log("LIVE_TELEMETRY_IGNORED reason=not_in_take sessionId=" + S.sessionId
+        + " take=" + S.takeNumber + " from=" + (deviceId || "—")
+        + " participants=[" + S.order.join(",") + "]");
+      return false;
+    }
+    if (!entry || !entry.telemetry) {
+      /* Une entrée vide efface la valeur affichée (la Capture n'a plus de
+       * mesure pour cette session) : ce n'est pas un recul de donnée. */
+      if (slot.telemetry === null) return true;
+      slot.telemetry = null;
+      slot.telemetryAt = 0;
+      S.stats.telemetryUpdates += 1;
+      emitChange();
+      return true;
+    }
+    var stamp = (typeof entry.atMs === "number" && entry.atMs > 0) ? entry.atMs
+      : (typeof atMs === "number" && atMs > 0 ? atMs : 0);
+    if (slot.telemetry && stamp && stamp < slot.telemetryAt) {
+      S.stats.telemetryIgnored += 1;
+      log("LIVE_TELEMETRY_IGNORED reason=older sessionId=" + S.sessionId
+        + " deviceId=" + deviceId + " atMs=" + stamp + " kept=" + slot.telemetryAt);
+      return false;
+    }
+    slot.telemetry = entry.telemetry;
+    slot.telemetryAt = stamp;
+    S.stats.telemetryUpdates += 1;
+    log("LIVE_TELEMETRY_SET sessionId=" + S.sessionId + " take=" + S.takeNumber
+      + " deviceId=" + deviceId + " atMs=" + (stamp || "—")
+      + " battery=" + (entry.telemetry.batteryLevel == null ? "—" : entry.telemetry.batteryLevel)
+      + " free=" + (entry.telemetry.freeBytes == null ? "—" : entry.telemetry.freeBytes)
+      + " local=" + (entry.local ? 1 : 0));
+    emitChange();
+    return true;
+  }
+
+  /* Applique la table { deviceId -> entry } à TOUS les slots connus. Une seule
+   * lecture du store par révision suffit : c'est la même économie que pour le
+   * liveness. Retourne true si AU MOINS UN snapshot a été appliqué — un store
+   * entièrement hors Take n'est pas un échec, c'est un filtre. */
+  function syncTelemetry(map) {
+    if (!map || typeof map !== "object") return false;
+    var applied = false;
+    Object.keys(map).forEach(function (did) {
+      if (setTelemetry(did, map[did])) applied = true;
+    });
+    return applied;
+  }
+
   /* ---------- état AFFICHABLE ----------
    *
    * Pur, sans DOM : la mosaïque s'en sert, et les tests assertent dessus. La
@@ -299,6 +383,11 @@
       lastFrameAt: slot.lastFrameAt,
       connected: slot.connected,
       displayState: displayStateOf(slot),
+      /* Dernier snapshot mesuré + son instant. L'UI en dérive l'âge ; le modèle
+       * ne juge pas la fraîcheur (c'est une décision d'écran, avec les cadences
+       * réelles). */
+      telemetry: slot.telemetry,
+      telemetryAt: slot.telemetryAt,
       /* Une vignette SANS image est un état affichable (placeholder), pas une
        * vignette manquante : l'UI s'en sert pour ne jamais dessiner de vide. */
       hasFrame: !!slot.lastFrame
@@ -325,6 +414,8 @@
         framesIgnored: S.stats.framesIgnored,
         livenessUpdates: S.stats.livenessUpdates,
         statusUpdates: S.stats.statusUpdates,
+        telemetryUpdates: S.stats.telemetryUpdates,
+        telemetryIgnored: S.stats.telemetryIgnored,
         placeholders: slots.filter(function (s) { return !s.hasFrame; }).length
       }
     };
@@ -350,6 +441,8 @@
     setLiveness: setLiveness,
     syncLiveness: syncLiveness,
     setStatus: setStatus,
+    setTelemetry: setTelemetry,
+    syncTelemetry: syncTelemetry,
     displayStateOf: displayStateOf,
     view: view,
     onChange: onChange,

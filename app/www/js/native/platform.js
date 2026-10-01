@@ -1,5 +1,6 @@
 /* MultiCam — passerelle JS vers le plugiciel natif MultiCamPlatform (J02).
- * Actions réelles : espace libre (StatFs), IPv4/réseau, accès aux extras Intent
+ * Actions réelles : espace libre (StatFs), IPv4/réseau, type de réseau actif,
+ * accès aux extras Intent
  * (hook de test — builds debug uniquement). Aucune donnée simulée. */
 
 (function (global) {
@@ -22,6 +23,14 @@
     ipv4: function () {
       return new Promise(function (resolve, reject) {
         call("ipv4", [], resolve, reject);
+      });
+    },
+    /* Type de transport du réseau actif (wifi / cellular / ethernet / vpn /
+     * other / none / unknown). Mesure ConnectivityManager : c'est un TYPE, pas
+     * une qualité, et `unknown` est une réponse valable qu'on ne maquille pas. */
+    networkType: function () {
+      return new Promise(function (resolve, reject) {
+        call("networkType", [], function (v) { resolve(typeof v === "string" ? v : null); }, reject);
       });
     },
     intentExtra: function (name) {

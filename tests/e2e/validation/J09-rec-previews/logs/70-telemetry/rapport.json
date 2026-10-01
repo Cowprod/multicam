@@ -1,0 +1,681 @@
+{
+  "mission": "J09-06",
+  "title": "Supervision operationnelle des Captures — mesure, cadence, affichage, vue detaillee",
+  "at": "2026-10-01T12:45:04.519Z",
+  "devices": {
+    "capture": {
+      "serial": "61d54bba7d91",
+      "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+      "endpoint": "192.168.92.76:45102"
+    },
+    "master": {
+      "serial": "c0d8514d7d87",
+      "deviceId": "92d58e97-c418-47cc-87c5-6a080aff5faf",
+      "endpoint": "192.168.92.192:45102"
+    }
+  },
+  "session": {
+    "sessionId": "NH2AEG89",
+    "pin": "***"
+  },
+  "s1_valeursMesurees": {
+    "dom": {
+      "screen": "panel-live",
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "REC",
+          "stateLabel": "REC",
+          "hasImg": true,
+          "hasSrc": true,
+          "offline": false,
+          "local": false,
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "alertIcon": "",
+          "supervision": [
+            {
+              "txt": "100 % ⚡",
+              "known": "true",
+              "cls": ""
+            },
+            {
+              "txt": "10 Go",
+              "known": "true",
+              "cls": ""
+            }
+          ]
+        }
+      ]
+    },
+    "model": {
+      "sessionId": "NH2AEG89",
+      "takeNumber": 1,
+      "stats": {
+        "participantSyncs": 98,
+        "framesApplied": 18,
+        "framesIgnored": 0,
+        "livenessUpdates": 1,
+        "statusUpdates": 0,
+        "telemetryUpdates": 98,
+        "telemetryIgnored": 0,
+        "placeholders": 0
+      },
+      "slots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 18,
+          "telemetry": {
+            "capabilities": {
+              "source": "fixture",
+              "probedAtMs": 1790858642947,
+              "model": "24075RP89G",
+              "manufacturer": "Xiaomi",
+              "sdk": 36,
+              "audioMic": true,
+              "gpsFeature": false,
+              "orientationModes": [
+                "LANDSCAPE",
+                "PORTRAIT"
+              ],
+              "cameras": {
+                "rear": [
+                  "FHD",
+                  "HD"
+                ],
+                "front": [
+                  "FHD",
+                  "HD"
+                ]
+              },
+              "unknown": false
+            },
+            "batteryLevel": 100,
+            "batteryCharging": true,
+            "freeBytes": 10339401728,
+            "totalBytes": 51391725568,
+            "netType": "wifi",
+            "recording": true,
+            "atMs": 1790858672851,
+            "updatedAtMs": 1790858672934,
+            "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+          },
+          "telemetryAt": 1790858672851
+        }
+      ]
+    },
+    "store": {
+      "entries": {
+        "68f01a99-254d-47d8-926b-bbf62be09230": {
+          "telemetry": {
+            "capabilities": {
+              "source": "fixture",
+              "probedAtMs": 1790858642947,
+              "model": "24075RP89G",
+              "manufacturer": "Xiaomi",
+              "sdk": 36,
+              "audioMic": true,
+              "gpsFeature": false,
+              "orientationModes": [
+                "LANDSCAPE",
+                "PORTRAIT"
+              ],
+              "cameras": {
+                "rear": [
+                  "FHD",
+                  "HD"
+                ],
+                "front": [
+                  "FHD",
+                  "HD"
+                ]
+              },
+              "unknown": false
+            },
+            "batteryLevel": 100,
+            "batteryCharging": true,
+            "freeBytes": 10339401728,
+            "totalBytes": 51391725568,
+            "netType": "wifi",
+            "recording": true,
+            "atMs": 1790858672851,
+            "updatedAtMs": 1790858672934,
+            "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+          },
+          "atMs": 1790858672851,
+          "local": false
+        }
+      },
+      "stats": {
+        "sessions": 1,
+        "devices": 1,
+        "sets": 13,
+        "ignoredOlder": 0,
+        "cleared": 0
+      }
+    },
+    "capService": {
+      "bound": true,
+      "running": true,
+      "sessionId": "NH2AEG89",
+      "cadenceMs": 5000,
+      "measureTtlMs": 15000,
+      "inFlight": 0,
+      "pending": false,
+      "lastPublishAtMs": 1790858672896,
+      "errors": 0,
+      "stats": {
+        "collects": 7,
+        "publishes": 7,
+        "errors": 0,
+        "coalesced": 0,
+        "immediate": 1
+      },
+      "battery": {
+        "level": 100,
+        "charging": true,
+        "atMs": 1790858642955
+      },
+      "space": {
+        "freeBytes": 10339401728,
+        "totalBytes": 51391725568,
+        "atMs": 1790858662856
+      },
+      "net": {
+        "type": "wifi",
+        "atMs": 1790858662856
+      },
+      "recording": true
+    },
+    "shots": [
+      {
+        "file": "screenshots/70-mosaique-telemetrie.png",
+        "bytes": 320977,
+        "width": 1340,
+        "height": 800
+      }
+    ]
+  },
+  "s2_cadence": {
+    "observeMs": 26000,
+    "messages": 6,
+    "cadence": {
+      "n": 5,
+      "minMs": 4998,
+      "medianMs": 5001,
+      "maxMs": 5009,
+      "moyenneMs": 5002
+    },
+    "octets": {
+      "min": 683,
+      "max": 684,
+      "moyenne": 684
+    },
+    "storeIgnorees": 0,
+    "premier": {
+      "t": 1790858647882,
+      "bytes": 684,
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1790858642947,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 10347782144,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1790858647851,
+        "updatedAtMs": 1790858647852,
+        "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+      }
+    },
+    "dernier": {
+      "t": 1790858672891,
+      "bytes": 683,
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1790858642947,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 10339401728,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": true,
+        "atMs": 1790858672851,
+        "updatedAtMs": 1790858672852,
+        "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+      }
+    }
+  },
+  "s3_vueDetaillee": {
+    "detail": {
+      "open": true,
+      "name": "Cam 07",
+      "state": "REC",
+      "recorder": "REC",
+      "battery": " 100 % · en charge",
+      "storage": " 10 Go libres",
+      "network": " Wi-Fi",
+      "telemetryAge": "0 s",
+      "previewAge": "0 s",
+      "incidents": "Aucun incident signalé.",
+      "skills": [
+        "ldSkillVideo:modal-icon on",
+        "ldSkillAudio:modal-icon on",
+        "ldSkillGps:modal-icon off"
+      ],
+      "hasImg": true,
+      "boutons": [
+        "ldClose:Fermer"
+      ],
+      "detail": {
+        "state": "REC",
+        "connected": true,
+        "recorder": "REC",
+        "battery": {
+          "known": true,
+          "value": 100,
+          "charging": true,
+          "icon": "fa-battery-full",
+          "text": "100 %"
+        },
+        "storage": {
+          "known": true,
+          "value": 10301513728,
+          "total": 51391725568,
+          "text": "10 Go",
+          "icon": "fa-hard-drive"
+        },
+        "network": {
+          "known": true,
+          "value": "wifi",
+          "label": "Wi-Fi",
+          "icon": "fa-wifi"
+        },
+        "telemetryAgeMs": 398,
+        "telemetryStale": false,
+        "incidents": [],
+        "notes": [],
+        "actions": []
+      }
+    },
+    "shots": [
+      {
+        "file": "screenshots/70-detail-capture.png",
+        "bytes": 504054,
+        "width": 1340,
+        "height": 800
+      }
+    ]
+  },
+  "s4_deconnexion": {
+    "dom": {
+      "screen": "panel-live",
+      "tiles": [
+        {
+          "name": "Cam 07",
+          "state": "DECONNECTED",
+          "stateLabel": "Déconnecté",
+          "hasImg": true,
+          "hasSrc": true,
+          "offline": true,
+          "local": false,
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "alertIcon": "",
+          "supervision": [
+            {
+              "txt": "100 % ⚡",
+              "known": "true",
+              "cls": ""
+            },
+            {
+              "txt": "10 Go",
+              "known": "true",
+              "cls": ""
+            }
+          ]
+        }
+      ]
+    },
+    "model": {
+      "sessionId": "NH2AEG89",
+      "takeNumber": 1,
+      "stats": {
+        "participantSyncs": 202,
+        "framesApplied": 22,
+        "framesIgnored": 0,
+        "livenessUpdates": 2,
+        "statusUpdates": 0,
+        "telemetryUpdates": 202,
+        "telemetryIgnored": 0,
+        "placeholders": 0
+      },
+      "slots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": false,
+          "displayState": "DECONNECTED",
+          "hasFrame": true,
+          "lastFrameSeq": 22,
+          "telemetry": {
+            "capabilities": {
+              "source": "fixture",
+              "probedAtMs": 1790858642947,
+              "model": "24075RP89G",
+              "manufacturer": "Xiaomi",
+              "sdk": 36,
+              "audioMic": true,
+              "gpsFeature": false,
+              "orientationModes": [
+                "LANDSCAPE",
+                "PORTRAIT"
+              ],
+              "cameras": {
+                "rear": [
+                  "FHD",
+                  "HD"
+                ],
+                "front": [
+                  "FHD",
+                  "HD"
+                ]
+              },
+              "unknown": false
+            },
+            "batteryLevel": 100,
+            "batteryCharging": true,
+            "freeBytes": 10301513728,
+            "totalBytes": 51391725568,
+            "netType": "wifi",
+            "recording": true,
+            "atMs": 1790858677868,
+            "updatedAtMs": 1790858677923,
+            "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+          },
+          "telemetryAt": 1790858677868
+        }
+      ]
+    },
+    "store": {
+      "entries": {
+        "68f01a99-254d-47d8-926b-bbf62be09230": {
+          "telemetry": {
+            "capabilities": {
+              "source": "fixture",
+              "probedAtMs": 1790858642947,
+              "model": "24075RP89G",
+              "manufacturer": "Xiaomi",
+              "sdk": 36,
+              "audioMic": true,
+              "gpsFeature": false,
+              "orientationModes": [
+                "LANDSCAPE",
+                "PORTRAIT"
+              ],
+              "cameras": {
+                "rear": [
+                  "FHD",
+                  "HD"
+                ],
+                "front": [
+                  "FHD",
+                  "HD"
+                ]
+              },
+              "unknown": false
+            },
+            "batteryLevel": 100,
+            "batteryCharging": true,
+            "freeBytes": 10301513728,
+            "totalBytes": 51391725568,
+            "netType": "wifi",
+            "recording": true,
+            "atMs": 1790858677868,
+            "updatedAtMs": 1790858677923,
+            "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+          },
+          "atMs": 1790858677868,
+          "local": false
+        }
+      },
+      "stats": {
+        "sessions": 1,
+        "devices": 1,
+        "sets": 15,
+        "ignoredOlder": 0,
+        "cleared": 0
+      }
+    },
+    "shots": [
+      {
+        "file": "screenshots/70-deconnecte.png",
+        "bytes": 129900,
+        "width": 1340,
+        "height": 800
+      }
+    ],
+    "captureService": {
+      "bound": true,
+      "running": true,
+      "sessionId": "NH2AEG89",
+      "cadenceMs": 5000,
+      "measureTtlMs": 15000,
+      "inFlight": 0,
+      "pending": false,
+      "lastPublishAtMs": 1790858692894,
+      "errors": 0,
+      "stats": {
+        "collects": 11,
+        "publishes": 11,
+        "errors": 0,
+        "coalesced": 0,
+        "immediate": 1
+      },
+      "battery": {
+        "level": 100,
+        "charging": true,
+        "atMs": 1790858642955
+      },
+      "space": {
+        "freeBytes": 10301513728,
+        "totalBytes": 51391725568,
+        "atMs": 1790858677868
+      },
+      "net": {
+        "type": "wifi",
+        "atMs": 1790858677868
+      },
+      "recording": true
+    }
+  },
+  "s5_reconnexion": {
+    "model": {
+      "sessionId": "NH2AEG89",
+      "takeNumber": 1,
+      "stats": {
+        "participantSyncs": 236,
+        "framesApplied": 24,
+        "framesIgnored": 0,
+        "livenessUpdates": 3,
+        "statusUpdates": 0,
+        "telemetryUpdates": 236,
+        "telemetryIgnored": 0,
+        "placeholders": 0
+      },
+      "slots": [
+        {
+          "deviceId": "68f01a99-254d-47d8-926b-bbf62be09230",
+          "deviceName": "Cam 07",
+          "isLocal": false,
+          "status": "REC",
+          "connected": true,
+          "displayState": "REC",
+          "hasFrame": true,
+          "lastFrameSeq": 45,
+          "telemetry": {
+            "capabilities": {
+              "source": "fixture",
+              "probedAtMs": 1790858642947,
+              "model": "24075RP89G",
+              "manufacturer": "Xiaomi",
+              "sdk": 36,
+              "audioMic": true,
+              "gpsFeature": false,
+              "orientationModes": [
+                "LANDSCAPE",
+                "PORTRAIT"
+              ],
+              "cameras": {
+                "rear": [
+                  "FHD",
+                  "HD"
+                ],
+                "front": [
+                  "FHD",
+                  "HD"
+                ]
+              },
+              "unknown": false
+            },
+            "batteryLevel": 100,
+            "batteryCharging": true,
+            "freeBytes": 10251771904,
+            "totalBytes": 51391725568,
+            "netType": "wifi",
+            "recording": true,
+            "atMs": 1790858702851,
+            "updatedAtMs": 1790858702872,
+            "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+          },
+          "telemetryAt": 1790858702851
+        }
+      ]
+    },
+    "store": {
+      "entries": {
+        "68f01a99-254d-47d8-926b-bbf62be09230": {
+          "telemetry": {
+            "capabilities": {
+              "source": "fixture",
+              "probedAtMs": 1790858642947,
+              "model": "24075RP89G",
+              "manufacturer": "Xiaomi",
+              "sdk": 36,
+              "audioMic": true,
+              "gpsFeature": false,
+              "orientationModes": [
+                "LANDSCAPE",
+                "PORTRAIT"
+              ],
+              "cameras": {
+                "rear": [
+                  "FHD",
+                  "HD"
+                ],
+                "front": [
+                  "FHD",
+                  "HD"
+                ]
+              },
+              "unknown": false
+            },
+            "batteryLevel": 100,
+            "batteryCharging": true,
+            "freeBytes": 10251771904,
+            "totalBytes": 51391725568,
+            "netType": "wifi",
+            "recording": true,
+            "atMs": 1790858702851,
+            "updatedAtMs": 1790858702872,
+            "updatedByDeviceId": "68f01a99-254d-47d8-926b-bbf62be09230"
+          },
+          "atMs": 1790858702851,
+          "local": false
+        }
+      },
+      "stats": {
+        "sessions": 1,
+        "devices": 1,
+        "sets": 17,
+        "ignoredOlder": 0,
+        "cleared": 0
+      }
+    },
+    "at": 1790858704063,
+    "repriseApresCoupureMs": 6133
+  },
+  "logCounts": {
+    "telemetrySent": 13,
+    "telemetryCollect": 2,
+    "telemetryReceived": 17,
+    "telemetryStoreSet": 17,
+    "telemetryIgnored": 0,
+    "screen05Unavailable": 0
+  },
+  "verdict": {
+    "serviceDemarre": true,
+    "cadence5s": true,
+    "snapshotCompact": true,
+    "batterieAffichee": true,
+    "stockageAffiche": true,
+    "totalStockageConnu": true,
+    "reseauConnu": true,
+    "provenanceReseau": true,
+    "vueDetailleeOuverteEtLireSeule": true,
+    "deconnexionEtatEteintSansPerdreLesValeurs": true,
+    "reconnexionTelemetrieFraiche": true,
+    "aucuneValeurInventee": true
+  }
+}

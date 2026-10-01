@@ -460,9 +460,55 @@
     Aucune Capture ne participe à ce Take.
   </div>
 
-  <!-- Dock réservé au STOP global (§4 de la maquette) — voluntaryment VIDE en
-       J09-05 : aucun mock, aucun bouton qui ne fait rien. -->
+  <!-- Dock réservé au STOP global (§4 de la maquette) — volontairement VIDE en
+       J09-05/J09-06 : aucun mock, aucun bouton qui ne fait rien. -->
   <div class="lv-stop-dock" id="liveStopDock" aria-hidden="true"></div>
+
+  <!-- ============ Vue DÉTAILLÉE d'une Capture (J09-06) ============
+       Ouverte par appui sur une vignette, rendue par js/ui/live-detail.js.
+       LECTURE SEULE : ni réglage, ni changement de rôle, ni arrêt distant, ni
+       transfert — ce sont des commandes, donc J10. Le seul bouton est « fermer ». -->
+  <div id="liveDetailModal" class="screenmodal ld-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-ld-close="1"></div>
+    <div class="modal-dialog card glass strong rounded-4">
+      <div class="card-body p-3">
+        <div class="ld-head mb-2">
+          <div class="ld-name">
+            <div class="small text-uppercase muted">Capture</div>
+            <div class="fw-semibold fs-5" id="ldName">…</div>
+            <div class="small muted" id="ldRecorder">…</div>
+          </div>
+          <div class="tile-state st-rec" id="ldState">—</div>
+          <button id="ldClose" class="btn btn-outline-light glass icon" type="button" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="ld-preview mb-2">
+          <img id="ldImage" alt="Dernière preview reçue">
+          <div class="ld-noimg" id="ldNoImg">Aucune preview reçue</div>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+          <span class="modal-icon" id="ldSkillVideo"><i class="fa-solid fa-video"></i></span>
+          <span class="modal-icon" id="ldSkillAudio"><i class="fa-solid fa-microphone"></i></span>
+          <span class="modal-icon" id="ldSkillGps"><i class="fa-solid fa-location-dot"></i></span>
+          <span id="ldBattery">…</span>
+          <span id="ldStorage">…</span>
+          <span id="ldNetwork">…</span>
+        </div>
+
+        <!-- Les âges sont des MESURES, pas des minutiers : la fraîcheur du lien
+             WS, celle de la télémétrie et celle de l'image sont trois choses
+             distinctes, et c'est de les fusionner qui ferait mentir
+             l'opérateur (« image vivante, mais données de 20 s »). -->
+        <div class="ld-meta mb-2">
+          <span>Données <span id="ldTelemetryAge">—</span></span>
+          <span>Preview <span id="ldPreviewAge">—</span></span>
+        </div>
+
+        <div class="incident-detail small rounded-3 p-2 bg-dark bg-opacity-50" id="ldIncidents"></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="panel-countdown" class="screen cd-screen">
@@ -636,7 +682,13 @@
 <script src="js/state/take-model.js"></script>
 <script src="js/state/session-model.js"></script>
 <script src="js/state/session-store.js"></script>
+<!-- J09-06 : le store est lu par net/session-ws.js (à CHAQUE télémétrie reçue)
+     et par le panneau 08 — il doit donc exister avant les deux. -->
+<script src="js/state/telemetry-store.js"></script>
 <script src="js/net/session-ws.js"></script>
+<!-- Service de collecte (Capture) : publie via session-ws, seuils lus dans
+     session-model — chargé après les deux, jamais avant. -->
+<script src="js/state/telemetry-service.js"></script>
 <script src="js/net/session-discovery.js"></script>
 <script src="js/state/arm-model.js"></script>
 <script src="js/state/arm-service.js"></script>
@@ -655,6 +707,8 @@
 <script src="js/ui/take.js"></script>
 <script src="js/ui/arm.js"></script>
 <script src="js/ui/live.js"></script>
+<!-- Vue détaillée : ouverte par live.js, refermée par le backdrop / × / Échap. -->
+<script src="js/ui/live-detail.js"></script>
 <script src="js/ui/countdown.js"></script>
 <script src="js/ui/settings.js"></script>
 <script src="js/main.js"></script>

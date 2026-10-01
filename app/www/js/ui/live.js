@@ -94,13 +94,128 @@
     return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
   }
 
+  /* ---------- J09-06 : VALEURS DE SUPERVISION ----------
+   *
+   * La maquette (`ui/08-live-recording`) demande, dans la vignette : le nom, l'état
+   * REC / STOPPED / Déconnecté, la batterie et l'espace local libre. Pas le
+   * deviceId (inutile à un opérateur, et une information technique), pas la
+   * qualité réseau (on ne sait pas la mesurer), pas un timer par vignette (le
+   * README l'interdit explicitement : un seul timer global pour le Take).
+   *
+   * Les seuils ne sont pas décoratifs : ce sont ceux de `state/arm-model.js`
+   * (FREE_WARN_BYTES = 1 Go) et de `state/telemetry-service.js` (batterie 20 %),
+   * pour que la vigilance soit la même décision d'écran à l'écran.
+   *
+   * ABSENCE DE DONNÉE ≠ ZÉRO. Une batterie non mesurée s'affiche « — » : le
+   * défaut le plus grave de cet écran serait d'afficher 0 % et de déclencher une
+   * alerte qui n'existe pas.
+   */
+  /* Seuils : lus depuis le modèle de session (source unique, voir
+   * `state/session-model.js`). Le repli ci-dessous n'existe que pour que ce
+   * module reste chargeable seul dans un test ; il ne doit JAMAIS être RÉÉCRIT
+   * ici — un seuil dupliqué est un seuil qui divergera. */
+  var FREE_WARN = (global.MultiCamSessionModel && global.MultiCamSessionModel.FREE_WARN_BYTES) || 1000000000;
+  var BATTERY_WARN = (global.MultiCamSessionModel && global.MultiCamSessionModel.BATTERY_WARN_PCT) || 25;
+  /* Donnée « ancienne » = trois périodes de télémétrie manquées (cadence 5 s).
+   * Ce seuil signale une DONNÉE, jamais l'état du lien : une Capture dont le WS
+   * est vivant et dont la télémétrie est vieille reste REC, pas « Déconnecté ». */
+  var TELEMETRY_STALE_MS = 15000;
+
+  function fmtBytes(n) {
+    if (typeof n !== "number" || !isFinite(n) || n < 0) return null;
+    var units = ["o", "Ko", "Mo", "Go", "To"];
+    var i = 0, v = n;
+    while (v >= 1000 && i < units.length - 1) { v = v / 1000; i++; }
+    var r = (v < 10 && i > 0) ? Math.round(v * 10) / 10 : Math.round(v);
+    return (r + " " + units[i]);
+  }
+
+  /* Échelle d'icônes calée sur les quatre exemples de la maquette validée :
+   * 23 % → quarter, 54 % → half, 76 % → three-quarters, 100 % → full. */
+  function batteryIcon(pct) {
+    if (pct <= 0) return "fa-battery-empty";
+    if (pct <= BATTERY_WARN) return "fa-battery-quarter";
+    if (pct <= 50) return "fa-battery-half";
+    if (pct <= 80) return "fa-battery-three-quarters";
+    return "fa-battery-full";
+  }
+
+  /* Une icône de supervision = { key, known, value, text, level, icon, title }.
+   * `level` ∈ ok | warn | danger | unknown : c'est la couleur d'incident, donc
+   * c'est ici qu'on décide, et la décision est faite UNE fois pour la vignette
+   * ET pour la vue détaillée. */
+  function supervisionIcons(t, now) {
+    var out = [];
+    var b = t.batteryLevel;
+    out.push({
+      key: "battery",
+      known: typeof b === "number" && isFinite(b),
+      value: (typeof b === "number" && isFinite(b)) ? b : null,
+      text: (typeof b === "number" && isFinite(b)) ? (b + " %") : "—",
+      level: (typeof b !== "number" || !isFinite(b)) ? "unknown"
+        : (b <= BATTERY_WARN ? "warn" : "ok"),
+      icon: (typeof b === "number" && isFinite(b)) ? batteryIcon(b) : "fa-battery-half",
+      title: (typeof b === "number" && isFinite(b)) ? ("Batterie " + b + " %") : "Batterie inconnue",
+      charging: t.batteryCharging === true
+    });
+    var f = t.freeBytes;
+    var known = typeof f === "number" && isFinite(f) && f >= 0;
+    out.push({
+      key: "storage",
+      known: known,
+      value: known ? f : null,
+      text: known ? (fmtBytes(f) || "—") : "—",
+      level: !known ? "unknown" : (f < FREE_WARN ? "warn" : "ok"),
+      icon: "fa-hard-drive",
+      title: known ? (fmtBytes(f) + " libres") : "Espace libre inconnu",
+      total: (typeof t.totalBytes === "number" && isFinite(t.totalBytes) && t.totalBytes > 0) ? t.totalBytes : null
+    });
+    return out;
+  }
+
+  /* Les incidents affichables : ce que l'opérateur doit voir MAINTENANT. Une
+   * donnée absente n'en est pas un (voir `notes`). */
+  function incidentsOf(t, state, now, hasTelemetry, telemetryAt) {
+    var list = [];
+    if (state === "DECONNECTED") {
+      list.push({ key: "disconnected", tone: "danger", label: "Connexion perdue. Dernière preview conservée." });
+    }
+    var b = t.batteryLevel, f = t.freeBytes;
+    if (typeof b === "number" && isFinite(b) && b <= BATTERY_WARN) {
+      list.push({ key: "batteryLow", tone: "warn", label: "Batterie faible (" + b + " %)." });
+    }
+    if (typeof f === "number" && isFinite(f) && f < FREE_WARN) {
+      list.push({ key: "storageLow", tone: "warn", label: "Stockage local sous le seuil de 1 Go (" + fmtBytes(f) + " libres)." });
+    }
+    /* Donnée ancienne : information de fraîcheur, PAS un état de connexion. */
+    if (hasTelemetry && telemetryAt && (now - telemetryAt) > TELEMETRY_STALE_MS) {
+      list.push({ key: "telemetryStale", tone: "warn", label: "Dernière télémétrie reçue il y a " + fmtAge(now - telemetryAt) + "." });
+    }
+    return list;
+  }
+
+  function fmtAge(ms) {
+    var s = Math.max(0, Math.round((ms || 0) / 1000));
+    if (s < 60) return s + " s";
+    var m = Math.floor(s / 60);
+    if (m < 60) return m + " min";
+    return Math.floor(m / 60) + " h " + (m % 60) + " min";
+  }
+
   /* ---------- COUCHÉ PURE : descripteurs de vignette ---------- */
 
   /* Une vignette = { clé stable, libellés, image, état visuel }. Les tests
    * assertent dessus ; le DOM n'est qu'une projection. */
-  function tileOf(slot) {
+  function tileOf(slot, nowMs) {
     var state = slot.displayState || "REC";
     var isLocal = !!slot.isLocal;
+    var now = typeof nowMs === "number" ? nowMs : Date.now();
+    var t = slot.telemetry || null;
+    var telemetryAt = slot.telemetryAt || 0;
+    var hasTelemetry = !!t;
+    var icons = supervisionIcons(t || {}, now);
+    var incidents = incidentsOf(t || {}, state, now, hasTelemetry, telemetryAt);
+    var worstIcon = icons.filter(function (i) { return i.level === "warn"; })[0] || null;
     /* Le device local n'a JAMAIS d'image réseau : sa source visuelle est la
      * preview native du fond. On ne fabrique donc pas de data-URL pour lui. */
     var hasNetFrame = !isLocal && !!slot.lastFrame && !!slot.lastFrame.jpegBase64;
@@ -121,17 +236,33 @@
       imgSrc: hasNetFrame ? ("data:image/jpeg;base64," + slot.lastFrame.jpegBase64) : null,
       seq: slot.lastFrameSeq || 0,
       frameAt: slot.lastFrameAt || 0,
+      /* J09-06 — supervision. `icons` alimente la ligne d'icônes de la vignette,
+       * `incidents` le détail de la vue détaillée : les deux lisent la MÊME
+       * structure, donc ils ne peuvent pas diverger. */
+      hasTelemetry: hasTelemetry,
+      telemetryAt: telemetryAt,
+      telemetryAgeMs: hasTelemetry ? Math.max(0, now - telemetryAt) : null,
+      telemetryStale: !!(hasTelemetry && telemetryAt && (now - telemetryAt) > TELEMETRY_STALE_MS),
+      icons: icons,
+      incidents: incidents,
+      /* Une seule icône d'alerte dans le coin de la vignette (la maquette n'en
+       * montre qu'une) : la plus grave. Le détail est dans la vue détaillée. */
+      alertIcon: (state === "DECONNECTED")
+        ? { icon: "fa-triangle-exclamation", level: "danger" }
+        : (worstIcon ? { icon: (worstIcon.key === "battery" ? batteryIcon(worstIcon.value) : "fa-hard-drive"), level: worstIcon.level } : null),
       /* Aucun badge textuel, et surtout pas « ce device » : la maquette
-       * l'interdit explicitement. La télémétrie (batterie, espace, réseau)
-       * arrive à la mission suivante ; la case est donc vide, pas fausse. */
+       * l'interdit explicitement. La supervision passe par `icons` (valeurs
+       * mesurées) et `incidents` (ce qui exige une action), jamais par un
+       * badge : un badge textuel de plus ferait de la place pour un deviceId. */
       badges: []
     };
   }
 
-  function tiles(modelView) {
+  function tiles(modelView, rec) {
     var v = modelView || {};
     var slots = Array.isArray(v.slots) ? v.slots : [];
-    return slots.map(tileOf);
+    var now = (rec && typeof rec.nowMs === "number") ? rec.nowMs : Date.now();
+    return slots.map(function (s) { return tileOf(s, now); });
   }
 
   function gridClass(count) {
@@ -141,7 +272,7 @@
   function view(modelView, rec) {
     var v = modelView || {};
     var r = rec || {};
-    var ts = tiles(v);
+    var ts = tiles(v, r);
     return {
       sessionId: v.sessionId || "",
       takeNumber: v.takeNumber || 0,
@@ -193,6 +324,30 @@
     n.media.classList.toggle("is-placeholder", !!tile.placeholder);
     n.media.classList.toggle("is-native", !!tile.nativePreview);
 
+    /* ---------- J09-06 : la ligne de supervision de la vignette ----------
+     *
+     * Même structure que la maquette (`cam-info > .status-icons`) : deux valeurs
+     * MESURÉES (batterie, stockage), colorées par niveau. On n'écrit que ce qui a
+     * changé — une mosaïque est redessinée 5 fois par seconde, et réécrire deux
+     * `textContent` à chaque tick ferait du travail pour rien (et sur un Master
+     * à 4+ Captures, c'est 40 écritures par seconde).
+     */
+    (tile.icons || []).forEach(function (icon) {
+      var row = n.iconRows[icon.key];
+      if (!row) return;
+      var cls = "fa-solid " + icon.icon + (icon.level === "unknown" ? " ic-unknown" : (icon.level === "warn" ? " ic-warn" : ""));
+      if (row.i.className !== cls) row.i.className = cls;
+      var txt = icon.text + (icon.charging ? " \u26a1" : "");
+      if (row.txt !== txt) { row.node.textContent = txt; row.txt = txt; }
+      if (row.node.dataset.known !== String(icon.known)) row.node.dataset.known = String(icon.known);
+    });
+
+    /* Une SEULE icône d'alerte, la plus grave (la maquette n'en montre qu'une).
+     * Absente -> retirée : une icône d'alerte fantôme sur une Capture saine est
+     * pire que pas d'icône du tout. */
+    var alertCls = tile.alertIcon ? ("fa-solid " + tile.alertIcon.icon + (tile.alertIcon.level === "danger" ? " ic-danger" : " ic-warn")) : "";
+    if (n.alert.className !== alertCls) n.alert.className = alertCls;
+
     if (n.name.textContent !== tile.deviceName) n.name.textContent = tile.deviceName;
     if (n.state.dataset.state !== tile.state) {
       n.state.dataset.state = tile.state;
@@ -219,13 +374,81 @@
     var name = el("div", "tile-name");
     var state = el("div", "tile-state");
     state.dataset.state = "";
+    var icons = el("div", "status-icons tiny");
+    var iconRows = {};
+    (tile.icons || []).forEach(function (icon) {
+      var row = el("span", "supervision");
+      row.dataset.known = String(icon.known);
+      var ic = el("i", "fa-solid " + icon.icon);
+      row.appendChild(ic);
+      icons.appendChild(row);
+      iconRows[icon.key] = { node: row, i: ic, txt: null };
+    });
+    var alert = el("i", "");
+    alert.setAttribute("aria-hidden", "true");
     info.appendChild(name);
     info.appendChild(state);
+    info.appendChild(icons);
+    media.appendChild(alert);
     root.appendChild(media);
     root.appendChild(info);
-    var node = { root: root, media: media, img: null, name: name, state: state, appliedSrc: null };
+
+    /* Le geste « ouvrir le détail » est délégué à la GRILLE (un seul écouteur,
+     * voir `bindGridEvents`) : les nœuds sont recréés à chaque changement de
+     * plan, donc un écouteur par vignette serait à réattacher en permanence —
+     * et la délégation survit au `purge` sans état à reconstruire.
+     * Le handler ne porte QUE l'ouverture : aucune commande ici (J10). */
+    root.setAttribute("role", "button");
+    root.setAttribute("tabindex", "0");
+    root.dataset.deviceId = tile.deviceId;
+
+    var node = {
+      root: root, media: media, img: null, name: name, state: state,
+      icons: icons, iconRows: iconRows, alert: alert, appliedSrc: null
+    };
     NODES[tile.key] = node;
     return node;
+  }
+
+  /* Le détail est un MODULE séparé : s'il n'est pas chargé (test, ancien
+   * `index.html`), l'appui ne fait RIEN — pas d'erreur, et surtout pas un bouton
+   * affiché ailleurs qui ne mènerait nulle part. */
+  function openDetail(deviceId) {
+    var d = global.MultiCamLiveDetail;
+    if (!d || typeof d.open !== "function") return null;
+    return d.open(deviceId);
+  }
+
+  /* UN écouteur sur la grille, posé une fois. Le clavier suit le pointeur : un
+   * panneau de supervision piloté uniquement au doigt n'est pas utilisable en
+   * régie. La remontée se fait à la main (parentNode) plutôt qu'avec
+   * `closest`, qui peut manquer dans un DOM de test minimal. */
+  function tileOfEvent(ev) {
+    var grid = byId("liveGrid");
+    var n = ev.target;
+    while (n && n !== grid) {
+      if (n.dataset && n.dataset.deviceId) return n;
+      n = n.parentNode;
+    }
+    return null;
+  }
+
+  function bindGridEvents() {
+    var grid = byId("liveGrid");
+    if (!grid || typeof grid.addEventListener !== "function" || grid.__ldBound) return;
+    grid.__ldBound = true;
+    grid.addEventListener("click", function (ev) {
+      var n = tileOfEvent(ev);
+      if (n) openDetail(n.dataset.deviceId);
+    });
+    grid.addEventListener("keydown", function (ev) {
+      var k = ev.key || "";
+      if (k !== "Enter" && k !== " " && k !== "Spacebar") return;
+      var n = tileOfEvent(ev);
+      if (!n) return;
+      if (ev.preventDefault) ev.preventDefault();
+      openDetail(n.dataset.deviceId);
+    });
   }
 
   /* Rendu IDEMPOTENT : les nœuds sont conservés d'un tick à l'autre, donc une
@@ -235,6 +458,7 @@
     var v = view(modelView, rec);
     var grid = byId("liveGrid");
     if (!grid) return v;
+    bindGridEvents();
     if (grid.className !== v.gridClass) grid.className = v.gridClass;
 
     var want = {};
@@ -284,6 +508,11 @@
     if (count) count.textContent = v.count + (v.count > 1 ? " Captures" : " Capture");
     var empty = byId("liveEmpty");
     if (empty) empty.classList.toggle("d-none", !v.empty);
+    /* La modal ouverte suit le MÊME rendu (pas de second timer) : ses valeurs
+     * ne peuvent pas diverger de celles des vignettes qu'elles décrivent. */
+    if (global.MultiCamLiveDetail && typeof global.MultiCamLiveDetail.refresh === "function") {
+      global.MultiCamLiveDetail.refresh();
+    }
     return v;
   }
 

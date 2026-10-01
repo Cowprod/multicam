@@ -1494,6 +1494,12 @@ store().get(env.sessionId).then(function (local) {
         return;
       }
       return store().save(res.session).then(function () {
+        /* Mémoire de supervision (J09-06) : le store ne fait qu'enregistrer ce
+         * que le transport vient d'accepter, comme la boîte de réception le
+         * fait pour une frame. Il ne filtre rien, ne décide rien, et n'est
+         * JAMAIS relu ici : ce module reste un transport, et la lecture se fait
+         * dans l'écran (main.js). */
+        recordTelemetry(env.sessionId, env.deviceId, res.session, false);
         emitEvents(res.events, env.sessionId, env.from);
         emit("TELEMETRY_RECEIVED sessionId=" + env.sessionId + " did=" + env.deviceId + " from=" + env.from);
         notifyChanged();
@@ -2010,6 +2016,24 @@ store().get(env.sessionId).then(function (local) {
 
   /* ---------- API J06 : télémétrie auto-déclarée ---------- */
 
+  /* Mémoire de supervision : on lit la télémétrie tel qu'elle vient d'être
+   * validée par le MODÈLE (donc déjà assainie : impossible d'y injecter un
+   * champ concret), et on l'indexe par (sessionId, deviceId). `local` marque le
+   * chemin auto-déclaré, qui n'a fait aucun aller-retour réseau. Si le store
+   * n'est pas chargé, on ne casse surtout pas le protocole : l'évènement
+   * TelemetryStore n'est simplement pas journalisé. */
+  function recordTelemetry(sessionId, deviceId, session, local) {
+    var ts = global.MultiCamTelemetryStore;
+    if (!ts || typeof ts.set !== "function") return false;
+    var member = (session.members || []).filter(function (m) { return m.deviceId === deviceId; })[0];
+    if (!member || !member.telemetry) return false;
+    var applied = ts.set(sessionId, deviceId, member.telemetry, member.telemetry.atMs, { local: !!local });
+    if (applied) ts.emit(deviceId);
+    emit("TELEMETRY_STORE_SET sessionId=" + sessionId + " did=" + deviceId
+      + " local=" + (!!local ? 1 : 0) + " atMs=" + (member.telemetry.atMs || "—"));
+    return applied;
+  }
+
   /* Le device local déclare CAPACITÉS + batterie + espace libre (natif). Seul
    * soi-même : le protocole refuse telemetry_update dont le from != deviceId. */
   function updateMemberTelemetry(session, deviceId, telemetry) {
@@ -2030,6 +2054,11 @@ store().get(env.sessionId).then(function (local) {
       return Promise.resolve(session);
     }
     return store().save(res.session).then(function () {
+      /* Cas du Master QUI EST AUSSI Capture : la télémétrie locale est
+       * enregistrée ici, en mémoire, SANS aller-retour réseau. Lui envoyer sa
+       * propre télémétrie pour la lire serait un loopback inutile (le transport
+       * écarte déjà le self-loop des previews, J09-04 : même règle ici). */
+      recordTelemetry(res.session.sessionId, deviceId, res.session, true);
       emit("TELEMETRY_UPDATE_LOCAL sessionId=" + res.session.sessionId + " did=" + deviceId + " by=" + actor);
       emitEvents(res.events, res.session.sessionId, actor);
       broadcastTargeted("telemetry_update", res.session, {

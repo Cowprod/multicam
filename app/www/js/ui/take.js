@@ -66,9 +66,9 @@
     take: null,
     capsCache: {},           /* soi-même : capacités prouvées (async, cache local) */
     ovrDevice: null,         /* did en cours d'édition dans la modal overrides */
-    batteryLevel: null,
-    freeBytes: null,
-    freeAtMs: 0,
+    /* J09-06 : plus de mesure ici. Batterie, charge, stockage, total, réseau et
+     * état REC appartiennent à `state/telemetry-service.js` — voir
+     * `publishSelfTelemetry` plus bas. */
     lastPublish: 0
   };
   var bound = false;
@@ -112,23 +112,6 @@
 
   /* ---------- télémétrie auto-déclarée (batterie + espace + capacités) ---------- */
 
-  function ensureFreeBytes() {
-    if (typeof state.freeBytes === "number" && Date.now() - state.freeAtMs < 30000) {
-      return Promise.resolve(state.freeBytes);
-    }
-    if (!global.MultiCamStorage || !global.MultiCamNative) return Promise.resolve(null);
-    var cfg = global.MultiCamConfig ? global.MultiCamConfig.get() : null;
-    if (cfg && cfg.storage && cfg.storage.mode === "saf") return Promise.resolve(null);
-    try {
-      var p = global.MultiCamStorage.systemPath(global.MultiCamStorage.defaultPath());
-      return global.MultiCamNative.freeSpace(p).then(function (r) {
-        state.freeBytes = (r && isNum(r.availableBytes)) ? r.availableBytes : null;
-        state.freeAtMs = Date.now();
-        return state.freeBytes;
-      }).catch(function () { return null; });
-    } catch (e) { return Promise.resolve(null); }
-  }
-
   function publishSelfTelemetry(force) {
     var s = state.session;
     if (!s || s.state !== "open") return;
@@ -136,40 +119,36 @@
     if (!did) return;
     var isMember = (s.members || []).some(function (m) { return m.deviceId === did; });
     if (!isMember) return; /* pas encore membre → pas de télémétrie à déclarer */
-    var now = Date.now();
-    if (!force && now - state.lastPublish < 5000) return;
-    var cap = global.MultiCamCaptureCapabilities;
-    var capsP = cap ? cap.capabilitiesFor(did, s) : Promise.resolve({ unknown: true, probedAtMs: 0 });
-    Promise.all([capsP, ensureFreeBytes()]).then(function (o) {
-      var caps = o[0];
-      if (caps && did === selfDid()) state.capsCache[did] = caps;
-      if (!s || s.state !== "open") return;
-      render();
-      var telemetry = { capabilities: caps || { unknown: true } };
-      if (typeof state.batteryLevel === "number") telemetry.batteryLevel = state.batteryLevel;
-      if (typeof state.freeBytes === "number") telemetry.freeBytes = state.freeBytes;
-      ws().updateMemberTelemetry(s, did, telemetry).then(function (upd) {
-        state.session = upd;
-        state.lastPublish = Date.now();
-        console.log("SCREEN05_TELEMETRY_SENT did=" + did
-          + " battery=" + (telemetry.batteryLevel == null ? "—" : telemetry.batteryLevel)
-          + " free=" + (telemetry.freeBytes == null ? "—" : telemetry.freeBytes)
-          + " capsKnown=" + (caps && !caps.unknown ? "1" : "0")
-          + " capsUnknown=" + (caps && caps.unknown ? "1" : "0"));
-      }).catch(function (err) {
-        console.log("SCREEN05_TELEMETRY_SEND_FAIL did=" + did + " reason=" + String((err && err.message) || err));
-      });
-    });
-  }
+    var svc = global.MultiCamTelemetryService;
+    if (!svc) {
+      /* Un écran qui « marche » sans supervision est plus dangereux qu'un écran
+       * qui signale qu'il n'en a pas : on le dit, on ne publie rien. */
+      console.log("SCREEN05_TELEMETRY_UNAVAILABLE did=" + did + " reason=service_absent");
+      return;
+    }
 
-  function bindBattery() {
-    if (bindBattery._done) return;
-    bindBattery._done = true;
-    if (!global.MultiCamDevice) return;
-    global.MultiCamDevice.batteryStatus(function (b) {
-      state.batteryLevel = Math.round(b.level || 0);
-      publishSelfTelemetry(false);
-    });
+    /* Les capacités affichées ici restent un besoin D'ÉCRAN de l'écran 05 : ce
+     * sont les propriétés du device, pas une mesure temporelle, et la sonde
+     * native les cache — cet appel ne coûte donc rien après le premier. */
+    var cap = global.MultiCamCaptureCapabilities;
+    if (cap) {
+      cap.capabilitiesFor(did, s).then(function (caps) {
+        if (caps && did === selfDid()) { state.capsCache[did] = caps; render(); }
+      }).catch(function () { /* capabilities inconnues : la ligne reste neutre */ });
+    }
+
+    /* J09-06 : la mesure ET la publication appartiennent au service (cadence
+     * 5 s, immédiat sur changement important, latest-wins, sans file). Deux
+     * publier en parallèle donneraient deux « derniers états » concurrents, et
+     * l'opérateur verrait取决于 l'ordre d'arrivée. */
+    var cfg = global.MultiCamConfig ? global.MultiCamConfig.get() : null;
+    svc.bind({ deviceId: did, deviceName: (cfg && cfg.deviceName) || "" });
+    if (!svc.view().running) {
+      svc.start(s);          /* démarre + première publication immédiate */
+    } else if (force) {
+      svc.collectNow();      /* réouverture d'écran : on veut voir nos valeurs */
+    }
+    state.lastPublish = Date.now();
   }
 
   /* ---------- réglages (accordéon custom sans Bootstrap JS) ---------- */
@@ -562,7 +541,9 @@
   function bind() {
     if (bound) return;
     bound = true;
-    bindBattery();
+    /* J09-06 : ce n'est PLUS cet écran qui s'abonne à la batterie — le service
+     * de collecte s'y abonne (et repère charge/fin de charge), sinon deux
+     * abonnés liraient la même valeur pour rien. */
 
     byId("backTake").addEventListener("click", function () {
       global.MultiCamNav.show("session", { sid: state.sid });
@@ -721,10 +702,20 @@
           global.MultiCamSessionWs.advertiseOpenSessions();
           global.MultiCamSessionWs.reSyncSession(s);
         }
+        /* J09-06 : le service de collecte ne démarre qu'une fois la Capture
+         * MEMBRE d'une session ouverte — information qu'elle n'a qu'après un
+         * resync. Sans cette réconciliation ici, la première publication
+         * attendrait le tick de 8 s ci-dessous, et le Master afficherait des
+         * valeurs absentes pendant plusieurs secondes après le début du REC.
+         * L'appel est sans effet quand le service tourne déjà. */
+        publishSelfTelemetry(false);
       });
     });
-    /* Rafraîchissement périodique (batterie/espace + présence + convergence) et
-     * republication télémétrie auto-déclarée (throttle dans publishSelfTelemetry). */
+    /* Rafraîchissement d'ÉCRAN (présence, convergence de la session). Le rendu
+     * est periodic ici, la CADENCE de télémétrie est celle du service (5 s) :
+     * ce n'est plus le rôle de cet écran, et deux cadences se doubleraient. L'appel
+     * restant sert de RÉCONCILIATION : si le service n'a jamais démarré (écran
+     * rouvert, session changée), il repart ici sans publications en double. */
     setInterval(function () {
       if (state.session && state.session.state === "open") {
         render();

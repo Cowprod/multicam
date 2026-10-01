@@ -103,6 +103,12 @@
    *   1. le PLAN (participants, ordre, numéro de Take)  → state/live-model.js
    *   2. les IMAGES (boîte de réception J09-04)           → onFrame + latest()
    *   3. la VIVACITÉ (connexions WS de la session)        → connectedPeers()
+   *   4. la SUPERVISION (J09-06, batterie / stockage)     → telemetry-store
+   *
+   * La 4e source est un MIROIR MEMOIRE de ce que le WS a déjà reçu : elle est
+   * lue au même tick, mais elle ne décide de rien. Le liveness reste la 3e
+   * source — une Capture hors ligne conserve ses dernières valeurs mesurées,
+   * datées, ce qui est une information et pas une illusion de présence.
    *
    * Pourquoi ici et pas dans l'écran : parce que ces trois sources vivent à des
    * rythmes différents. Les images arrivent à ~1 img/s par Capture, la
@@ -193,6 +199,14 @@
     var slots = model.view().slots;
     liveSeedFrames(model, v.sid, slots);
 
+    /* J09-06 : une seule lecture du store de supervision par révision, comme
+     * pour le liveness. `syncTelemetry` ignore (et compte) tout device absent du
+     * plan du Take — la mosaïque ne peut pas afficher la batterie d'un device
+     * qui n'en est pas. */
+    if (global.MultiCamTelemetryStore) {
+      model.syncTelemetry(global.MultiCamTelemetryStore.all(v.sid));
+    }
+
     /* Une seule lecture de la session et des états pairs par révision : ces
      * données sont partagées par TOUTES les vignettes (un état global de
      * connectivité), les relire par vignette serait du travail inutile à 5 Hz. */
@@ -221,6 +235,16 @@
    * depuis le panneau 07. Sans ce rattrapage, l'utilisateur resterait sur une vue
    * de countdown à l'arrêt d'un plan. Le service reste maître de l'état. */
   function onStartEnded(v) {
+    /* Fin de plan : la supervision affichée appartient à CETTE session/Take. La
+     * laisser en place afficherait les valeurs d'un tournage terminé sur une
+     * nouvelle mosaïque — la pire des confusions pour un opérateur. */
+    if (global.MultiCamTelemetryStore && typeof global.MultiCamTelemetryStore.clear === "function") {
+      global.MultiCamTelemetryStore.clear();
+    }
+    if (global.MultiCamLiveDetail && global.MultiCamLiveDetail.isOpen
+      && global.MultiCamLiveDetail.isOpen()) {
+      global.MultiCamLiveDetail.close();
+    }
     if (current === "live") {
       console.log("NAV_AUTO reason=plan_ended target=arm from=live"
         + " sessionId=" + ((v && v.sid) || ""));

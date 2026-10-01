@@ -69,3 +69,59 @@
 /* ---------- dock réservé au STOP global (§4, J10) ---------- */
 .lv-stop-dock{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:10px 12px max(10px,env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(8,12,20,.98),rgba(8,12,20,.88),rgba(8,12,20,0));pointer-events:none}
 .lv-stop-dock:empty{display:none}
+
+/* =====================================================================
+ * J09-06 — SUPERVISION : valeurs mesurées dans la vignette + détail.
+ *
+ * Règle de lecture appliquée ici : l'OPÉRATEUR doit distinguer trois choses
+ * qu'une simple couleur ne distingue pas — « je ne sais pas » (neutre), « ça
+ * va » (normal), « surveille » (ambre). Un 0 % ou un 0 octet pour une donnée
+ * absente déclencherait une alerte qui n'existe pas ; d'où `.ic-unknown`, en
+ * gris, et jamais de chiffre du tout dans ce cas.
+ * ===================================================================== */
+
+/* ---------- ligne de supervision sous le nom ---------- */
+.live-tile .status-icons{display:flex;align-items:center;gap:.5rem;flex:none;font-size:.66rem;font-variant-numeric:tabular-nums}
+.live-tile .supervision{display:inline-flex;align-items:center;gap:.2rem;color:var(--m);white-space:nowrap}
+.live-tile .supervision .ic-warn{color:#ffc107}
+.live-tile .supervision .ic-danger{color:#e84960}
+/* Donnée non mesurée : neutre et SANS valeur (le texte « — » vient du JS). */
+.live-tile .supervision[data-known="false"]{color:rgba(255,255,255,.45)}
+.live-tile .supervision[data-known="false"] .ic-unknown{color:rgba(255,255,255,.45)}
+
+/* ---------- alerte unique, en haut de l'image ----------
+ * La maquette n'en montre qu'une par vignette, à côté du badge d'état : c'est
+ * le renvoi à la vue détaillée, pas un tableau de bord miniature. */
+.tile-alert{position:absolute;top:.35rem;right:.4rem;font-size:.95rem;line-height:1;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.75)}
+.tile-alert.ic-warn{color:#ffc107}
+.tile-alert.ic-danger{color:#e84960}
+/* Le geste « ouvrir le détail » doit être lisible sans être un bouton : on
+ * l'annonce aux technologies d'assistance et on donne le focus visible. */
+.live-tile[role="button"]{cursor:pointer}
+.live-tile[role="button"]:focus-visible{outline:2px solid #38bdf8;outline-offset:-2px}
+
+/* ---------- vue détaillée (modal du panneau 08) ----------
+ *
+ * 80–90 % du viewport comme la maquette (`modal-dialog`), et PAS de plein
+ * écran natif : la mosaïque reste derrière, c'est le but de cet écran. La
+ * convention `.screenmodal` est celle des autres modales de l'app — pas de
+ * Bootstrap JS, pas de dépendance supplémentaire. */
+.ld-modal .modal-dialog{max-width:640px}
+.ld-head{display:flex;align-items:flex-start;gap:.6rem;width:100%}
+.ld-name{flex:1;min-width:0}
+.ld-preview{position:relative;aspect-ratio:16/10;background:#05070b;border-radius:12px;overflow:hidden}
+.ld-preview img{width:100%;height:100%;object-fit:contain;display:block}
+/* Image figée (Capture hors ligne) : niveaux de gris + assombrissement, comme
+ * la vignette. Elle reste VISIBLE — « dernière connue », pas « aucune ». */
+.ld-preview img.frozen{filter:grayscale(1) brightness(.55)}
+.ld-preview .ld-noimg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--m);font-size:.8rem}
+.ld-facts{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem;font-size:.8rem;color:var(--m)}
+.ld-facts .fa-solid{margin-right:.25rem}
+.ld-meta{display:flex;flex-wrap:wrap;gap:.5rem 1rem;font-size:.7rem;color:var(--m)}
+.ld-ages{margin-left:auto;display:flex;flex-wrap:wrap;gap:.5rem}
+.ld-ages .stale{color:#ffc107}
+.modal-icon{display:inline-flex;align-items:center;justify-content:center;width:1.9rem;height:1.9rem;border-radius:50%;background:rgba(255,255,255,.08);font-size:.9rem}
+/* Capacités NON annoncées par la Capture : éteintes, jamais « cochées » —
+ * une icône active sur une capacité inconnue serait une invention. */
+.modal-icon.on{color:#34d399;background:rgba(52,211,153,.16)}
+.modal-icon.off{color:rgba(255,255,255,.35)}

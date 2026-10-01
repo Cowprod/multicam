@@ -102,9 +102,56 @@
    *    au niveau du modèle, jamais propagé (test J05 « rôle non annoncé ») ;
    *  - si après assainissement il ne reste AUCUN rôle → membre invalide (le
    *    device ne peut pas rester membre : ≥1 rôle requis). */
+  /* Types de transport réseau réellement distingués par la passe C native
+   * (ConnectivityManager/NetworkCapabilities). Tout le reste — et surtout une
+   * mesure qui ne serait PAS celle du transport — doit rester `null`. On ne
+   * dérive jamais une « qualité réseau » d'un indicateur qui ne la mesure pas. */
+  var NET_TYPES = ["wifi", "cellular", "ethernet", "vpn", "other", "none", "unknown"];
+
+  /* ---------- Seuils de SUPERVISION (J09-06) ----------
+   *
+   * UNE seule source, lue par le service de collecte, la mosaïque et la vue
+   * détaillée : trois copies de « 25 % » finiraient par diverger, et
+   * l'opérateur verrait 24 % en vert à un endroit et en ambre à l'autre.
+   *
+   * Les deux valeurs ne sont pas inventées :
+   *   - batterie : ≤ 25 % en avertissement. La maquette VALIDÉE
+   *     (`ui/08-live-recording`) montre « Cam 05 — 23 % » en ambre avec
+   *     l'incident « Batterie faible. », et 54 % en neutre ; 25 % est le seuil
+   *     BATTERY_LOW d'Android, qui encadre exactement ces deux exemples.
+   *   - stockage : < 1 Go en avertissement — `ui/06-arm/README.md` (« Seuil
+   *     warning V1 : 1 Go ») et `state/arm-model.js` (FREE_WARN_BYTES), que la
+   *     même maquette illustre (Cam 04 : 820 Mo en ambre).
+   *
+   * AUCUN palier « critique » n'est documenté nulle part dans le projet : on n'en
+   * invente pas. Le seul état rouge de la mosaïque reste « Déconnecté », qui est
+   * une information de LIVENESS, pas une mesure. Si un palier rouge devient
+   * nécessaire, c'est une décision à prendre — et à geler — explicitement.
+   */
+  var BATTERY_WARN_PCT = 25;
+  var FREE_WARN_BYTES = 1000000000;
+
   /* Télémétrie d'un device (J06) : capacités Capture normalisées + batterie +
    * espace libre, auto-déclarée par le device lui-même (jamais par un autre).
-   * Capacités inconnues = null (honnête, jamais inventées). */
+   * Capacités inconnues = null (honnête, jamais inventées).
+   *
+   * J09-06 — SUPERVISION D'UN TAKE (§ maquette ui/08 : batterie, stockage,
+   * réseau, état recorder). Trois règles de fond :
+   *
+   *   1. CE QUI EST DÉJÀ TRANSPORTÉ N'EST PAS DUPLIQUÉ. `sessionId`,
+   *      `deviceId` et `deviceName` sont déjà dans l'enveloppe et dans la
+   *      fiche membre ; les recopier dans le snapshot serait du bruit sur le
+   *      réseau et une seconde source de vérité.
+   *   2. `connected` N'EST PAS TRANSPORTÉ. Il est dérivé côté Master du
+   *      LIVENESS WS, seule source qui ne puisse pas être auto-déclarée : une
+   *      Capture ne doit jamais pouvoir se dire « connectée » après une coupure.
+   *   3. LA FRAÎCHEUR DE PREVIEW N'EST PAS TRANSPORTÉE NON PLUS. Le Master est
+   *      le RÉCEPTEUR : il connaît la dernière image reçue (live-model,
+   *      J09-05) avec une exactitude qu'aucune auto-déclaration n'égalera.
+   *
+   * Chaque champ est validé ici, à la frontière du réseau. Une valeur
+   * impossible (texte, NaN, hors domaine) devient `null` : l'absence se
+   * affiche, elle ne s'invente pas. */
   function sanitizeTelemetry(m) {
     if (!m || typeof m !== "object") return null;
     var caps = (m.capabilities && typeof m.capabilities === "object") ? m.capabilities : null;
@@ -112,7 +159,19 @@
       capabilities: caps,
       batteryLevel: (typeof m.batteryLevel === "number" && isFinite(m.batteryLevel)
         && m.batteryLevel >= 0 && m.batteryLevel <= 100) ? Math.round(m.batteryLevel) : null,
+      batteryCharging: (typeof m.batteryCharging === "boolean") ? m.batteryCharging : null,
       freeBytes: (typeof m.freeBytes === "number" && isFinite(m.freeBytes) && m.freeBytes >= 0) ? Math.round(m.freeBytes) : null,
+      totalBytes: (typeof m.totalBytes === "number" && isFinite(m.totalBytes) && m.totalBytes > 0) ? Math.round(m.totalBytes) : null,
+      netType: (typeof m.netType === "string" && NET_TYPES.indexOf(m.netType) >= 0) ? m.netType : null,
+      /* État de l'ENREGISTREUR au moment de la mesure. C'est un OBSERVÉ, pas un
+       * ordre : l'état affiché par la mosaïque reste celui du modèle START/REC
+       * (live-model), et celui-ci est mémorisé pour le détail d'une Capture
+       * déconnectée. */
+      recording: (typeof m.recording === "boolean") ? m.recording : null,
+      /* Instant de MESURE (côté Capture). `updatedAtMs` reste l'instant de
+       * RÉCEPTION côté Master : les deux ne doivent pas être confondus, sinon un
+       * délai réseau se lirait comme une donnée fraîche. */
+      atMs: (typeof m.atMs === "number" && isFinite(m.atMs) && m.atMs > 0) ? m.atMs : null,
       updatedAtMs: (typeof m.updatedAtMs === "number" && m.updatedAtMs > 0) ? m.updatedAtMs : nowMs(),
       updatedByDeviceId: typeof m.updatedByDeviceId === "string" ? m.updatedByDeviceId : ""
     };
@@ -826,6 +885,10 @@
   return {
     SCHEMA_VERSION: SCHEMA_VERSION,
     PROTOCOL_VERSION: PROTOCOL_VERSION,
+    /* Seuils de supervision — lus par l'UI et le service, jamais redéfinis. */
+    BATTERY_WARN_PCT: BATTERY_WARN_PCT,
+    FREE_WARN_BYTES: FREE_WARN_BYTES,
+    NET_TYPES: NET_TYPES,
     genSessionId: genSessionId,
     genPin: genPin,
     nowMs: nowMs,

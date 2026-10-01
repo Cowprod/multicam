@@ -23,6 +23,7 @@ public class MultiCamPlatform extends CordovaPlugin {
     @Override public boolean execute(String action, JSONArray args, CallbackContext cb) throws JSONException {
         if ("freeSpace".equals(action)) { freeSpace(args.getString(0), cb); return true; }
         if ("ipv4".equals(action)) { ipv4(cb); return true; }
+        if ("networkType".equals(action)) { networkType(cb); return true; }
         if ("intentExtra".equals(action)) { intentExtra(args.getString(0), cb); return true; }
         return false;
     }
@@ -71,6 +72,17 @@ public class MultiCamPlatform extends CordovaPlugin {
             cb.success(out);
         } catch (Exception e) {
             cb.error("ipv4_failed: " + e.getMessage());
+        }
+    }
+
+    /* Type de transport du réseau ACTIF, tel que ConnectivityManager le
+     * rapporte. Action séparée de `ipv4` : la supervision du réseau ne doit pas
+     * dépendre d'un relevé d'adresse. Aucune "qualité" n'est déduite ici. */
+    private void networkType(CallbackContext cb) {
+        try {
+            cb.success(networkType());
+        } catch (Exception e) {
+            cb.success("unknown");
         }
     }
 
