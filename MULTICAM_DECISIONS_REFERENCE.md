@@ -1087,3 +1087,23 @@ Décision produit validée avant implémentation J09 :
 - le choix du moment exact de suspension/reprise lorsque l'application passe en arrière-plan doit respecter le cycle de vie Android et éviter de conserver inutilement la caméra hors premier plan.
 
 Cette règle formalise l'intention déjà présente dans les maquettes : la vidéo locale est un arrière-plan permanent du device Capture, et les écrans applicatifs sont des overlays au-dessus de cette image.
+
+
+### 35.2 Sélection et changement de caméra d'une Capture
+
+Décision produit validée pendant la clôture J09 :
+
+- la caméra effectivement utilisée par chaque Capture doit être visible dans son interface locale et dans la supervision Master ;
+- le choix doit porter sur les caméras réellement disponibles sur le device, détectées nativement ; l'UI ne doit pas inventer une caméra absente ;
+- un device **Capture + Master** peut changer directement sa propre caméra depuis son interface locale ;
+- un device **Capture non-Master** affiche la caméra utilisée mais ne peut pas la changer localement : le sélecteur est verrouillé ;
+- n'importe quel Master peut changer la caméra d'une Capture distante depuis la vue de supervision de cette Capture (modal/vignette selon l'UI finale) ;
+- tous les Masters conservent la même autorité : il n'existe pas de Master principal pour cette commande ;
+- la Capture distante applique la demande et confirme la caméra effectivement active ; la supervision doit refléter l'état confirmé, pas seulement la commande demandée ;
+- **le changement de caméra doit rester possible pendant un REC en cours** : une erreur de caméra ne doit pas imposer l'arrêt du Take global ni des autres Captures ;
+- le changement concerne uniquement la Capture ciblée ; les autres Captures continuent leur REC sans interruption ;
+- l'implémentation doit qualifier le comportement réel du couple caméra / recorder Android lors du switch en REC. Si la pile native actuelle impose une interruption locale, un nouveau segment/fichier ou une réinitialisation du recorder, ce comportement doit être mesuré et remonté avant de figer la stratégie technique ; il ne faut ni masquer une coupure ni prétendre à une continuité de fichier non démontrée ;
+- hors REC, le changement de caméra doit également mettre à jour la preview locale permanente (§35.1) ;
+- cette commande est une action de régie et ne doit pas être assimilée aux simples capacités publiées en télémétrie.
+
+Cette décision complète le modèle J06 qui possède déjà un réglage global et des overrides vidéo par Capture : J09 doit désormais exposer l'autorité opérateur nécessaire et qualifier le switch réel pendant l'enregistrement.
