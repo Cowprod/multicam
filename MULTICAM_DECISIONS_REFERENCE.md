@@ -1107,3 +1107,24 @@ Décision produit validée pendant la clôture J09 :
 - cette commande est une action de régie et ne doit pas être assimilée aux simples capacités publiées en télémétrie.
 
 Cette décision complète le modèle J06 qui possède déjà un réglage global et des overrides vidéo par Capture : J09 doit désormais exposer l'autorité opérateur nécessaire et qualifier le switch réel pendant l'enregistrement.
+
+### 35.3 Résultat du POC Camera1/MediaRecorder : switch segmenté pendant REC
+
+POC physique validé sur la pile Android actuelle (Camera1 + MediaRecorder), voir tests/poc/camera-switch-rec/RAPPORT-POC-J09.md (commit POC rebasé 3a84f79).
+
+Faits établis :
+
+- changer la caméra physique tout en laissant le même MediaRecorder actif n'est pas une stratégie viable avec l'implémentation actuelle ; la vidéo cesse environ 300 ms après la demande de switch, alors que l'audio peut continuer dans le conteneur ;
+- ce comportement a été reproduit sur plusieurs campagnes indépendantes, avec arrêt vidéo observé à environ +280 / +309 / +312 / +317 ms après la demande ;
+- la stratégie techniquement viable consiste à segmenter localement l'enregistrement de la Capture ciblée : arrêter proprement le recorder courant, basculer de caméra, puis démarrer immédiatement un nouveau recorder/fichier ;
+- cette segmentation est locale à la Capture : le Take logique continue, les autres Captures continuent leur REC et aucun STOP global n'est déclenché ;
+- sur le device du POC, le coût API du basculement segmenté est d'environ 0,7–0,8 s, tandis que le trou d'image réellement mesuré entre segments est d'environ 1,9–2,1 s ; ces valeurs sont des mesures de qualification sur ce device et ne constituent pas une constante produit ;
+- cinq switches successifs ont été réalisés sans crash, ANR, deadlock, erreur persistante Camera already in use ni impossibilité de rouvrir MediaRecorder ;
+- la preview locale et PixelCopy peuvent reprendre après le basculement ; leur interruption doit rester mesurée et visible dans les preuves, sans prétendre à une continuité instantanée ;
+- un changement de caméra pendant REC produit donc plusieurs segments média pour une même Capture et un même Take ; le modèle produit doit conserver explicitement cette appartenance logique au Take et l'ordre chronologique des segments ;
+- J09 ne doit pas fusionner artificiellement ces segments pendant la prise ni masquer le trou d'image ; l'assemblage, la réplication ou le traitement ultérieur des segments appartiennent aux jalons de traitement/transfert ;
+- l'UI Master commande le switch et doit afficher la caméra effectivement confirmée active par la Capture ; pendant le basculement, un état transitoire explicite (par exemple « Changement… ») est préférable à l'affichage anticipé de la caméra demandée ;
+- la Capture non-Master reste verrouillée localement ; une Capture qui est également Master peut déclencher la même commande sur elle-même, avec le même mécanisme segmenté ;
+- la faible luminance observée sur la caméra front pendant le POC n'est pas considérée comme un défaut produit : les conditions d'éclairage du lieu de test étaient insuffisantes et des images non nulles ont bien été mesurées.
+
+Conséquence d'architecture V1 : un Take ne doit pas être assimilé à « exactement un fichier par Capture ». Une Capture peut produire une séquence ordonnée de segments pour le même Take, notamment à la suite d'un changement de caméra pendant REC.
