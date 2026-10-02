@@ -1,0 +1,15 @@
+=== POC J09 — phase 4 : REAR vs FRONT, sans switch pendant le REC ===
+media_hors_depot=/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc
+COLD_START serial=61d54bba7d91 pid=10545 cdp=9223
+PURGE_CACHE 2
+PREPARE {"ok":true,"atMs":1790900831038,"detail":"Camera started"}
+REC_START {"ok":true,"atMs":1790900833197,"ackAfterMs":645,"requestMs":1790900832552}
+SONDE {"etape":"p4-rear-avant-switch-1","cameraAttendue":"rear","pixelcopyOk":true,"raison":null,"luma":91,"noir":false,"octets":92226}
+SWITCH_1 {"ok":true,"requestedAtMs":1790900837408,"atMs":1790900837777,"afterMs":369}
+SONDE {"etape":"p4-apres-switch-vers-front","cameraAttendue":"front","pixelcopyOk":true,"raison":null,"luma":0,"noir":true,"octets":13580}
+SONDE {"etape":"p4-front-stabilise","cameraAttendue":"front","pixelcopyOk":true,"raison":null,"luma":0,"noir":true,"octets":13616}
+SWITCH_2 {"ok":true,"requestedAtMs":1790900844000,"atMs":1790900844259,"afterMs":259}
+SONDE {"etape":"p4-retour-vers-rear","cameraAttendue":"rear","pixelcopyOk":true,"raison":null,"luma":94,"noir":false,"octets":52324}
+REC_STOP {"ok":true,"atMs":1790900849747,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":358}
+SEGMENTS [{"cache":"videoTmp.mp4","mediaHorsDepot":"/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p4-videoTmp.mp4","octets":9150844,"sha256":"3f73166a4dbd06665f81bcd967330efee020d0e62be67ea5207ae5df215d81eb","conteneurSec":15.530667,"pisteVideoPresente":true,"video":{"codec":"h264","luma":"1920x1080","fps":"3120000/105349","nbFrames":104,"dureeSec":3.511633},"audio":{"codec":"aac","echantillon":48000,"canaux":1,"dureeSec":15.530667},"continuiteVideo":{"frames":104,"firstPts":0.0001,"lastPts":3.477867,"intervalMoyenSec":0.0338,"fpsMoyen":29.62,"maxGapSec":0.034,"maxGapAtSec":1.823,"trous_sup_200ms":0},"continuiteAudio":{"packets":728,"firstPts":0,"lastPts":15.509333,"maxGapSec":0.021,"maxGapAtSec":8.747},"deficitVideoSec":12.019,"verdictVideo":"VIDEO TRONQUEE"}]
+FRAMES_VIDEO [{"fichier":"p4-videoTmp.mp4","lumas":[{"position":0.2,"luma":92},{"position":0.5,"luma":91},{"position":0.8,"luma":91},{"position":0.95,"luma":91}]}]

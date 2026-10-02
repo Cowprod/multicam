@@ -1,0 +1,231 @@
+{
+  "poc": "J09-changement-camera-pendant-REC",
+  "device": {
+    "serial": "61d54bba7d91",
+    "model": "24075RP89G",
+    "sdk": "36"
+  },
+  "inventory": {
+    "viaCamera2": [
+      {
+        "cameraId": "0",
+        "facing": "rear",
+        "hardwareLevel": 1,
+        "sensorPixel": "3264x2448"
+      },
+      {
+        "cameraId": "1",
+        "facing": "front",
+        "hardwareLevel": 1,
+        "sensorPixel": "2592x1944"
+      }
+    ],
+    "camcorderProfiles": [
+      {
+        "cameraId": "0",
+        "available": [
+          "480P 640x480",
+          "720P 1280x720",
+          "1080P 1920x1080",
+          "HIGH 1920x1080"
+        ]
+      },
+      {
+        "cameraId": "1",
+        "available": [
+          "480P 640x480",
+          "720P 1280x720",
+          "1080P 1920x1080",
+          "HIGH 1920x1080"
+        ]
+      }
+    ],
+    "viaCamera1Api1": 2,
+    "dumpsysFacing": [
+      "Facing: Back",
+      "Facing: Front"
+    ]
+  },
+  "phases": [
+    {
+      "phase": "phase1",
+      "events": [
+        {
+          "name": "startCamera.request",
+          "atMs": 1790900304680,
+          "detail": {
+            "camera": "back",
+            "w": 1006,
+            "h": 558
+          }
+        },
+        {
+          "name": "startCamera.error",
+          "atMs": 1790900304702,
+          "detail": "Camera already started"
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790900306235,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790900306723,
+          "detail": {
+            "ackAfterMs": 487
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900306734,
+          "detail": {
+            "tag": "avant-switch"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900306816,
+          "detail": {
+            "tag": "avant-switch",
+            "afterMs": 82,
+            "b64len": 92652
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790900312989,
+          "detail": {
+            "atMs": 1790900312989
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790900313377,
+          "detail": {
+            "afterMs": 388,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900313386,
+          "detail": {
+            "tag": "apres-switch-immediat"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790900313393,
+          "detail": {
+            "tag": "apres-switch-immediat",
+            "afterMs": 7,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900317399,
+          "detail": {
+            "tag": "apres-switch-plus-tard"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900317446,
+          "detail": {
+            "tag": "apres-switch-plus-tard",
+            "afterMs": 47,
+            "b64len": 17692
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790900317579,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790900317955,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "stopAfterMs": 375
+          }
+        }
+      ],
+      "t": {
+        "request": 1790900312989,
+        "recorderStart": 1790900306722,
+        "recorderStop": 1790900317954,
+        "cameraOpen": 1790900304703
+      }
+    }
+  ],
+  "segments": [
+    {
+      "cache": "videoTmp.mp4",
+      "fichier": "undefinedvideoTmp.mp4",
+      "octets": 13951862,
+      "sha256": "162c190f968094b2d2f589a66dcd1a2e9e1ebada69a9856cd406e7fa6d0bc43e",
+      "conteneurSec": 10.133333,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "4890000/165113",
+        "nbFrames": 163,
+        "dureeSec": 5.503767
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 10.133333
+      },
+      "continuiteVideo": {
+        "frames": 163,
+        "firstPts": 0.0147,
+        "lastPts": 5.4847,
+        "fpsMoyen": 0.034,
+        "maxGapSec": 0.034,
+        "maxGapAtSec": 3.864,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 475,
+        "firstPts": 0,
+        "lastPts": 10.112,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 8.747
+      },
+      "deficitVideoSec": 4.63,
+      "verdictVideo": "VIDEO TRONQUEE"
+    }
+  ],
+  "switches": [],
+  "pixelcopy": {
+    "avantSwitch": {
+      "ecrit": true,
+      "fichier": "evidence/jpg/01-pixelcopy-avant.jpg",
+      "octets": 69489,
+      "lumaMoyenne": 94,
+      "noir": false,
+      "erreur": null
+    },
+    "immediatApresSwitch": {
+      "ecrit": false,
+      "raison": "aucun base64"
+    },
+    "plusTardApresSwitch": {
+      "ecrit": true,
+      "fichier": "evidence/jpg/03-pixelcopy-plus-tard.jpg",
+      "octets": 13269,
+      "lumaMoyenne": 0,
+      "noir": true,
+      "erreur": null
+    }
+  },
+  "errors": [],
+  "notes": []
+}

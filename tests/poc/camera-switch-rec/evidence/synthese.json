@@ -1,0 +1,1442 @@
+{
+  "generePar": "synthese.js",
+  "lignes": [
+    {
+      "phase": "temoin",
+      "segment": {
+        "cache": "videoTmp.mp4",
+        "fichier": "undefinedvideoTmp.mp4",
+        "octets": 24025913,
+        "sha256": "b81b5d5915f14a288e3d7dc18c00eb08696332a44fb72be5540c6168a8fb9c06",
+        "conteneurSec": 9.664,
+        "video": {
+          "codec": "h264",
+          "luma": "1920x1080",
+          "fps": "8520000/287677",
+          "nbFrames": 284,
+          "dureeSec": 9.589233
+        },
+        "audio": {
+          "codec": "aac",
+          "echantillon": 48000,
+          "canaux": 1,
+          "dureeSec": 9.664
+        },
+        "continuiteVideo": {
+          "frames": 284,
+          "firstPts": 0.0161,
+          "lastPts": 9.571567,
+          "fpsMoyen": 0.034,
+          "maxGapSec": 0.034,
+          "maxGapAtSec": 8.221,
+          "trous_sup_200ms": 0
+        },
+        "continuiteAudio": {
+          "packets": 453,
+          "firstPts": 0,
+          "lastPts": 9.642667,
+          "maxGapSec": 0.021,
+          "maxGapAtSec": 8.747
+        },
+        "deficitVideoSec": 0.075,
+        "verdictVideo": "VIDEO COMPLETE"
+      }
+    },
+    {
+      "phase": "phase1",
+      "segment": {
+        "cache": "videoTmp.mp4",
+        "fichier": "undefinedvideoTmp.mp4",
+        "octets": 13951862,
+        "sha256": "162c190f968094b2d2f589a66dcd1a2e9e1ebada69a9856cd406e7fa6d0bc43e",
+        "conteneurSec": 10.133333,
+        "video": {
+          "codec": "h264",
+          "luma": "1920x1080",
+          "fps": "4890000/165113",
+          "nbFrames": 163,
+          "dureeSec": 5.503767
+        },
+        "audio": {
+          "codec": "aac",
+          "echantillon": 48000,
+          "canaux": 1,
+          "dureeSec": 10.133333
+        },
+        "continuiteVideo": {
+          "frames": 163,
+          "firstPts": 0.0147,
+          "lastPts": 5.4847,
+          "fpsMoyen": 0.034,
+          "maxGapSec": 0.034,
+          "maxGapAtSec": 3.864,
+          "trous_sup_200ms": 0
+        },
+        "continuiteAudio": {
+          "packets": 475,
+          "firstPts": 0,
+          "lastPts": 10.112,
+          "maxGapSec": 0.021,
+          "maxGapAtSec": 8.747
+        },
+        "deficitVideoSec": 4.63,
+        "verdictVideo": "VIDEO TRONQUEE"
+      },
+      "chrono": {
+        "decalageMuxMs": 1587,
+        "mortVideoMurMs": 7071,
+        "switchMurMs": 6754,
+        "mortVideoMoinsSwitchMs": 317
+      }
+    },
+    {
+      "phase": "p2a-switch-t3",
+      "segment": {
+        "cache": "videoTmp.mp4",
+        "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2a-switch-t3-videoTmp.mp4",
+        "octets": 5951221,
+        "sha256": "a389b6c68498392f31cdf8abd9a1578438018bc81bdde241f78d3dc8f64e251c",
+        "conteneurSec": 8.874667,
+        "pisteVideoPresente": true,
+        "video": {
+          "codec": "h264",
+          "luma": "1920x1080",
+          "fps": "2040000/68881",
+          "nbFrames": 68,
+          "dureeSec": 2.296033
+        },
+        "audio": {
+          "codec": "aac",
+          "echantillon": 48000,
+          "canaux": 1,
+          "dureeSec": 8.874667
+        },
+        "continuiteVideo": {
+          "frames": 68,
+          "firstPts": 0.0272,
+          "lastPts": 2.289467,
+          "intervalMoyenSec": 0.0338,
+          "fpsMoyen": 29.62,
+          "maxGapSec": 0.034,
+          "maxGapAtSec": 1.851,
+          "trous_sup_200ms": 0
+        },
+        "continuiteAudio": {
+          "packets": 416,
+          "firstPts": 0,
+          "lastPts": 8.853333,
+          "maxGapSec": 0.021,
+          "maxGapAtSec": 8.747
+        },
+        "deficitVideoSec": 6.579,
+        "verdictVideo": "VIDEO TRONQUEE"
+      },
+      "chrono": {
+        "decalageMuxMs": 1029,
+        "mortVideoMurMs": 3319,
+        "switchMurMs": 3039,
+        "mortVideoMoinsSwitchMs": 280
+      }
+    },
+    {
+      "phase": "p2b-switch-t8",
+      "segment": {
+        "cache": "videoTmp.mp4",
+        "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2b-switch-t8-videoTmp.mp4",
+        "octets": 18592945,
+        "sha256": "f46e25feaaa6750ca65e14ad5dd793d31516f100b49f6ac9a15c12dc61724e53",
+        "conteneurSec": 13.696,
+        "pisteVideoPresente": true,
+        "video": {
+          "codec": "h264",
+          "luma": "1920x1080",
+          "fps": "18000/721",
+          "nbFrames": 181,
+          "dureeSec": 7.250056
+        },
+        "audio": {
+          "codec": "aac",
+          "echantillon": 48000,
+          "canaux": 1,
+          "dureeSec": 13.696
+        },
+        "continuiteVideo": {
+          "frames": 181,
+          "firstPts": 0.038,
+          "lastPts": 7.248,
+          "intervalMoyenSec": 0.0401,
+          "fpsMoyen": 24.97,
+          "maxGapSec": 0.04,
+          "maxGapAtSec": 4.644,
+          "trous_sup_200ms": 0
+        },
+        "continuiteAudio": {
+          "packets": 642,
+          "firstPts": 0,
+          "lastPts": 13.674667,
+          "maxGapSec": 0.021,
+          "maxGapAtSec": 8.747
+        },
+        "deficitVideoSec": 6.446,
+        "verdictVideo": "VIDEO TRONQUEE"
+      },
+      "chrono": {
+        "decalageMuxMs": 971,
+        "mortVideoMurMs": 8219,
+        "switchMurMs": 7907,
+        "mortVideoMoinsSwitchMs": 312
+      }
+    },
+    {
+      "phase": "phase3",
+      "switches": [
+        {
+          "index": 0,
+          "switchOk": true,
+          "switchAfterMs": 394,
+          "deltaDepuisDebutRecMs": 1147,
+          "deltaDepuisSwitchPrecedentMs": null,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 96,
+            "noir": false
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900758470
+        },
+        {
+          "index": 1,
+          "switchOk": true,
+          "switchAfterMs": 250,
+          "deltaDepuisDebutRecMs": 4517,
+          "deltaDepuisSwitchPrecedentMs": 3370,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 0,
+            "noir": true
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900761840
+        },
+        {
+          "index": 2,
+          "switchOk": true,
+          "switchAfterMs": 370,
+          "deltaDepuisDebutRecMs": 8023,
+          "deltaDepuisSwitchPrecedentMs": 3506,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 95,
+            "noir": false
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900765346
+        },
+        {
+          "index": 3,
+          "switchOk": true,
+          "switchAfterMs": 233,
+          "deltaDepuisDebutRecMs": 11374,
+          "deltaDepuisSwitchPrecedentMs": 3351,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 0,
+            "noir": true
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900768697
+        },
+        {
+          "index": 4,
+          "switchOk": true,
+          "switchAfterMs": 355,
+          "deltaDepuisDebutRecMs": 14877,
+          "deltaDepuisSwitchPrecedentMs": 3503,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 95,
+            "noir": false
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900772200
+        }
+      ],
+      "stopEnEchec": true,
+      "segments": []
+    },
+    {
+      "phase": "phase4",
+      "segment": {
+        "cache": "p4-videoTmp.mp4",
+        "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p4-videoTmp.mp4",
+        "octets": 9150844,
+        "sha256": "3f73166a4dbd06665f81bcd967330efee020d0e62be67ea5207ae5df215d81eb",
+        "conteneurSec": 15.530667,
+        "pisteVideoPresente": true,
+        "video": {
+          "codec": "h264",
+          "luma": "1920x1080",
+          "fps": "3120000/105349",
+          "nbFrames": 104,
+          "dureeSec": 3.511633
+        },
+        "audio": {
+          "codec": "aac",
+          "echantillon": 48000,
+          "canaux": 1,
+          "dureeSec": 15.530667
+        },
+        "continuiteVideo": {
+          "frames": 104,
+          "firstPts": 0.0001,
+          "lastPts": 3.477867,
+          "intervalMoyenSec": 0.0338,
+          "fpsMoyen": 29.62,
+          "maxGapSec": 0.034,
+          "maxGapAtSec": 1.823,
+          "trous_sup_200ms": 0
+        },
+        "continuiteAudio": {
+          "packets": 728,
+          "firstPts": 0,
+          "lastPts": 15.509333,
+          "maxGapSec": 0.021,
+          "maxGapAtSec": 8.747
+        },
+        "deficitVideoSec": 12.019,
+        "verdictVideo": "VIDEO TRONQUEE"
+      },
+      "etapes": [
+        {
+          "etape": "p4-rear-avant-switch-1",
+          "cameraAttendue": "rear",
+          "pixelcopyOk": true,
+          "raison": null,
+          "luma": 91,
+          "noir": false,
+          "octets": 92226
+        },
+        {
+          "etape": "p4-apres-switch-vers-front",
+          "cameraAttendue": "front",
+          "pixelcopyOk": true,
+          "raison": null,
+          "luma": 0,
+          "noir": true,
+          "octets": 13580
+        },
+        {
+          "etape": "p4-front-stabilise",
+          "cameraAttendue": "front",
+          "pixelcopyOk": true,
+          "raison": null,
+          "luma": 0,
+          "noir": true,
+          "octets": 13616
+        },
+        {
+          "etape": "p4-retour-vers-rear",
+          "cameraAttendue": "rear",
+          "pixelcopyOk": true,
+          "raison": null,
+          "luma": 94,
+          "noir": false,
+          "octets": 52324
+        }
+      ]
+    },
+    {
+      "phase": "phase5",
+      "front": {
+        "tag": "p5-front",
+        "camera": "front",
+        "pixelcopy": {
+          "ok": true,
+          "raison": null,
+          "luma": 24,
+          "noir": false
+        },
+        "segment": {
+          "cache": "videoTmp.mp4",
+          "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p5-front-videoTmp.mp4",
+          "octets": 11769317,
+          "sha256": "03e329506c40110beb564d4f2a0c6181fdaf6a059e9dff657e22943cd773c40b",
+          "conteneurSec": 4.736,
+          "pisteVideoPresente": true,
+          "video": {
+            "codec": "h264",
+            "luma": "1920x1080",
+            "fps": "18000/721",
+            "nbFrames": 116,
+            "dureeSec": 4.646444
+          },
+          "audio": {
+            "codec": "aac",
+            "echantillon": 48000,
+            "canaux": 1,
+            "dureeSec": 4.736
+          },
+          "continuiteVideo": {
+            "frames": 116,
+            "firstPts": 0.0157,
+            "lastPts": 4.622089,
+            "intervalMoyenSec": 0.0401,
+            "fpsMoyen": 24.97,
+            "maxGapSec": 0.04,
+            "maxGapAtSec": 4.342,
+            "trous_sup_200ms": 0
+          },
+          "continuiteAudio": {
+            "packets": 222,
+            "firstPts": 0,
+            "lastPts": 4.714667,
+            "maxGapSec": 0.021,
+            "maxGapAtSec": 2.027
+          },
+          "deficitVideoSec": 0.09,
+          "verdictVideo": "VIDEO COMPLETE"
+        },
+        "framesVideo": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 12,
+            "ptsSec": 0.496367,
+            "frameTrouvee": true,
+            "luma": 25
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 35,
+            "ptsSec": 1.417644,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 58,
+            "ptsSec": 2.338922,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 81,
+            "ptsSec": 3.2602,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 104,
+            "ptsSec": 4.181478,
+            "frameTrouvee": true,
+            "luma": 24
+          }
+        ],
+        "recWallMs": 6398
+      },
+      "rear": {
+        "tag": "p5-rear",
+        "camera": "rear",
+        "pixelcopy": {
+          "ok": true,
+          "raison": null,
+          "luma": 91,
+          "noir": false
+        },
+        "segment": {
+          "cache": "videoTmp.mp4",
+          "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p5-rear-videoTmp.mp4",
+          "octets": 10991446,
+          "sha256": "0264342c82956abd7589a4fbda1a1df996e8ed07aa3bb45a66d41cd6de83e031",
+          "conteneurSec": 4.423,
+          "pisteVideoPresente": true,
+          "video": {
+            "codec": "h264",
+            "luma": "1920x1080",
+            "fps": "430000/14519",
+            "nbFrames": 129,
+            "dureeSec": 4.355644
+          },
+          "audio": {
+            "codec": "aac",
+            "echantillon": 48000,
+            "canaux": 1,
+            "dureeSec": 4.416
+          },
+          "continuiteVideo": {
+            "frames": 129,
+            "firstPts": 0,
+            "lastPts": 4.321933,
+            "intervalMoyenSec": 0.0338,
+            "fpsMoyen": 29.62,
+            "maxGapSec": 0.034,
+            "maxGapAtSec": 1.621,
+            "trous_sup_200ms": 0
+          },
+          "continuiteAudio": {
+            "packets": 207,
+            "firstPts": 0.007,
+            "lastPts": 4.401667,
+            "maxGapSec": 0.021,
+            "maxGapAtSec": 2.866
+          },
+          "deficitVideoSec": 0.06,
+          "verdictVideo": "VIDEO COMPLETE"
+        },
+        "framesVideo": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 13,
+            "ptsSec": 0.438967,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 38,
+            "ptsSec": 1.283133,
+            "frameTrouvee": true,
+            "luma": 94
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 64,
+            "ptsSec": 2.160967,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 90,
+            "ptsSec": 3.0389,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 115,
+            "ptsSec": 3.882967,
+            "frameTrouvee": true,
+            "luma": 91
+          }
+        ],
+        "recWallMs": 6070
+      }
+    },
+    {
+      "phase": "phase6",
+      "segment": {
+        "cache": "p6-long-videoTmp.mp4",
+        "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p6-long-videoTmp.mp4",
+        "octets": 23894445,
+        "sha256": "3ba9f499bf8ef20c3830e20f30b32bb37db11ed06961f462dd7c0a5942f0186b",
+        "conteneurSec": 22.229333,
+        "pisteVideoPresente": true,
+        "video": {
+          "codec": "h264",
+          "luma": "1920x1080",
+          "fps": "697500/23551",
+          "nbFrames": 279,
+          "dureeSec": 9.4204
+        },
+        "audio": {
+          "codec": "aac",
+          "echantillon": 48000,
+          "canaux": 1,
+          "dureeSec": 22.229333
+        },
+        "continuiteVideo": {
+          "frames": 279,
+          "firstPts": 0.0112,
+          "lastPts": 9.397833,
+          "intervalMoyenSec": 0.0338,
+          "fpsMoyen": 29.62,
+          "maxGapSec": 0.034,
+          "maxGapAtSec": 3.489,
+          "trous_sup_200ms": 0
+        },
+        "continuiteAudio": {
+          "packets": 1042,
+          "firstPts": 0,
+          "lastPts": 22.208,
+          "maxGapSec": 0.021,
+          "maxGapAtSec": 16.043
+        },
+        "deficitVideoSec": 12.809,
+        "verdictVideo": "VIDEO TRONQUEE"
+      }
+    },
+    {
+      "phase": "phase7b",
+      "transitions": [
+        {
+          "nom": "rear -> front",
+          "cameraA": "rear",
+          "cameraB": "front",
+          "instants": {
+            "arretRecorderA": 1790933206711,
+            "demandeSwitch": 1790933206717,
+            "ackSwitch": 1790933207103,
+            "demandeRecorderB": 1790933207107,
+            "ackRecorderB": 1790933207528,
+            "premierPixelcopyB": 1790933207581
+          },
+          "durees": {
+            "arretRecorderMs": 397,
+            "switchMs": 386,
+            "demarrageRecorderMs": 421,
+            "totalStopVersRecorderMs": 817,
+            "stopVersSwitchMs": 6,
+            "switchVersRecorderMs": 4,
+            "delaiPremierJPEGMs": 864
+          },
+          "momentsRecB": 1790933207126,
+          "cameraRelease": 1790933206998,
+          "cameraNouvelle": 1790933206998,
+          "cameraOuverte": 1790933207044,
+          "arretRecB": 1790933211960,
+          "demarrageRecBRelatif": null,
+          "cameraReleaseRelatif": 281,
+          "cameraNouvelleRelatif": 281,
+          "cameraOuverteRelatif": 327,
+          "arretRecBRelatif": 5243,
+          "contenu": {
+            "dernierVideoA": 1790933206612,
+            "dernierAudioA": 1790933206691,
+            "premierVideoB": 1790933208711,
+            "premierAudioB": 1790933208706,
+            "trouVideoMs": 2099,
+            "trouAudioMs": 2015
+          }
+        },
+        {
+          "nom": "front -> rear",
+          "cameraA": "front",
+          "cameraB": "rear",
+          "instants": {
+            "arretRecorderA": 1790933212418,
+            "demandeSwitch": 1790933212426,
+            "ackSwitch": 1790933212689,
+            "demandeRecorderB": 1790933212696,
+            "ackRecorderB": 1790933213110,
+            "premierPixelcopyB": 1790933213159
+          },
+          "durees": {
+            "arretRecorderMs": 459,
+            "switchMs": 263,
+            "demarrageRecorderMs": 414,
+            "totalStopVersRecorderMs": 692,
+            "stopVersSwitchMs": 8,
+            "switchVersRecorderMs": 7,
+            "delaiPremierJPEGMs": 733
+          },
+          "momentsRecB": 1790933212716,
+          "cameraRelease": 1790933212575,
+          "cameraNouvelle": 1790933212576,
+          "cameraOuverte": 1790933212625,
+          "arretRecB": 1790933217539,
+          "demarrageRecBRelatif": null,
+          "cameraReleaseRelatif": 149,
+          "cameraNouvelleRelatif": 150,
+          "cameraOuverteRelatif": 199,
+          "arretRecBRelatif": 5113,
+          "contenu": {
+            "dernierVideoA": 1790933212323,
+            "dernierAudioA": 1790933212397,
+            "premierVideoB": 1790933214264,
+            "premierAudioB": 1790933214247,
+            "trouVideoMs": 1941,
+            "trouAudioMs": 1850
+          }
+        }
+      ],
+      "segments": [
+        {
+          "index": 0,
+          "camera": "rear",
+          "tag": "p7b-A-rear",
+          "rec": {
+            "requestMs": 1790933201412,
+            "atMs": 1790933201885,
+            "ackAfterMs": 473
+          },
+          "stop": {
+            "ok": true,
+            "atMs": 1790933206711,
+            "stopAfterMs": 397,
+            "cachePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "cacheName": "videoTmp.mp4"
+          },
+          "sondePixelcopy": {
+            "premierSuccesMs": null,
+            "nbTentatives": 1,
+            "premiereTentative": {
+              "atMs": 1790933201972,
+              "apresSwitchMs": null,
+              "ok": true,
+              "raison": null,
+              "noir": false,
+              "luma": 98
+            },
+            "tentatives": [
+              {
+                "atMs": 1790933201972,
+                "apresSwitchMs": null,
+                "ok": true,
+                "raison": null,
+                "noir": false,
+                "luma": 98
+              }
+            ]
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p7b-A-rear-videoTmp.mp4",
+            "octets": 9114491,
+            "sha256": "3a840de35d860b4e9bce35e2ccb10c7d5ade789364dba08a2171094ccd773bb9",
+            "conteneurSec": 3.712896,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "1080000/36467",
+              "nbFrames": 108,
+              "dureeSec": 3.646578
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.712
+            },
+            "continuiteVideo": {
+              "frames": 108,
+              "firstPts": 0,
+              "lastPts": 3.612933,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.992,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 174,
+              "firstPts": 0.000896,
+              "lastPts": 3.691562,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.241
+            },
+            "deficitVideoSec": 0.065,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "attribution": "chemin exact retourne par stopRecordVideo du segment 1",
+          "framesLuma": [
+            92,
+            92,
+            92,
+            92,
+            92
+          ]
+        },
+        {
+          "index": 1,
+          "camera": "front",
+          "tag": "p7b-B-front",
+          "rec": {
+            "requestMs": 1790933207107,
+            "atMs": 1790933207528,
+            "ackAfterMs": 421
+          },
+          "stop": {
+            "ok": true,
+            "atMs": 1790933212418,
+            "stopAfterMs": 459,
+            "cachePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_1.mp4",
+            "cacheName": "videoTmp_1.mp4"
+          },
+          "sondePixelcopy": {
+            "premierSuccesMs": 864,
+            "nbTentatives": 1,
+            "premiereTentative": {
+              "atMs": 1790933207581,
+              "apresSwitchMs": 864,
+              "ok": true,
+              "raison": null,
+              "noir": false,
+              "luma": 46
+            },
+            "tentatives": [
+              {
+                "atMs": 1790933207581,
+                "apresSwitchMs": 864,
+                "ok": true,
+                "raison": null,
+                "noir": false,
+                "luma": 46
+              }
+            ]
+          },
+          "segment": {
+            "cache": "videoTmp_1.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p7b-B-front-videoTmp_1.mp4",
+            "octets": 9107517,
+            "sha256": "ff1784aa13c6cac3f33e088bc4165f581ca9ca33a1225968b8494ecab3ac64e8",
+            "conteneurSec": 3.712,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "1620000/54689",
+              "nbFrames": 108,
+              "dureeSec": 3.645933
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.712
+            },
+            "continuiteVideo": {
+              "frames": 108,
+              "firstPts": 0.0047,
+              "lastPts": 3.616878,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.929,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 174,
+              "firstPts": 0,
+              "lastPts": 3.690667,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.066,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "attribution": "chemin exact retourne par stopRecordVideo du segment 2",
+          "framesLuma": [
+            75,
+            73,
+            73,
+            73,
+            73
+          ]
+        },
+        {
+          "index": 2,
+          "camera": "rear",
+          "tag": "p7b-C-rear",
+          "rec": {
+            "requestMs": 1790933212696,
+            "atMs": 1790933213110,
+            "ackAfterMs": 414
+          },
+          "stop": {
+            "ok": true,
+            "atMs": 1790933217938,
+            "stopAfterMs": 400,
+            "cachePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_2.mp4",
+            "cacheName": "videoTmp_2.mp4"
+          },
+          "sondePixelcopy": {
+            "premierSuccesMs": 733,
+            "nbTentatives": 1,
+            "premiereTentative": {
+              "atMs": 1790933213159,
+              "apresSwitchMs": 733,
+              "ok": true,
+              "raison": null,
+              "noir": false,
+              "luma": 95
+            },
+            "tentatives": [
+              {
+                "atMs": 1790933213159,
+                "apresSwitchMs": 733,
+                "ok": true,
+                "raison": null,
+                "noir": false,
+                "luma": 95
+              }
+            ]
+          },
+          "segment": {
+            "cache": "videoTmp_2.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p7b-C-rear-videoTmp_2.mp4",
+            "octets": 9043614,
+            "sha256": "f5159ec11330dca6ec64a1830e968d87041e57f4d880b40ee1dcb1d623bb3845",
+            "conteneurSec": 3.690667,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "642000/21677",
+              "nbFrames": 107,
+              "dureeSec": 3.612833
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.690667
+            },
+            "continuiteVideo": {
+              "frames": 107,
+              "firstPts": 0.0171,
+              "lastPts": 3.596167,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.638,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 173,
+              "firstPts": 0,
+              "lastPts": 3.669333,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.078,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "attribution": "chemin exact retourne par stopRecordVideo du segment 3",
+          "framesLuma": [
+            96,
+            96,
+            96,
+            96,
+            96
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "phase8",
+      "verdict": {
+        "segmentsPrevus": 6,
+        "segmentsObtenus": 6,
+        "switchesReussis": 5,
+        "switchesPrevus": 5,
+        "segmentsAvecPisteVideo": 6,
+        "segmentsAvecContenuVisible": 6,
+        "arretPrecoce": null,
+        "rechecks": {
+          "cameraAlreadyInUse": 0,
+          "dejaRecording": 0,
+          "stopFailed": 0,
+          "exceptionsCapture": [],
+          "exceptionsSansLien": 29,
+          "fatal": 0,
+          "anr": 0,
+          "threadBloquant": 5
+        },
+        "cameraAlreadyInUsePersistante": false,
+        "succesComplet": true,
+        "synopsis": "les 5 changements segmentés sont allés au bout : 6 segments, tous avec une piste vidéo et un arrêt propre"
+      },
+      "segments": [
+        {
+          "index": 0,
+          "camera": "rear",
+          "tag": "p8-1-rear",
+          "rec": {
+            "requestMs": 1790932406494,
+            "ackMs": 1790932407010
+          },
+          "recOk": true,
+          "stop": {
+            "ok": true,
+            "raison": null,
+            "atMs": 1790932411645
+          },
+          "pixelcopy": {
+            "atMs": 1790932411122,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 93
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p8-1-rear-videoTmp.mp4",
+            "octets": 8769696,
+            "sha256": "662483f6ee233d9b66696e17ac510b715298db11d5a43abbb866502cd3fa7327",
+            "conteneurSec": 3.541333,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "193125/6521",
+              "nbFrames": 103,
+              "dureeSec": 3.477867
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.541333
+            },
+            "continuiteVideo": {
+              "frames": 103,
+              "firstPts": 0.0158,
+              "lastPts": 3.4599,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 2.008,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 166,
+              "firstPts": 0,
+              "lastPts": 3.52,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.063,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "verdict": "VIDEO COMPLETE",
+          "framesLuma": [
+            93,
+            93,
+            93
+          ]
+        },
+        {
+          "index": 1,
+          "camera": "front",
+          "tag": "p8-2-front",
+          "rec": {
+            "requestMs": 1790932417742,
+            "ackMs": 1790932418410
+          },
+          "recOk": true,
+          "stop": {
+            "ok": true,
+            "raison": null,
+            "atMs": 1790932422972
+          },
+          "pixelcopy": {
+            "atMs": 1790932422477,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 22
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p8-2-front-videoTmp.mp4",
+            "octets": 8962993,
+            "sha256": "0abc7a4a80f307ee87380dc66750c8618558e77c5f6a5c7da954d9bbd529a60a",
+            "conteneurSec": 3.629771,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "18000/721",
+              "nbFrames": 89,
+              "dureeSec": 3.564944
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.626667
+            },
+            "continuiteVideo": {
+              "frames": 89,
+              "firstPts": 0,
+              "lastPts": 3.524889,
+              "intervalMoyenSec": 0.0401,
+              "fpsMoyen": 24.97,
+              "maxGapSec": 0.04,
+              "maxGapAtSec": 2.083,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 170,
+              "firstPts": 0.003104,
+              "lastPts": 3.608437,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.03
+            },
+            "deficitVideoSec": 0.062,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "verdict": "VIDEO COMPLETE",
+          "framesLuma": [
+            23,
+            22,
+            22
+          ]
+        },
+        {
+          "index": 2,
+          "camera": "rear",
+          "tag": "p8-3-rear",
+          "rec": {
+            "requestMs": 1790932429027,
+            "ackMs": 1790932429464
+          },
+          "recOk": true,
+          "stop": {
+            "ok": true,
+            "raison": null,
+            "atMs": 1790932433947
+          },
+          "pixelcopy": {
+            "atMs": 1790932433524,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 97
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p8-3-rear-videoTmp.mp4",
+            "octets": 8309686,
+            "sha256": "cbde9875bccf6b0f58e95a2d82e4773c54d350a80bdc608712991ee137f84c85",
+            "conteneurSec": 3.392,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "2940000/99271",
+              "nbFrames": 98,
+              "dureeSec": 3.309033
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.392
+            },
+            "continuiteVideo": {
+              "frames": 98,
+              "firstPts": 0.0119,
+              "lastPts": 3.287167,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.633,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 159,
+              "firstPts": 0,
+              "lastPts": 3.370667,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.083,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "verdict": "VIDEO COMPLETE",
+          "framesLuma": [
+            97,
+            97,
+            97
+          ]
+        },
+        {
+          "index": 3,
+          "camera": "front",
+          "tag": "p8-4-front",
+          "rec": {
+            "requestMs": 1790932439759,
+            "ackMs": 1790932440352
+          },
+          "recOk": true,
+          "stop": {
+            "ok": true,
+            "raison": null,
+            "atMs": 1790932444985
+          },
+          "pixelcopy": {
+            "atMs": 1790932444440,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 20
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p8-4-front-videoTmp.mp4",
+            "octets": 8867066,
+            "sha256": "edc793845391a3692a62f524714b89fcb51dea15524c8785fb31df6c802c35be",
+            "conteneurSec": 3.605333,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "18000/721",
+              "nbFrames": 88,
+              "dureeSec": 3.524889
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.605333
+            },
+            "continuiteVideo": {
+              "frames": 88,
+              "firstPts": 0.0075,
+              "lastPts": 3.492333,
+              "intervalMoyenSec": 0.0401,
+              "fpsMoyen": 24.97,
+              "maxGapSec": 0.04,
+              "maxGapAtSec": 2.171,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 169,
+              "firstPts": 0,
+              "lastPts": 3.584,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.08,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "verdict": "VIDEO COMPLETE",
+          "framesLuma": [
+            12,
+            21,
+            20
+          ]
+        },
+        {
+          "index": 4,
+          "camera": "rear",
+          "tag": "p8-5-rear",
+          "rec": {
+            "requestMs": 1790932451114,
+            "ackMs": 1790932451583
+          },
+          "recOk": true,
+          "stop": {
+            "ok": true,
+            "raison": null,
+            "atMs": 1790932456194
+          },
+          "pixelcopy": {
+            "atMs": 1790932455660,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 97
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p8-5-rear-videoTmp.mp4",
+            "octets": 8471563,
+            "sha256": "791956aafa4f5449c8ca78c43861752c7adcf76ea3f6de786e2746e1059e7574",
+            "conteneurSec": 3.439375,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "3000000/101297",
+              "nbFrames": 100,
+              "dureeSec": 3.376467
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.434667
+            },
+            "continuiteVideo": {
+              "frames": 100,
+              "firstPts": 0,
+              "lastPts": 3.3428,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.621,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 161,
+              "firstPts": 0.004708,
+              "lastPts": 3.418042,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 3.354
+            },
+            "deficitVideoSec": 0.058,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "verdict": "VIDEO COMPLETE",
+          "framesLuma": [
+            97,
+            98,
+            97
+          ]
+        },
+        {
+          "index": 5,
+          "camera": "front",
+          "tag": "p8-6-front",
+          "rec": {
+            "requestMs": 1790932462257,
+            "ackMs": 1790932462837
+          },
+          "recOk": true,
+          "stop": {
+            "ok": true,
+            "raison": null,
+            "atMs": 1790932467461
+          },
+          "pixelcopy": {
+            "atMs": 1790932466917,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 21
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p8-6-front-videoTmp.mp4",
+            "octets": 8833927,
+            "sha256": "5233eea8330086dd1b2d803f9245c87f19d9c9abed4072645c65b46dbc0bfe67",
+            "conteneurSec": 3.605333,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "18000/721",
+              "nbFrames": 88,
+              "dureeSec": 3.524889
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.605333
+            },
+            "continuiteVideo": {
+              "frames": 88,
+              "firstPts": 0.0151,
+              "lastPts": 3.499933,
+              "intervalMoyenSec": 0.0401,
+              "fpsMoyen": 24.97,
+              "maxGapSec": 0.04,
+              "maxGapAtSec": 2.098,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 169,
+              "firstPts": 0,
+              "lastPts": 3.584,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.08,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "verdict": "VIDEO COMPLETE",
+          "framesLuma": [
+            22,
+            21,
+            21
+          ]
+        }
+      ]
+    }
+  ],
+  "verifsCoherence": [
+    {
+      "phase": "p2a-switch-t3",
+      "video": 2.296033,
+      "audio": 8.874667,
+      "coherent": true
+    },
+    {
+      "phase": "p2b-switch-t8",
+      "video": 7.250056,
+      "audio": 13.696,
+      "coherent": true
+    },
+    {
+      "phase": "phase4",
+      "video": 3.511633,
+      "audio": 15.530667,
+      "coherent": true
+    },
+    {
+      "phase": "phase6",
+      "video": 9.4204,
+      "audio": 22.229333,
+      "coherent": true
+    }
+  ],
+  "contradictions": [
+    {
+      "sujet": "camera FRONT : image noire puis image sombre mais reelle",
+      "chronologie": [
+        "phase 2 (segments p2b) : PixelCopy luma=0",
+        "phase 4 : les DEUX PixelCopy front valaient 0 (noir)",
+        "phase 5, 1er passage : video presente mais 100% noire",
+        "phase 5, 2e passage : luma 25,24,24,24,24 — image SOMBRE et reelle",
+        "phase 7b : segment front luma 75-76",
+        "phase 8 : segments front luma 21 a 25"
+      ],
+      "ceQuonSait": [
+        "la camera front n'est PAS morte : elle produit un signal video exploitable",
+        "son contenu est distinct de celui du rear (luminances disjointes)",
+        "la brightness front varie fortement d'un passage a l'autre (12 a 76)"
+      ],
+      "ceQuonNeSaitPas": [
+        "la cause de la variation (exposition, chauffage, etat partage du HAL,",
+        "session d'une autre application sur la camera avant un passage)",
+        "si le tout-noir du debut de session reviendrait sur un appareil neuf",
+        "la luminosite front n'est pas un fait stable : ne pas la coder en dur"
+      ],
+      "consequence": "aucune decision produit. Mesurer la luminosite a chaque segment.",
+      "statut": "CONTRADICTION OUVERTE, sans impact sur la faisabilite du segmentage"
+    },
+    {
+      "sujet": "phase 5, 1er passage : segment non revalidable a posteriori",
+      "chronologie": [
+        "1er passage : segment front 100% noir",
+        "2e passage : memes noms de fichiers hors depot (p5-front-videoTmp.mp4)"
+      ],
+      "ceQuonSait": [
+        "le 2e passage a ECRASE le fichier du 1er",
+        "le resultat du 1er passage n'est donc plus verifiable a posteriori"
+      ],
+      "ceQuonNeSaitPas": [
+        "le contenu exact du fichier du 1er passage, aujourd'hui detruit"
+      ],
+      "consequence": "conclusion honnete : le noir du 1er passage est NON REPRODUCTIBLE et NON REVALIDABLE. On ne peut pas dire 'le front etait noir puis s'est corrige' ; on peut dire 'le noir n'a pas ete reproduit sur 3 tentatives ulterieures'.",
+      "statut": "ARTEFACT DE CONSOIGNANCE, corrige pour l'avenir"
+    }
+  ]
+}

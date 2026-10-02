@@ -1,0 +1,439 @@
+{
+  "poc": "J09-changement-camera-pendant-REC",
+  "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc",
+  "device": null,
+  "inventory": null,
+  "phases": [
+    {
+      "phase": "phase2-attribution",
+      "runs": [
+        {
+          "tag": "p2a-switch-t3",
+          "switchAtSec": 3,
+          "recRequestMs": 1790902091747,
+          "switchRequestMs": 1790902094786,
+          "switchAckMs": 1790902095182,
+          "recStopMs": 1790902101651,
+          "deltaSwitchApresRecMs": 3435,
+          "recWallMs": 9904,
+          "segments": [
+            {
+              "cache": "videoTmp.mp4",
+              "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2a-switch-t3-videoTmp.mp4",
+              "octets": 5951221,
+              "sha256": "a389b6c68498392f31cdf8abd9a1578438018bc81bdde241f78d3dc8f64e251c",
+              "conteneurSec": 8.874667,
+              "pisteVideoPresente": true,
+              "video": {
+                "codec": "h264",
+                "luma": "1920x1080",
+                "fps": "2040000/68881",
+                "nbFrames": 68,
+                "dureeSec": 2.296033
+              },
+              "audio": {
+                "codec": "aac",
+                "echantillon": 48000,
+                "canaux": 1,
+                "dureeSec": 8.874667
+              },
+              "continuiteVideo": {
+                "frames": 68,
+                "firstPts": 0.0272,
+                "lastPts": 2.289467,
+                "intervalMoyenSec": 0.0338,
+                "fpsMoyen": 29.62,
+                "maxGapSec": 0.034,
+                "maxGapAtSec": 1.851,
+                "trous_sup_200ms": 0
+              },
+              "continuiteAudio": {
+                "packets": 416,
+                "firstPts": 0,
+                "lastPts": 8.853333,
+                "maxGapSec": 0.021,
+                "maxGapAtSec": 8.747
+              },
+              "deficitVideoSec": 6.579,
+              "verdictVideo": "VIDEO TRONQUEE"
+            }
+          ]
+        },
+        {
+          "tag": "p2b-switch-t8",
+          "switchAtSec": 8,
+          "recRequestMs": 1790902107218,
+          "switchRequestMs": 1790902115125,
+          "switchAckMs": 1790902115372,
+          "recStopMs": 1790902121885,
+          "deltaSwitchApresRecMs": 8154,
+          "recWallMs": 14667,
+          "segments": [
+            {
+              "cache": "videoTmp.mp4",
+              "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2b-switch-t8-videoTmp.mp4",
+              "octets": 18592945,
+              "sha256": "f46e25feaaa6750ca65e14ad5dd793d31516f100b49f6ac9a15c12dc61724e53",
+              "conteneurSec": 13.696,
+              "pisteVideoPresente": true,
+              "video": {
+                "codec": "h264",
+                "luma": "1920x1080",
+                "fps": "18000/721",
+                "nbFrames": 181,
+                "dureeSec": 7.250056
+              },
+              "audio": {
+                "codec": "aac",
+                "echantillon": 48000,
+                "canaux": 1,
+                "dureeSec": 13.696
+              },
+              "continuiteVideo": {
+                "frames": 181,
+                "firstPts": 0.038,
+                "lastPts": 7.248,
+                "intervalMoyenSec": 0.0401,
+                "fpsMoyen": 24.97,
+                "maxGapSec": 0.04,
+                "maxGapAtSec": 4.644,
+                "trous_sup_200ms": 0
+              },
+              "continuiteAudio": {
+                "packets": 642,
+                "firstPts": 0,
+                "lastPts": 13.674667,
+                "maxGapSec": 0.021,
+                "maxGapAtSec": 8.747
+              },
+              "deficitVideoSec": 6.446,
+              "verdictVideo": "VIDEO TRONQUEE"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "name": "startCamera.request",
+          "atMs": 1790902089302,
+          "detail": {
+            "camera": "back",
+            "w": 1006,
+            "h": 558
+          }
+        },
+        {
+          "name": "startCamera.ok",
+          "atMs": 1790902089572,
+          "detail": "Camera started"
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790902091204,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790902091747,
+          "detail": {
+            "ackAfterMs": 543
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790902091771,
+          "detail": {
+            "tag": "p2a-switch-t3-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790902091862,
+          "detail": {
+            "tag": "p2a-switch-t3-avant",
+            "afterMs": 91,
+            "b64len": 41896
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790902094786,
+          "detail": {
+            "atMs": 1790902094786
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790902095182,
+          "detail": {
+            "afterMs": 396,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790902095188,
+          "detail": {
+            "tag": "p2a-switch-t3-immediat"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790902095193,
+          "detail": {
+            "tag": "p2a-switch-t3-immediat",
+            "afterMs": 5,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790902101201,
+          "detail": {
+            "tag": "p2a-switch-t3-plus-tard"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790902101244,
+          "detail": {
+            "tag": "p2a-switch-t3-plus-tard",
+            "afterMs": 43,
+            "b64len": 17600
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790902101295,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790902101651,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "stopAfterMs": 356
+          }
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790902106617,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790902107218,
+          "detail": {
+            "ackAfterMs": 601
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790902107226,
+          "detail": {
+            "tag": "p2b-switch-t8-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790902107267,
+          "detail": {
+            "tag": "p2b-switch-t8-avant",
+            "afterMs": 41,
+            "b64len": 17736
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790902115125,
+          "detail": {
+            "atMs": 1790902115125
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790902115372,
+          "detail": {
+            "afterMs": 247,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790902115379,
+          "detail": {
+            "tag": "p2b-switch-t8-immediat"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790902115382,
+          "detail": {
+            "tag": "p2b-switch-t8-immediat",
+            "afterMs": 3,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790902121389,
+          "detail": {
+            "tag": "p2b-switch-t8-plus-tard"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790902121432,
+          "detail": {
+            "tag": "p2b-switch-t8-plus-tard",
+            "afterMs": 43,
+            "b64len": 42924
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790902121494,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790902121885,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "stopAfterMs": 391
+          }
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "cache": "p2a-switch-t3-videoTmp.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2a-switch-t3-videoTmp.mp4",
+      "octets": 5951221,
+      "sha256": "a389b6c68498392f31cdf8abd9a1578438018bc81bdde241f78d3dc8f64e251c",
+      "conteneurSec": 8.874667,
+      "pisteVideoPresente": true,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "2040000/68881",
+        "nbFrames": 68,
+        "dureeSec": 2.296033
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 8.874667
+      },
+      "continuiteVideo": {
+        "frames": 68,
+        "firstPts": 0.0272,
+        "lastPts": 2.289467,
+        "intervalMoyenSec": 0.0338,
+        "fpsMoyen": 29.62,
+        "maxGapSec": 0.034,
+        "maxGapAtSec": 1.851,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 416,
+        "firstPts": 0,
+        "lastPts": 8.853333,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 8.747
+      },
+      "deficitVideoSec": 6.579,
+      "verdictVideo": "VIDEO TRONQUEE"
+    },
+    {
+      "cache": "p2b-switch-t8-videoTmp.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2b-switch-t8-videoTmp.mp4",
+      "octets": 18592945,
+      "sha256": "f46e25feaaa6750ca65e14ad5dd793d31516f100b49f6ac9a15c12dc61724e53",
+      "conteneurSec": 13.696,
+      "pisteVideoPresente": true,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 181,
+        "dureeSec": 7.250056
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 13.696
+      },
+      "continuiteVideo": {
+        "frames": 181,
+        "firstPts": 0.038,
+        "lastPts": 7.248,
+        "intervalMoyenSec": 0.0401,
+        "fpsMoyen": 24.97,
+        "maxGapSec": 0.04,
+        "maxGapAtSec": 4.644,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 642,
+        "firstPts": 0,
+        "lastPts": 13.674667,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 8.747
+      },
+      "deficitVideoSec": 6.446,
+      "verdictVideo": "VIDEO TRONQUEE"
+    },
+    {
+      "cache": "p2b-switch-t8-videoTmp_1.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2b-switch-t8-videoTmp_1.mp4",
+      "octets": 18730579,
+      "sha256": "4bdf03db46523276d9a9d998a32fb6e4d5724d074d91fdb608451f837f2273b5",
+      "conteneurSec": 13.739375,
+      "pisteVideoPresente": true,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 183,
+        "dureeSec": 7.330167
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 13.738667
+      },
+      "continuiteVideo": {
+        "frames": 183,
+        "firstPts": 0,
+        "lastPts": 7.290111,
+        "intervalMoyenSec": 0.0401,
+        "fpsMoyen": 24.97,
+        "maxGapSec": 0.04,
+        "maxGapAtSec": 4.166,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 644,
+        "firstPts": 0.000708,
+        "lastPts": 13.718042,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 8.022
+      },
+      "deficitVideoSec": 6.408,
+      "verdictVideo": "VIDEO TRONQUEE"
+    }
+  ],
+  "switches": [],
+  "pixelcopy": {},
+  "errors": [],
+  "notes": []
+}

@@ -1,0 +1,251 @@
+{
+  "poc": "J09-changement-camera-pendant-REC",
+  "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc",
+  "device": null,
+  "inventory": null,
+  "phases": [],
+  "segments": [],
+  "switches": [],
+  "pixelcopy": {},
+  "errors": [],
+  "notes": [],
+  "sondePreviewFraiche": {
+    "sansRec": {
+      "avant": [
+        {
+          "i": 0,
+          "atMs": 1790930316004,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 97,
+          "octets": 67556,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "86354749415b33de3719de18f2cfee2f91c4bf8db76ce33c8271723e9a7e4cb2"
+        },
+        {
+          "i": 1,
+          "atMs": 1790930316902,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 97,
+          "octets": 67683,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "6455ba497a9b9d34e6c9f29ef1893d602befaa6d40ece0afd836811a94369bd5"
+        },
+        {
+          "i": 2,
+          "atMs": 1790930317738,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 97,
+          "octets": 67860,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "fb6526d3f35ac335650d098ff2325c5357db5e6c5e31b8f6e2127e9791d3dfb7"
+        }
+      ],
+      "switch": {
+        "ok": true,
+        "requestedAtMs": 1790930317815,
+        "atMs": 1790930318170,
+        "afterMs": 355
+      },
+      "apres": [
+        {
+          "i": 0,
+          "atMs": 1790930318179,
+          "ok": false,
+          "raison": "PixelCopy failed with code 3",
+          "sha256": null
+        },
+        {
+          "i": 1,
+          "atMs": 1790930319428,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 75072,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "3856cf0aef9d4d68822d32bc1849f033f591ce1a420580c3b2a381ce2458a8e5"
+        },
+        {
+          "i": 2,
+          "atMs": 1790930320780,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74698,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "eedf557cf888013034952ca9739736dd7c8de31d833d4208d7bb70b18480048b"
+        },
+        {
+          "i": 3,
+          "atMs": 1790930322118,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74647,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "9acf074a303e840808eee3ebb9cca2613f9953055816fb1b5713ba4afcdff97b"
+        },
+        {
+          "i": 4,
+          "atMs": 1790930323464,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74904,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "60a34c7d8d6ed3abc43c3c52c7fc0824f522537c9d4a7c1bfd11d4bdd4037557"
+        }
+      ],
+      "conclusion": {
+        "tousNoirs": false,
+        "tousIdentiques": false,
+        "nbImages": 4,
+        "lumaMin": 95,
+        "lumaMax": 95,
+        "octetsMin": 74647,
+        "octetsMax": 75072,
+        "interpretation": "les images VARIENT : la camera B livre des frames vivantes (H1)"
+      }
+    },
+    "avecRec": {
+      "avant": [
+        {
+          "i": 0,
+          "atMs": 1790930329772,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 96,
+          "octets": 90709,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "7997df465e1550badc53a7f515d65e7766a984c1898f23260aef3739a4a1628e"
+        },
+        {
+          "i": 1,
+          "atMs": 1790930330616,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 96,
+          "octets": 90516,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "a858d29010494c47e7e0a1e1a7c7669cc21eaba1866ed2b3791186f8bd0fc877"
+        },
+        {
+          "i": 2,
+          "atMs": 1790930331451,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 96,
+          "octets": 90718,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "f09333df6fc1c4956ae97e54404f185b1b8dadeb69c3670e5823ac1721ac2834"
+        }
+      ],
+      "switch": {
+        "ok": true,
+        "requestedAtMs": 1790930331529,
+        "atMs": 1790930331886,
+        "afterMs": 357
+      },
+      "apres": [
+        {
+          "i": 0,
+          "atMs": 1790930331898,
+          "ok": false,
+          "raison": "PixelCopy failed with code 3",
+          "sha256": null
+        },
+        {
+          "i": 1,
+          "atMs": 1790930333148,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74926,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "bf5eb31ff76c6d44e5bbd925d4f517ba21926aed38460fba3576af67cd4edca5"
+        },
+        {
+          "i": 2,
+          "atMs": 1790930334497,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74810,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "8a27afdba0fc2e657e4b803bf03e51afae34a13835d84fa64d1acfb36a2b31f0"
+        },
+        {
+          "i": 3,
+          "atMs": 1790930335831,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74655,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "46be44f57455ae174517c79939b5e7b390a0c85f2ae3557570a516d65793d959"
+        },
+        {
+          "i": 4,
+          "atMs": 1790930337166,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74668,
+          "largeur": 1339,
+          "hauteur": 752,
+          "sha256": "fc95553dd42c2797e23620fe8adab11da43ee65dfe172cb98adf778e59ea17d3"
+        }
+      ],
+      "stop": {
+        "ok": true,
+        "atMs": 1790930337663,
+        "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+        "stopAfterMs": 420
+      },
+      "conclusion": {
+        "tousNoirs": false,
+        "tousIdentiques": false,
+        "nbImages": 4,
+        "lumaMin": 95,
+        "lumaMax": 95,
+        "octetsMin": 74655,
+        "octetsMax": 74926,
+        "interpretation": "les images VARIENT : la camera B livre des frames vivantes (H1)"
+      }
+    },
+    "verdict": {
+      "sansRec": "les images VARIENT : la camera B livre des frames vivantes (H1)",
+      "avecRec": "les images VARIENT : la camera B livre des frames vivantes (H1)",
+      "coherent": "les deux situations concordent"
+    }
+  }
+}

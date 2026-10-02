@@ -1,0 +1,19 @@
+=== POC J09 — changement de caméra pendant un REC ===
+device=61d54bba7d91 (les MP4 restent sur le device)
+COLD_START serial=61d54bba7d91 pid=6674 cdp=9223
+PURGE_CACHE 1 fichier(s) .mp4 supprimes
+PLUGIN_PRETE
+INVENTAIRE {"viaCamera2":[{"cameraId":"0","facing":"rear","hardwareLevel":1,"sensorPixel":"3264x2448"},{"cameraId":"1","facing":"front","hardwareLevel":1,"sensorPixel":"2592x1944"}],"camcorderProfiles":[{"cameraId":"0","available":["480P 640x480","720P 1280x720","1080P 1920x1080","HIGH 1920x1080"]},{"cameraId":"1","available":["480P 640x480","720P 1280x720","1080P 1920x1080","HIGH 1920x1080"]}],"viaCamera1Api1":2,"dumpsysFacing":["Facing: Back","Facing: Front"]}
+
+--- phase A : ouverture preview + REC 6 s sur la caméra par défaut ---
+PREPARE {"ok":true,"reused":true,"atMs":1790900304703,"reason":"Camera already started"}
+REC_START {"ok":true,"atMs":1790900306722,"ackAfterMs":487}
+PIXELCOPY_avant ok=true afterMs=82 luma=94 noir=false
+
+--- phase B : switchCamera() PENDANT le MediaRecorder actif ---
+CACHE_AVANT_SWITCH [{"name":"videoTmp.mp4","bytes":12940001}]
+SWITCH {"ok":true,"requestedAtMs":1790900312989,"atMs":1790900313377,"afterMs":388}
+PIXELCOPY_immediat ok=false reason=PixelCopy failed with code 3 afterMs=7 luma=undefined
+PIXELCOPY_plus_tard ok=true reason=— afterMs=47 luma=0 NOIR=true
+CACHE_APRES_SWITCH videoTmp.mp4=13060321
+REC_STOP {"ok":true,"atMs":1790900317954,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":375}

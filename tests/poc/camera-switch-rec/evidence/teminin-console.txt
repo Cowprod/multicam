@@ -1,0 +1,9 @@
+=== POC J09 — TEMOIN sans switch (groupe de contrôle) ===
+COLD_START serial=61d54bba7d91 pid=5855 cdp=9223
+PURGE_CACHE 0 fichier(s) .mp4 supprimes
+PLUGIN_PRETE
+PREPARE {"ok":true,"atMs":1790900272110,"detail":"Camera started"}
+REC_START {"ok":true,"atMs":1790900274196,"ackAfterMs":561}
+PIXELCOPY_avant ok=true afterMs=80 luma=94 noir=false
+PIXELCOPY_milieu ok=true afterMs=68 luma=92 noir=false
+REC_STOP {"ok":true,"atMs":1790900284964,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":422}

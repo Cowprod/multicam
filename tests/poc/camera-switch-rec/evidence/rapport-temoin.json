@@ -1,0 +1,151 @@
+{
+  "poc": "J09-changement-camera-pendant-REC",
+  "device": null,
+  "inventory": null,
+  "phases": [
+    {
+      "phase": "temoin",
+      "events": [
+        {
+          "name": "startCamera.request",
+          "atMs": 1790900271463,
+          "detail": {
+            "camera": "back",
+            "w": 1006,
+            "h": 558
+          }
+        },
+        {
+          "name": "startCamera.ok",
+          "atMs": 1790900272110,
+          "detail": "Camera started"
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790900273635,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790900274196,
+          "detail": {
+            "ackAfterMs": 561
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900274202,
+          "detail": {
+            "tag": "teminin-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900274282,
+          "detail": {
+            "tag": "teminin-avant",
+            "afterMs": 80,
+            "b64len": 93240
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900280396,
+          "detail": {
+            "tag": "teminin-milieu"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900280464,
+          "detail": {
+            "tag": "teminin-milieu",
+            "afterMs": 68,
+            "b64len": 124832
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790900284542,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790900284964,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "stopAfterMs": 422
+          }
+        }
+      ],
+      "t": {
+        "recorderStart": 1790900274196,
+        "recorderStop": 1790900284964,
+        "cameraOpen": 1790900272110
+      }
+    }
+  ],
+  "segments": [
+    {
+      "cache": "videoTmp.mp4",
+      "fichier": "undefinedvideoTmp.mp4",
+      "octets": 24025913,
+      "sha256": "b81b5d5915f14a288e3d7dc18c00eb08696332a44fb72be5540c6168a8fb9c06",
+      "conteneurSec": 9.664,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "8520000/287677",
+        "nbFrames": 284,
+        "dureeSec": 9.589233
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 9.664
+      },
+      "continuiteVideo": {
+        "frames": 284,
+        "firstPts": 0.0161,
+        "lastPts": 9.571567,
+        "fpsMoyen": 0.034,
+        "maxGapSec": 0.034,
+        "maxGapAtSec": 8.221,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 453,
+        "firstPts": 0,
+        "lastPts": 9.642667,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 8.747
+      },
+      "deficitVideoSec": 0.075,
+      "verdictVideo": "VIDEO COMPLETE"
+    }
+  ],
+  "switches": [],
+  "pixelcopy": {
+    "avant": {
+      "ecrit": true,
+      "fichier": "evidence/jpg/10-teminin-pixelcopy-avant.jpg",
+      "octets": 69929,
+      "lumaMoyenne": 94,
+      "noir": false,
+      "erreur": null
+    },
+    "milieu": {
+      "ecrit": true,
+      "fichier": "evidence/jpg/11-teminin-pixelcopy-milieu.jpg",
+      "octets": 93622,
+      "lumaMoyenne": 92,
+      "noir": false,
+      "erreur": null
+    }
+  },
+  "errors": [],
+  "notes": []
+}

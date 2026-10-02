@@ -1,0 +1,39 @@
+=== POC J09 — sonde FRONT : morte, ou noire seulement en enregistrement ? ===
+media_hors_depot=/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc
+COLD_START serial=61d54bba7d91 pid=29667 cdp=9223
+PURGE_CACHE 1
+PREPARE {"ok":true,"atMs":1790930463633,"detail":"Camera started"}
+
+--- C. caméra 1 ouverte, AUCUN REC ---
+  sf-C-sansrec-0.jpg ok=true luma=95 octets=74726
+  sf-C-sansrec-1.jpg ok=true luma=95 octets=74715
+  sf-C-sansrec-2.jpg ok=true luma=95 octets=74746
+  => {"n":3,"lumaMin":95,"lumaMax":95,"octetsMin":74715,"tousNoirs":false,"etat":"VIVANT"}
+
+--- D. REC démarré sur la caméra 1 ---
+PURGE_CACHE 0
+  REC_START {"ok":true,"atMs":1790930469415,"ackAfterMs":614,"requestMs":1790930468801}
+  sf-D-avecrec-0.jpg ok=true luma=23 octets=73449
+  sf-D-avecrec-1.jpg ok=true luma=22 octets=72616
+  sf-D-avecrec-2.jpg ok=true luma=22 octets=72634
+  => {"n":3,"lumaMin":22,"lumaMax":23,"octetsMin":72616,"tousNoirs":false,"etat":"VIVANT"}
+  REC_STOP ok=true
+
+--- E. REC arrêté, toujours caméra 1 ---
+  sf-E-apresrec-0.jpg ok=true luma=82 octets=70524
+  sf-E-apresrec-1.jpg ok=true luma=83 octets=71075
+  sf-E-apresrec-2.jpg ok=true luma=84 octets=71144
+  => {"n":3,"lumaMin":82,"lumaMax":84,"octetsMin":70524,"tousNoirs":false,"etat":"VIVANT"}
+
+  segment : video=5.367444s audio=5.44s verdict=VIDEO COMPLETE
+  lumas des frames du fichier FRONT : [26,24,23,22,22]
+
+  cameraCurrentlyLocked annonce au demarrage : inconnu
+
+--- verdict ---
+  C sans REC      : VIVANT
+  D avec REC      : VIVANT
+  E apres REC     : VIVANT
+  fichier FRONT   : VIDEO COMPLETE
+
+  combinaison inattendue (C=VIVANT, D=VIVANT, E=VIVANT) : à analyser avant toute conclusion.

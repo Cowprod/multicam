@@ -1,0 +1,80 @@
+=== POC J09 — phase 8 : 5 changements segmentes consecutifs ===
+plan : rear -> front -> rear -> front -> rear -> front
+duree par segment : 4 s
+media_hors_depot=/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc
+COLD_START serial=61d54bba7d91 pid=9520 cdp=9223
+PURGE_CACHE 1
+PLUGIN_PRETE
+PREPARE {"ok":true,"atMs":1790932403864,"detail":"Camera started"}
+
+=== segment 1/6 : rear ===
+PURGE_CACHE 0
+  REC_START ok=true
+  PixelCopy ok=true luma=93 noir=false
+  REC_STOP ok=true
+  segment : video=3.477867s/103f audio=3.541333s verdict=VIDEO COMPLETE
+  lumas frames : [93,93,93]
+  SWITCH ok=true apresMs=392
+  WebView vivant apres switch : true (latence 4 ms)
+
+=== segment 2/6 : front ===
+PURGE_CACHE 1
+  REC_START ok=true
+  PixelCopy ok=true luma=22 noir=false
+  REC_STOP ok=true
+  segment : video=3.564944s/89f audio=3.626667s verdict=VIDEO COMPLETE
+  lumas frames : [23,22,22]
+  SWITCH ok=true apresMs=290
+  WebView vivant apres switch : true (latence 4 ms)
+
+=== segment 3/6 : rear ===
+PURGE_CACHE 1
+  REC_START ok=true
+  PixelCopy ok=true luma=97 noir=false
+  REC_STOP ok=true
+  segment : video=3.309033s/98f audio=3.392s verdict=VIDEO COMPLETE
+  lumas frames : [97,97,97]
+  SWITCH ok=true apresMs=399
+  WebView vivant apres switch : true (latence 6 ms)
+
+=== segment 4/6 : front ===
+PURGE_CACHE 1
+  REC_START ok=true
+  PixelCopy ok=true luma=20 noir=false
+  REC_STOP ok=true
+  segment : video=3.524889s/88f audio=3.605333s verdict=VIDEO COMPLETE
+  lumas frames : [12,21,20]
+  SWITCH ok=true apresMs=284
+  WebView vivant apres switch : true (latence 3 ms)
+
+=== segment 5/6 : rear ===
+PURGE_CACHE 1
+  REC_START ok=true
+  PixelCopy ok=true luma=97 noir=false
+  REC_STOP ok=true
+  segment : video=3.376467s/100f audio=3.434667s verdict=VIDEO COMPLETE
+  lumas frames : [97,98,97]
+  SWITCH ok=true apresMs=374
+  WebView vivant apres switch : true (latence 4 ms)
+
+=== segment 6/6 : front ===
+PURGE_CACHE 1
+  REC_START ok=true
+  PixelCopy ok=true luma=21 noir=false
+  REC_STOP ok=true
+  segment : video=3.524889s/88f audio=3.605333s verdict=VIDEO COMPLETE
+  lumas frames : [22,21,21]
+
+--- robustesse (logcat natif) ---
+  cameraAlreadyInUse : 0
+  dejaRecording : 0
+  stopFailed : 0
+  exceptionsCapture : 0
+  exceptionsSansLien : 29
+  fatal : 0
+  anr : 0
+  threadBloquant : 5
+
+--- verdict phase 8 ---
+  les 5 changements segmentés sont allés au bout : 6 segments, tous avec une piste vidéo et un arrêt propre
+  segments avec contenu visible : 6/6

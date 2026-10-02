@@ -1,0 +1,24 @@
+=== POC J09 — phase 5 : FRONT pur vs REAR pur, aucun switch ===
+media_hors_depot=/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc
+COLD_START serial=61d54bba7d91 pid=30896 cdp=9223
+PURGE_CACHE 1
+PREPARE {"ok":true,"atMs":1790930532029,"detail":"Camera started"}
+
+--- segment p5-front (camera=front, AUCUN switch) ---
+PURGE_CACHE 0
+REC_START {"ok":true,"atMs":1790930534793,"ackAfterMs":658,"requestMs":1790930534135}
+PIXELCOPY luma=24 noir=false
+REC_STOP {"ok":true,"atMs":1790930540533,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":457}
+SEGMENTS [{"cache":"videoTmp.mp4","mediaHorsDepot":"/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p5-front-videoTmp.mp4","octets":11769317,"sha256":"03e329506c40110beb564d4f2a0c6181fdaf6a059e9dff657e22943cd773c40b","conteneurSec":4.736,"pisteVideoPresente":true,"video":{"codec":"h264","luma":"1920x1080","fps":"18000/721","nbFrames":116,"dureeSec":4.646444},"audio":{"codec":"aac","echantillon":48000,"canaux":1,"dureeSec":4.736},"continuiteVideo":{"frames":116,"firstPts":0.0157,"lastPts":4.622089,"intervalMoyenSec":0.0401,"fpsMoyen":24.97,"maxGapSec":0.04,"maxGapAtSec":4.342,"trous_sup_200ms":0},"continuiteAudio":{"packets":222,"firstPts":0,"lastPts":4.714667,"maxGapSec":0.021,"maxGapAtSec":2.027},"deficitVideoSec":0.09,"verdictVideo":"VIDEO COMPLETE"}]
+FRAMES_VIDEO [{"positionDemandee":0.1,"indexFrame":12,"ptsSec":0.496367,"frameTrouvee":true,"luma":25},{"positionDemandee":0.3,"indexFrame":35,"ptsSec":1.417644,"frameTrouvee":true,"luma":24},{"positionDemandee":0.5,"indexFrame":58,"ptsSec":2.338922,"frameTrouvee":true,"luma":24},{"positionDemandee":0.7,"indexFrame":81,"ptsSec":3.2602,"frameTrouvee":true,"luma":24},{"positionDemandee":0.9,"indexFrame":104,"ptsSec":4.181478,"frameTrouvee":true,"luma":24}]
+
+bascule REAR (hors REC, entre deux segments)
+SWITCH_HS {"ok":true,"requestedAtMs":1790930546845,"atMs":1790930547095,"afterMs":250}
+
+--- segment p5-rear (camera=rear, AUCUN switch) ---
+PURGE_CACHE 1
+REC_START {"ok":true,"atMs":1790930550760,"ackAfterMs":453,"requestMs":1790930550307}
+PIXELCOPY luma=91 noir=false
+REC_STOP {"ok":true,"atMs":1790930556377,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":473}
+SEGMENTS [{"cache":"videoTmp.mp4","mediaHorsDepot":"/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p5-rear-videoTmp.mp4","octets":10991446,"sha256":"0264342c82956abd7589a4fbda1a1df996e8ed07aa3bb45a66d41cd6de83e031","conteneurSec":4.423,"pisteVideoPresente":true,"video":{"codec":"h264","luma":"1920x1080","fps":"430000/14519","nbFrames":129,"dureeSec":4.355644},"audio":{"codec":"aac","echantillon":48000,"canaux":1,"dureeSec":4.416},"continuiteVideo":{"frames":129,"firstPts":0,"lastPts":4.321933,"intervalMoyenSec":0.0338,"fpsMoyen":29.62,"maxGapSec":0.034,"maxGapAtSec":1.621,"trous_sup_200ms":0},"continuiteAudio":{"packets":207,"firstPts":0.007,"lastPts":4.401667,"maxGapSec":0.021,"maxGapAtSec":2.866},"deficitVideoSec":0.06,"verdictVideo":"VIDEO COMPLETE"}]
+FRAMES_VIDEO [{"positionDemandee":0.1,"indexFrame":13,"ptsSec":0.438967,"frameTrouvee":true,"luma":93},{"positionDemandee":0.3,"indexFrame":38,"ptsSec":1.283133,"frameTrouvee":true,"luma":94},{"positionDemandee":0.5,"indexFrame":64,"ptsSec":2.160967,"frameTrouvee":true,"luma":93},{"positionDemandee":0.7,"indexFrame":90,"ptsSec":3.0389,"frameTrouvee":true,"luma":92},{"positionDemandee":0.9,"indexFrame":115,"ptsSec":3.882967,"frameTrouvee":true,"luma":91}]

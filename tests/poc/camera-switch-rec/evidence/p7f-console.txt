@@ -1,0 +1,49 @@
+=== POC J09 — phase 7 : vrai scenario segmente REAR -> FRONT -> REAR ===
+duree par segment : 6 s
+media_hors_depot=/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc
+COLD_START serial=61d54bba7d91 pid=5947 cdp=9223
+PURGE_CACHE 1
+PLUGIN_PRETE
+PREPARE {"ok":true,"atMs":1790931544954,"detail":"Camera started"}
+
+--- segment p7f-A-rear (camera=rear) ---
+PURGE_CACHE 0
+  REC_START {"ok":true,"atMs":1790931548101,"ackAfterMs":498,"requestMs":1790931547603}
+  REC_STOP {"ok":true,"atMs":1790931554758,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":433}
+  segment : video=5.469867s audio=5.525333s verdict=VIDEO COMPLETE octets=13770936
+
+=== TRANSITION 1 : arret du recorder A, switch REAR -> FRONT, demarrage recorder B ===
+  SWITCH ok=true apresMs=419
+  premier PixelCopy B : ok=false apresSwitchMs=444 luma=undefined noir=undefined raison=PixelCopy failed with code 3
+
+--- segment p7f-B-front (camera=front) ---
+PURGE_CACHE 1
+  REC_START {"ok":true,"atMs":1790931559965,"ackAfterMs":595,"requestMs":1790931559370}
+  REC_STOP {"ok":true,"atMs":1790931566555,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":447}
+  segment : video=5.487611s audio=5.589333s verdict=VIDEO COMPLETE octets=13822546
+
+=== TRANSITION 2 : arret du recorder B, switch FRONT -> REAR, demarrage recorder C ===
+  SWITCH ok=true apresMs=278
+  premier PixelCopy C : ok=false apresSwitchMs=291 luma=undefined noir=undefined raison=PixelCopy failed with code 3
+
+--- segment p7f-C-rear (camera=rear) ---
+PURGE_CACHE 1
+  REC_START {"ok":true,"atMs":1790931571628,"ackAfterMs":467,"requestMs":1790931571161}
+  REC_STOP {"ok":true,"atMs":1790931578221,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":437}
+  segment : video=5.402344s audio=5.44s verdict=VIDEO COMPLETE octets=13594410
+
+MARQUEURS_NATIFS {"startingRecording":[1790931547637,1790931559390,1790931571183],"stopRecord":[1790931554328,1790931566110,1790931577786],"switchEntree":[1790931558728,1790931570704],"cameraRelease":[1790931559011,1790931570861],"cameraNouvelle":[1790931559011,1790931570861],"cameraOuverte":[1790931559063,1790931570916]}
+  transition 1 REAR vers FRONT : release A a 288 ms, camera B ouverte a 340 ms apres la demande de switch
+  transition 2 FRONT vers REAR : release A a 161 ms, camera B ouverte a 216 ms apres la demande de switch
+
+  TROU p7f-A-rear -> p7f-B-front
+    mur entre la fin de A et le debut de B : 4612 ms
+    trou VIDEO : 6415 ms
+    trou AUDIO : 6324 ms
+    delai avant premier JPEG caméra B : 444 ms
+
+  TROU p7f-B-front -> p7f-C-rear
+    mur entre la fin de A et le debut de B : 4606 ms
+    trou VIDEO : 6218 ms
+    trou AUDIO : 6125 ms
+    delai avant premier JPEG caméra B : 291 ms

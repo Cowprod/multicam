@@ -1,0 +1,1983 @@
+{
+  "segments": [
+    {
+      "rapport": "rapport-p7f.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p7f-C-rear-videoTmp.mp4",
+      "octets": 13594410,
+      "sha256": "291cb8c8d2835f99866d342b41dded79ee6b992a469a7f38ae25ae6c3994e43a",
+      "structure": {
+        "conteneurSec": 5.4455,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "4800000/162071",
+        "nbFrames": 160,
+        "dureeVideoSec": 5.402344,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 5.44,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.038
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 16,
+            "ptsSec": 0.540267,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 48,
+            "ptsSec": 1.6207,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 80,
+            "ptsSec": 2.701233,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 111,
+            "ptsSec": 3.7479,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 143,
+            "ptsSec": 4.828433,
+            "frameTrouvee": true,
+            "luma": 92
+          }
+        ],
+        "lumas": [
+          92,
+          92,
+          92,
+          93,
+          92
+        ],
+        "lumaMin": 92,
+        "lumaMax": 93,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-p7f.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p7f-A-rear-videoTmp.mp4",
+      "octets": 13770936,
+      "sha256": "a548a6ab4812734e62fedca2c815bdf19eb4c20a153c4aac3a70bfd37b39adec",
+      "structure": {
+        "conteneurSec": 5.527729,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "540000/18233",
+        "nbFrames": 162,
+        "dureeVideoSec": 5.469867,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 5.525333,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.055
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 16,
+            "ptsSec": 0.540267,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 48,
+            "ptsSec": 1.6207,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 81,
+            "ptsSec": 2.735,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 113,
+            "ptsSec": 3.815433,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 145,
+            "ptsSec": 4.895867,
+            "frameTrouvee": true,
+            "luma": 93
+          }
+        ],
+        "lumas": [
+          93,
+          93,
+          93,
+          93,
+          93
+        ],
+        "lumaMin": 93,
+        "lumaMax": 93,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-p7f.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "front",
+      "dispo": true,
+      "fichier": "p7f-B-front-videoTmp.mp4",
+      "octets": 13822546,
+      "sha256": "a6ae4e5b8f7615ae9e47a1469d95d2d3034ad1e7226d87eaa9cf793a47c7fe04",
+      "structure": {
+        "conteneurSec": 5.589333,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 137,
+        "dureeVideoSec": 5.487611,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 5.589333,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.102
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 14,
+            "ptsSec": 0.582378,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 41,
+            "ptsSec": 1.663878,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 68,
+            "ptsSec": 2.745378,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 95,
+            "ptsSec": 3.826878,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 122,
+            "ptsSec": 4.908378,
+            "frameTrouvee": true,
+            "luma": 23
+          }
+        ],
+        "lumas": [
+          24,
+          23,
+          23,
+          23,
+          23
+        ],
+        "lumaMin": 23,
+        "lumaMax": 24,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase1.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": null,
+      "fichier": null,
+      "octets": 13951862,
+      "sha256": "162c190f968094b2d2f589a66dcd1a2e9e1ebada69a9856cd406e7fa6d0bc43e",
+      "structure": {
+        "conteneurSec": 10.133333,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "4890000/165113",
+        "nbFrames": 163,
+        "dureeVideoSec": 5.503767,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 10.133333,
+        "verdictVideo": "VIDEO TRONQUEE",
+        "deficitVideoSec": 4.63
+      },
+      "decodage": null,
+      "contenu": null,
+      "statut": "FICHIER ABSENT (rejouer backfill-segments.js)"
+    },
+    {
+      "rapport": "rapport-phase2.json",
+      "cache": "p2a-switch-t3-videoTmp.mp4",
+      "cameraAttendue": null,
+      "dispo": true,
+      "fichier": "p2a-switch-t3-videoTmp.mp4",
+      "octets": 5951221,
+      "sha256": "a389b6c68498392f31cdf8abd9a1578438018bc81bdde241f78d3dc8f64e251c",
+      "structure": {
+        "conteneurSec": 8.874667,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "2040000/68881",
+        "nbFrames": 68,
+        "dureeVideoSec": 2.296033,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 8.874667,
+        "verdictVideo": "VIDEO TRONQUEE",
+        "deficitVideoSec": 6.579
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 7,
+            "ptsSec": 0.263567,
+            "frameTrouvee": true,
+            "luma": 99
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 20,
+            "ptsSec": 0.702533,
+            "frameTrouvee": true,
+            "luma": 99
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 34,
+            "ptsSec": 1.175267,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 47,
+            "ptsSec": 1.614233,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 60,
+            "ptsSec": 2.0531,
+            "frameTrouvee": true,
+            "luma": 99
+          }
+        ],
+        "lumas": [
+          99,
+          99,
+          98,
+          98,
+          99
+        ],
+        "lumaMin": 98,
+        "lumaMax": 99,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "STRUCTURE VALIDE mais video tronquee"
+    },
+    {
+      "rapport": "rapport-phase2.json",
+      "cache": "p2b-switch-t8-videoTmp.mp4",
+      "cameraAttendue": null,
+      "dispo": true,
+      "fichier": "p2b-switch-t8-videoTmp.mp4",
+      "octets": 18592945,
+      "sha256": "f46e25feaaa6750ca65e14ad5dd793d31516f100b49f6ac9a15c12dc61724e53",
+      "structure": {
+        "conteneurSec": 13.696,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 181,
+        "dureeVideoSec": 7.250056,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 13.696,
+        "verdictVideo": "VIDEO TRONQUEE",
+        "deficitVideoSec": 6.446
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 18,
+            "ptsSec": 0.759,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 54,
+            "ptsSec": 2.201,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 90,
+            "ptsSec": 3.643,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 126,
+            "ptsSec": 5.085,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 162,
+            "ptsSec": 6.527,
+            "frameTrouvee": true,
+            "luma": 0
+          }
+        ],
+        "lumas": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "lumaMin": 0,
+        "lumaMax": 0,
+        "tousNoirs": true,
+        "toutesTrouvees": true
+      },
+      "statut": "VIDEO NOIRE : aucune image exploitable"
+    },
+    {
+      "rapport": "rapport-phase2.json",
+      "cache": "p2b-switch-t8-videoTmp_1.mp4",
+      "cameraAttendue": null,
+      "dispo": true,
+      "fichier": "p2b-switch-t8-videoTmp_1.mp4",
+      "octets": 18730579,
+      "sha256": "4bdf03db46523276d9a9d998a32fb6e4d5724d074d91fdb608451f837f2273b5",
+      "structure": {
+        "conteneurSec": 13.739375,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 183,
+        "dureeVideoSec": 7.330167,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 13.738667,
+        "verdictVideo": "VIDEO TRONQUEE",
+        "deficitVideoSec": 6.408
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 18,
+            "ptsSec": 0.721,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 55,
+            "ptsSec": 2.203056,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 91,
+            "ptsSec": 3.645056,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 127,
+            "ptsSec": 5.087056,
+            "frameTrouvee": true,
+            "luma": 0
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 164,
+            "ptsSec": 6.569111,
+            "frameTrouvee": true,
+            "luma": 0
+          }
+        ],
+        "lumas": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "lumaMin": 0,
+        "lumaMax": 0,
+        "tousNoirs": true,
+        "toutesTrouvees": true
+      },
+      "statut": "VIDEO NOIRE : aucune image exploitable"
+    },
+    {
+      "rapport": "rapport-phase3.json",
+      "cache": "p3-relance-videoTmp.mp4",
+      "cameraAttendue": null,
+      "dispo": true,
+      "fichier": "p3-relance-videoTmp.mp4",
+      "octets": 406389,
+      "sha256": "e2125ade1318784df0dd43d1faf807ee7d9a2622b52d777daf36662ecc84e502",
+      "structure": {
+        "conteneurSec": 16.618667,
+        "codecVideo": null,
+        "resolution": null,
+        "fps": null,
+        "nbFrames": null,
+        "dureeVideoSec": null,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 16.618667,
+        "verdictVideo": "AUCUNE PISTE VIDEO (fichier audio seul)",
+        "deficitVideoSec": null
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "sansPisteVideo": true
+      },
+      "statut": "SANS PISTE VIDEO (audio seul)"
+    },
+    {
+      "rapport": "rapport-phase3.json",
+      "cache": "p3-relance-videoTmp_1.mp4",
+      "cameraAttendue": null,
+      "dispo": true,
+      "fichier": "p3-relance-videoTmp_1.mp4",
+      "octets": 3288,
+      "sha256": "098af3f199fb2ddfacdb657ef074c0054494245fea13d7254297072c49fd7582",
+      "structure": {
+        "conteneurSec": null,
+        "codecVideo": null,
+        "resolution": null,
+        "fps": null,
+        "nbFrames": null,
+        "dureeVideoSec": null,
+        "codecAudio": null,
+        "echantillon": null,
+        "canaux": null,
+        "dureeAudioSec": null,
+        "verdictVideo": "AUCUNE PISTE VIDEO (fichier audio seul)",
+        "deficitVideoSec": null
+      },
+      "decodage": {
+        "ok": false,
+        "sansFlux": true,
+        "nbErreurs": 3,
+        "erreurs": [
+          "[out#0/null @ 0xaff0203c0] Output file does not contain any stream",
+          "Error opening output file -.",
+          "Error opening output files: Invalid argument"
+        ]
+      },
+      "contenu": {
+        "sansPisteVideo": true
+      },
+      "statut": "CONTENEUR VIDE : aucun flux (video ni audio)"
+    },
+    {
+      "rapport": "rapport-phase4.json",
+      "cache": "p4-videoTmp.mp4",
+      "cameraAttendue": "rear->front->rear",
+      "dispo": true,
+      "fichier": "p4-videoTmp.mp4",
+      "octets": 9150844,
+      "sha256": "3f73166a4dbd06665f81bcd967330efee020d0e62be67ea5207ae5df215d81eb",
+      "structure": {
+        "conteneurSec": 15.530667,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "3120000/105349",
+        "nbFrames": 104,
+        "dureeVideoSec": 3.511633,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 15.530667,
+        "verdictVideo": "VIDEO TRONQUEE",
+        "deficitVideoSec": 12.019
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 10,
+            "ptsSec": 0.337767,
+            "frameTrouvee": true,
+            "luma": 91
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 31,
+            "ptsSec": 1.046867,
+            "frameTrouvee": true,
+            "luma": 91
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 52,
+            "ptsSec": 1.755867,
+            "frameTrouvee": true,
+            "luma": 91
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 72,
+            "ptsSec": 2.4312,
+            "frameTrouvee": true,
+            "luma": 91
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 93,
+            "ptsSec": 3.1403,
+            "frameTrouvee": true,
+            "luma": 91
+          }
+        ],
+        "lumas": [
+          91,
+          91,
+          91,
+          91,
+          91
+        ],
+        "lumaMin": 91,
+        "lumaMax": 91,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "STRUCTURE VALIDE mais video tronquee"
+    },
+    {
+      "rapport": "rapport-phase5.json",
+      "cache": "p5-front-videoTmp.mp4",
+      "cameraAttendue": "front",
+      "dispo": true,
+      "fichier": "p5-front-videoTmp.mp4",
+      "octets": 11769317,
+      "sha256": "03e329506c40110beb564d4f2a0c6181fdaf6a059e9dff657e22943cd773c40b",
+      "structure": {
+        "conteneurSec": 4.736,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 116,
+        "dureeVideoSec": 4.646444,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 4.736,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.09
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 12,
+            "ptsSec": 0.496367,
+            "frameTrouvee": true,
+            "luma": 25
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 35,
+            "ptsSec": 1.417644,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 58,
+            "ptsSec": 2.338922,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 81,
+            "ptsSec": 3.2602,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 104,
+            "ptsSec": 4.181478,
+            "frameTrouvee": true,
+            "luma": 24
+          }
+        ],
+        "lumas": [
+          25,
+          24,
+          24,
+          24,
+          24
+        ],
+        "lumaMin": 24,
+        "lumaMax": 25,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase5.json",
+      "cache": "p5-rear-videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p5-rear-videoTmp.mp4",
+      "octets": 10991446,
+      "sha256": "0264342c82956abd7589a4fbda1a1df996e8ed07aa3bb45a66d41cd6de83e031",
+      "structure": {
+        "conteneurSec": 4.423,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "430000/14519",
+        "nbFrames": 129,
+        "dureeVideoSec": 4.355644,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 4.416,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.06
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 13,
+            "ptsSec": 0.438967,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 38,
+            "ptsSec": 1.283133,
+            "frameTrouvee": true,
+            "luma": 94
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 64,
+            "ptsSec": 2.160967,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 90,
+            "ptsSec": 3.0389,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 115,
+            "ptsSec": 3.882967,
+            "frameTrouvee": true,
+            "luma": 91
+          }
+        ],
+        "lumas": [
+          93,
+          94,
+          93,
+          92,
+          91
+        ],
+        "lumaMin": 91,
+        "lumaMax": 94,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase5.json",
+      "cache": "p5-rear-videoTmp_1.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p5-rear-videoTmp_1.mp4",
+      "octets": 10908141,
+      "sha256": "39614968e8404366e1bef4ae4e353c2c386556e8f5675a4e68284073a7aa3353",
+      "structure": {
+        "conteneurSec": 4.380625,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "1920000/64829",
+        "nbFrames": 128,
+        "dureeVideoSec": 4.321867,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 4.373333,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.051
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 13,
+            "ptsSec": 0.438967,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 38,
+            "ptsSec": 1.283133,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 64,
+            "ptsSec": 2.160967,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 89,
+            "ptsSec": 3.005133,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 114,
+            "ptsSec": 3.8492,
+            "frameTrouvee": true,
+            "luma": 98
+          }
+        ],
+        "lumas": [
+          98,
+          98,
+          98,
+          98,
+          98
+        ],
+        "lumaMin": 98,
+        "lumaMax": 98,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase6.json",
+      "cache": "p6-long-videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p6-long-videoTmp.mp4",
+      "octets": 23894445,
+      "sha256": "3ba9f499bf8ef20c3830e20f30b32bb37db11ed06961f462dd7c0a5942f0186b",
+      "structure": {
+        "conteneurSec": 22.229333,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "697500/23551",
+        "nbFrames": 279,
+        "dureeVideoSec": 9.4204,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 22.229333,
+        "verdictVideo": "VIDEO TRONQUEE",
+        "deficitVideoSec": 12.809
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 28,
+            "ptsSec": 0.956667,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 83,
+            "ptsSec": 2.813733,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 139,
+            "ptsSec": 4.704567,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 195,
+            "ptsSec": 6.5953,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 250,
+            "ptsSec": 8.452367,
+            "frameTrouvee": true,
+            "luma": 93
+          }
+        ],
+        "lumas": [
+          93,
+          93,
+          93,
+          93,
+          93
+        ],
+        "lumaMin": 93,
+        "lumaMax": 93,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "STRUCTURE VALIDE mais video tronquee"
+    },
+    {
+      "rapport": "rapport-phase7.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p7-C-rear-videoTmp.mp4",
+      "octets": 13368296,
+      "sha256": "7c3411f19f96470aa398b3e611d6d7c7023ba9c01e7f7a32a15c568dd5b6e676",
+      "structure": {
+        "conteneurSec": 5.418667,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "948000/32009",
+        "nbFrames": 158,
+        "dureeVideoSec": 5.334833,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 5.418667,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.084
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 16,
+            "ptsSec": 0.551567,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 47,
+            "ptsSec": 1.598233,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 79,
+            "ptsSec": 2.678767,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 110,
+            "ptsSec": 3.725433,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 141,
+            "ptsSec": 4.7721,
+            "frameTrouvee": true,
+            "luma": 97
+          }
+        ],
+        "lumas": [
+          97,
+          97,
+          97,
+          97,
+          97
+        ],
+        "lumaMin": 97,
+        "lumaMax": 97,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase7.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p7-A-rear-videoTmp.mp4",
+      "octets": 13701183,
+      "sha256": "241cdc30beffa6a6cac900ab3cc8f534ce1b589cd1c0f1f34250e9cf3d95bccf",
+      "structure": {
+        "conteneurSec": 5.546667,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "540000/18233",
+        "nbFrames": 162,
+        "dureeVideoSec": 5.4699,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 5.546667,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.077
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 16,
+            "ptsSec": 0.555967,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 48,
+            "ptsSec": 1.6364,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 81,
+            "ptsSec": 2.7507,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 113,
+            "ptsSec": 3.831133,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 145,
+            "ptsSec": 4.911567,
+            "frameTrouvee": true,
+            "luma": 98
+          }
+        ],
+        "lumas": [
+          98,
+          98,
+          98,
+          98,
+          98
+        ],
+        "lumaMin": 98,
+        "lumaMax": 98,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase7.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "front",
+      "dispo": true,
+      "fichier": "p7-B-front-videoTmp.mp4",
+      "octets": 13869487,
+      "sha256": "30b6ec9afbd11d12f5e7f3f25fe1d7c4f92264ee7f7b2999604238adc8890ebf",
+      "structure": {
+        "conteneurSec": 5.553459,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 137,
+        "dureeVideoSec": 5.487611,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 5.546667,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.059
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 14,
+            "ptsSec": 0.560778,
+            "frameTrouvee": true,
+            "luma": 25
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 41,
+            "ptsSec": 1.642278,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 68,
+            "ptsSec": 2.723778,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 95,
+            "ptsSec": 3.805278,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 122,
+            "ptsSec": 4.886778,
+            "frameTrouvee": true,
+            "luma": 23
+          }
+        ],
+        "lumas": [
+          25,
+          24,
+          23,
+          23,
+          23
+        ],
+        "lumaMin": 23,
+        "lumaMax": 25,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase7b.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p7b-A-rear-videoTmp.mp4",
+      "octets": 9114491,
+      "sha256": "3a840de35d860b4e9bce35e2ccb10c7d5ade789364dba08a2171094ccd773bb9",
+      "structure": {
+        "conteneurSec": 3.712896,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "1080000/36467",
+        "nbFrames": 108,
+        "dureeVideoSec": 3.646578,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.712,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.065
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 11,
+            "ptsSec": 0.371433,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 32,
+            "ptsSec": 1.080533,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 54,
+            "ptsSec": 1.8234,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 75,
+            "ptsSec": 2.5324,
+            "frameTrouvee": true,
+            "luma": 92
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 96,
+            "ptsSec": 3.2415,
+            "frameTrouvee": true,
+            "luma": 92
+          }
+        ],
+        "lumas": [
+          92,
+          92,
+          92,
+          92,
+          92
+        ],
+        "lumaMin": 92,
+        "lumaMax": 92,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase7b.json",
+      "cache": "videoTmp_1.mp4",
+      "cameraAttendue": "front",
+      "dispo": true,
+      "fichier": "p7b-B-front-videoTmp_1.mp4",
+      "octets": 9107517,
+      "sha256": "ff1784aa13c6cac3f33e088bc4165f581ca9ca33a1225968b8494ecab3ac64e8",
+      "structure": {
+        "conteneurSec": 3.712,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "1620000/54689",
+        "nbFrames": 108,
+        "dureeVideoSec": 3.645933,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.712,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.066
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 11,
+            "ptsSec": 0.376011,
+            "frameTrouvee": true,
+            "luma": 75
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 32,
+            "ptsSec": 1.084989,
+            "frameTrouvee": true,
+            "luma": 73
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 54,
+            "ptsSec": 1.827611,
+            "frameTrouvee": true,
+            "luma": 73
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 75,
+            "ptsSec": 2.536589,
+            "frameTrouvee": true,
+            "luma": 73
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 96,
+            "ptsSec": 3.245567,
+            "frameTrouvee": true,
+            "luma": 73
+          }
+        ],
+        "lumas": [
+          75,
+          73,
+          73,
+          73,
+          73
+        ],
+        "lumaMin": 73,
+        "lumaMax": 75,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase7b.json",
+      "cache": "videoTmp_2.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p7b-C-rear-videoTmp_2.mp4",
+      "octets": 9043614,
+      "sha256": "f5159ec11330dca6ec64a1830e968d87041e57f4d880b40ee1dcb1d623bb3845",
+      "structure": {
+        "conteneurSec": 3.690667,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "642000/21677",
+        "nbFrames": 107,
+        "dureeVideoSec": 3.612833,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.690667,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.078
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 11,
+            "ptsSec": 0.388533,
+            "frameTrouvee": true,
+            "luma": 96
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 32,
+            "ptsSec": 1.097633,
+            "frameTrouvee": true,
+            "luma": 96
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 53,
+            "ptsSec": 1.806633,
+            "frameTrouvee": true,
+            "luma": 96
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 74,
+            "ptsSec": 2.515733,
+            "frameTrouvee": true,
+            "luma": 96
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 95,
+            "ptsSec": 3.224733,
+            "frameTrouvee": true,
+            "luma": 96
+          }
+        ],
+        "lumas": [
+          96,
+          96,
+          96,
+          96,
+          96
+        ],
+        "lumaMin": 96,
+        "lumaMax": 96,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase8.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "front",
+      "dispo": true,
+      "fichier": "p8-6-front-videoTmp.mp4",
+      "octets": 8833927,
+      "sha256": "5233eea8330086dd1b2d803f9245c87f19d9c9abed4072645c65b46dbc0bfe67",
+      "structure": {
+        "conteneurSec": 3.605333,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 88,
+        "dureeVideoSec": 3.524889,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.605333,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.08
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 9,
+            "ptsSec": 0.3756,
+            "frameTrouvee": true,
+            "luma": 22
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 26,
+            "ptsSec": 1.056544,
+            "frameTrouvee": true,
+            "luma": 22
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 44,
+            "ptsSec": 1.777544,
+            "frameTrouvee": true,
+            "luma": 21
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 61,
+            "ptsSec": 2.458489,
+            "frameTrouvee": true,
+            "luma": 21
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 78,
+            "ptsSec": 3.139433,
+            "frameTrouvee": true,
+            "luma": 21
+          }
+        ],
+        "lumas": [
+          22,
+          22,
+          21,
+          21,
+          21
+        ],
+        "lumaMin": 21,
+        "lumaMax": 22,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase8.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p8-1-rear-videoTmp.mp4",
+      "octets": 8769696,
+      "sha256": "662483f6ee233d9b66696e17ac510b715298db11d5a43abbb866502cd3fa7327",
+      "structure": {
+        "conteneurSec": 3.541333,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "193125/6521",
+        "nbFrames": 103,
+        "dureeVideoSec": 3.477867,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.541333,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.063
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 10,
+            "ptsSec": 0.353467,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 31,
+            "ptsSec": 1.062567,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 51,
+            "ptsSec": 1.7379,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 71,
+            "ptsSec": 2.413133,
+            "frameTrouvee": true,
+            "luma": 93
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 92,
+            "ptsSec": 3.122233,
+            "frameTrouvee": true,
+            "luma": 93
+          }
+        ],
+        "lumas": [
+          93,
+          93,
+          93,
+          93,
+          93
+        ],
+        "lumaMin": 93,
+        "lumaMax": 93,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase8.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "front",
+      "dispo": true,
+      "fichier": "p8-2-front-videoTmp.mp4",
+      "octets": 8962993,
+      "sha256": "0abc7a4a80f307ee87380dc66750c8618558e77c5f6a5c7da954d9bbd529a60a",
+      "structure": {
+        "conteneurSec": 3.629771,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 89,
+        "dureeVideoSec": 3.564944,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.626667,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.062
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 9,
+            "ptsSec": 0.3605,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 26,
+            "ptsSec": 1.041444,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 44,
+            "ptsSec": 1.762444,
+            "frameTrouvee": true,
+            "luma": 22
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 62,
+            "ptsSec": 2.483444,
+            "frameTrouvee": true,
+            "luma": 22
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 79,
+            "ptsSec": 3.164389,
+            "frameTrouvee": true,
+            "luma": 22
+          }
+        ],
+        "lumas": [
+          23,
+          23,
+          22,
+          22,
+          22
+        ],
+        "lumaMin": 22,
+        "lumaMax": 23,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase8.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p8-3-rear-videoTmp.mp4",
+      "octets": 8309686,
+      "sha256": "cbde9875bccf6b0f58e95a2d82e4773c54d350a80bdc608712991ee137f84c85",
+      "structure": {
+        "conteneurSec": 3.392,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "2940000/99271",
+        "nbFrames": 98,
+        "dureeVideoSec": 3.309033,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.392,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.083
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 10,
+            "ptsSec": 0.349567,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 29,
+            "ptsSec": 0.991133,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 49,
+            "ptsSec": 1.666367,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 68,
+            "ptsSec": 2.307933,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 87,
+            "ptsSec": 2.9495,
+            "frameTrouvee": true,
+            "luma": 97
+          }
+        ],
+        "lumas": [
+          97,
+          97,
+          97,
+          97,
+          97
+        ],
+        "lumaMin": 97,
+        "lumaMax": 97,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase8.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "front",
+      "dispo": true,
+      "fichier": "p8-4-front-videoTmp.mp4",
+      "octets": 8867066,
+      "sha256": "edc793845391a3692a62f524714b89fcb51dea15524c8785fb31df6c802c35be",
+      "structure": {
+        "conteneurSec": 3.605333,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 88,
+        "dureeVideoSec": 3.524889,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.605333,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.08
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 9,
+            "ptsSec": 0.368,
+            "frameTrouvee": true,
+            "luma": 1
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 26,
+            "ptsSec": 1.048944,
+            "frameTrouvee": true,
+            "luma": 21
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 44,
+            "ptsSec": 1.769944,
+            "frameTrouvee": true,
+            "luma": 21
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 61,
+            "ptsSec": 2.450889,
+            "frameTrouvee": true,
+            "luma": 20
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 78,
+            "ptsSec": 3.131833,
+            "frameTrouvee": true,
+            "luma": 20
+          }
+        ],
+        "lumas": [
+          1,
+          21,
+          21,
+          20,
+          20
+        ],
+        "lumaMin": 1,
+        "lumaMax": 21,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-phase8.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": "rear",
+      "dispo": true,
+      "fichier": "p8-5-rear-videoTmp.mp4",
+      "octets": 8471563,
+      "sha256": "791956aafa4f5449c8ca78c43861752c7adcf76ea3f6de786e2746e1059e7574",
+      "structure": {
+        "conteneurSec": 3.439375,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "3000000/101297",
+        "nbFrames": 100,
+        "dureeVideoSec": 3.376467,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 3.434667,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.058
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 10,
+            "ptsSec": 0.337667,
+            "frameTrouvee": true,
+            "luma": 101
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 30,
+            "ptsSec": 1.013,
+            "frameTrouvee": true,
+            "luma": 97
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 50,
+            "ptsSec": 1.688233,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 69,
+            "ptsSec": 2.3298,
+            "frameTrouvee": true,
+            "luma": 98
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 89,
+            "ptsSec": 3.005133,
+            "frameTrouvee": true,
+            "luma": 97
+          }
+        ],
+        "lumas": [
+          101,
+          97,
+          98,
+          98,
+          97
+        ],
+        "lumaMin": 97,
+        "lumaMax": 101,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    },
+    {
+      "rapport": "rapport-sonde-front.json",
+      "cache": "videoTmp.mp4",
+      "cameraAttendue": null,
+      "dispo": true,
+      "fichier": "sf-videoTmp.mp4",
+      "octets": 13570978,
+      "sha256": "5d8f80159af172c6557fed0f75ef4529b87d246e608479784e0a53bce2a65b2f",
+      "structure": {
+        "conteneurSec": 5.444104,
+        "codecVideo": "h264",
+        "resolution": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 134,
+        "dureeVideoSec": 5.367444,
+        "codecAudio": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeAudioSec": 5.44,
+        "verdictVideo": "VIDEO COMPLETE",
+        "deficitVideoSec": 0.073
+      },
+      "decodage": {
+        "ok": true,
+        "erreurs": []
+      },
+      "contenu": {
+        "positions": [
+          {
+            "positionDemandee": 0.1,
+            "indexFrame": 13,
+            "ptsSec": 0.520722,
+            "frameTrouvee": true,
+            "luma": 26
+          },
+          {
+            "positionDemandee": 0.3,
+            "indexFrame": 40,
+            "ptsSec": 1.602222,
+            "frameTrouvee": true,
+            "luma": 24
+          },
+          {
+            "positionDemandee": 0.5,
+            "indexFrame": 67,
+            "ptsSec": 2.683722,
+            "frameTrouvee": true,
+            "luma": 23
+          },
+          {
+            "positionDemandee": 0.7,
+            "indexFrame": 93,
+            "ptsSec": 3.725167,
+            "frameTrouvee": true,
+            "luma": 22
+          },
+          {
+            "positionDemandee": 0.9,
+            "indexFrame": 120,
+            "ptsSec": 4.806667,
+            "frameTrouvee": true,
+            "luma": 22
+          }
+        ],
+        "lumas": [
+          26,
+          24,
+          23,
+          22,
+          22
+        ],
+        "lumaMin": 22,
+        "lumaMax": 26,
+        "tousNoirs": false,
+        "toutesTrouvees": true
+      },
+      "statut": "VALIDE : decodage integral et contenu image non noir"
+    }
+  ],
+  "separationRearFront": {
+    "lumaRear": {
+      "min": 91,
+      "max": 101,
+      "n": 60
+    },
+    "lumaFront": {
+      "min": 1,
+      "max": 75,
+      "n": 35
+    },
+    "disjoints": true,
+    "conclusion": "les luminances REAR et FRONT ne se recouvrent PAS : les segments contiennent réellement deux images différentes. Le segment FRONT n'est pas une copie du REAR, ni une image noire."
+  }
+}

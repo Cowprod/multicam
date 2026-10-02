@@ -1,0 +1,34 @@
+=== POC J09 — sonde preview fraiche/perimee apres switch ===
+media_hors_depot=/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc
+COLD_START serial=61d54bba7d91 pid=28857 cdp=9223
+PURGE_CACHE 1
+
+--- A. sans REC : REAR -> FRONT ---
+  sp-A-rear-0 ok=true luma=97 octets=67556
+  sp-A-rear-1 ok=true luma=97 octets=67683
+  sp-A-rear-2 ok=true luma=97 octets=67860
+  SWITCH ok=true apresMs=355
+  sp-A-front-0 ok=false luma=undefined octets=undefined raison=PixelCopy failed with code 3
+  sp-A-front-1 ok=true luma=95 octets=75072
+  sp-A-front-2 ok=true luma=95 octets=74698
+  sp-A-front-3 ok=true luma=95 octets=74647
+  sp-A-front-4 ok=true luma=95 octets=74904
+
+--- B. avec REC : REAR -> FRONT ---
+  SWITCH retour ok=true
+  REC_START ok=true
+  sp-B-rear-0 ok=true luma=96 octets=90709
+  sp-B-rear-1 ok=true luma=96 octets=90516
+  sp-B-rear-2 ok=true luma=96 octets=90718
+  SWITCH ok=true apresMs=357
+  sp-B-front-0 ok=false luma=undefined octets=undefined raison=PixelCopy failed with code 3
+  sp-B-front-1 ok=true luma=95 octets=74926
+  sp-B-front-2 ok=true luma=95 octets=74810
+  sp-B-front-3 ok=true luma=95 octets=74655
+  sp-B-front-4 ok=true luma=95 octets=74668
+  REC_STOP ok=true
+
+--- verdict ---
+  sans REC : les images VARIENT : la camera B livre des frames vivantes (H1)
+  avec REC : les images VARIENT : la camera B livre des frames vivantes (H1)
+  les deux situations concordent

@@ -1,0 +1,282 @@
+{
+  "device": null,
+  "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc",
+  "phases": [
+    {
+      "phase": "phase6-long-controle",
+      "protocole": {
+        "cameraDepart": "rear",
+        "avantSwitchMs": 12000,
+        "apresSwitchMs": 12000
+      },
+      "rec": {
+        "requestMs": 1790930806735,
+        "ackMs": 1790930807264,
+        "ackAfterMs": 529,
+        "wallMs": 23860
+      },
+      "switch": {
+        "requestMs": 1790930817455,
+        "ackMs": 1790930817825,
+        "apresMs": 370,
+        "ok": true,
+        "raison": null
+      },
+      "preview": {
+        "avant": {
+          "ok": true,
+          "noir": false,
+          "luma": 96
+        },
+        "immediat": {
+          "ok": false,
+          "raison": "PixelCopy failed with code 3",
+          "apresSwitchMs": 15
+        },
+        "jalons": [
+          {
+            "attenduMs": 2000,
+            "atMs": 1790930819888,
+            "apresSwitchMs": 2063,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 84
+          },
+          {
+            "attenduMs": 5000,
+            "atMs": 1790930823019,
+            "apresSwitchMs": 5194,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 84
+          },
+          {
+            "attenduMs": 10000,
+            "atMs": 1790930828151,
+            "apresSwitchMs": 10326,
+            "ok": true,
+            "raison": null,
+            "noir": false,
+            "luma": 84
+          }
+        ]
+      },
+      "stop": {
+        "ok": true,
+        "raison": null,
+        "atMs": 1790930830595,
+        "apresMs": null,
+        "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4"
+      },
+      "natif": {
+        "switchEntreeNatif": 1790930817460,
+        "cameraARelease": 1790930817719,
+        "cameraANouvelle": 1790930817720,
+        "cameraBOuverte": 1790930817765,
+        "previewB": null,
+        "startingRecordingNatif": 1790930806788,
+        "stopRecordNatif": 1790930830224
+      },
+      "events": [
+        {
+          "name": "startCamera.request",
+          "atMs": 1790930804008,
+          "detail": {
+            "camera": "back",
+            "w": 1006,
+            "h": 558
+          }
+        },
+        {
+          "name": "startCamera.ok",
+          "atMs": 1790930804687,
+          "detail": "Camera started"
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790930806734,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790930807264,
+          "detail": {
+            "ackAfterMs": 529
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790930807277,
+          "detail": {
+            "tag": "p6-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790930807343,
+          "detail": {
+            "tag": "p6-avant",
+            "afterMs": 66,
+            "b64len": 45084
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790930817455,
+          "detail": {
+            "atMs": 1790930817455
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790930817825,
+          "detail": {
+            "afterMs": 370,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790930817833,
+          "detail": {
+            "tag": "p6-immediat"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790930817840,
+          "detail": {
+            "tag": "p6-immediat",
+            "afterMs": 7,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790930819845,
+          "detail": {
+            "tag": "p6-2000"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790930819888,
+          "detail": {
+            "tag": "p6-2000",
+            "afterMs": 43,
+            "b64len": 97512
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790930822958,
+          "detail": {
+            "tag": "p6-5000"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790930823019,
+          "detail": {
+            "tag": "p6-5000",
+            "afterMs": 61,
+            "b64len": 97744
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790930828089,
+          "detail": {
+            "tag": "p6-10000"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790930828151,
+          "detail": {
+            "tag": "p6-10000",
+            "afterMs": 62,
+            "b64len": 97752
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790930830222,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790930830595,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "stopAfterMs": 373
+          }
+        }
+      ],
+      "attribution": [
+        {
+          "segment": "videoTmp.mp4",
+          "decalageMuxMs": 1631,
+          "mortVideoMurMs": 11029,
+          "switchMurMs": 10720,
+          "mortVideoMoinsSwitchMs": 309
+        }
+      ],
+      "natifRelatifAuSwitch": {
+        "switchEntreeNatif": 5,
+        "cameraARelease": 264,
+        "cameraANouvelle": 265,
+        "cameraBOuverte": 310,
+        "previewB": null,
+        "startingRecordingNatif": -10667,
+        "stopRecordNatif": 12769
+      }
+    }
+  ],
+  "segments": [
+    {
+      "cache": "p6-long-videoTmp.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p6-long-videoTmp.mp4",
+      "octets": 23894445,
+      "sha256": "3ba9f499bf8ef20c3830e20f30b32bb37db11ed06961f462dd7c0a5942f0186b",
+      "conteneurSec": 22.229333,
+      "pisteVideoPresente": true,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "697500/23551",
+        "nbFrames": 279,
+        "dureeSec": 9.4204
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 22.229333
+      },
+      "continuiteVideo": {
+        "frames": 279,
+        "firstPts": 0.0112,
+        "lastPts": 9.397833,
+        "intervalMoyenSec": 0.0338,
+        "fpsMoyen": 29.62,
+        "maxGapSec": 0.034,
+        "maxGapAtSec": 3.489,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 1042,
+        "firstPts": 0,
+        "lastPts": 22.208,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 16.043
+      },
+      "deficitVideoSec": 12.809,
+      "verdictVideo": "VIDEO TRONQUEE"
+    }
+  ]
+}

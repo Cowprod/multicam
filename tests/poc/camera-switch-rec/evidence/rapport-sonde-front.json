@@ -1,0 +1,247 @@
+{
+  "poc": "J09-changement-camera-pendant-REC",
+  "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc",
+  "device": null,
+  "inventory": null,
+  "phases": [],
+  "segments": [
+    {
+      "cache": "videoTmp.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/sf-videoTmp.mp4",
+      "octets": 13570978,
+      "sha256": "5d8f80159af172c6557fed0f75ef4529b87d246e608479784e0a53bce2a65b2f",
+      "conteneurSec": 5.444104,
+      "pisteVideoPresente": true,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 134,
+        "dureeSec": 5.367444
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 5.44
+      },
+      "continuiteVideo": {
+        "frames": 134,
+        "firstPts": 0,
+        "lastPts": 5.327389,
+        "intervalMoyenSec": 0.0401,
+        "fpsMoyen": 24.97,
+        "maxGapSec": 0.04,
+        "maxGapAtSec": 4.166,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 255,
+        "firstPts": 0.004104,
+        "lastPts": 5.422771,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 2.159
+      },
+      "deficitVideoSec": 0.073,
+      "verdictVideo": "VIDEO COMPLETE"
+    }
+  ],
+  "switches": [],
+  "pixelcopy": {},
+  "errors": [],
+  "notes": [],
+  "sondeFront": {
+    "C_sansRec": {
+      "sondes": [
+        {
+          "i": 0,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74726
+        },
+        {
+          "i": 1,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74715
+        },
+        {
+          "i": 2,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 95,
+          "octets": 74746
+        }
+      ],
+      "resume": {
+        "n": 3,
+        "lumaMin": 95,
+        "lumaMax": 95,
+        "octetsMin": 74715,
+        "tousNoirs": false,
+        "etat": "VIVANT"
+      }
+    },
+    "D_avecRec": {
+      "sondes": [
+        {
+          "i": 0,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 23,
+          "octets": 73449
+        },
+        {
+          "i": 1,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 22,
+          "octets": 72616
+        },
+        {
+          "i": 2,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 22,
+          "octets": 72634
+        }
+      ],
+      "resume": {
+        "n": 3,
+        "lumaMin": 22,
+        "lumaMax": 23,
+        "octetsMin": 72616,
+        "tousNoirs": false,
+        "etat": "VIVANT"
+      }
+    },
+    "E_apresRec": {
+      "sondes": [
+        {
+          "i": 0,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 82,
+          "octets": 70524
+        },
+        {
+          "i": 1,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 83,
+          "octets": 71075
+        },
+        {
+          "i": 2,
+          "ok": true,
+          "raison": null,
+          "noir": false,
+          "luma": 84,
+          "octets": 71144
+        }
+      ],
+      "resume": {
+        "n": 3,
+        "lumaMin": 82,
+        "lumaMax": 84,
+        "octetsMin": 70524,
+        "tousNoirs": false,
+        "etat": "VIVANT"
+      }
+    },
+    "segment": {
+      "cache": "videoTmp.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/sf-videoTmp.mp4",
+      "octets": 13570978,
+      "sha256": "5d8f80159af172c6557fed0f75ef4529b87d246e608479784e0a53bce2a65b2f",
+      "conteneurSec": 5.444104,
+      "pisteVideoPresente": true,
+      "video": {
+        "codec": "h264",
+        "luma": "1920x1080",
+        "fps": "18000/721",
+        "nbFrames": 134,
+        "dureeSec": 5.367444
+      },
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 5.44
+      },
+      "continuiteVideo": {
+        "frames": 134,
+        "firstPts": 0,
+        "lastPts": 5.327389,
+        "intervalMoyenSec": 0.0401,
+        "fpsMoyen": 24.97,
+        "maxGapSec": 0.04,
+        "maxGapAtSec": 4.166,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 255,
+        "firstPts": 0.004104,
+        "lastPts": 5.422771,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 2.159
+      },
+      "deficitVideoSec": 0.073,
+      "verdictVideo": "VIDEO COMPLETE"
+    },
+    "frames": [
+      {
+        "positionDemandee": 0.1,
+        "indexFrame": 13,
+        "ptsSec": 0.520722,
+        "frameTrouvee": true,
+        "luma": 26
+      },
+      {
+        "positionDemandee": 0.3,
+        "indexFrame": 40,
+        "ptsSec": 1.602222,
+        "frameTrouvee": true,
+        "luma": 24
+      },
+      {
+        "positionDemandee": 0.5,
+        "indexFrame": 67,
+        "ptsSec": 2.683722,
+        "frameTrouvee": true,
+        "luma": 23
+      },
+      {
+        "positionDemandee": 0.7,
+        "indexFrame": 93,
+        "ptsSec": 3.725167,
+        "frameTrouvee": true,
+        "luma": 22
+      },
+      {
+        "positionDemandee": 0.9,
+        "indexFrame": 120,
+        "ptsSec": 4.806667,
+        "frameTrouvee": true,
+        "luma": 22
+      }
+    ],
+    "cameraOuverteAuDepart": [],
+    "cameraCurrentlyLocked": 0,
+    "verdict": {
+      "cameraMorte": false,
+      "conclusion": "combinaison inattendue (C=VIVANT, D=VIVANT, E=VIVANT) : à analyser avant toute conclusion.",
+      "frontEnregistrable": false
+    }
+  }
+}

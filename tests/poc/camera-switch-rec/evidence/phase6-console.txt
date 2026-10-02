@@ -1,0 +1,19 @@
+=== POC J09 — phase 6 : scénario long contrôlé ===
+fenêtres : 12 s avant le switch, 12 s après
+media_hors_depot=/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc
+COLD_START serial=61d54bba7d91 pid=32648 cdp=9223
+PURGE_CACHE 1
+PLUGIN_PRETE
+PREPARE {"ok":true,"atMs":1790930804688,"detail":"Camera started"}
+REC_START {"ok":true,"atMs":1790930807264,"ackAfterMs":529,"requestMs":1790930806735}
+--- 12 s d'enregistrement REAR avant le switch ---
+PIXELCOPY_AVANT ok=true noir=false luma=96
+SWITCH {"ok":true,"requestedAtMs":1790930817455,"atMs":1790930817825,"afterMs":370}
+PIXELCOPY_IMMEDIAT ok=false apresMs=7 noir=undefined luma=undefined raison=PixelCopy failed with code 3
+--- 12 s d'enregistrement après le switch ---
+PIXELCOPY_2000 ok=true apresSwitchMs=2063 noir=false luma=84
+PIXELCOPY_5000 ok=true apresSwitchMs=5194 noir=false luma=84
+PIXELCOPY_10000 ok=true apresSwitchMs=10326 noir=false luma=84
+REC_STOP {"ok":true,"atMs":1790930830595,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":373}
+SEGMENTS [{"cache":"videoTmp.mp4","octets":23894445,"sha256":"3ba9f499bf8ef20c3830e20f30b32bb37db11ed06961f462dd7c0a5942f0186b","conteneurSec":22.229333,"video":{"codec":"h264","luma":"1920x1080","fps":"697500/23551","nbFrames":279,"dureeSec":9.4204},"audio":{"codec":"aac","echantillon":48000,"canaux":1,"dureeSec":22.229333},"verdict":"VIDEO TRONQUEE","deficit":12.809}]
+CHRONOLOGIE_NATIVE {"stopRecordNatif":null,"startingRecordingNatif":null,"switchEntreeNatif":null,"cameraARelease":null,"cameraANouvelle":null,"cameraBOuverte":null,"previewB":null}

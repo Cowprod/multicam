@@ -1,0 +1,1146 @@
+10-02 10:42:10.359 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:10.526 E/ActivityThread(32018): Failed to find provider info for com.xiaomi.mipicks.dbcache
+10-02 10:42:10.527 E/SystemUpdate-DiscoverUpdateManager(32018): ContentProvider.query failed - java.lang.IllegalArgumentException: Unknown authority com.xiaomi.mipicks.dbcache
+10-02 10:42:10.559 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:10.597 E/chromium(32040): [ERROR:cc/tiles/tile_manager.cc:1005] WARNING: tile memory limits exceeded, some content may not draw
+10-02 10:42:10.604 E/chromium(32040): [ERROR:cc/tiles/tile_manager.cc:1005] WARNING: tile memory limits exceeded, some content may not draw
+10-02 10:42:10.626 E/chromium(32040): [ERROR:cc/tiles/tile_manager.cc:1005] WARNING: tile memory limits exceeded, some content may not draw
+10-02 10:42:10.626 E/chromium(32040): [ERROR:cc/tiles/tile_manager.cc:1005] WARNING: tile memory limits exceeded, some content may not draw
+10-02 10:42:10.760 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:10.877 E/MiuiPreloadClassImpl(32218): invoke error.
+10-02 10:42:10.890 D/ActivityThread(32218): useGrowthLimitOutExpendMethod invoke error.
+10-02 10:42:10.934 E/MiSpeedRecord(32218): initApplicationInfo Error
+10-02 10:42:10.960 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:10.962 E/libprocessgroup( 1307): Failed to read /proc/30243/cgroup: No such file or directory
+10-02 10:42:10.962 E/SchedPolicy( 1307): Failed to find cpuset cgroup for tid 30243
+10-02 10:42:11.029 E/libPowerHal(  928): error : 2, No such file or directory
+10-02 10:42:11.120 W/GalleryLoggerFactory(32218): getSyncLogger failed, SubstituteLogger was returned for GalleryAppInitializer
+10-02 10:42:11.152 D/AutoDensity(32218): 	getAccessibilityDpi Exception: android.provider.Settings$SettingNotFoundException: display_density_forced
+10-02 10:42:11.160 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:11.173 W/ThermalCollecto(11414): type=1400 audit(0.0:1089519): avc:  denied  { read } for  name="charge_counter" dev="sysfs" ino=50515 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs_batteryinfo:s0 tclass=file permissive=0
+10-02 10:42:11.180 E/ThermalInfoUtils(11414): getCurrentCapacity Exceptionjava.io.FileNotFoundException: /sys/class/power_supply/battery/charge_counter: open failed: EACCES (Permission denied)
+10-02 10:42:11.190 W/libc    (32218): Access denied finding property "vendor.camera.dsac.supported"
+10-02 10:42:11.226 W/libc    (32218): Access denied finding property "ro.vendor.mi_sf.new_dynamic_refresh_rate"
+10-02 10:42:11.221 W/app-init-thread(32218): type=1400 audit(0.0:1089520): avc:  denied  { read } for  name="u:object_r:vendor_displayfeature_prop:s0" dev="tmpfs" ino=560 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:vendor_displayfeature_prop:s0 tclass=file permissive=0 app=com.miui.gallery
+10-02 10:42:11.328 W/libc    (32218): Access denied finding property "ro.vendor.perf.scroll_opt"
+10-02 10:42:11.344 W/ActivityManager( 1307): Unbind failed: could not find connection for android.os.BinderProxy@255a639
+10-02 10:42:11.360 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:11.515 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:11.515 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:11.516 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.517 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:11.517 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:11.517 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.519 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.519 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.519 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.521 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:11.521 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:11.521 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.522 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.523 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.523 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.541 D/MiuiMultiWindowUtils(30896): initFreeFormResolutionArgs failed, device is flare
+10-02 10:42:11.547 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:11.547 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:11.548 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.554 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.556 W/CameraDevice-JV-0( 5178): Device error received, code 0, frame number 0, request ID -1, subseq ID 0
+10-02 10:42:11.560 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:11.561 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:11.561 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ 94 93 92 91 90 89 } being aborted (#6 in-flight frames)
+10-02 10:42:11.571 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e2759f0 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.574 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:89 App:Meta:FD
+10-02 10:42:11.575 W/CameraDevice-JV-0( 5178): Device error received, code 4, frame number 89, request ID 1, subseq ID 0
+10-02 10:42:11.582 I/aao_buf_mgr( 1083): [dequeueHwBuf] abort after sttPipe deque
+10-02 10:42:11.582 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:90 App:Meta:DynamicP1_main1
+10-02 10:42:11.583 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e2849b0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.583 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e26f2b0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.583 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE:0:0xb400006ebe2557b0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.583 W/MtkCam/streambuf( 1083): [markUserStatus] s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN:0x3:0xb400006ebe253b90 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.583 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe2609d0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.583 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:90 App:Meta:DynamicP2
+10-02 10:42:11.583 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:90 streamId:0 s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE state:IN-FLIGHT->ERROR
+10-02 10:42:11.583 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e24b670 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.583 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:90 streamId:0x3 s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN state:IN-FLIGHT->ERROR
+10-02 10:42:11.583 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo:90 Request Error
+10-02 10:42:11.583 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo 90 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:11.584 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:91 App:Meta:DynamicP1_main1
+10-02 10:42:11.584 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e25e370 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.584 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e266db0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.584 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE:0:0xb400006ebe26e490 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.584 W/MtkCam/streambuf( 1083): [markUserStatus] s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN:0x3:0xb400006ebe271050 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.584 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe299730 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e283f30 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:91 App:Meta:DynamicP2
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P1:Dynamic_main1:0x10000001b:0xb400006e6e26ae70 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP1_main1:0x100000024:0xb400006e6e2612b0 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:91 App:Meta:FD
+10-02 10:42:11.585 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:91 streamId:0 s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE state:IN-FLIGHT->ERROR
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:P1:Fullraw_main1:0x100000001:0xb400006ebe27d850 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:91 streamId:0x3 s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN state:IN-FLIGHT->ERROR
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:P1:Resizeraw_main1:0x100000003:0xb400006ebe2a4c70 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 I/StrobeDrvFlashlightFops( 1083): ioctl failed: type/ct (1,1) Inappropriate ioctl for device
+10-02 10:42:11.585 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo:91 Request Error
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:STT_main1:0x100000004:0xb400006ebe2816d0 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo 91 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e27c9f0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e27a6f0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE:0:0xb400006ebe2a1430 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN:0x3:0xb400006ebe2638b0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.585 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe27ac90 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:92 App:Meta:DynamicP1_main1
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:94 App:Meta:DynamicP1_main1
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:94 streamId:0 s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE state:IN-FLIGHT->ERROR
+10-02 10:42:11.586 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e285430 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:94 streamId:0x3 s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN state:IN-FLIGHT->ERROR
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo:94 Request Error
+10-02 10:42:11.586 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e262b30 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.586 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e26ef30 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.586 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE:0:0xb400006ebe2512f0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.586 W/MtkCam/streambuf( 1083): [markUserStatus] s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN:0x3:0xb400006ebe26d810 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.586 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe251610 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:92 streamId:0 s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE state:IN-FLIGHT->ERROR
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:92 streamId:0x3 s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN state:IN-FLIGHT->ERROR
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo:92 Request Error
+10-02 10:42:11.586 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo 92 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:11.587 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e25d570 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.587 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:93 App:Meta:DynamicP1_main1
+10-02 10:42:11.588 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e26ddb0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.588 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e27cd70 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.588 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE:0:0xb400006ebe24ce30 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.588 W/MtkCam/streambuf( 1083): [markUserStatus] s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN:0x3:0xb400006ebe291d50 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.588 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe25fa30 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.588 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:93 App:Meta:DynamicP2
+10-02 10:42:11.588 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:93 streamId:0 s0:d0:App:YCrCb_420_SP:0|HW_TEXTURE state:IN-FLIGHT->ERROR
+10-02 10:42:11.588 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:93 streamId:0x3 s3:d0:App:YCrCb_420_SP:0|SW_READ_OFTEN state:IN-FLIGHT->ERROR
+10-02 10:42:11.588 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e25ff70 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:11.588 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo:93 Request Error
+10-02 10:42:11.588 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo 93 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:11.589 W/mtkcam-AppStreamMgr( 1083): [0-FrameHandler::updateCallback] requestNo 94 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:11.607 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:11.607 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ } being aborted (#0 in-flight frames)
+10-02 10:42:11.611 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:11.616 E/ProcessManager( 1307): error write exception log
+10-02 10:42:11.620 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:11.621 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:11.630 E/camerahalserver( 1083): morpho_hdr_check.cpp:91 uninit(): [HQ_ALGO_HDR_PREVIEWCHECKER] MorphoHdrChecker_uninit failed 0x0
+10-02 10:42:11.630 E/camerahalserver( 1083): morpho_hdr_check.cpp:91 uninit(): [HQ_ALGO_HDR_PREVIEWCHECKER] MorphoHdrChecker_uninit failed 0x0
+10-02 10:42:11.637 W/binder:960_1(  960): type=1400 audit(0.0:1089521): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:11.690 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:11.690 E/ProcessManager( 1307): error write exception log
+10-02 10:42:11.760 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:11.854 I/StrobeDrvFlashlightFops( 1083): ioctl failed: type/ct (1,1) Inappropriate ioctl for device
+10-02 10:42:11.854 I/StrobeDrvFlashlightFops( 1083): ioctl failed: type/ct (1,1) Inappropriate ioctl for device
+10-02 10:42:11.855 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:11.855 D/AppTsf  ( 1083): [~AppTsf] destructor; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:11.875 E/SELinux (  507): avc:  denied  { find } for interface=vendor.mediatek.hardware.camera.atms::IATMs sid=u:r:cameraserver:s0 pid=1031 scontext=u:r:cameraserver:s0 tcontext=u:object_r:default_android_hwservice:s0 tclass=hwservice_manager permissive=0
+10-02 10:42:11.875 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:11.875 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:11.875 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:11.875 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:11.879 E/CameraCaptureSession( 5178): Session 0: Exception while stopping repeating: 
+10-02 10:42:11.879 E/CameraCaptureSession( 5178): android.hardware.camera2.CameraAccessException: CAMERA_ERROR (3): cancelRequest:842: Camera 0: Error clearing streaming request: Function not implemented (-38)
+10-02 10:42:11.879 E/CameraCaptureSession( 5178): Caused by: android.os.ServiceSpecificException: cancelRequest:842: Camera 0: Error clearing streaming request: Function not implemented (-38) (code 10)
+10-02 10:42:11.879 W/CameraDevice-JV-0( 5178): got error frame 89
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): Device error received, code 3, frame number 90, request ID 1, subseq ID 0
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): got error frame 90
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): Device error received, code 3, frame number 91, request ID 1, subseq ID 0
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): got error frame 91
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): Device error received, code 3, frame number 94, request ID 1, subseq ID 0
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): got error frame 94
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): Device error received, code 3, frame number 92, request ID 1, subseq ID 0
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): got error frame 92
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): Device error received, code 3, frame number 93, request ID 1, subseq ID 0
+10-02 10:42:11.880 W/CameraDevice-JV-0( 5178): got error frame 93
+10-02 10:42:11.882 E/MCAM_CameraDeviceCallbackImpl( 5178): [K_PROCESS]: onCameraAbnormal: cameraId=0 error=1
+10-02 10:42:11.899 E/MiCameraCustomize( 1031): trdCloudControl: Failed to get or parse JSON data!
+10-02 10:42:11.906 E/libPowerHal(  928): error : 2, No such file or directory
+10-02 10:42:11.911 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:11.911 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:11.912 E/Camera2-Parameters( 1031): Error finding static metadata entry 'android.distortionCorrection.availableModes' (1b0001)
+10-02 10:42:11.912 E/paramctrl_lifetime( 1083): open /proc/driver/thermal/clNR_status failed, disable NR cooler
+10-02 10:42:11.912 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:11.912 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:11.915 D/AppTsf  ( 1083): [AppTsf] constructor; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:11.916 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.916 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.916 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:11.930 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:11.930 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:11.931 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.931 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.932 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.932 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.938 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:11.938 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:11.938 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:11.938 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:11.947 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:11.947 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:11.948 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.949 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.950 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.951 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:11.954 W/libc    (30896): Access denied finding property "ro.vendor.dynamiccamera.ability_level"
+10-02 10:42:11.961 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:12.000 E/CameraImpl( 1031): updateSessionParams 487 failed to find tag
+10-02 10:42:12.000 E/CameraImpl( 1031): updateSessionParams 506 failed to find tag customizeFunctionMask
+10-02 10:42:12.000 E/CameraImpl( 1031): updateSessionParams 525 failed to find tag trdCloudSwitch
+10-02 10:42:12.000 E/CameraImpl( 1031): updateSessionParams 552 failed to find sessionparams.operation
+10-02 10:42:12.003 W/mtkcam-dev3-utils( 1083): [extractE2EHDRInfo] query tag MTK_STREAMING_FEATURE_HDR10 failed, E2E HDR is not applied
+10-02 10:42:12.009 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:12.010 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:12.010 E/BWC     ( 1083): MTK_IOC_MMDVFS_CMD failed.:Inappropriate ioctl for device
+10-02 10:42:12.013 W/ThermalCollecto(11414): type=1400 audit(0.0:1089522): avc:  denied  { read } for  name="charge_counter" dev="sysfs" ino=50515 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs_batteryinfo:s0 tclass=file permissive=0
+10-02 10:42:12.018 E/ThermalInfoUtils(11414): getCurrentCapacity Exceptionjava.io.FileNotFoundException: /sys/class/power_supply/battery/charge_counter: open failed: EACCES (Permission denied)
+10-02 10:42:12.020 W/libc    ( 1083): Access denied finding property "demo.hole"
+10-02 10:42:12.020 W/libc    ( 1083): Access denied finding property "demo.near"
+10-02 10:42:12.017 W/binder:1083_1( 1083): type=1400 audit(0.0:1089523): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:12.021 W/libc    ( 1083): Access denied finding property "demo.far"
+10-02 10:42:12.021 W/libc    ( 1083): Access denied finding property "demo.fb"
+10-02 10:42:12.041 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.in"
+10-02 10:42:12.041 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.out"
+10-02 10:42:12.041 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.update"
+10-02 10:42:12.047 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.049 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.051 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.051 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.053 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.055 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.057 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.057 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.059 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.060 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.061 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.062 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.063 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.064 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.066 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:12.083 W/libc    (32218): Access denied finding property "vendor.migl.debug"
+10-02 10:42:12.115 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:12.116 W/libc    ( 1083): Access denied finding property "vendor.af.mzaf.enable"
+10-02 10:42:12.116 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:12.152 E/SystemWebViewClient(30896): Exception handling Web resource at "favicon.ico"
+10-02 10:42:12.161 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:12.180 W/MiuiGallery2_StorageUtils(32218): [misc-pool-3] - create temp file error : java.io.IOException: No such file or directory
+10-02 10:42:12.200 W/Glide   (32218): Load failed for 2131231727 with size [-2147483648x-2147483648]
+10-02 10:42:12.200 W/Glide   (32218): class com.bumptech.glide.load.engine.GlideException: Failed to load resource
+10-02 10:42:12.227 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:12.228 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:12.239 E/MiuiGallery2_GallerySettingsSyncAdapter(32218): [app-init-thread] - Sync settings failed: mi cloud offline in global
+10-02 10:42:12.239 E/MiuiGallery2_GallerySettingsSyncAdapter(32218): [app-init-thread] - performUpload failed for checkCondition
+10-02 10:42:12.284 E/ActivityThread(32218): Failed to find provider info for com.miui.mediaeditor.api
+10-02 10:42:12.307 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:12.361 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:12.369 W/ActivityManager( 1307): Unbind failed: could not find connection for android.os.BinderProxy@bbb326f
+10-02 10:42:12.387 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:12.449 W/libc    (30896): Access denied finding property "ro.vendor.display.iris_x7.support"
+10-02 10:42:12.445 W/RenderThread(30896): type=1400 audit(0.0:1089549): avc:  denied  { read } for  name="u:object_r:vendor_displayfeature_prop:s0" dev="tmpfs" ino=560 scontext=u:r:untrusted_app:s0:c128,c256,c512,c768 tcontext=u:object_r:vendor_displayfeature_prop:s0 tclass=file permissive=0 app=fr.emmanuel.multicam
+10-02 10:42:12.449 W/binder:960_5(  960): type=1400 audit(0.0:1089550): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:12.449 W/binder:960_5(  960): type=1400 audit(0.0:1089551): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:12.453 W/binder:960_5(  960): type=1400 audit(0.0:1089552): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:12.473 W/android.fg( 1307): type=1400 audit(0.0:1089553): avc:  denied  { search } for  name="iorapd" dev="dm-57" ino=26060 scontext=u:r:system_server:s0 tcontext=u:object_r:iorapd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:12.478 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:12.562 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:12.605 W/.apps.wellbeing(31390): Failed to find entry 'classes.dex': Entry not found
+10-02 10:42:12.614 E/MiuiPreloadClassImpl(31390): invoke error.
+10-02 10:42:12.662 E/MiuiGallery2_TemperatureMonitor(32218): [main] - getBoardThermalTemp java.io.FileNotFoundException: /sys/class/thermal/thermal_message/board_sensor_temp: open failed: EACCES (Permission denied)
+10-02 10:42:12.762 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:12.802 W/System  ( 5178): A resource failed to call Surface.release. 
+10-02 10:42:12.876 W/MiuiGallery2_GalleryPushManager(32218): [app-init-thread] - Register push failed: privacy agreement disabled
+10-02 10:42:12.890 W/System  ( 1307): A resource failed to call release. 
+10-02 10:42:12.891 W/System  ( 1307): A resource failed to call release. 
+10-02 10:42:12.891 W/System  ( 1307): A resource failed to call release. 
+10-02 10:42:12.898 W/MiuiGallery2_CloudSearchStatusHelper(32218): [app-init-thread] - Request failed: does not support international
+10-02 10:42:12.962 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:13.061 W/libc    (  898): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:13.110 W/libc    (  898): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:13.163 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:13.194 W/libc    (  898): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:13.327 E/MiuiPreloadClassImpl(32460): invoke error.
+10-02 10:42:13.363 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:13.405 I/CloudTelephonyManager(32460): blockingGetDeviceId is called by com.miui.cloudservice with timeout: 60000
+10-02 10:42:13.449 W/binder:960_4(  960): type=1400 audit(0.0:1089584): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:13.457 W/binder:960_4(  960): type=1400 audit(0.0:1089585): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:13.473 W/binder:960_4(  960): type=1400 audit(0.0:1089586): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:13.489 W/binder:1031_3( 1031): type=1400 audit(0.0:1089587): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:13.493 W/binder:960_4(  960): type=1400 audit(0.0:1089588): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:13.564 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:13.600 W/PhBaseOp(20165): Phenotype API error. Event: # jehw@f9a56a4b, EventCode: COMMIT_CONFIG [CONTEXT service_id=51 ]
+10-02 10:42:13.665 E/MiuiPreloadClassImpl(32500): invoke error.
+10-02 10:42:13.733 I/chromium(30896): [INFO:CONSOLE:70] "WS_HEARTBEAT_START interval=2000ms timeout=8000ms", source: http://localhost/js/net/session-ws.js (70)
+10-02 10:42:13.764 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:13.848 W/ActivityManager( 1307): Unbind failed: could not find connection for android.os.BinderProxy@3b087aa
+10-02 10:42:13.876 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:13.876 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:13.876 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:13.876 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:13.876 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:13.876 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:13.876 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:13.876 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:13.964 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:14.139 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:14.139 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:14.140 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:14.141 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:14.141 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:14.142 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:14.153 D/MediaRecorderService( 1067): OMX service is not available
+10-02 10:42:14.165 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:14.182 E/C2MtkVenc(  901): [0xE984649C] Failed to open: /vendor/etc/mtk_platform_codecs_engmode_config.xml
+10-02 10:42:14.182 E/C2MtkVenc(  901): [0xE984649C] Failed to open: /vendor/etc/mtk_platform_codecs_whitelist.xml
+10-02 10:42:14.182 E/C2MtkVenc(  901): [0xE984703C] Failed to open: /vendor/etc/mtk_platform_codecs_engmode_config.xml
+10-02 10:42:14.182 E/C2MtkVenc(  901): [0xE984703C] Failed to open: /vendor/etc/mtk_platform_codecs_whitelist.xml
+10-02 10:42:14.191 W/C2MtkComponent(  901): [0xE64C5290] configUpdate: weak_from_this promote failed, component shared_ptr is already gone.
+10-02 10:42:14.216 I/CCodecConfig( 1067): query failed after returning 23 values (BAD_INDEX)
+10-02 10:42:14.220 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:14.223 E/mediaserver( 1067): Failed to get interface:vendor.xiaomi.hardware.videoservice.IVideoService/default
+10-02 10:42:14.230 I/CCodecConfig( 1067): query failed after returning 59 values (BAD_INDEX)
+10-02 10:42:14.232 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:14.251 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:14.271 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:14.275 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:14.279 D/xlog_client(  947): xlog_open: Error in open xlog
+10-02 10:42:14.281 D/audioserver(  947): EventReporter , EventReporter init failed
+10-02 10:42:14.315 I/CCodecConfig( 1067): query failed after returning 10 values (BAD_INDEX)
+10-02 10:42:14.319 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:14.323 I/CCodecConfig( 1067): query failed after returning 10 values (BAD_INDEX)
+10-02 10:42:14.323 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:14.331 E/Codec2-ComponentInterface( 1109): We have a failed config
+10-02 10:42:14.348 D/MediaPlayerService( 1067): OMX service is not available
+10-02 10:42:14.365 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:14.407 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:14.411 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:14.416 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:14.417 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:14.425 E/Codec2-ComponentInterface( 1109): We have a failed config
+10-02 10:42:14.445 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:14.447 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:14.448 E/AudioTrack( 1067): Failed to load XML file: odm/etc/audio/audio_lowpower_app_list.xml
+10-02 10:42:14.452 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:14.452 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:14.453 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:14.456 W/ServiceUtilities(  947): doIsAllowed: Playback capture for uid 1047 is denied as no package name could be retrieved from the package manager.
+10-02 10:42:14.457 W/libc    (  947): Access denied finding property "service.bootanim.exit"
+10-02 10:42:14.453 W/binder:947_6(  947): type=1400 audit(0.0:1089630): avc:  denied  { read } for  name="u:object_r:bootanim_system_prop:s0" dev="tmpfs" ino=122 scontext=u:r:audioserver:s0 tcontext=u:object_r:bootanim_system_prop:s0 tclass=file permissive=0
+10-02 10:42:14.458 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:14.460 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:14.457 W/binder:960_4(  960): type=1400 audit(0.0:1089631): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:14.466 D/xlog_client(  947): xlog_open: Error in open xlog
+10-02 10:42:14.468 D/audioserver(  947): EventReporter , EventReporter init failed
+10-02 10:42:14.480 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:14.491 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:14.499 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:14.511 E/sixth_if_gift(  891): tuning_misc_dev_open open file /dev/sipa_tool failed, Permission denied
+10-02 10:42:14.512 W/libc    (  891): Access denied finding property "sipa.timer"
+10-02 10:42:14.512 W/libc    (  891): Access denied finding property "sipa.pvdd.limit"
+10-02 10:42:14.512 W/libc    (  891): Access denied finding property "sipa.pcm.save"
+10-02 10:42:14.512 W/libc    (  891): Access denied finding property "sipa.proc.time"
+10-02 10:42:14.512 W/libc    (  891): Access denied finding property "sipa.hal.debug"
+10-02 10:42:14.509 W/writer  (  891): type=1400 audit(0.0:1089632): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:14.509 W/writer  (  891): type=1400 audit(0.0:1089633): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:14.509 W/writer  (  891): type=1400 audit(0.0:1089634): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:14.542 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:14.564 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:14.565 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:14.571 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:14.581 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:14.690 E/CameraImpl( 1031): updateSessionParams 487 failed to find tag
+10-02 10:42:14.690 E/CameraImpl( 1031): updateSessionParams 506 failed to find tag customizeFunctionMask
+10-02 10:42:14.690 E/CameraImpl( 1031): updateSessionParams 525 failed to find tag trdCloudSwitch
+10-02 10:42:14.690 E/CameraImpl( 1031): updateSessionParams 552 failed to find sessionparams.operation
+10-02 10:42:14.695 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:14.695 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ } being aborted (#0 in-flight frames)
+10-02 10:42:14.706 E/libPowerHal(  928): error : 2, No such file or directory
+10-02 10:42:14.709 I/aao_buf_mgr( 1083): [dequeueHwBuf] abort after sttPipe deque
+10-02 10:42:14.710 I/FlashHal( 1083): setFlashOff(): sensorDev(2) not available.
+10-02 10:42:14.722 W/mtkcam-dev3-utils( 1083): [extractE2EHDRInfo] query tag MTK_STREAMING_FEATURE_HDR10 failed, E2E HDR is not applied
+10-02 10:42:14.724 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:14.725 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:14.764 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:14.764 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:14.764 E/BWC     ( 1083): MTK_IOC_MMDVFS_CMD failed.:Inappropriate ioctl for device
+10-02 10:42:14.765 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:14.770 W/libc    ( 1083): Access denied finding property "demo.hole"
+10-02 10:42:14.770 W/libc    ( 1083): Access denied finding property "demo.near"
+10-02 10:42:14.770 W/libc    ( 1083): Access denied finding property "demo.far"
+10-02 10:42:14.770 W/libc    ( 1083): Access denied finding property "demo.fb"
+10-02 10:42:14.782 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.in"
+10-02 10:42:14.782 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.out"
+10-02 10:42:14.782 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.update"
+10-02 10:42:14.788 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.790 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.792 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.793 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.794 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.794 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.796 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.796 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.798 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.799 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.800 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.801 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.802 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.804 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.806 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:14.851 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:14.851 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:14.851 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:14.851 W/libc    ( 1083): Access denied finding property "vendor.af.mzaf.enable"
+10-02 10:42:14.851 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:14.852 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:14.852 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:14.930 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:14.932 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:14.965 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:14.971 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:15.011 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:15.162 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:15.165 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:15.367 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:15.472 W/libc    ( 1099): Access denied finding property "gce.test"
+10-02 10:42:15.473 W/libc    ( 1099): Access denied finding property "vilte.test"
+10-02 10:42:15.473 W/libc    ( 1099): Access denied finding property "prepend.test"
+10-02 10:42:15.469 W/venc_srv( 1099): type=1400 audit(0.0:1089677): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:vpud_native:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:15.469 W/venc_srv( 1099): type=1400 audit(0.0:1089678): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:vpud_native:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:15.469 W/venc_srv( 1099): type=1400 audit(0.0:1089679): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:vpud_native:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:15.566 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:15.705 W/binder:1031_1( 1031): type=1400 audit(0.0:1089680): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:15.741 W/binder:1031_5( 1031): type=1400 audit(0.0:1089681): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:15.767 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:15.854 E/MiuiPreloadClassImpl(32654): invoke error.
+10-02 10:42:15.878 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:15.878 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:15.878 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:15.878 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:15.878 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:15.878 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:15.878 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:15.878 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:15.967 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:16.125 W/ActivityManager( 1307): Unbind failed: could not find connection for android.os.BinderProxy@ff8078e
+10-02 10:42:16.167 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:16.367 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:16.421 E/ActivityThread(32654): Failed to find provider info for com.xiaomi.mipicks.dbcache
+10-02 10:42:16.422 E/SystemUpdate-DiscoverUpdateManager(32654): ContentProvider.query failed - java.lang.IllegalArgumentException: Unknown authority com.xiaomi.mipicks.dbcache
+10-02 10:42:16.568 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:16.768 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:16.969 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:17.169 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:17.369 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:17.570 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:17.770 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:17.878 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:17.878 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:17.878 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:17.878 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:17.970 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:18.171 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:18.371 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:18.571 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:18.772 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:18.972 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:19.172 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:19.373 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:19.510 W/ActivityManager( 1307): Unbind failed: could not find connection for android.os.BinderProxy@1699707
+10-02 10:42:19.573 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:19.774 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:19.879 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:19.879 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:19.879 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:19.879 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:19.879 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:19.879 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:19.881 W/FinalizerDaemon(30896): type=1400 audit(0.0:1089702): avc:  denied  { getopt } for  path="/dev/socket/usap_pool_primary" scontext=u:r:untrusted_app:s0:c128,c256,c512,c768 tcontext=u:r:zygote:s0 tclass=unix_stream_socket permissive=0 app=fr.emmanuel.multicam
+10-02 10:42:19.974 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:20.139 D/xlog_client( 1067): xlog_open: Error in open xlog
+10-02 10:42:20.141 D/mediaserver( 1067): EventReporter , EventReporter init failed
+10-02 10:42:20.146 D/MediaPlayerService( 1067): OMX service is not available
+10-02 10:42:20.174 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:20.191 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:20.194 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:20.197 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:20.198 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:20.202 E/Codec2-ComponentInterface( 1109): We have a failed config
+10-02 10:42:20.218 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:20.219 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:20.219 E/AudioTrack( 1067): Failed to load XML file: odm/etc/audio/audio_lowpower_app_list.xml
+10-02 10:42:20.223 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:20.223 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:20.224 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:20.226 W/ServiceUtilities(  947): doIsAllowed: Playback capture for uid 1047 is denied as no package name could be retrieved from the package manager.
+10-02 10:42:20.227 W/libc    (  947): Access denied finding property "service.bootanim.exit"
+10-02 10:42:20.225 W/binder:947_5(  947): type=1400 audit(0.0:1089703): avc:  denied  { read } for  name="u:object_r:bootanim_system_prop:s0" dev="tmpfs" ino=122 scontext=u:r:audioserver:s0 tcontext=u:object_r:bootanim_system_prop:s0 tclass=file permissive=0
+10-02 10:42:20.228 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:20.229 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:20.234 D/xlog_client(  947): xlog_open: Error in open xlog
+10-02 10:42:20.236 D/audioserver(  947): EventReporter , EventReporter init failed
+10-02 10:42:20.244 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:20.255 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:20.262 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:20.270 E/sixth_if_gift(  891): tuning_misc_dev_open open file /dev/sipa_tool failed, Permission denied
+10-02 10:42:20.271 W/libc    (  891): Access denied finding property "sipa.timer"
+10-02 10:42:20.269 W/writer  (  891): type=1400 audit(0.0:1089704): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:20.269 W/binder:1031_3( 1031): type=1400 audit(0.0:1089705): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:20.269 W/writer  (  891): type=1400 audit(0.0:1089706): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:20.271 W/libc    (  891): Access denied finding property "sipa.pvdd.limit"
+10-02 10:42:20.271 W/libc    (  891): Access denied finding property "sipa.pcm.save"
+10-02 10:42:20.271 W/libc    (  891): Access denied finding property "sipa.proc.time"
+10-02 10:42:20.271 W/libc    (  891): Access denied finding property "sipa.hal.debug"
+10-02 10:42:20.298 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:20.309 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:20.320 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:20.359 E/CameraImpl( 1031): updateSessionParams 487 failed to find tag
+10-02 10:42:20.359 E/CameraImpl( 1031): updateSessionParams 506 failed to find tag customizeFunctionMask
+10-02 10:42:20.359 E/CameraImpl( 1031): updateSessionParams 525 failed to find tag trdCloudSwitch
+10-02 10:42:20.359 E/CameraImpl( 1031): updateSessionParams 552 failed to find sessionparams.operation
+10-02 10:42:20.365 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:20.365 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ } being aborted (#0 in-flight frames)
+10-02 10:42:20.374 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:20.379 I/aao_buf_mgr( 1083): [dequeueHwBuf] abort after sttPipe deque
+10-02 10:42:20.380 I/FlashHal( 1083): setFlashOff(): sensorDev(2) not available.
+10-02 10:42:20.387 W/mtkcam-dev3-utils( 1083): [extractE2EHDRInfo] query tag MTK_STREAMING_FEATURE_HDR10 failed, E2E HDR is not applied
+10-02 10:42:20.388 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:20.388 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:20.423 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:20.424 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:20.424 E/BWC     ( 1083): MTK_IOC_MMDVFS_CMD failed.:Inappropriate ioctl for device
+10-02 10:42:20.431 W/libc    ( 1083): Access denied finding property "demo.hole"
+10-02 10:42:20.431 W/libc    ( 1083): Access denied finding property "demo.near"
+10-02 10:42:20.431 W/libc    ( 1083): Access denied finding property "demo.far"
+10-02 10:42:20.431 W/libc    ( 1083): Access denied finding property "demo.fb"
+10-02 10:42:20.444 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.in"
+10-02 10:42:20.444 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.out"
+10-02 10:42:20.444 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.update"
+10-02 10:42:20.448 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.448 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.449 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.449 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.451 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.451 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.452 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.452 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.454 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.454 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.455 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.455 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.456 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.456 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.458 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:20.491 D/xlog_client( 1307): xlog_open: Error in open xlog
+10-02 10:42:20.493 D/system_server( 1307): EventReporter , EventReporter init failed
+10-02 10:42:20.506 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:20.506 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:20.506 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:20.506 W/libc    ( 1083): Access denied finding property "vendor.af.mzaf.enable"
+10-02 10:42:20.507 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:20.508 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:20.508 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:20.574 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:20.588 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:20.590 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:20.629 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:20.679 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:20.775 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:20.903 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:20.976 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:21.177 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:21.377 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:21.489 W/binder:1031_1( 1031): type=1400 audit(0.0:1089735): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:21.587 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:21.787 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:21.880 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:21.880 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:21.880 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:21.880 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:21.880 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:21.880 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:21.880 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:21.880 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:21.988 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:22.188 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:22.389 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:22.589 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:22.784 W/System  (32218): A resource failed to call close. 
+10-02 10:42:22.785 W/System  (32218): A resource failed to call AbstractCursor.close. 
+10-02 10:42:22.785 W/System  (32218): A resource failed to call AbstractCursor.close. 
+10-02 10:42:22.789 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:22.990 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:23.191 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:23.390 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:23.591 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:23.774 I/keystore2(  605): system/security/keystore2/watchdog/src/lib.rs:399 - Watchdog thread idle -> terminating. Have a great day.
+10-02 10:42:23.791 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:23.880 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:23.880 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:23.880 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:23.880 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:23.880 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:23.880 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:23.991 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:24.193 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:24.393 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:24.594 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:24.794 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:24.995 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:25.195 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:25.396 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:25.595 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:25.797 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:25.881 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:25.881 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:25.882 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:25.882 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:25.882 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:25.882 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:25.882 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:25.882 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:25.998 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:26.198 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:26.399 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:26.521 W/ActivityManager( 1307): Unbind failed: could not find connection for android.os.BinderProxy@e652bd
+10-02 10:42:26.600 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:26.800 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:26.847 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:26.848 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:26.849 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:26.852 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:26.852 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ 82 81 80 79 } being aborted (#4 in-flight frames)
+10-02 10:42:26.861 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P1:Dynamic_main1:0x10000001b:0xb400006e6e285eb0 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.861 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP1_main1:0x100000024:0xb400006e6e271cb0 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.862 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:P1:Resizeraw_main1:0x100000003:0xb400006ebe251610 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.862 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:STT_main1:0x100000004:0xb400006ebe27cef0 producer:0x1 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.862 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:244 App:Meta:DynamicP1_main1
+10-02 10:42:26.862 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e2553f0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.862 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e2576f0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.862 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER:0:0xb400006ebe258050 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.862 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe25e130 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.863 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:244 App:Meta:DynamicP2
+10-02 10:42:26.863 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e256570 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.863 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:244 streamId:0 s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER state:IN-FLIGHT->ERROR
+10-02 10:42:26.863 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo:244 Request Error
+10-02 10:42:26.864 W/Camera2Client( 1031): notifyError: Received recoverable error 3 from HAL - ignoring, requestId 10000005
+10-02 10:42:26.872 I/aao_buf_mgr( 1083): [dequeueHwBuf] abort after sttPipe deque
+10-02 10:42:26.872 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:241 App:Meta:DynamicP1_main1
+10-02 10:42:26.873 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e24eaf0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.873 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e2721f0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.873 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER:0:0xb400006ebe26edf0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.873 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe27a650 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.873 I/FlashHal( 1083): setFlashOff(): sensorDev(2) not available.
+10-02 10:42:26.873 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:241 App:Meta:DynamicP2
+10-02 10:42:26.873 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:241 streamId:0 s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER state:IN-FLIGHT->ERROR
+10-02 10:42:26.873 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e267130 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.873 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo:241 Request Error
+10-02 10:42:26.873 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo 241 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:26.874 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:242 App:Meta:DynamicP1_main1
+10-02 10:42:26.874 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e25ab70 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.874 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e255af0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.874 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER:0:0xb400006ebe26bbf0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.875 W/Camera2Client( 1031): notifyError: Received recoverable error 3 from HAL - ignoring, requestId 10000005
+10-02 10:42:26.875 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe25d7d0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.875 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:242 App:Meta:DynamicP2
+10-02 10:42:26.875 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e256730 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.875 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:242 streamId:0 s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER state:IN-FLIGHT->ERROR
+10-02 10:42:26.875 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo:242 Request Error
+10-02 10:42:26.875 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo 242 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:26.875 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:243 App:Meta:DynamicP1_main1
+10-02 10:42:26.876 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Meta:P2:Dynamic:0x10000001e:0xb400006e6e26dbf0 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.876 W/Camera2Client( 1031): notifyError: Received recoverable error 3 from HAL - ignoring, requestId 10000005
+10-02 10:42:26.876 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:DynamicP2:0x100000027:0xb400006e6e26ef30 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.876 W/MtkCam/streambuf( 1083): [markUserStatus] s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER:0:0xb400006ebe29c930 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.876 W/MtkCam/streambuf( 1083): [markUserStatus] Hal:Image:FD:0x100000013:0xb400006ebe28e830 producer:0x15 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.877 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Meta Stream Buffer] Error happens... - requestNo:243 App:Meta:DynamicP2
+10-02 10:42:26.877 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::operator()] [Image Stream Buffer] Error happens and all users release - requestNo:243 streamId:0 s0:d1:App:YCrCb_420_SP:0|HW_TEXTURE|HW_COMPOSER state:IN-FLIGHT->ERROR
+10-02 10:42:26.877 W/MtkCam/streambuf( 1083): [markUserStatus] App:Meta:FD:0x100000029:0xb400006e6e273fb0 producer:0x16 released w/o using -> ERROR buffer - user status:0x8:0x8
+10-02 10:42:26.877 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo:243 Request Error
+10-02 10:42:26.877 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo 243 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:26.877 W/mtkcam-AppStreamMgr( 1083): [1-FrameHandler::updateCallback] requestNo 244 is removed before shutter callbacked, there MUST have error frames or meta be sent for the request
+10-02 10:42:26.879 W/Camera2Client( 1031): notifyError: Received recoverable error 3 from HAL - ignoring, requestId 10000005
+10-02 10:42:26.890 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:26.890 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ } being aborted (#0 in-flight frames)
+10-02 10:42:26.906 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:26.906 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ } being aborted (#0 in-flight frames)
+10-02 10:42:26.907 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:26.907 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:26.956 I/FlashHal( 1083): setFlashOff(): sensorDev(2) not available.
+10-02 10:42:26.957 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:26.957 D/AppTsf  ( 1083): [~AppTsf] destructor; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:26.970 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:26.970 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:26.970 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:26.979 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:26.980 E/SELinux (  507): avc:  denied  { find } for interface=vendor.mediatek.hardware.camera.atms::IATMs sid=u:r:cameraserver:s0 pid=1031 scontext=u:r:cameraserver:s0 tcontext=u:object_r:default_android_hwservice:s0 tclass=hwservice_manager permissive=0
+10-02 10:42:26.986 W/AMessage( 1067): failed to post message as target looper for handler 0 is gone.
+10-02 10:42:26.989 W/binder:960_3(  960): type=1400 audit(0.0:1089736): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:26.995 W/AMessage( 1067): failed to post message as target looper for handler 0 is gone.
+10-02 10:42:26.996 E/MiCameraCustomize( 1031): trdCloudControl: Failed to get or parse JSON data!
+10-02 10:42:27.003 E/libPowerHal(  928): error : 2, No such file or directory
+10-02 10:42:27.005 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:27.011 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:27.011 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:27.011 D/LaserDrv( 1083): Device error opening : No such file or directory
+10-02 10:42:27.011 E/Camera2-Parameters( 1031): Error finding static metadata entry 'android.distortionCorrection.availableModes' (1b0001)
+10-02 10:42:27.012 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:27.012 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:27.012 E/paramctrl_lifetime( 1083): open /proc/driver/thermal/clNR_status failed, disable NR cooler
+10-02 10:42:27.015 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:27.015 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.016 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.016 D/AppTsf  ( 1083): [AppTsf] constructor; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:27.024 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:27.024 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:27.025 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.026 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.026 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.027 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.030 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:27.030 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:27.031 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.031 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:27.031 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:27.031 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.032 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.032 E/CameraImpl( 1031): createCustomDefaultRequest 961 failed to find tag customizeFunctionMask
+10-02 10:42:27.032 E/CameraImpl( 1031): createCustomDefaultRequest 980 failed to find tag trdCloudSwitch
+10-02 10:42:27.032 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:27.033 W/libc    (30896): Access denied finding property "ro.vendor.dynamiccamera.ability_level"
+10-02 10:42:27.037 E/CameraImpl( 1031): updateSessionParams 487 failed to find tag
+10-02 10:42:27.037 E/CameraImpl( 1031): updateSessionParams 506 failed to find tag customizeFunctionMask
+10-02 10:42:27.037 E/CameraImpl( 1031): updateSessionParams 525 failed to find tag trdCloudSwitch
+10-02 10:42:27.037 E/CameraImpl( 1031): updateSessionParams 552 failed to find sessionparams.operation
+10-02 10:42:27.062 E/ProcessManager( 1307): error write exception log
+10-02 10:42:27.063 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:27.070 W/mtkcam-dev3-utils( 1083): [extractE2EHDRInfo] query tag MTK_STREAMING_FEATURE_HDR10 failed, E2E HDR is not applied
+10-02 10:42:27.072 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:27.072 E/ProcessManager( 1307): error write exception log
+10-02 10:42:27.077 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:27.078 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:27.078 E/BWC     ( 1083): MTK_IOC_MMDVFS_CMD failed.:Inappropriate ioctl for device
+10-02 10:42:27.084 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:27.084 E/ProcessManager( 1307): error write exception log
+10-02 10:42:27.089 W/binder:1083_5( 1083): type=1400 audit(0.0:1089737): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:27.089 W/binder:1083_5( 1083): type=1400 audit(0.0:1089738): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:27.089 W/binder:1083_5( 1083): type=1400 audit(0.0:1089739): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:27.089 W/binder:1083_5( 1083): type=1400 audit(0.0:1089740): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:27.090 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:27.090 E/ProcessManager( 1307): error write exception log
+10-02 10:42:27.090 W/libc    ( 1083): Access denied finding property "demo.hole"
+10-02 10:42:27.091 W/libc    ( 1083): Access denied finding property "demo.near"
+10-02 10:42:27.091 W/libc    ( 1083): Access denied finding property "demo.far"
+10-02 10:42:27.091 W/libc    ( 1083): Access denied finding property "demo.fb"
+10-02 10:42:27.103 D/MBrainLocalService( 1307): notifyAppLifeCycle failed
+10-02 10:42:27.103 E/ProcessManager( 1307): error write exception log
+10-02 10:42:27.110 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.in"
+10-02 10:42:27.109 W/binder:1083_5( 1083): type=1400 audit(0.0:1089741): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:27.110 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.out"
+10-02 10:42:27.109 W/binder:1083_5( 1083): type=1400 audit(0.0:1089742): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:27.110 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.update"
+10-02 10:42:27.109 W/binder:1083_5( 1083): type=1400 audit(0.0:1089743): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:27.117 W/.0.HQ_PREVIEW.4( 1083): type=1400 audit(0.0:1089744): avc:  denied  { read } for  name="u:object_r:system_prop:s0" dev="tmpfs" ino=508 scontext=u:r:mtk_hal_camera:s0 tcontext=u:object_r:system_prop:s0 tclass=file permissive=0
+10-02 10:42:27.119 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.119 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.121 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.121 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.123 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.123 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.124 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.124 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.125 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.125 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.127 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.127 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.127 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:27.128 W/libc    ( 1083): Access denied finding property "vendor.af.mzaf.enable"
+10-02 10:42:27.128 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.128 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.129 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:27.130 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:27.130 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:27.130 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:27.130 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:27.131 I/StrobeDrvFlashlightFops( 1083): ioctl failed: type/ct (1,1) Inappropriate ioctl for device
+10-02 10:42:27.138 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:27.138 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:27.138 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:27.193 E/AfAlgoC ( 1083): Err:  7168: isSceneChange PD Idx Error -1 reset to zero
+10-02 10:42:27.205 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:27.216 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:27.217 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:27.249 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:27.283 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:27.406 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:27.606 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:27.626 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:27.626 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:27.626 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:27.626 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:27.626 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:27.626 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:27.806 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:27.881 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:27.881 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:27.881 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:27.881 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:27.882 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:27.882 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:27.882 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:27.882 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:28.006 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:28.118 D/BtGatt.ScanManager( 2064): apply scan timeout (300000)to scannerId 1
+10-02 10:42:28.122 D/BtGatt.ScanManager( 2064): apply scan timeout (300000)to scannerId 2
+10-02 10:42:28.201 W/binder:960_3(  960): type=1400 audit(0.0:1089777): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:28.206 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:28.229 W/binder:960_3(  960): type=1400 audit(0.0:1089778): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:28.233 W/binder:960_3(  960): type=1400 audit(0.0:1089779): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:28.265 W/binder:960_3(  960): type=1400 audit(0.0:1089780): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:28.265 W/binder:960_3(  960): type=1400 audit(0.0:1089781): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:28.407 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:28.607 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:28.807 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:29.007 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:29.207 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:29.408 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:29.608 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:29.803 E/libPowerHal(  928): error : 2, No such file or directory
+10-02 10:42:29.809 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:29.882 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:29.882 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:29.882 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:29.882 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:30.009 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:30.209 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:30.312 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelist"
+10-02 10:42:30.312 W/libc    (30896): Access denied finding property "vendor.camera.aux.packagelistext"
+10-02 10:42:30.313 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:30.314 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:30.315 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:30.315 I/AttributionAndPermissionUtils( 1031): checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10128, pid 30896, packageName "<unknown>"]
+10-02 10:42:30.320 D/MediaRecorderService( 1067): OMX service is not available
+10-02 10:42:30.347 E/C2MtkVenc(  901): [0xE98442DC] Failed to open: /vendor/etc/mtk_platform_codecs_engmode_config.xml
+10-02 10:42:30.348 E/C2MtkVenc(  901): [0xE98442DC] Failed to open: /vendor/etc/mtk_platform_codecs_whitelist.xml
+10-02 10:42:30.348 E/C2MtkVenc(  901): [0xE98458FC] Failed to open: /vendor/etc/mtk_platform_codecs_engmode_config.xml
+10-02 10:42:30.349 E/C2MtkVenc(  901): [0xE98458FC] Failed to open: /vendor/etc/mtk_platform_codecs_whitelist.xml
+10-02 10:42:30.361 W/C2MtkComponent(  901): [0xE64C3190] configUpdate: weak_from_this promote failed, component shared_ptr is already gone.
+10-02 10:42:30.384 I/CCodecConfig( 1067): query failed after returning 23 values (BAD_INDEX)
+10-02 10:42:30.389 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:30.391 E/mediaserver( 1067): Failed to get interface:vendor.xiaomi.hardware.videoservice.IVideoService/default
+10-02 10:42:30.399 I/CCodecConfig( 1067): query failed after returning 59 values (BAD_INDEX)
+10-02 10:42:30.402 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:30.409 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:30.421 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:30.438 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:30.443 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:30.448 D/xlog_client(  947): xlog_open: Error in open xlog
+10-02 10:42:30.449 D/audioserver(  947): EventReporter , EventReporter init failed
+10-02 10:42:30.474 I/CCodecConfig( 1067): query failed after returning 10 values (BAD_INDEX)
+10-02 10:42:30.478 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:30.482 I/CCodecConfig( 1067): query failed after returning 10 values (BAD_INDEX)
+10-02 10:42:30.482 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:30.490 E/Codec2-ComponentInterface( 1109): We have a failed config
+10-02 10:42:30.504 D/MediaPlayerService( 1067): OMX service is not available
+10-02 10:42:30.544 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:30.548 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:30.551 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:30.552 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:30.559 E/Codec2-ComponentInterface( 1109): We have a failed config
+10-02 10:42:30.574 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:30.576 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:30.577 E/AudioTrack( 1067): Failed to load XML file: odm/etc/audio/audio_lowpower_app_list.xml
+10-02 10:42:30.580 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:30.581 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:30.581 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:30.584 W/ServiceUtilities(  947): doIsAllowed: Playback capture for uid 1047 is denied as no package name could be retrieved from the package manager.
+10-02 10:42:30.585 W/libc    (  947): Access denied finding property "service.bootanim.exit"
+10-02 10:42:30.581 W/binder:947_4(  947): type=1400 audit(0.0:1089801): avc:  denied  { read } for  name="u:object_r:bootanim_system_prop:s0" dev="tmpfs" ino=122 scontext=u:r:audioserver:s0 tcontext=u:object_r:bootanim_system_prop:s0 tclass=file permissive=0
+10-02 10:42:30.586 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:30.587 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:30.591 D/xlog_client(  947): xlog_open: Error in open xlog
+10-02 10:42:30.593 D/audioserver(  947): EventReporter , EventReporter init failed
+10-02 10:42:30.602 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:30.609 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:30.614 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:30.622 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:30.631 E/sixth_if_gift(  891): tuning_misc_dev_open open file /dev/sipa_tool failed, Permission denied
+10-02 10:42:30.631 W/libc    (  891): Access denied finding property "sipa.timer"
+10-02 10:42:30.629 W/writer  (  891): type=1400 audit(0.0:1089802): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:30.629 W/writer  (  891): type=1400 audit(0.0:1089803): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:30.631 W/libc    (  891): Access denied finding property "sipa.pvdd.limit"
+10-02 10:42:30.631 W/libc    (  891): Access denied finding property "sipa.pcm.save"
+10-02 10:42:30.632 W/libc    (  891): Access denied finding property "sipa.proc.time"
+10-02 10:42:30.632 W/libc    (  891): Access denied finding property "sipa.hal.debug"
+10-02 10:42:30.629 W/writer  (  891): type=1400 audit(0.0:1089804): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:30.629 W/writer  (  891): type=1400 audit(0.0:1089805): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:30.659 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:30.668 E/CameraImpl( 1031): updateSessionParams 487 failed to find tag
+10-02 10:42:30.668 E/CameraImpl( 1031): updateSessionParams 506 failed to find tag customizeFunctionMask
+10-02 10:42:30.668 E/CameraImpl( 1031): updateSessionParams 525 failed to find tag trdCloudSwitch
+10-02 10:42:30.668 E/CameraImpl( 1031): updateSessionParams 552 failed to find sessionparams.operation
+10-02 10:42:30.669 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:30.672 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:30.672 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ } being aborted (#0 in-flight frames)
+10-02 10:42:30.680 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:30.693 I/aao_buf_mgr( 1083): [dequeueHwBuf] abort after sttPipe deque
+10-02 10:42:30.695 I/StrobeDrvFlashlightFops( 1083): ioctl failed: type/ct (1,1) Inappropriate ioctl for device
+10-02 10:42:30.704 W/mtkcam-dev3-utils( 1083): [extractE2EHDRInfo] query tag MTK_STREAMING_FEATURE_HDR10 failed, E2E HDR is not applied
+10-02 10:42:30.706 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:30.707 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:30.736 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:30.736 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:30.736 E/BWC     ( 1083): MTK_IOC_MMDVFS_CMD failed.:Inappropriate ioctl for device
+10-02 10:42:30.741 W/libc    ( 1083): Access denied finding property "demo.hole"
+10-02 10:42:30.741 W/libc    ( 1083): Access denied finding property "demo.near"
+10-02 10:42:30.741 W/libc    ( 1083): Access denied finding property "demo.far"
+10-02 10:42:30.741 W/libc    ( 1083): Access denied finding property "demo.fb"
+10-02 10:42:30.753 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.in"
+10-02 10:42:30.753 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.out"
+10-02 10:42:30.753 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.update"
+10-02 10:42:30.757 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.758 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.759 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.761 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.761 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.762 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.763 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.764 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.764 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.766 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.766 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.767 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.768 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.768 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.769 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:30.778 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:30.778 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:30.778 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:30.778 W/libc    ( 1083): Access denied finding property "vendor.af.mzaf.enable"
+10-02 10:42:30.779 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:30.780 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:30.781 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:30.781 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:30.781 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:30.787 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:30.787 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:30.787 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:30.809 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:30.834 E/AfAlgoC ( 1083): Err:  7168: isSceneChange PD Idx Error -1 reset to zero
+10-02 10:42:30.851 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:30.852 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:30.885 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:30.919 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:31.009 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:31.210 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:31.264 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:31.411 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:31.589 W/venc_srv( 1099): type=1400 audit(0.0:1089847): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:vpud_native:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:31.590 W/libc    ( 1099): Access denied finding property "gce.test"
+10-02 10:42:31.590 W/libc    ( 1099): Access denied finding property "vilte.test"
+10-02 10:42:31.590 W/libc    ( 1099): Access denied finding property "prepend.test"
+10-02 10:42:31.589 W/venc_srv( 1099): type=1400 audit(0.0:1089848): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:vpud_native:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:31.589 W/venc_srv( 1099): type=1400 audit(0.0:1089849): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:vpud_native:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:31.611 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:31.811 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:31.825 W/binder:960_2(  960): type=1400 audit(0.0:1089850): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:31.853 W/binder:960_2(  960): type=1400 audit(0.0:1089851): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:31.884 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:31.884 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:31.884 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:31.884 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:31.884 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:31.884 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:31.884 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:31.884 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:32.012 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:32.212 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:32.412 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:32.613 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:32.813 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:33.014 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:33.214 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:33.415 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:33.616 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:33.741 W/binder:1031_5( 1031): type=1400 audit(0.0:1089874): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:33.773 W/binder:1031_3( 1031): type=1400 audit(0.0:1089875): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:33.815 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:33.884 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:33.884 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:33.884 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:33.884 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:33.884 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:33.884 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:33.884 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:33.884 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:34.016 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:34.216 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:34.416 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:34.617 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:34.817 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:35.018 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:35.114 W/ActivityManager( 1307): Unbind failed: could not find connection for android.os.BinderProxy@c7bb7cf
+10-02 10:42:35.117 E/SatelliteModemInterface( 2141): Error binding to the satellite service. Retrying in 62197 ms.
+10-02 10:42:35.218 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:35.418 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:35.619 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:35.819 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:35.884 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:35.884 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:35.885 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:35.885 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:35.885 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:35.885 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:35.885 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:35.885 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:35.959 D/xlog_client( 1067): xlog_open: Error in open xlog
+10-02 10:42:35.962 D/mediaserver( 1067): EventReporter , EventReporter init failed
+10-02 10:42:35.965 D/MediaPlayerService( 1067): OMX service is not available
+10-02 10:42:36.011 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:36.014 W/ServiceManagerCppClient( 1067): Failed to get isDeclared for media_quality: Status(-1, EX_SECURITY): 'SELinux denied for service.'
+10-02 10:42:36.019 I/CCodecConfig( 1067): query failed after returning 8 values (BAD_INDEX)
+10-02 10:42:36.019 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:36.019 E/mediaserver( 1067): Failed to query component interface for required system resources: 6
+10-02 10:42:36.027 E/Codec2-ComponentInterface( 1109): We have a failed config
+10-02 10:42:36.041 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:36.042 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:36.043 E/AudioTrack( 1067): Failed to load XML file: odm/etc/audio/audio_lowpower_app_list.xml
+10-02 10:42:36.046 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:36.047 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:36.048 E/ConversionHelperAidl(  947): Function: parseAndGetVendorParameters Line: 51 Failed 
+10-02 10:42:36.050 W/ServiceUtilities(  947): doIsAllowed: Playback capture for uid 1047 is denied as no package name could be retrieved from the package manager.
+10-02 10:42:36.051 W/libc    (  947): Access denied finding property "service.bootanim.exit"
+10-02 10:42:36.049 W/binder:947_4(  947): type=1400 audit(0.0:1089876): avc:  denied  { read } for  name="u:object_r:bootanim_system_prop:s0" dev="tmpfs" ino=122 scontext=u:r:audioserver:s0 tcontext=u:object_r:bootanim_system_prop:s0 tclass=file permissive=0
+10-02 10:42:36.052 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:36.053 W/AudioPolicyManagerImpl(  947): Failed to load AudioCloudCtrl list, using the default list!
+10-02 10:42:36.058 D/xlog_client(  947): xlog_open: Error in open xlog
+10-02 10:42:36.060 D/audioserver(  947): EventReporter , EventReporter init failed
+10-02 10:42:36.069 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:36.080 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:36.087 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 94 Failed 
+10-02 10:42:36.094 E/sixth_if_gift(  891): tuning_misc_dev_open open file /dev/sipa_tool failed, Permission denied
+10-02 10:42:36.095 W/libc    (  891): Access denied finding property "sipa.timer"
+10-02 10:42:36.093 W/writer  (  891): type=1400 audit(0.0:1089877): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:36.095 W/libc    (  891): Access denied finding property "sipa.pvdd.limit"
+10-02 10:42:36.095 W/libc    (  891): Access denied finding property "sipa.pcm.save"
+10-02 10:42:36.095 W/libc    (  891): Access denied finding property "sipa.proc.time"
+10-02 10:42:36.095 W/libc    (  891): Access denied finding property "sipa.hal.debug"
+10-02 10:42:36.093 W/writer  (  891): type=1400 audit(0.0:1089878): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:36.093 W/writer  (  891): type=1400 audit(0.0:1089879): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:36.093 W/writer  (  891): type=1400 audit(0.0:1089880): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:36.093 W/writer  (  891): type=1400 audit(0.0:1089881): avc:  denied  { read } for  name="u:object_r:default_prop:s0" dev="tmpfs" ino=184 scontext=u:r:mtk_hal_audio:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-02 10:42:36.101 W/binder:1031_5( 1031): type=1400 audit(0.0:1089882): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:36.122 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:36.133 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:36.133 W/binder:1031_1( 1031): type=1400 audit(0.0:1089883): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:36.143 E/StreamHalAidl(  947): Function: getPresentationPosition Line: 1164 Failed 
+10-02 10:42:36.179 E/CameraImpl( 1031): updateSessionParams 487 failed to find tag
+10-02 10:42:36.179 E/CameraImpl( 1031): updateSessionParams 506 failed to find tag customizeFunctionMask
+10-02 10:42:36.179 E/CameraImpl( 1031): updateSessionParams 525 failed to find tag trdCloudSwitch
+10-02 10:42:36.179 E/CameraImpl( 1031): updateSessionParams 552 failed to find sessionparams.operation
+10-02 10:42:36.183 I/mtkcam-InFlightRequest( 1083): [abort] +
+10-02 10:42:36.183 I/mtkcam-InFlightRequest( 1083): [abort] - frames:{ } being aborted (#0 in-flight frames)
+10-02 10:42:36.187 I/aao_buf_mgr( 1083): [dequeueHwBuf] abort after sttPipe deque
+10-02 10:42:36.188 I/StrobeDrvFlashlightFops( 1083): ioctl failed: type/ct (1,1) Inappropriate ioctl for device
+10-02 10:42:36.197 W/mtkcam-dev3-utils( 1083): [extractE2EHDRInfo] query tag MTK_STREAMING_FEATURE_HDR10 failed, E2E HDR is not applied
+10-02 10:42:36.198 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:36.198 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:36.219 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:36.233 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_GET failed.:Inappropriate ioctl for device
+10-02 10:42:36.233 E/BWC     ( 1083): MTK_IOC_SMI_BWC_INFO_SET failed.:Inappropriate ioctl for device
+10-02 10:42:36.233 E/BWC     ( 1083): MTK_IOC_MMDVFS_CMD failed.:Inappropriate ioctl for device
+10-02 10:42:36.238 W/libc    ( 1083): Access denied finding property "demo.hole"
+10-02 10:42:36.238 W/libc    ( 1083): Access denied finding property "demo.near"
+10-02 10:42:36.238 W/libc    ( 1083): Access denied finding property "demo.far"
+10-02 10:42:36.238 W/libc    ( 1083): Access denied finding property "demo.fb"
+10-02 10:42:36.249 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.in"
+10-02 10:42:36.249 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.get.out"
+10-02 10:42:36.249 W/libc    ( 1083): Access denied finding property "persist.beauty.face.beauty.draw.update"
+10-02 10:42:36.252 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.252 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.254 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.254 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.255 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.255 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.256 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.256 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.257 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.258 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.258 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.259 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.259 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.260 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.261 W/libc    ( 1083): Access denied finding property "sys.debug.graphic_buffer_maxsize"
+10-02 10:42:36.272 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.272 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.272 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:36.274 W/libc    ( 1083): Access denied finding property "vendor.af.mzaf.enable"
+10-02 10:42:36.274 D/AppTsf  ( 1083): [TsfExit] TsfExit; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:36.276 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:36.278 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.278 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.278 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:36.282 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.282 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.283 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:36.287 E/MiCamCalCamCal( 1083): ver0825Err:   451: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.287 E/MiCamCalCamCal( 1083): ver0825Err:   461: XiaoMiCamCalAWBGain : Return no ERROR 
+10-02 10:42:36.287 D/MiCamCalCamCal( 1083): ver0825 XiaoMiCamCalAf no error 
+10-02 10:42:36.309 E/AfAlgoC ( 1083): Err:  7168: isSceneChange PD Idx Error -1 reset to zero
+10-02 10:42:36.332 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:36.333 D/AppTsf  ( 1083): [TsfReset] TsfReset; ShadingVersion: 2021.0805.1657 sync codebase and add error handling
+10-02 10:42:36.358 D/xlog_client( 1307): xlog_open: Error in open xlog
+10-02 10:42:36.359 D/system_server( 1307): EventReporter , EventReporter init failed
+10-02 10:42:36.365 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:36.399 E/aao_buf_mgr( 1083): [updateInfo] Failed to get FLASHResult for MagicNum(1)
+10-02 10:42:36.419 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:36.620 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:36.727 E/ConversionHelperAidl(  947): Function: parseAndSetVendorParameters Line: 104 Failed 
+10-02 10:42:36.829 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:37.029 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:37.230 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:37.431 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:37.631 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:37.832 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:37.885 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:37.886 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:37.886 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:37.886 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:37.886 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:37.886 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:38.032 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:38.233 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:38.433 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:38.633 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:38.834 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:39.034 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:39.234 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:39.435 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:39.635 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:39.836 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:39.886 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:39.886 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:39.886 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:39.886 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:40.036 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:40.237 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:40.437 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:40.638 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:40.839 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:41.039 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:41.239 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:41.440 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:41.640 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:41.841 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:41.887 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:41.887 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:41.887 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:41.887 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:41.887 V/thermal_src( 1097): TA_DAEMON_CMD_GET_TPCB:ERROR ret=-1
+10-02 10:42:41.887 E/thermal_src( 1097): get_tpcb_from_kernel:error -1. retry...
+10-02 10:42:41.887 V/thermal_src( 1097): TA_DAEMON_CMD_SET_TTJ:ERROR ret=-1
+10-02 10:42:41.887 E/thermal_src( 1097): set_ttj_to_kernel 1:error -1
+10-02 10:42:41.909 W/binder:1031_5( 1031): type=1400 audit(0.0:1089909): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:41.945 W/binder:1031_3( 1031): type=1400 audit(0.0:1089910): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:41.977 W/binder:1031_5( 1031): type=1400 audit(0.0:1089911): avc:  denied  { search } for  name="mcd" dev="dm-57" ino=457 scontext=u:r:cameraserver:s0 tcontext=u:object_r:mcd_data_file:s0 tclass=dir permissive=0
+10-02 10:42:42.041 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:42.241 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"
+10-02 10:42:42.441 W/libc    (  960): Access denied finding property "ro.vendor.display.max_hdr_luminance"

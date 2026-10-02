@@ -1,0 +1,678 @@
+{
+  "poc": "J09-changement-camera-pendant-REC",
+  "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc",
+  "device": null,
+  "inventory": null,
+  "phases": [
+    {
+      "phase": "phase3-switchs-multiples",
+      "switches": [
+        {
+          "index": 0,
+          "switchOk": true,
+          "switchAfterMs": 394,
+          "deltaDepuisDebutRecMs": 1147,
+          "deltaDepuisSwitchPrecedentMs": null,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 96,
+            "noir": false
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900758470
+        },
+        {
+          "index": 1,
+          "switchOk": true,
+          "switchAfterMs": 250,
+          "deltaDepuisDebutRecMs": 4517,
+          "deltaDepuisSwitchPrecedentMs": 3370,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 0,
+            "noir": true
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900761840
+        },
+        {
+          "index": 2,
+          "switchOk": true,
+          "switchAfterMs": 370,
+          "deltaDepuisDebutRecMs": 8023,
+          "deltaDepuisSwitchPrecedentMs": 3506,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 95,
+            "noir": false
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900765346
+        },
+        {
+          "index": 3,
+          "switchOk": true,
+          "switchAfterMs": 233,
+          "deltaDepuisDebutRecMs": 11374,
+          "deltaDepuisSwitchPrecedentMs": 3351,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 0,
+            "noir": true
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900768697
+        },
+        {
+          "index": 4,
+          "switchOk": true,
+          "switchAfterMs": 355,
+          "deltaDepuisDebutRecMs": 14877,
+          "deltaDepuisSwitchPrecedentMs": 3503,
+          "pixelcopyAvant": {
+            "ok": true,
+            "raison": null,
+            "luma": 95,
+            "noir": false
+          },
+          "pixelcopyApres": {
+            "ok": false,
+            "raison": "PixelCopy failed with code 3"
+          },
+          "atMs": 1790900772200
+        }
+      ],
+      "relance": {
+        "ok": true,
+        "raison": null,
+        "ackAfterMs": 654,
+        "segments": [
+          {
+            "cache": "videoTmp_1.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p3-relance-videoTmp_1.mp4",
+            "octets": 3288,
+            "sha256": "098af3f199fb2ddfacdb657ef074c0054494245fea13d7254297072c49fd7582",
+            "conteneurSec": null,
+            "video": {
+              "luma": "0x0",
+              "fps": "0/0",
+              "nbFrames": null,
+              "dureeSec": 0
+            },
+            "audio": {
+              "echantillon": 0,
+              "canaux": 0,
+              "dureeSec": 0
+            },
+            "continuiteVideo": {
+              "frames": 1,
+              "firstPts": 0,
+              "lastPts": 0,
+              "intervalMoyenSec": 0,
+              "fpsMoyen": null,
+              "maxGapSec": 0,
+              "maxGapAtSec": null,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 1,
+              "firstPts": 0,
+              "lastPts": 0,
+              "maxGapSec": 0,
+              "maxGapAtSec": null
+            },
+            "deficitVideoSec": 0,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p3-relance-videoTmp.mp4",
+            "octets": 406389,
+            "sha256": "e2125ade1318784df0dd43d1faf807ee7d9a2622b52d777daf36662ecc84e502",
+            "conteneurSec": 16.618667,
+            "video": {
+              "luma": "0x0",
+              "fps": "0/0",
+              "nbFrames": null,
+              "dureeSec": 16.618667
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 16.618667
+            },
+            "continuiteVideo": {
+              "frames": 1,
+              "firstPts": 0,
+              "lastPts": 0,
+              "intervalMoyenSec": 0,
+              "fpsMoyen": null,
+              "maxGapSec": 0,
+              "maxGapAtSec": null,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 779,
+              "firstPts": 0,
+              "lastPts": 16.597333,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 16.043
+            },
+            "deficitVideoSec": 0,
+            "verdictVideo": "VIDEO COMPLETE"
+          }
+        ]
+      },
+      "events": [
+        {
+          "name": "startCamera.request",
+          "atMs": 1790900755529,
+          "detail": {
+            "camera": "back",
+            "w": 1006,
+            "h": 558
+          }
+        },
+        {
+          "name": "startCamera.ok",
+          "atMs": 1790900755764,
+          "detail": "Camera started"
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790900757322,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790900757878,
+          "detail": {
+            "ackAfterMs": 555
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900757886,
+          "detail": {
+            "tag": "s0-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900757999,
+          "detail": {
+            "tag": "s0-avant",
+            "afterMs": 113,
+            "b64len": 94096
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790900758076,
+          "detail": {
+            "atMs": 1790900758076
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790900758470,
+          "detail": {
+            "afterMs": 394,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900758478,
+          "detail": {
+            "tag": "s0-apres"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790900758483,
+          "detail": {
+            "tag": "s0-apres",
+            "afterMs": 5,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900761491,
+          "detail": {
+            "tag": "s1-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900761539,
+          "detail": {
+            "tag": "s1-avant",
+            "afterMs": 48,
+            "b64len": 18116
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790900761590,
+          "detail": {
+            "atMs": 1790900761590
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790900761840,
+          "detail": {
+            "afterMs": 250,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900761847,
+          "detail": {
+            "tag": "s1-apres"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790900761850,
+          "detail": {
+            "tag": "s1-apres",
+            "afterMs": 3,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900764858,
+          "detail": {
+            "tag": "s2-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900764917,
+          "detail": {
+            "tag": "s2-avant",
+            "afterMs": 59,
+            "b64len": 74888
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790900764976,
+          "detail": {
+            "atMs": 1790900764976
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790900765346,
+          "detail": {
+            "afterMs": 370,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900765355,
+          "detail": {
+            "tag": "s2-apres"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790900765359,
+          "detail": {
+            "tag": "s2-apres",
+            "afterMs": 4,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900768367,
+          "detail": {
+            "tag": "s3-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900768416,
+          "detail": {
+            "tag": "s3-avant",
+            "afterMs": 49,
+            "b64len": 17952
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790900768464,
+          "detail": {
+            "atMs": 1790900768464
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790900768697,
+          "detail": {
+            "afterMs": 233,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900768702,
+          "detail": {
+            "tag": "s3-apres"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790900768705,
+          "detail": {
+            "tag": "s3-apres",
+            "afterMs": 3,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900771713,
+          "detail": {
+            "tag": "s4-avant"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790900771770,
+          "detail": {
+            "tag": "s4-avant",
+            "afterMs": 57,
+            "b64len": 76228
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790900771846,
+          "detail": {
+            "atMs": 1790900771845
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790900772200,
+          "detail": {
+            "afterMs": 355,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790900772207,
+          "detail": {
+            "tag": "s4-apres"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.error",
+          "atMs": 1790900772212,
+          "detail": {
+            "tag": "s4-apres",
+            "afterMs": 5,
+            "err": "PixelCopy failed with code 3"
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790900775219,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.error",
+          "atMs": 1790900775565,
+          "detail": "stop failed."
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790900777423,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790900778077,
+          "detail": {
+            "ackAfterMs": 654
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790900778083,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.error",
+          "atMs": 1790900778815,
+          "detail": "stop failed."
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "cache": "p3-relance-videoTmp.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p3-relance-videoTmp.mp4",
+      "octets": 406389,
+      "sha256": "e2125ade1318784df0dd43d1faf807ee7d9a2622b52d777daf36662ecc84e502",
+      "conteneurSec": 16.618667,
+      "pisteVideoPresente": false,
+      "video": null,
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 16.618667
+      },
+      "continuiteVideo": {
+        "frames": 1,
+        "firstPts": 0,
+        "lastPts": 0,
+        "intervalMoyenSec": 0,
+        "fpsMoyen": null,
+        "maxGapSec": 0,
+        "maxGapAtSec": null,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 779,
+        "firstPts": 0,
+        "lastPts": 16.597333,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 16.043
+      },
+      "deficitVideoSec": null,
+      "verdictVideo": "AUCUNE PISTE VIDEO (fichier audio seul)"
+    },
+    {
+      "cache": "p3-relance-videoTmp_1.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p3-relance-videoTmp_1.mp4",
+      "octets": 3288,
+      "sha256": "098af3f199fb2ddfacdb657ef074c0054494245fea13d7254297072c49fd7582",
+      "conteneurSec": null,
+      "pisteVideoPresente": false,
+      "video": null,
+      "audio": null,
+      "continuiteVideo": {
+        "frames": 1,
+        "firstPts": 0,
+        "lastPts": 0,
+        "intervalMoyenSec": 0,
+        "fpsMoyen": null,
+        "maxGapSec": 0,
+        "maxGapAtSec": null,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 1,
+        "firstPts": 0,
+        "lastPts": 0,
+        "maxGapSec": 0,
+        "maxGapAtSec": null
+      },
+      "deficitVideoSec": null,
+      "verdictVideo": "AUCUNE PISTE VIDEO (fichier audio seul)"
+    },
+    {
+      "cache": "p3-videoTmp.mp4",
+      "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p3-videoTmp.mp4",
+      "octets": 406389,
+      "sha256": "e2125ade1318784df0dd43d1faf807ee7d9a2622b52d777daf36662ecc84e502",
+      "conteneurSec": 16.618667,
+      "pisteVideoPresente": false,
+      "video": null,
+      "audio": {
+        "codec": "aac",
+        "echantillon": 48000,
+        "canaux": 1,
+        "dureeSec": 16.618667
+      },
+      "continuiteVideo": {
+        "frames": 1,
+        "firstPts": 0,
+        "lastPts": 0,
+        "intervalMoyenSec": 0,
+        "fpsMoyen": null,
+        "maxGapSec": 0,
+        "maxGapAtSec": null,
+        "trous_sup_200ms": 0
+      },
+      "continuiteAudio": {
+        "packets": 779,
+        "firstPts": 0,
+        "lastPts": 16.597333,
+        "maxGapSec": 0.021,
+        "maxGapAtSec": 16.043
+      },
+      "deficitVideoSec": null,
+      "verdictVideo": "AUCUNE PISTE VIDEO (fichier audio seul)"
+    }
+  ],
+  "switches": [
+    {
+      "index": 0,
+      "switchOk": true,
+      "switchAfterMs": 394,
+      "deltaDepuisDebutRecMs": 1147,
+      "deltaDepuisSwitchPrecedentMs": null,
+      "pixelcopyAvant": {
+        "ok": true,
+        "raison": null,
+        "luma": 96,
+        "noir": false
+      },
+      "pixelcopyApres": {
+        "ok": false,
+        "raison": "PixelCopy failed with code 3"
+      },
+      "atMs": 1790900758470
+    },
+    {
+      "index": 1,
+      "switchOk": true,
+      "switchAfterMs": 250,
+      "deltaDepuisDebutRecMs": 4517,
+      "deltaDepuisSwitchPrecedentMs": 3370,
+      "pixelcopyAvant": {
+        "ok": true,
+        "raison": null,
+        "luma": 0,
+        "noir": true
+      },
+      "pixelcopyApres": {
+        "ok": false,
+        "raison": "PixelCopy failed with code 3"
+      },
+      "atMs": 1790900761840
+    },
+    {
+      "index": 2,
+      "switchOk": true,
+      "switchAfterMs": 370,
+      "deltaDepuisDebutRecMs": 8023,
+      "deltaDepuisSwitchPrecedentMs": 3506,
+      "pixelcopyAvant": {
+        "ok": true,
+        "raison": null,
+        "luma": 95,
+        "noir": false
+      },
+      "pixelcopyApres": {
+        "ok": false,
+        "raison": "PixelCopy failed with code 3"
+      },
+      "atMs": 1790900765346
+    },
+    {
+      "index": 3,
+      "switchOk": true,
+      "switchAfterMs": 233,
+      "deltaDepuisDebutRecMs": 11374,
+      "deltaDepuisSwitchPrecedentMs": 3351,
+      "pixelcopyAvant": {
+        "ok": true,
+        "raison": null,
+        "luma": 0,
+        "noir": true
+      },
+      "pixelcopyApres": {
+        "ok": false,
+        "raison": "PixelCopy failed with code 3"
+      },
+      "atMs": 1790900768697
+    },
+    {
+      "index": 4,
+      "switchOk": true,
+      "switchAfterMs": 355,
+      "deltaDepuisDebutRecMs": 14877,
+      "deltaDepuisSwitchPrecedentMs": 3503,
+      "pixelcopyAvant": {
+        "ok": true,
+        "raison": null,
+        "luma": 95,
+        "noir": false
+      },
+      "pixelcopyApres": {
+        "ok": false,
+        "raison": "PixelCopy failed with code 3"
+      },
+      "atMs": 1790900772200
+    }
+  ],
+  "pixelcopy": {},
+  "errors": [],
+  "notes": []
+}

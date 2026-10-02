@@ -1,0 +1,28 @@
+=== POC J09 — phase 2 : la troncature video suit-elle le switch ? ===
+COLD_START serial=61d54bba7d91 pid=16602 cdp=9223
+PURGE_CACHE 2
+PREPARE {"ok":true,"atMs":1790902089572,"detail":"Camera started"}
+
+--- run p2a-switch-t3 : switch à t+3 s ---
+PURGE_CACHE 0
+REC_START {"ok":true,"atMs":1790902091747,"ackAfterMs":543,"requestMs":1790902091204}
+PIXELCOPY_avant luma=94 noir=false
+CACHE_AVANT_SWITCH [{"name":"videoTmp.mp4","bytes":5297552}]
+SWITCH {"ok":true,"requestedAtMs":1790902094786,"atMs":1790902095182,"afterMs":396}
+DELTA_SWITCH_APRES_DEBUT_REC_MS 3435
+PIXELCOPY_immediat ok=false raison=PixelCopy failed with code 3 luma=undefined
+PIXELCOPY_plus_tard ok=true raison=— luma=0 NOIR=true
+REC_STOP {"ok":true,"atMs":1790902101651,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":356}
+SEGMENTS [{"cache":"videoTmp.mp4","mediaHorsDepot":"/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2a-switch-t3-videoTmp.mp4","octets":5951221,"sha256":"a389b6c68498392f31cdf8abd9a1578438018bc81bdde241f78d3dc8f64e251c","conteneurSec":8.874667,"pisteVideoPresente":true,"video":{"codec":"h264","luma":"1920x1080","fps":"2040000/68881","nbFrames":68,"dureeSec":2.296033},"audio":{"codec":"aac","echantillon":48000,"canaux":1,"dureeSec":8.874667},"continuiteVideo":{"frames":68,"firstPts":0.0272,"lastPts":2.289467,"intervalMoyenSec":0.0338,"fpsMoyen":29.62,"maxGapSec":0.034,"maxGapAtSec":1.851,"trous_sup_200ms":0},"continuiteAudio":{"packets":416,"firstPts":0,"lastPts":8.853333,"maxGapSec":0.021,"maxGapAtSec":8.747},"deficitVideoSec":6.579,"verdictVideo":"VIDEO TRONQUEE"}]
+
+--- run p2b-switch-t8 : switch à t+8 s ---
+PURGE_CACHE 1
+REC_START {"ok":true,"atMs":1790902107218,"ackAfterMs":601,"requestMs":1790902106617}
+PIXELCOPY_avant luma=0 noir=true
+CACHE_AVANT_SWITCH [{"name":"videoTmp.mp4","bytes":17876658}]
+SWITCH {"ok":true,"requestedAtMs":1790902115125,"atMs":1790902115372,"afterMs":247}
+DELTA_SWITCH_APRES_DEBUT_REC_MS 8154
+PIXELCOPY_immediat ok=false raison=PixelCopy failed with code 3 luma=undefined
+PIXELCOPY_plus_tard ok=true raison=— luma=93 NOIR=false
+REC_STOP {"ok":true,"atMs":1790902121885,"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":391}
+SEGMENTS [{"cache":"videoTmp.mp4","mediaHorsDepot":"/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p2b-switch-t8-videoTmp.mp4","octets":18592945,"sha256":"f46e25feaaa6750ca65e14ad5dd793d31516f100b49f6ac9a15c12dc61724e53","conteneurSec":13.696,"pisteVideoPresente":true,"video":{"codec":"h264","luma":"1920x1080","fps":"18000/721","nbFrames":181,"dureeSec":7.250056},"audio":{"codec":"aac","echantillon":48000,"canaux":1,"dureeSec":13.696},"continuiteVideo":{"frames":181,"firstPts":0.038,"lastPts":7.248,"intervalMoyenSec":0.0401,"fpsMoyen":24.97,"maxGapSec":0.04,"maxGapAtSec":4.644,"trous_sup_200ms":0},"continuiteAudio":{"packets":642,"firstPts":0,"lastPts":13.674667,"maxGapSec":0.021,"maxGapAtSec":8.747},"deficitVideoSec":6.446,"verdictVideo":"VIDEO TRONQUEE"}]

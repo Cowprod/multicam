@@ -1,0 +1,614 @@
+{
+  "poc": "J09-changement-camera-pendant-REC",
+  "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc",
+  "device": null,
+  "inventory": null,
+  "phases": [
+    {
+      "phase": "phase7b-segmentation-minimale",
+      "plan": [
+        {
+          "camera": "rear",
+          "tag": "p7b-A-rear"
+        },
+        {
+          "camera": "front",
+          "tag": "p7b-B-front"
+        },
+        {
+          "camera": "rear",
+          "tag": "p7b-C-rear"
+        }
+      ],
+      "dureeSegmentMs": 5000,
+      "segments": [
+        {
+          "index": 0,
+          "camera": "rear",
+          "tag": "p7b-A-rear",
+          "rec": {
+            "requestMs": 1790933201412,
+            "atMs": 1790933201885,
+            "ackAfterMs": 473
+          },
+          "stop": {
+            "ok": true,
+            "atMs": 1790933206711,
+            "stopAfterMs": 397,
+            "cachePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "cacheName": "videoTmp.mp4"
+          },
+          "sondePixelcopy": {
+            "premierSuccesMs": null,
+            "nbTentatives": 1,
+            "premiereTentative": {
+              "atMs": 1790933201972,
+              "apresSwitchMs": null,
+              "ok": true,
+              "raison": null,
+              "noir": false,
+              "luma": 98
+            },
+            "tentatives": [
+              {
+                "atMs": 1790933201972,
+                "apresSwitchMs": null,
+                "ok": true,
+                "raison": null,
+                "noir": false,
+                "luma": 98
+              }
+            ]
+          },
+          "segment": {
+            "cache": "videoTmp.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p7b-A-rear-videoTmp.mp4",
+            "octets": 9114491,
+            "sha256": "3a840de35d860b4e9bce35e2ccb10c7d5ade789364dba08a2171094ccd773bb9",
+            "conteneurSec": 3.712896,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "1080000/36467",
+              "nbFrames": 108,
+              "dureeSec": 3.646578
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.712
+            },
+            "continuiteVideo": {
+              "frames": 108,
+              "firstPts": 0,
+              "lastPts": 3.612933,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.992,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 174,
+              "firstPts": 0.000896,
+              "lastPts": 3.691562,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.241
+            },
+            "deficitVideoSec": 0.065,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "attribution": "chemin exact retourne par stopRecordVideo du segment 1",
+          "framesLuma": [
+            92,
+            92,
+            92,
+            92,
+            92
+          ]
+        },
+        {
+          "index": 1,
+          "camera": "front",
+          "tag": "p7b-B-front",
+          "rec": {
+            "requestMs": 1790933207107,
+            "atMs": 1790933207528,
+            "ackAfterMs": 421
+          },
+          "stop": {
+            "ok": true,
+            "atMs": 1790933212418,
+            "stopAfterMs": 459,
+            "cachePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_1.mp4",
+            "cacheName": "videoTmp_1.mp4"
+          },
+          "sondePixelcopy": {
+            "premierSuccesMs": 864,
+            "nbTentatives": 1,
+            "premiereTentative": {
+              "atMs": 1790933207581,
+              "apresSwitchMs": 864,
+              "ok": true,
+              "raison": null,
+              "noir": false,
+              "luma": 46
+            },
+            "tentatives": [
+              {
+                "atMs": 1790933207581,
+                "apresSwitchMs": 864,
+                "ok": true,
+                "raison": null,
+                "noir": false,
+                "luma": 46
+              }
+            ]
+          },
+          "segment": {
+            "cache": "videoTmp_1.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p7b-B-front-videoTmp_1.mp4",
+            "octets": 9107517,
+            "sha256": "ff1784aa13c6cac3f33e088bc4165f581ca9ca33a1225968b8494ecab3ac64e8",
+            "conteneurSec": 3.712,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "1620000/54689",
+              "nbFrames": 108,
+              "dureeSec": 3.645933
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.712
+            },
+            "continuiteVideo": {
+              "frames": 108,
+              "firstPts": 0.0047,
+              "lastPts": 3.616878,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.929,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 174,
+              "firstPts": 0,
+              "lastPts": 3.690667,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.066,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "attribution": "chemin exact retourne par stopRecordVideo du segment 2",
+          "framesLuma": [
+            75,
+            73,
+            73,
+            73,
+            73
+          ]
+        },
+        {
+          "index": 2,
+          "camera": "rear",
+          "tag": "p7b-C-rear",
+          "rec": {
+            "requestMs": 1790933212696,
+            "atMs": 1790933213110,
+            "ackAfterMs": 414
+          },
+          "stop": {
+            "ok": true,
+            "atMs": 1790933217938,
+            "stopAfterMs": 400,
+            "cachePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_2.mp4",
+            "cacheName": "videoTmp_2.mp4"
+          },
+          "sondePixelcopy": {
+            "premierSuccesMs": 733,
+            "nbTentatives": 1,
+            "premiereTentative": {
+              "atMs": 1790933213159,
+              "apresSwitchMs": 733,
+              "ok": true,
+              "raison": null,
+              "noir": false,
+              "luma": 95
+            },
+            "tentatives": [
+              {
+                "atMs": 1790933213159,
+                "apresSwitchMs": 733,
+                "ok": true,
+                "raison": null,
+                "noir": false,
+                "luma": 95
+              }
+            ]
+          },
+          "segment": {
+            "cache": "videoTmp_2.mp4",
+            "mediaHorsDepot": "/var/folders/qb/0n4hshcd7q74d4nkf4mlty940000gn/T/multicam-j09-poc/p7b-C-rear-videoTmp_2.mp4",
+            "octets": 9043614,
+            "sha256": "f5159ec11330dca6ec64a1830e968d87041e57f4d880b40ee1dcb1d623bb3845",
+            "conteneurSec": 3.690667,
+            "pisteVideoPresente": true,
+            "video": {
+              "codec": "h264",
+              "luma": "1920x1080",
+              "fps": "642000/21677",
+              "nbFrames": 107,
+              "dureeSec": 3.612833
+            },
+            "audio": {
+              "codec": "aac",
+              "echantillon": 48000,
+              "canaux": 1,
+              "dureeSec": 3.690667
+            },
+            "continuiteVideo": {
+              "frames": 107,
+              "firstPts": 0.0171,
+              "lastPts": 3.596167,
+              "intervalMoyenSec": 0.0338,
+              "fpsMoyen": 29.62,
+              "maxGapSec": 0.034,
+              "maxGapAtSec": 1.638,
+              "trous_sup_200ms": 0
+            },
+            "continuiteAudio": {
+              "packets": 173,
+              "firstPts": 0,
+              "lastPts": 3.669333,
+              "maxGapSec": 0.021,
+              "maxGapAtSec": 2.027
+            },
+            "deficitVideoSec": 0.078,
+            "verdictVideo": "VIDEO COMPLETE"
+          },
+          "attribution": "chemin exact retourne par stopRecordVideo du segment 3",
+          "framesLuma": [
+            96,
+            96,
+            96,
+            96,
+            96
+          ]
+        }
+      ],
+      "switches": [
+        {
+          "index": 0,
+          "ok": true,
+          "raison": null,
+          "requestedAtMs": 1790933206717,
+          "atMs": 1790933207103,
+          "afterMs": 386,
+          "versCamera": "front"
+        },
+        {
+          "index": 1,
+          "ok": true,
+          "raison": null,
+          "requestedAtMs": 1790933212426,
+          "atMs": 1790933212689,
+          "afterMs": 263,
+          "versCamera": "rear"
+        }
+      ],
+      "transitions": [
+        {
+          "nom": "rear -> front",
+          "cameraA": "rear",
+          "cameraB": "front",
+          "instants": {
+            "arretRecorderA": 1790933206711,
+            "demandeSwitch": 1790933206717,
+            "ackSwitch": 1790933207103,
+            "demandeRecorderB": 1790933207107,
+            "ackRecorderB": 1790933207528,
+            "premierPixelcopyB": 1790933207581
+          },
+          "durees": {
+            "arretRecorderMs": 397,
+            "switchMs": 386,
+            "demarrageRecorderMs": 421,
+            "totalStopVersRecorderMs": 817,
+            "stopVersSwitchMs": 6,
+            "switchVersRecorderMs": 4,
+            "delaiPremierJPEGMs": 864
+          },
+          "momentsRecB": 1790933207126,
+          "cameraRelease": 1790933206998,
+          "cameraNouvelle": 1790933206998,
+          "cameraOuverte": 1790933207044,
+          "arretRecB": 1790933211960,
+          "demarrageRecBRelatif": null,
+          "cameraReleaseRelatif": 281,
+          "cameraNouvelleRelatif": 281,
+          "cameraOuverteRelatif": 327,
+          "arretRecBRelatif": 5243,
+          "contenu": {
+            "dernierVideoA": 1790933206612,
+            "dernierAudioA": 1790933206691,
+            "premierVideoB": 1790933208711,
+            "premierAudioB": 1790933208706,
+            "trouVideoMs": 2099,
+            "trouAudioMs": 2015
+          }
+        },
+        {
+          "nom": "front -> rear",
+          "cameraA": "front",
+          "cameraB": "rear",
+          "instants": {
+            "arretRecorderA": 1790933212418,
+            "demandeSwitch": 1790933212426,
+            "ackSwitch": 1790933212689,
+            "demandeRecorderB": 1790933212696,
+            "ackRecorderB": 1790933213110,
+            "premierPixelcopyB": 1790933213159
+          },
+          "durees": {
+            "arretRecorderMs": 459,
+            "switchMs": 263,
+            "demarrageRecorderMs": 414,
+            "totalStopVersRecorderMs": 692,
+            "stopVersSwitchMs": 8,
+            "switchVersRecorderMs": 7,
+            "delaiPremierJPEGMs": 733
+          },
+          "momentsRecB": 1790933212716,
+          "cameraRelease": 1790933212575,
+          "cameraNouvelle": 1790933212576,
+          "cameraOuverte": 1790933212625,
+          "arretRecB": 1790933217539,
+          "demarrageRecBRelatif": null,
+          "cameraReleaseRelatif": 149,
+          "cameraNouvelleRelatif": 150,
+          "cameraOuverteRelatif": 199,
+          "arretRecBRelatif": 5113,
+          "contenu": {
+            "dernierVideoA": 1790933212323,
+            "dernierAudioA": 1790933212397,
+            "premierVideoB": 1790933214264,
+            "premierAudioB": 1790933214247,
+            "trouVideoMs": 1941,
+            "trouAudioMs": 1850
+          }
+        }
+      ],
+      "attribution": {
+        "attendus": [
+          "videoTmp.mp4",
+          "videoTmp_1.mp4",
+          "videoTmp_2.mp4"
+        ],
+        "presents": [
+          "videoTmp_1.mp4",
+          "videoTmp_2.mp4",
+          "videoTmp.mp4"
+        ],
+        "manquants": [],
+        "enTrop": []
+      },
+      "marqueursNatifs": {
+        "demarrageRec": [
+          1790933201443,
+          1790933207126,
+          1790933212716
+        ],
+        "stopRec": [
+          1790933206316,
+          1790933211960,
+          1790933217539
+        ],
+        "switchEntree": [
+          1790933206722,
+          1790933212428
+        ],
+        "cameraRelease": [
+          1790933206998,
+          1790933212575
+        ],
+        "cameraNouvelle": [
+          1790933206998,
+          1790933212576
+        ],
+        "cameraOuverte": [
+          1790933207044,
+          1790933212625
+        ],
+        "videoFin": []
+      },
+      "events": [
+        {
+          "name": "startCamera.request",
+          "atMs": 1790933198006,
+          "detail": {
+            "camera": "back",
+            "w": 1006,
+            "h": 558
+          }
+        },
+        {
+          "name": "startCamera.ok",
+          "atMs": 1790933198889,
+          "detail": "Camera started"
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790933201412,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790933201885,
+          "detail": {
+            "ackAfterMs": 473
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790933201891,
+          "detail": {
+            "tag": "p7b-A-rear"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790933201972,
+          "detail": {
+            "tag": "p7b-A-rear",
+            "afterMs": 82,
+            "b64len": 95248
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790933206314,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790933206711,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4",
+            "stopAfterMs": 397
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790933206717,
+          "detail": {
+            "atMs": 1790933206717
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790933207103,
+          "detail": {
+            "afterMs": 386,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790933207107,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790933207528,
+          "detail": {
+            "ackAfterMs": 421
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790933207534,
+          "detail": {
+            "tag": "p7b-B-front"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790933207581,
+          "detail": {
+            "tag": "p7b-B-front",
+            "afterMs": 47,
+            "b64len": 62056
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790933211959,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790933212418,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_1.mp4",
+            "stopAfterMs": 459
+          }
+        },
+        {
+          "name": "switchCamera.request",
+          "atMs": 1790933212426,
+          "detail": {
+            "atMs": 1790933212426
+          }
+        },
+        {
+          "name": "switchCamera.ok",
+          "atMs": 1790933212689,
+          "detail": {
+            "afterMs": 263,
+            "result": "OK"
+          }
+        },
+        {
+          "name": "startRecordVideo.request",
+          "atMs": 1790933212696,
+          "detail": {
+            "profile": "auto"
+          }
+        },
+        {
+          "name": "startRecordVideo.ok",
+          "atMs": 1790933213110,
+          "detail": {
+            "ackAfterMs": 414
+          }
+        },
+        {
+          "name": "capturePreviewSurface.request",
+          "atMs": 1790933213117,
+          "detail": {
+            "tag": "p7b-C-rear"
+          }
+        },
+        {
+          "name": "capturePreviewSurface.ok",
+          "atMs": 1790933213159,
+          "detail": {
+            "tag": "p7b-C-rear",
+            "afterMs": 42,
+            "b64len": 45948
+          }
+        },
+        {
+          "name": "stopRecordVideo.request",
+          "atMs": 1790933217538,
+          "detail": null
+        },
+        {
+          "name": "stopRecordVideo.ok",
+          "atMs": 1790933217938,
+          "detail": {
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_2.mp4",
+            "stopAfterMs": 400
+          }
+        }
+      ]
+    }
+  ],
+  "segments": [],
+  "switches": [],
+  "pixelcopy": {},
+  "errors": [],
+  "notes": []
+}

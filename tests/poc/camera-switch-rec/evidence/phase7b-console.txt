@@ -1,0 +1,58 @@
+=== POC J09 — phase 7b : segmenté MINIMAL (sans outillage intercalé) ===
+séquence : rear -> front -> rear
+duree par segment : 5 s
+sonde PixelCopy toutes les 120 ms, après démarrage du recorder
+COLD_START serial=61d54bba7d91 pid=13723 cdp=9223
+PURGE_CACHE 3
+PLUGIN_PRETE
+PREPARE {"ok":true,"atMs":1790933198889,"detail":"Camera started"}
+
+=== segment 1/3 : rear ===
+  REC_START ok=true ackApresMs=473
+  PixelCopy : premier succes a null ms apres le switch (1 tentatives), luma=-
+  premiere tentative : {"atMs":1790933201972,"apresSwitchMs":null,"ok":true,"raison":null,"noir":false,"luma":98}
+  REC_STOP ok=true arretApresMs=397 fichier=/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4
+
+=== segment 2/3 : front ===
+  SWITCH ok=true apresMs=386
+  REC_START ok=true ackApresMs=421
+  PixelCopy : premier succes a 864 ms apres le switch (1 tentatives), luma=46
+  REC_STOP ok=true arretApresMs=459 fichier=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_1.mp4
+
+=== segment 3/3 : rear ===
+  SWITCH ok=true apresMs=263
+  REC_START ok=true ackApresMs=414
+  PixelCopy : premier succes a 733 ms apres le switch (1 tentatives), luma=95
+  REC_STOP ok=true arretApresMs=400 fichier=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_2.mp4
+
+=== récupération des segments (hors sequence) ===
+fichiers dans le cache : ["videoTmp_1.mp4","videoTmp_2.mp4","videoTmp.mp4"]
+attendus : ["videoTmp.mp4","videoTmp_1.mp4","videoTmp_2.mp4"]
+  rear p7b-A-rear-videoTmp.mp4 : video=3.646578s/108f audio=3.712s verdict=VIDEO COMPLETE
+    lumas frames : [92,92,92,92,92]
+  front p7b-B-front-videoTmp_1.mp4 : video=3.645933s/108f audio=3.712s verdict=VIDEO COMPLETE
+    lumas frames : [75,73,73,73,73]
+  rear p7b-C-rear-videoTmp_2.mp4 : video=3.612833s/107f audio=3.690667s verdict=VIDEO COMPLETE
+    lumas frames : [96,96,96,96,96]
+
+=== chronologie par transition ===
+
+  --- rear -> front ---
+    arret A -> demande switch : 6 ms
+    switchCamera : 386 ms
+    switch -> demande REC B : 4 ms
+    TOTAL stop A -> ack REC B : 817 ms
+    camera A liberee : 281 ms apres la demande
+    camera B ouverte : 327 ms apres la demande
+    premier JPEG B : 864 ms apres la demande
+    trou VIDEO : 2099 ms   |   trou AUDIO : 2015 ms
+
+  --- front -> rear ---
+    arret A -> demande switch : 8 ms
+    switchCamera : 263 ms
+    switch -> demande REC B : 7 ms
+    TOTAL stop A -> ack REC B : 692 ms
+    camera A liberee : 149 ms apres la demande
+    camera B ouverte : 199 ms apres la demande
+    premier JPEG B : 733 ms apres la demande
+    trou VIDEO : 1941 ms   |   trou AUDIO : 1850 ms

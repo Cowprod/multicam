@@ -1,0 +1,1389 @@
+10-02 10:59:03.618 D/BroadcastQueue( 1307): Logging broadcast for fr.emmanuel.multicam, stopped=false, firstLaunch=false
+10-02 10:59:04.001 D/libMEOW ( 5947): applied 1 plugins for [fr.emmanuel.multicam]:
+10-02 10:59:04.267 D/WindowManager( 1307): wms.finishDrawingLocked: mDrawState=COMMIT_DRAW_PENDING Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity} in Surface(name=fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity#14999)/@0x230bea
+10-02 10:59:04.279 D/WindowManager( 1307): wms.commitFinishDrawingLocked: mDrawState=READY_TO_SHOW Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity} in Surface(name=fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity#14999)/@0x230bea
+10-02 10:59:04.280 I/WindowManager( 1307): onFirstWindowDrawn, try to remove startingWindow. ar: ActivityRecord{198305212 u0 fr.emmanuel.multicam/.MainActivity t420}  associatedTask: null  isMainWindow: true  startingWindow: Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}  startingData: SplashScreenStartingData{3115bfd removeAfterTransaction= 0}
+10-02 10:59:04.280 I/SmartPower( 1307): Miui monitor launch : fr.emmanuel.multicam/.MainActivity  transitionTime:623  launchTime:2780  launchFrom:unknown  launchType:1
+10-02 10:59:04.281 I/Perf[AppStartScene]( 1307): onSceneChangeNotify:Bundle[{renderThreadId=7189, pid=5947, uid=10128, name=fr.emmanuel.multicam.MainActivity, type=1, begin=false, state=0, processName=fr.emmanuel.multicam, packageName=fr.emmanuel.multicam}]
+10-02 10:59:04.288 I/ActivityTaskManager( 1307): Displayed fr.emmanuel.multicam/.MainActivity for user 0: +2s780ms
+10-02 10:59:04.291 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT startCamera.request atMs=1790931544288 detail={"camera":"back","w":1006,"h":558}", source:  (9)
+10-02 10:59:04.292 I/PowerManagerServiceImpl( 1307): Acquire wakelock: SCREEN_BRIGHT_WAKE_LOCK           'WindowManager/displayId:0' ON_AFTER_RELEASE (uid=1000 pid=1307 pkg=android ws=WorkSource{10128 fr.emmanuel.multicam})
+10-02 10:59:04.292 D/CameraPreview( 5947): start camera action
+10-02 10:59:04.300 E/manuel.multicam( 5947): Invalid resource ID 0x00000000.
+10-02 10:59:04.306 I/PowerHalWrapper( 1307): amsBoostNotify pid:1742,activity:com.miui.home.launcher.Launcher, package:com.miui.home, mProcessCreatePackfr.emmanuel.multicam 
+10-02 10:59:04.310 I/MTK_APPList(  922): [notifyAPPstate] multi_resumed_app_info[0] fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity, pid:5947, activityId:198305212, fps:-1, isMultiWindow:0
+10-02 10:59:04.318 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.319 I/ActivityObserverLauncherImpl( 1742): clearTopActivityIfItIsLauncher mTopActivity=ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.319 I/ActivityObserverLauncherImpl( 1742): clearTopActivityIfItIsLauncher mTopActivity=ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.320 I/WindowManager( 1307): wms.showSurfaceRobustly mWin:Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity} in Surface(name=fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity#14999)/@0x230bea
+10-02 10:59:04.352 W/android.media.audiofx.presenter.MTKEffectPresenter(11414): isSpatialAudioActive Unsupported Device
+10-02 10:59:04.356 W/android.media.audiofx.presenter.MTKEffectPresenter(11414): isSpatialAudioActive Unsupported Device
+10-02 10:59:04.362 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.362 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.363 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.780 I/Camera  ( 5947): Open camera top activityName is fr.emmanuel.multicam.MainActivity
+10-02 10:59:04.780 I/CameraBase( 5947): Connect camera (legacy API) - rotationOverride 0, forceSlowJpegMode 0
+10-02 10:59:04.781 I/MiCameraSceneIdentify( 1031): setClientActivityName: The activity is fr.emmanuel.multicam.MainActivity 
+10-02 10:59:04.781 I/CameraService( 1031): CameraService::connect call (PID 5947 "fr.emmanuel.multicam", camera ID 0) and Camera API version 1
+10-02 10:59:04.783 I/CameraImpl( 1031): ATMs hidl service not found, try find ATMs aidl service
+10-02 10:59:04.783 D/camerahalserver( 1083): [HIDL][ATMs]Received factor(APP_NAME), factor_value(fr.emmanuel.multicam)
+10-02 10:59:04.785 I/camopt_killer( 1307): kill process 4871, uid 10153 with camera boost
+10-02 10:59:04.785 I/Camera2ClientBase( 1031): Camera 0: Opened. Client: fr.emmanuel.multicam (PID 5947, UID 10128)
+10-02 10:59:04.785 I/MiCameraCustomize( 1031): parseFunctionMask: activity: fr.emmanuel.multicam.MainActivity，package: fr.emmanuel.multicam, cameraid: 0
+10-02 10:59:04.785 I/MiCameraCustomize( 1031): trdCloudControl: activity: fr.emmanuel.multicam.MainActivity,package: fr.emmanuel.multicam
+10-02 10:59:04.785 I/CameraService( 1031): makeClient: Camera1 API (legacy), rotationOverride 0, forceSlowJpegMode 0
+10-02 10:59:04.785 D/CameraService( 1031): notifyCameraOpening: Start camera ops, package name = fr.emmanuel.multicam, client UID = 10128
+10-02 10:59:04.786 I/CameraService( 1031): onTorchStatusChangedLocked: Torch status changed for cameraId=0, newStatus=0
+10-02 10:59:04.787 I/LS_CCM  (  902): [85] onUnavailable:  Camera 0 onUnavailable   
+10-02 10:59:04.796 I/CameraProviderManager( 1031): Camera device device@1.1/internal/0 torch status is now NOT_AVAILABLE
+10-02 10:59:04.796 I/CameraService( 1031): onTorchStatusChangedLocked: Torch status changed for cameraId=0, newStatus=0
+10-02 10:59:04.798 I/CameraImpl( 1031): initializeDeviceInfo 454 roleId:0 cameraId:0
+10-02 10:59:04.800 E/Camera2-Parameters( 1031): buildFastInfo: Unknown override AE mode: 0
+10-02 10:59:04.800 E/Camera2-Parameters( 1031): buildFastInfo: Unknown override AE mode: 0
+10-02 10:59:04.801 I/Camera2-Parameters( 1031): Camera 0: Disabling ZSL mode
+10-02 10:59:04.801 I/Camera2-Parameters( 1031): initialize: allowZslMode: 0 slowJpegMode 1
+10-02 10:59:04.804 D/MiuiEmbeddingWindow( 1307): notifyCameraStateChanged packageName:fr.emmanuel.multicam cameraState:1
+10-02 10:59:04.806 D/MiuiEmbeddingWindow( 1307): close:3rdApp camera pipeline :fr.emmanuel.multicam, force=true
+10-02 10:59:04.811 I/camopt_killer( 1307): kill process 7254, uid 10191 with camera boost
+10-02 10:59:04.815 I/camopt_killer( 1307): kill process 6895, uid 10177 with camera boost
+10-02 10:59:04.818 D/Camera  ( 5947): initCameraHook
+10-02 10:59:04.821 D/CameraHook( 5947): camera hook event handler loaded: com.xiaomi.camera.companion.impl.SimpleHookEventHandler@77e82a8
+10-02 10:59:04.821 D/Camera  ( 5947): CameraProxy#setHooksEnabled: true
+10-02 10:59:04.822 D/Camera  ( 5947): CameraProxy#getCamera
+10-02 10:59:04.832 I/VirtualCameraProxy( 5947): App task topActivity: ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.832 D/Preview ( 5947): back camera is oriented -90deg from natural
+10-02 10:59:04.838 I/MTK_APPList(  922): [notifyAPPstate] multi_resumed_app_info[0] fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity, pid:5947, activityId:198305212, fps:-1, isMultiWindow:0
+10-02 10:59:04.841 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:04.842 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:04.844 D/CameraActivity( 5947): CameraPreview previewAspectRatio 1.7777777777777777
+10-02 10:59:04.845 D/CameraActivity( 5947): CameraPreview optimalPictureSize 1920x1088
+10-02 10:59:04.845 E/VirtualCameraManager( 5947): connect: virtual camera service is currently unavailable!
+10-02 10:59:04.846 D/Camera  ( 5947): CameraProxy#setHooksEnabled: false
+10-02 10:59:04.846 D/CameraEventHandler( 5947): Remote camera setup completed, and it cost about 24ms
+10-02 10:59:04.846 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:04.846 W/SimpleHookEventHandler( 5947): setDisplayOrientation: virtual camera is either uninited or already released
+10-02 10:59:04.846 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:04.846 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:04.846 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:04.846 W/SimpleHookEventHandler( 5947): setParameters: virtual camera is either uninited or already released
+10-02 10:59:04.846 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:04.846 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:04.846 W/SimpleHookEventHandler( 5947): setParameters: virtual camera is either uninited or already released
+10-02 10:59:04.846 D/CameraActivity( 5947): Picture parameters pre-configured: 1920x1088
+10-02 10:59:04.847 D/CameraActivity( 5947): cameraCurrentlyLocked:0
+10-02 10:59:04.857 I/MTK_APPList(  922): [notifyAPPstate] multi_resumed_app_info[0] fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity, pid:5947, activityId:198305212, fps:-1, isMultiWindow:0
+10-02 10:59:04.870 I/MTK_APPList(  922): [notifyAPPstate] multi_resumed_app_info[0] fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity, pid:5947, activityId:198305212, fps:-1, isMultiWindow:0
+10-02 10:59:04.876 D/SurfaceFlinger(  960): [SF client] NEW(0xb400007816670910) for (5947:fr.emmanuel.multicam)
+10-02 10:59:04.880 D/ViewRootImplStubImpl( 5947): , vri:android.view.ViewRootImpl@fa8bd66, fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity
+10-02 10:59:04.880 D/ViewRootImplStubImpl( 5947): , surfaceView:com.cordovaplugincamerapreview.CustomSurfaceView{21eb6bc V.E...... ......ID 0,-5-1339,747}, SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity]
+10-02 10:59:04.880 D/ViewRootImplStubImpl( 5947): , surfaceControl:Surface(name=21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005)/@0x771e8a7
+10-02 10:59:04.882 D/BLASTBufferQueue( 5947): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity]#1](f:0,a:0) constructor()
+10-02 10:59:04.882 D/BLASTBufferQueue( 5947): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity]#1](f:0,a:0) update width=1339 height=752 format=4 mTransformHint=4
+10-02 10:59:04.884 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:04.891 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:04.891 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:04.891 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:04.893 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:04.893 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:04.893 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:04.893 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:04.894 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:04.894 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:04.901 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:04.901 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:04.901 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:04.901 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:04.908 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:04.910 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fbc64b9e8
+10-02 10:59:04.910 D/CameraService( 1031): startCameraStreamingOps: startOp for uid 10128
+10-02 10:59:04.914 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:26,active:true,isNote:false,isTerminal:false,notify:true
+10-02 10:59:04.915 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821ed930
+10-02 10:59:04.932 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1
+10-02 10:59:04.933 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1.
+10-02 10:59:04.937 D/CameraPreview( 5947): Camera started
+10-02 10:59:04.938 I/ImeTracker( 1307): fr.emmanuel.multicam:22d75d00: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-02 10:59:04.940 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.941 I/ATMSImpl( 1307): No snapshot since not start by launcher, activity=fr.emmanuel.multicam/.MainActivity
+10-02 10:59:04.945 D/BLASTBufferQueue( 2151): [VRI[multicam]#875](f:0,a:1) destructor()
+10-02 10:59:04.945 D/BufferQueueConsumer( 2151): [VRI[multicam]#875(BLAST Consumer)875](id:8670000036d,api:0,p:-1,c:2151) disconnect
+10-02 10:59:04.945 D/MiEvent ( 9717): flatten EventId 902005010 -t 1790931544 -paraList {"LayerName":"allSame","MissedFrameTime":468318769,"PackageName":"fr.emmanuel.multicam","Scene":"STARTUP_APP"}
+10-02 10:59:04.945 D/MiEvent ( 9717): report:EventId 902005010 -t 1790931544 -paraList {"LayerName":"allSame","MissedFrameTime":468318769,"PackageName":"fr.emmanuel.multicam","Scene":"STARTUP_APP"} success
+10-02 10:59:04.958 D/WindowManager( 1307): Starting window removed Window{de50db5 u0 Splash Screen fr.emmanuel.multicam}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.961 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.962 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.962 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.962 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.962 D/WindowManager( 1307): postWindowRemoveCleanupLocked: Removing startingWindow Window{de50db5 u0 Splash Screen fr.emmanuel.multicam} from ActivityRecord{198305212 u0 fr.emmanuel.multicam/.MainActivity t420} activity = ActivityRecord{198305212 u0 fr.emmanuel.multicam/.MainActivity t420}
+10-02 10:59:04.962 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.962 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.963 D/DisplayContentStubImpl( 1307): imeInputTarget is null,but imeLayeringTarget is the focus window imeLayeringTarget=Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:04.967 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-0-0-0
+10-02 10:59:04.969 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7512][key_status_bar_home_state = android.widget.RemoteViews@463300f[key_prompt_type = [I@17a389c[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@2f1d2a5[key_prompt_pending = PendingIntent{fc3267a: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:04.978 D/SurfaceView( 5947): UPDATE Surface(name=21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity]#15004)/@0xf36f8fd, mIsProjectionMode = false
+10-02 10:59:04.983 D/MiuiDecorationController( 2151): relayout::taskId=420, visible=true, bounds=Rect(0, 0 - 1340, 800), focused=true, oldImmersive=false, newImmersive=false, windowMode=1, activityType=1, displayId=0, baseActivity=ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}, topActivity=ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}, callers=com.android.wm.shell.multitasking.miuimultiwinswitch.miuiwindowdecor.decoration.MiuiDecorationController.relayout:4 com.android.wm.shell.multitasking.miuimultiwinswitch.miuiwindowdecor.MulWinSwitchDecorViewModel.onTaskInfoChanged:18 com.android.wm.shell.multitasking.common.taskmanager.MultiTaskingTaskListener.onTaskInfoChanged:47 com.android.wm.shell.ShellTaskOrganizer.onTaskInfoChanged:136 android.window.TaskOrganizer$1.lambda$onTaskInfoChanged$6:300 
+10-02 10:59:04.984 I/GoogleInputMethodService(  844): GoogleInputMethodService.onStartInput():1446 onStartInput(EditorInfo{EditorInfo{packageName=fr.emmanuel.multicam, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=12000000, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=Bundle[mParcelledData.dataSize=192], hintText=null, hintLocales=[]}}, false)
+10-02 10:59:04.986 W/PackageConfigPersister( 1307): App-specific configuration not found for packageName: fr.emmanuel.multicam and userId: 0
+10-02 10:59:04.986 D/WindowManager( 1307): updateSystemBarAttributes displayId: 0 Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity} winAppearance=
+10-02 10:59:04.987 D/WmSystemUiDebug( 1307): on system bar attributes changed displayId=0 appearance= appearanceRegions=[AppearanceRegion{ bounds=[0,0][1340,800]}] navbarColorManagedByIme=false behavior=1 requestedVisibleTypes=[statusBars navigationBars captionBar systemGestures mandatorySystemGestures tappableElement displayCutout windowDecor systemOverlays] packageName=fr.emmanuel.multicam letterboxDetails=[]
+10-02 10:59:04.988 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT startCamera.ok atMs=1790931544954 detail="Camera started"", source:  (9)
+10-02 10:59:04.991 D/ActivityTaskManager( 1307):  setSkipCaptureLayers tr: Task{ab5a1a8 #420 type=standard A=10128:fr.emmanuel.multicam}
+10-02 10:59:04.991 I/ImeTracker( 5947): fr.emmanuel.multicam:22d75d00: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-02 10:59:04.993 I/SurfaceFlinger(  960): onHandleDestroyed: layerId=14983, name=Splash Screen fr.emmanuel.multicam#14983
+10-02 10:59:04.994 I/SurfaceFlinger(  960): onHandleDestroyed: layerId=15002, name=Surface(name=de50db5 Splash Screen fr.emmanuel.multicam#14982)/@0x79797bb - animation-leash of starting_reveal#15002
+10-02 10:59:04.994 I/SurfaceFlinger(  960): onHandleDestroyed: layerId=14982, name=de50db5 Splash Screen fr.emmanuel.multicam#14982
+10-02 10:59:05.005 I/chromium( 5947): [INFO:CONSOLE:18] "APP_BOOT app=MultiCam version=0.1.0 deviceId=68f01a99-254d-47d8-926b-bbf62be09230 deviceName=Cam 07 supportedSkills=[capture,storage,controller] enabledSkills=[capture,storage] storage=internal", source: http://localhost/js/main.js (18)
+10-02 10:59:05.047 D/MiEvent ( 9717): flatten EventId 902001003 -t 1790931545 -paraList {"Delay":517,"LayerName":"allSame","PackageName":"fr.emmanuel.multicam","Scene":"FocusApp-Animating-Screen_Landscape-Charging"}
+10-02 10:59:05.047 D/MiEvent ( 9717): report:EventId 902001003 -t 1790931545 -paraList {"Delay":517,"LayerName":"allSame","PackageName":"fr.emmanuel.multicam","Scene":"FocusApp-Animating-Screen_Landscape-Charging"} success
+10-02 10:59:05.052 D/misight ( 1058): Execute start execute sql /data/miuilog/misight/event.db:select id,occured_cnt from event_info where event_id = '902001003' and version_id = '1' and param_list = '{"Delay":517,"LayerName":"allSame","PackageName":"fr.emmanuel.multicam","Scene":"FocusApp-Animating-Screen_Land"}' and time_id = '27' limit 1
+10-02 10:59:05.054 D/CameraPreview( 5947): start camera action
+10-02 10:59:05.056 D/misight ( 1058): Execute start execute sql /data/miuilog/misight/event.db:insert into event_info (event_id,version_id,occured_cnt,first_time,param_list,expire,visible,time_id)  values ( 902001003,1,1,1790931545,'{"Delay":517,"LayerName":"allSame","PackageName":"fr.emmanuel.multicam","Scene":"FocusApp-Animating-Screen_Land"}',0,0,27) 
+10-02 10:59:05.062 I/chromium( 5947): [INFO:CONSOLE:65] "CAMERA_PREVIEW_START reason=boot camera=back toBack=1", source: http://localhost/js/state/preview-service.js (65)
+10-02 10:59:05.070 I/chromium( 5947): [INFO:CONSOLE:68] "CAMERA_PREP_KO startPlanId=— err=Camera already started", source: http://localhost/js/native/camera-record.js (68)
+10-02 10:59:05.071 I/chromium( 5947): [INFO:CONSOLE:65] "CAMERA_PREVIEW_ERROR reason=boot err=camera_prepare_failed:Camera already started", source: http://localhost/js/state/preview-service.js (65)
+10-02 10:59:05.087 D/BroadcastQueue( 1307): Logging broadcast for fr.emmanuel.multicam, stopped=false, firstLaunch=false
+10-02 10:59:05.117 W/android.media.audiofx.presenter.MTKEffectPresenter(11414): isSpatialAudioActive Unsupported Device
+10-02 10:59:05.123 W/android.media.audiofx.presenter.MTKEffectPresenter(11414): isSpatialAudioActive Unsupported Device
+10-02 10:59:05.161 D/BLASTBufferQueue( 5947): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity]#1](f:0,a:1) acquireNextBufferLocked size=1339x752 mFrameNumber=1 applyTransaction=true mTimestamp=1245510714462000 mPendingTransactions.size=0 graphicBufferId=25542170509330 transform=0
+10-02 10:59:05.314 I/BufferQueueProducer(  960): [fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity#14999](this:0xb4000077568e30b0,id:-1,api:0,p:-1,c:960) queueBuffer: fps=9.63 dur=1038.39 max=469.67 min=14.90
+10-02 10:59:05.329 I/manuel.multicam( 5947): Compiler allocated 6471KB to compile void android.view.ViewRootImpl.performTraversals()
+10-02 10:59:05.353 W/manuel.multicam( 5947): sendGameRenderCheck remote service is not exist.
+10-02 10:59:05.499 D/WindowManager( 1307): updateSystemBarAttributes displayId: 0 Window{5f594eb u0 fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity} winAppearance=LIGHT_STATUS_BARS LIGHT_NAVIGATION_BARS
+10-02 10:59:05.501 D/WmSystemUiDebug( 1307): on system bar attributes changed displayId=0 appearance=LIGHT_STATUS_BARS LIGHT_NAVIGATION_BARS appearanceRegions=[AppearanceRegion{LIGHT_STATUS_BARS bounds=[0,0][1340,800]}] navbarColorManagedByIme=false behavior=1 requestedVisibleTypes=[statusBars navigationBars captionBar systemGestures mandatorySystemGestures tappableElement displayCutout windowDecor systemOverlays] packageName=fr.emmanuel.multicam letterboxDetails=[]
+10-02 10:59:05.507 D/MiuiDecorationController( 2151): relayout::taskId=420, visible=true, bounds=Rect(0, 0 - 1340, 800), focused=true, oldImmersive=false, newImmersive=false, windowMode=1, activityType=1, displayId=0, baseActivity=ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}, topActivity=ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}, callers=com.android.wm.shell.multitasking.miuimultiwinswitch.miuiwindowdecor.decoration.MiuiDecorationController.relayout:4 com.android.wm.shell.multitasking.miuimultiwinswitch.miuiwindowdecor.MulWinSwitchDecorViewModel.onTaskInfoChanged:18 com.android.wm.shell.multitasking.common.taskmanager.MultiTaskingTaskListener.onTaskInfoChanged:47 com.android.wm.shell.ShellTaskOrganizer.onTaskInfoChanged:136 android.window.TaskOrganizer$1.lambda$onTaskInfoChanged$6:300 
+10-02 10:59:05.512 D/ActivityTaskManager( 1307):  setSkipCaptureLayers tr: Task{ab5a1a8 #420 type=standard A=10128:fr.emmanuel.multicam}
+10-02 10:59:06.182 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.82 dur=1006.15 max=50.22 min=16.12
+10-02 10:59:06.315 I/BufferQueueProducer(  960): [fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity#14999](this:0xb4000077568e30b0,id:-1,api:0,p:-1,c:960) queueBuffer: fps=54.96 dur=1000.77 max=50.20 min=14.29
+10-02 10:59:06.597 W/xiaomi.discover( 7465): ClassLoaderContext classpath size mismatch. expected=1, found=0 (DLC[];PCL[base.apk*217194814]{PCL[/system/framework/org.apache.http.legacy.jar*1129637092]#PCL[/system/framework/com.android.location.provider.jar*1570284764]#PCL[/system/framework/com.android.media.remotedisplay.jar*487574312]#PCL[/system_ext/framework/androidx.window.extensions.jar*2548032050]#PCL[/system_ext/framework/androidx.window.sidecar.jar*2175288658]} | DLC[];PCL[])
+10-02 10:59:06.652 W/xiaomi.discover( 7465): ClassLoaderContext classpath element checksum mismatch. expected=217194814, found=2456157915 (DLC[];PCL[base.apk*217194814]{PCL[/system/framework/org.apache.http.legacy.jar*1129637092]#PCL[/system/framework/com.android.location.provider.jar*1570284764]#PCL[/system/framework/com.android.media.remotedisplay.jar*487574312]#PCL[/system_ext/framework/androidx.window.extensions.jar*2548032050]#PCL[/system_ext/framework/androidx.window.sidecar.jar*2175288658]} | DLC[];PCL[/data/app/~~MBDPMHMXK1PlD64-ABEyFA==/com.xiaomi.discover-SJ6wpxHJI9P2wefh43VYag==/base.apk*2456157915]{PCL[/system_ext/framework/com.android.extensions.appfunctions.jar*2880224042]#PCL[/system_ext/framework/androidx.window.extensions.jar*2548032050]#PCL[/system_ext/framework/androidx.window.sidecar.jar*2175288658]})
+10-02 10:59:07.183 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.99 dur=1000.32 max=35.49 min=31.83
+10-02 10:59:07.607 D/CameraActivity( 5947): CameraPreview startRecord camera: back width: 1280, height: 720, quality: 85
+10-02 10:59:07.615 W/CameraActivity( 5947): ************orientationHint ***********= 0
+10-02 10:59:07.617 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:07.618 D/MediaRecorder( 5947): constructor+ 0xb4000071e20369d0
+10-02 10:59:07.619 D/MediaRecorder( 5947): constructor- 0xb4000071e20369d0
+10-02 10:59:07.620 D/MediaRecorder( 5947): init+ 0xb4000071e20369d0
+10-02 10:59:07.622 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:07.630 D/MediaRecorder( 5947): init- 0xb4000071e20369d0
+10-02 10:59:07.636 D/MediaRecorder( 5947): prepare+ 0xb4000071e20369d0
+10-02 10:59:07.637 D/MediaRecorder( 5947): prepare- 0xb4000071e20369d0
+10-02 10:59:07.637 D/CameraActivity( 5947): Starting recording
+10-02 10:59:07.637 D/MediaRecorder( 5947): start+ 0xb4000071e20369d0
+10-02 10:59:07.640 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:07.640 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:07.640 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:07.641 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:07.641 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:07.644 D/MediaCodec( 1067): CreateByComponentName: name c2.mtk.avc.encoder
+10-02 10:59:07.645 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:07.646 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:07.646 D/MediaCodec( 1067): [0xeacc3dc0] init: CCodec 0xf004a110, CCodecBufferChannel 0xeaa431f0
+10-02 10:59:07.646 D/MediaCodec( 1067): [0xeacc3dc0] setState: 1
+10-02 10:59:07.646 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: INITIALIZING
+10-02 10:59:07.658 I/android.hardware.media.c2-mediatek(  901): missing struct descriptor #Param::CoreIndex(--004) for field values of struct #Param::CoreIndex(F-12004)
+10-02 10:59:07.658 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821ed930
+10-02 10:59:07.659 I/android.hardware.media.c2-mediatek(  901): missing struct descriptor #Param::CoreIndex(--1812) for field values of struct #Param::CoreIndex(F-11812)
+10-02 10:59:07.690 D/MediaCodec( 1067): [0xeacc3dc0] setState: 2
+10-02 10:59:07.690 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: INITIALIZED
+10-02 10:59:07.692 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:07.692 D/MediaCodec( 1067): [0xeacc3dc0] init: CCodec 0xf004a110, CCodecBufferChannel 0xeaa431f0
+10-02 10:59:07.692 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] configure: ClientName: fr.emmanuel.multicam ComponentName: c2.mtk.avc.encoder
+10-02 10:59:07.693 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:07.693 I/MediaCodec( 1067):   string mime = "video/avc"
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t width = 1920
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t height = 1080
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t stride = 1920
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t slice-height = 1080
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t color-format = 2130708361
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t bitrate = 20000000
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t bitrate-mode = 1
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t frame-rate = 30
+10-02 10:59:07.693 I/MediaCodec( 1067):   float i-frame-interval = 1.000000
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t xiaomi-video-file-type = 0
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t vendor.mtk.venc.nal.length.prefer = 1
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t vendor.mtk.venc.nal.length.bytes = 4
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t android._input-metadata-buffer-type = 2
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t feature-nal-length-bitstream = 1
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t nal-length-in-bytes = 4
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t vendor.qti-ext-enc-nal-length-bs.num-bytes = 4
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t android._using-recorder = 1
+10-02 10:59:07.693 I/MediaCodec( 1067):   int32_t x-* = 1
+10-02 10:59:07.693 I/MediaCodec( 1067): }
+10-02 10:59:07.693 I/MediaCodec( 1067): MediaStub sendFrameRate : app set :30
+10-02 10:59:07.694 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:07.694 I/MediaCodec( 1067): MediaStub sendWidth/sendHeight
+10-02 10:59:07.694 I/MediaCodec( 1067): MediaStub sendMine
+10-02 10:59:07.694 I/MediaCodec( 1067): MediaStub sendDolbyVision
+10-02 10:59:07.694 I/MediaCodec( 1067): MediaStub sendPackageName
+10-02 10:59:07.694 D/MediaImpl( 1067): MediaImpl::sendPackageName: fr.emmanuel.multicam
+10-02 10:59:07.694 D/MediaStub( 1067): MediaStub::sendPackageName fr.emmanuel.multicam
+10-02 10:59:07.694 D/MediaCodec( 1067): shapeMediaFormat: deltas(1): AMessage(what = 0x00000000) = {
+10-02 10:59:07.694 D/MediaCodec( 1067):     int32_t android._encoding-quality-level = 0
+10-02 10:59:07.694 D/MediaCodec( 1067):   }
+10-02 10:59:07.697 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:07.697 D/MediaCodec( 1067): [0xeacc3dc0] setState: 3
+10-02 10:59:07.697 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: CONFIGURING
+10-02 10:59:07.703 D/MediaCodec( 1067): [0xeacc3dc0] setState: 4
+10-02 10:59:07.703 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: CONFIGURED
+10-02 10:59:07.704 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:07.704 D/MediaCodec( 1067): [0xeacc3dc0] setState: 5
+10-02 10:59:07.704 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: STARTING
+10-02 10:59:07.709 D/MediaCodec( 1067): [0xeacc3dc0] setState: 6
+10-02 10:59:07.709 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: STARTED
+10-02 10:59:07.711 D/AudioRecord( 1067): set(): 0xeb643670, inputSource 0, sampleRate 48000, format 0x1, channelMask 0x10, frameCount 2048, notificationFrames 1024, sessionId 0, transferType 0, flags 0, attributionSource AttributionSourceState{pid: 5947, uid: 10128, deviceId: 0, packageName: fr.emmanuel.multicam, attributionTag: (null), token: binder:0xf00ca7b0, renouncedPermissions: [], next: []}uid 10128, pid 5947
+10-02 10:59:07.719 D/AudioUtilmtk(  947): checkWhiteList(): Not find packageName fr.emmanuel.multicam in scenarioName RecordScreenOff_Irq 
+10-02 10:59:07.720 D/APM_AudioPolicyManager(  947): getInputForAttr AudioPlayBackCapture not supported, appName: fr.emmanuel.multicam
+10-02 10:59:07.720 D/APM_AudioPolicyManager(  947): ->Debug: getInputForDevice: 5289: getInputForDevice() packageName=fr.emmanuel.multicam, uid=10128
+10-02 10:59:07.747 D/MediaCodec( 1067): CreateByComponentName: name c2.android.aac.encoder
+10-02 10:59:07.748 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:07.749 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:07.749 D/MediaCodec( 1067): [0xeacc7b70] init: CCodec 0xf0047b70, CCodecBufferChannel 0xeaa43730
+10-02 10:59:07.749 D/MediaCodec( 1067): [0xeacc7b70] setState: 1
+10-02 10:59:07.749 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: INITIALIZING
+10-02 10:59:07.771 D/MediaCodec( 1067): [0xeacc7b70] setState: 2
+10-02 10:59:07.771 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: INITIALIZED
+10-02 10:59:07.772 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:07.772 D/MediaCodec( 1067): [0xeacc7b70] init: CCodec 0xf0047b70, CCodecBufferChannel 0xeaa43730
+10-02 10:59:07.773 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] configure: ClientName: fr.emmanuel.multicam ComponentName: c2.android.aac.encoder
+10-02 10:59:07.773 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:07.773 I/MediaCodec( 1067):   string mime = "audio/mp4a-latm"
+10-02 10:59:07.773 I/MediaCodec( 1067):   int32_t aac-profile = 2
+10-02 10:59:07.773 I/MediaCodec( 1067):   int32_t max-input-size = 2048
+10-02 10:59:07.773 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:07.773 I/MediaCodec( 1067):   int32_t sample-rate = 48000
+10-02 10:59:07.773 I/MediaCodec( 1067):   int32_t bitrate = 192000
+10-02 10:59:07.773 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:07.773 I/MediaCodec( 1067): }
+10-02 10:59:07.773 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:07.773 D/MediaCodec( 1067): shapeMediaFormat: deltas(0): AMessage(what = 0x00000000) = {
+10-02 10:59:07.773 D/MediaCodec( 1067):   }
+10-02 10:59:07.774 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:07.774 D/MediaCodec( 1067): [0xeacc7b70] setState: 3
+10-02 10:59:07.774 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: CONFIGURING
+10-02 10:59:07.776 D/MediaCodec( 1067): [0xeacc7b70] setState: 4
+10-02 10:59:07.776 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: CONFIGURED
+10-02 10:59:07.777 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:07.777 D/MediaCodec( 1067): [0xeacc7b70] setState: 5
+10-02 10:59:07.777 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: STARTING
+10-02 10:59:07.791 D/MediaCodec( 1067): [0xeacc7b70] setState: 6
+10-02 10:59:07.792 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: STARTED
+10-02 10:59:07.793 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:07.799 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:07.818 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:07.823 D/MediaCodec( 1067): CreateByType: mime audio/vorbis, encoder 0 pid 1031
+10-02 10:59:07.824 E/MediaCodec( 1067): No packages for calling UID
+10-02 10:59:07.824 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:07.825 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:07.825 D/MediaCodec( 1067): [0xeacc2930] init: CCodec 0xf00477f0, CCodecBufferChannel 0xeaa44ed0
+10-02 10:59:07.825 D/MediaCodec( 1067): [0xeacc2930] setState: 1
+10-02 10:59:07.825 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: INITIALIZING
+10-02 10:59:07.834 D/ProfileInstaller( 5947): Installing profile for fr.emmanuel.multicam
+10-02 10:59:07.844 D/MediaCodec( 1067): [0xeacc2930] setState: 2
+10-02 10:59:07.844 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: INITIALIZED
+10-02 10:59:07.845 D/MediaCodec( 1067): [0xeacc2930] init: CCodec 0xf00477f0, CCodecBufferChannel 0xeaa44ed0
+10-02 10:59:07.845 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] configure: ClientName:  ComponentName: c2.android.vorbis.decoder
+10-02 10:59:07.845 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:07.845 I/MediaCodec( 1067):   string mime = "audio/vorbis"
+10-02 10:59:07.845 I/MediaCodec( 1067):   int64_t durationUs = 518820
+10-02 10:59:07.845 I/MediaCodec( 1067):   Buffer csd-0 = {
+10-02 10:59:07.845 I/MediaCodec( 1067):     00000000:  01 76 6f 72 62 69 73 00  00 00 00 01 22 56 00 00  .vorbis....."V..
+10-02 10:59:07.845 I/MediaCodec( 1067):     00000010:  00 00 00 00 50 c3 00 00  00 00 00 00 a9 01        ....P.........
+10-02 10:59:07.845 I/MediaCodec( 1067):   }
+10-02 10:59:07.845 I/MediaCodec( 1067):   Buffer *csd-1 = 0xe8891c90
+10-02 10:59:07.845 I/MediaCodec( 1067):   int32_t bitrate = 50000
+10-02 10:59:07.845 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:07.845 I/MediaCodec( 1067):   int32_t sample-rate = 22050
+10-02 10:59:07.845 I/MediaCodec( 1067):   int32_t channel-mask = 1
+10-02 10:59:07.845 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:07.845 I/MediaCodec( 1067): }
+10-02 10:59:07.846 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:07.846 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:07.846 D/MediaCodec( 1067): [0xeacc2930] setState: 3
+10-02 10:59:07.846 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: CONFIGURING
+10-02 10:59:07.850 D/MediaCodec( 1067): [0xeacc2930] setState: 4
+10-02 10:59:07.850 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: CONFIGURED
+10-02 10:59:07.850 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:07.851 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:07.851 D/MediaCodec( 1067): [0xeacc2930] setState: 5
+10-02 10:59:07.851 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: STARTING
+10-02 10:59:07.857 D/MediaCodec( 1067): [0xeacc2930] setState: 6
+10-02 10:59:07.857 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: STARTED
+10-02 10:59:07.861 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] queueInputBuffer: index: 2 pts: 0 timediff: 0
+10-02 10:59:07.862 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] queueInputBuffer: index: 3 pts: 0 timediff: 1
+10-02 10:59:07.863 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] queueInputBuffer: index: 0 pts: 11609 timediff: 1
+10-02 10:59:07.867 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:07.990 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:07.990 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 1, current total missed framenumber = 0, current total framenumber 85, all max missed framenumber 21, all total missed framenumber 788101, total framenumber 3534952, SessionMaxFps 0
+10-02 10:59:07.991 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:07.991 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:08.073 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:08.073 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:08.073 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:08.073 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:08.076 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:08.079 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fc0ca1c58
+10-02 10:59:08.082 I/AudioRecord( 1067): start mSessionID=2153 start(453): sync event 0 trigger session 0  packageName: fr.emmanuel.multicam
+10-02 10:59:08.083 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821ed930
+10-02 10:59:08.085 D/APM_AudioPolicyManager(  947): startInput input:782, session:2153, portId:453, source=6, appname fr.emmanuel.multicam, uid 10128, flags=0x0)
+10-02 10:59:08.085 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:27,active:true,isNote:false,isTerminal:false,notify:true
+10-02 10:59:08.091 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1920x1080), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1
+10-02 10:59:08.091 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1920x1080), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1.
+10-02 10:59:08.099 W/BpBinder( 5947): PerfMonitor binderTransact: time=462ms interface=android.media.IMediaRecorder code=8
+10-02 10:59:08.099 D/MediaRecorder( 5947): start- 0xb4000071e20369d0
+10-02 10:59:08.099 D/CameraPreview( 5947): onStartRecordVideo started
+10-02 10:59:08.139 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-1-0-0
+10-02 10:59:08.140 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7508][key_status_bar_home_state = android.widget.RemoteViews@f2b3d59[key_prompt_type = [I@df06d1e[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@3d1c9ff[key_prompt_pending = PendingIntent{618e3cc: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:08.316 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=22.06 dur=1133.41 max=317.16 min=32.64
+10-02 10:59:08.825 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] queueInputBuffer: index: 0 pts: 10951 timediff: 0
+10-02 10:59:08.846 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] queueInputBuffer: index: 1 pts: 30951 timediff: 21
+10-02 10:59:08.865 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] queueInputBuffer: index: 2 pts: 50951 timediff: 19
+10-02 10:59:08.888 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] queueInputBuffer: index: 0 pts: 8515 timediff: 0
+10-02 10:59:08.890 I/BatteryNotifier( 1067): noteStartVideo: the video refcount for uid(10128) clientName(fr.emmanuel.multicam) is 0.
+10-02 10:59:08.920 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] queueInputBuffer: index: 1 pts: 42279 timediff: 32
+10-02 10:59:08.932 W/android.hardware.media.c2-mediatek(  901): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. This might not be intended. AIBinder_DeathRecipient_setOnUnlinked should be called first.
+10-02 10:59:08.936 I/MediaCodec( 1067): isHDR: standard =1,transfer = 3
+10-02 10:59:08.952 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] queueInputBuffer: index: 2 pts: 76044 timediff: 32
+10-02 10:59:09.334 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.47 dur=1017.93 max=49.83 min=32.49
+10-02 10:59:09.345 D/JavaheapMonitor( 9585): Java heap used=2M max=256M, proc: com.google.android.providers.media.module
+10-02 10:59:10.351 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.50 dur=1017.01 max=49.72 min=32.13
+10-02 10:59:11.352 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.96 dur=1001.33 max=33.90 min=32.82
+10-02 10:59:12.369 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.50 dur=1016.95 max=50.35 min=32.36
+10-02 10:59:12.725 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] Stats 5021ms:Client:fr.emmanuel.multicam,Component:c2.mtk.avc.encoder,Qin:114,DQin:0/0,Render:0,encode:114,DQout:0/0
+10-02 10:59:12.785 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] Stats 5009ms:Client:fr.emmanuel.multicam,Component:c2.android.aac.encoder,Qin:211,DQin:0/0,Render:0,encode:186,DQout:0/0
+10-02 10:59:13.387 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.48 dur=1017.61 max=49.85 min=32.95
+10-02 10:59:14.112 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT capturePreviewSurface.request atMs=1790931554112 detail={"tag":"p7f-A-rear-pixelcopy"}", source:  (9)
+10-02 10:59:14.182 I/manuel.multicam( 5947): NativeAlloc concurrent mark compact GC freed 7948KB AllocSpace bytes, 27(752KB) LOS objects, 49% free, 5304KB/10MB, paused 732us,7.249ms total 68.154ms
+10-02 10:59:14.209 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT capturePreviewSurface.ok atMs=1790931554207 detail={"tag":"p7f-A-rear-pixelcopy","afterMs":96,"b64len":123204}", source:  (9)
+10-02 10:59:14.328 D/CameraActivity( 5947): stopRecord
+10-02 10:59:14.328 D/MediaRecorder( 5947): stop+ 0xb4000071e20369d0
+10-02 10:59:14.355 D/MediaCodec( 1067): [0xeacc3dc0] [c2.mtk.avc.encoder] release
+10-02 10:59:14.356 D/MediaCodec( 1067): [0xeacc3dc0] setState: 10
+10-02 10:59:14.356 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: RELEASING
+10-02 10:59:14.356 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#448] MediaCodec discarded an unknown buffer
+10-02 10:59:14.357 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#448] MediaCodec discarded an unknown buffer
+10-02 10:59:14.357 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#448] MediaCodec discarded an unknown buffer
+10-02 10:59:14.357 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#448] MediaCodec discarded an unknown buffer
+10-02 10:59:14.357 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#448] MediaCodec discarded an unknown buffer
+10-02 10:59:14.357 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#448] MediaCodec discarded an unknown buffer
+10-02 10:59:14.357 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#448] MediaCodec discarded an unknown buffer
+10-02 10:59:14.370 I/BpBinder(  901): onLastStrongRef automatically unlinking death recipients: android.hardware.media.bufferpool2.IClientManager
+10-02 10:59:14.371 D/MediaCodec( 1067): [0xeacc3dc0] [c2.mtk.avc.encoder] kWhatReleaseCompleted
+10-02 10:59:14.371 D/MediaCodec( 1067): [0xeacc3dc0] setState: 0
+10-02 10:59:14.371 I/MediaCodec( 1067): [mId: 336] [video-debug-enc] setState: UNINITIALIZED
+10-02 10:59:14.373 I/BatteryNotifier( 1067): noteStopVideo: the video refcount for uid(10128) clientName(fr.emmanuel.multicam) is 0.
+10-02 10:59:14.375 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:14.375 I/MediaCodec( 1067): MediaStub sendVideoPlayData
+10-02 10:59:14.375 D/MediaImpl( 1067): MediaImpl::sendVideoPlayData::mediacodec_packgeName : fr.emmanuel.multicam
+10-02 10:59:14.375 D/MediaImpl( 1067): MediaImpl::sendVideoPlayData::packgeName : fr.emmanuel.multicam
+10-02 10:59:14.375 D/send_data_to_xlog( 1067): send_video_play_to_xlog::packgeName : fr.emmanuel.multicam
+10-02 10:59:14.381 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:14.384 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:14.404 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.51 dur=1016.69 max=50.07 min=32.56
+10-02 10:59:14.410 D/MediaCodec( 1067): CreateByType: mime audio/vorbis, encoder 0 pid 1031
+10-02 10:59:14.412 E/MediaCodec( 1067): No packages for calling UID
+10-02 10:59:14.412 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:14.412 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:14.412 D/MediaCodec( 1067): [0xeacc3dc0] init: CCodec 0xf004a110, CCodecBufferChannel 0xeaa431f0
+10-02 10:59:14.412 D/MediaCodec( 1067): [0xeacc3dc0] setState: 1
+10-02 10:59:14.412 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: INITIALIZING
+10-02 10:59:14.431 D/MediaCodec( 1067): [0xeacc3dc0] setState: 2
+10-02 10:59:14.431 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: INITIALIZED
+10-02 10:59:14.432 D/MediaCodec( 1067): [0xeacc3dc0] init: CCodec 0xf004a110, CCodecBufferChannel 0xeaa431f0
+10-02 10:59:14.432 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] configure: ClientName:  ComponentName: c2.android.vorbis.decoder
+10-02 10:59:14.432 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:14.432 I/MediaCodec( 1067):   string mime = "audio/vorbis"
+10-02 10:59:14.432 I/MediaCodec( 1067):   int64_t durationUs = 518820
+10-02 10:59:14.432 I/MediaCodec( 1067):   Buffer csd-0 = {
+10-02 10:59:14.432 I/MediaCodec( 1067):     00000000:  01 76 6f 72 62 69 73 00  00 00 00 01 22 56 00 00  .vorbis....."V..
+10-02 10:59:14.432 I/MediaCodec( 1067):     00000010:  00 00 00 00 50 c3 00 00  00 00 00 00 a9 01        ....P.........
+10-02 10:59:14.432 I/MediaCodec( 1067):   }
+10-02 10:59:14.432 I/MediaCodec( 1067):   Buffer *csd-1 = 0xe8895b90
+10-02 10:59:14.432 I/MediaCodec( 1067):   int32_t bitrate = 50000
+10-02 10:59:14.432 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:14.432 I/MediaCodec( 1067):   int32_t sample-rate = 22050
+10-02 10:59:14.432 I/MediaCodec( 1067):   int32_t channel-mask = 1
+10-02 10:59:14.432 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:14.432 I/MediaCodec( 1067): }
+10-02 10:59:14.433 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:14.433 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:14.433 D/MediaCodec( 1067): [0xeacc3dc0] setState: 3
+10-02 10:59:14.433 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: CONFIGURING
+10-02 10:59:14.438 D/MediaCodec( 1067): [0xeacc3dc0] setState: 4
+10-02 10:59:14.438 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: CONFIGURED
+10-02 10:59:14.438 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:14.438 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:14.439 D/MediaCodec( 1067): [0xeacc3dc0] setState: 5
+10-02 10:59:14.439 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: STARTING
+10-02 10:59:14.446 D/MediaCodec( 1067): [0xeacc3dc0] setState: 6
+10-02 10:59:14.446 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: STARTED
+10-02 10:59:14.450 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] queueInputBuffer: index: 2 pts: 0 timediff: 0
+10-02 10:59:14.451 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] queueInputBuffer: index: 3 pts: 0 timediff: 1
+10-02 10:59:14.452 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] queueInputBuffer: index: 0 pts: 11609 timediff: 2
+10-02 10:59:14.455 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:14.594 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:14.594 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:14.594 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:14.594 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 1, current total missed framenumber = 2, current total framenumber 187, all max missed framenumber 21, all total missed framenumber 788103, total framenumber 3535139, SessionMaxFps 0
+10-02 10:59:14.595 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:14.595 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:14.647 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:14.647 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:14.647 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:14.647 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:14.651 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:14.652 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fbc64b9c8
+10-02 10:59:14.654 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821ed930
+10-02 10:59:14.656 D/MediaCodec( 1067): [0xeacc7b70] [c2.android.aac.encoder] release
+10-02 10:59:14.656 D/MediaCodec( 1067): [0xeacc7b70] setState: 10
+10-02 10:59:14.656 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: RELEASING
+10-02 10:59:14.656 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#837] MediaCodec discarded an unknown buffer
+10-02 10:59:14.657 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#837] MediaCodec discarded an unknown buffer
+10-02 10:59:14.657 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#837] MediaCodec discarded an unknown buffer
+10-02 10:59:14.657 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#837] MediaCodec discarded an unknown buffer
+10-02 10:59:14.658 D/MediaCodec( 1067): [0xeacc7b70] [c2.android.aac.encoder] kWhatReleaseCompleted
+10-02 10:59:14.658 D/MediaCodec( 1067): [0xeacc7b70] setState: 0
+10-02 10:59:14.659 I/MediaCodec( 1067): [mId: 337] [audio-debug-enc] setState: UNINITIALIZED
+10-02 10:59:14.660 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:14.660 I/AudioRecord( 1067): stop mSessionID=2153, mPortID=453, mActice: 1 packageName: fr.emmanuel.multicam
+10-02 10:59:14.660 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:14.667 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1
+10-02 10:59:14.667 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1.
+10-02 10:59:14.729 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:27,active:false,isNote:false,isTerminal:false,notify:true
+10-02 10:59:14.750 W/BpBinder( 5947): PerfMonitor binderTransact: time=422ms interface=android.media.IMediaRecorder code=7
+10-02 10:59:14.750 D/MediaRecorder( 5947): stop- 0xb4000071e20369d0
+10-02 10:59:14.750 D/MediaRecorder( 5947): reset+ 0xb4000071e20369d0
+10-02 10:59:14.750 D/MediaRecorder( 5947): reset- 0xb4000071e20369d0
+10-02 10:59:14.751 D/MediaRecorder( 5947): release+ 0xb4000071e20369d0
+10-02 10:59:14.751 I/AudioRecord( 1067): stop mSessionID=2153, mPortID=453, mActice: 0 packageName: fr.emmanuel.multicam
+10-02 10:59:14.753 D/MediaRecorder( 5947): release- 0xb4000071e20369d0
+10-02 10:59:14.753 D/MediaRecorder( 5947): destructor+ 0xb4000071e20369d0
+10-02 10:59:14.753 D/MediaRecorder( 5947): destructor- 0xb4000071e20369d0
+10-02 10:59:14.753 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:14.756 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:14.756 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:14.756 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:14.756 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:14.756 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:14.756 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:14.756 I/Camera2Client( 1031): startPreviewL: Camera 0: Preview already active, ignoring restart
+10-02 10:59:14.757 D/CameraPreview( 5947): onStopRecordVideo success
+10-02 10:59:14.759 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT stopRecordVideo.ok atMs=1790931554759 detail={"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":433}", source:  (9)
+10-02 10:59:14.782 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-0-0-0
+10-02 10:59:14.784 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7512][key_status_bar_home_state = android.widget.RemoteViews@d6e4ee7[key_prompt_type = [I@1ac2a94[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@dbf693d[key_prompt_pending = PendingIntent{ebe9532: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:14.803 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821ed930
+10-02 10:59:15.405 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=21.98 dur=1001.10 max=300.67 min=32.70
+10-02 10:59:16.422 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.48 dur=1017.57 max=50.22 min=32.21
+10-02 10:59:17.439 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.50 dur=1016.92 max=50.15 min=32.38
+10-02 10:59:18.457 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.47 dur=1017.87 max=50.98 min=32.64
+10-02 10:59:18.728 D/CameraActivity( 5947): numberOfCameras: 2
+10-02 10:59:18.728 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:18.729 I/Camera3-Device( 1031): flush: Camera 0: Flushing all requests
+10-02 10:59:18.767 D/Camera  ( 5947): releaseCameraHook
+10-02 10:59:18.768 D/VirtualCameraManager( 5947): unbind virtual camera service
+10-02 10:59:18.768 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:18.769 I/Camera3-Device( 1031): flush: Camera 0: Flushing all requests
+10-02 10:59:18.783 D/BufferQueueConsumer( 1031): [Camera2-JpegConsumer](id:40700000098,api:0,p:-1,c:1031) disconnect
+10-02 10:59:18.783 I/Camera3-Device( 1031): disconnectImpl: Camera: 0 E
+10-02 10:59:19.000 I/CameraProviderManager( 1031): Camera device device@1.1/internal/0 torch status is now AVAILABLE_OFF
+10-02 10:59:19.000 I/CameraService( 1031): onTorchStatusChangedLocked: Torch status changed for cameraId=0, newStatus=1
+10-02 10:59:19.006 W/BpBinder( 1031): PerfMonitor binderTransact: time=222ms interface=android.hardware.camera.device.ICameraDeviceSession code=1
+10-02 10:59:19.007 D/MiuiEmbeddingWindow( 1307): notifyCameraStateChanged packageName:fr.emmanuel.multicam cameraState:2
+10-02 10:59:19.007 D/CameraService( 1031): finishCameraStreamingOps: finishOp for uid 10128
+10-02 10:59:19.010 I/CameraService( 1031): disconnect: Disconnected client for camera 0 for PID 5947
+10-02 10:59:19.010 D/CameraImpl( 1031): setRFLowerPower:71 
+10-02 10:59:19.010 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 1, current total missed framenumber = 1, current total framenumber 115, all max missed framenumber 21, all total missed framenumber 788104, total framenumber 3535254, SessionMaxFps 0
+10-02 10:59:19.010 I/Camera2Client( 1031): Camera 0: Closed
+10-02 10:59:19.010 I/LS_CCM  (  902): [63] onAvailable:  Camera 0 onAvailable   
+10-02 10:59:19.011 D/MiuiEmbeddingWindow( 1307): close:3rdApp camera pipeline :fr.emmanuel.multicam, force=true
+10-02 10:59:19.011 I/Camera2ClientBase( 1031): ~Camera2ClientBase: Client object's dtor for Camera Id 0 completed. Client was: fr.emmanuel.multicam (PID 5947, UID 10128)
+10-02 10:59:19.011 D/CameraActivity( 5947): cameraCurrentlyLocked := 0
+10-02 10:59:19.011 D/CameraActivity( 5947): cameraCurrentlyLocked new: 1
+10-02 10:59:19.012 I/Camera3-Device( 1031): disconnectImpl: Camera: 0 E
+10-02 10:59:19.012 I/Camera3DeviceInjectionMethods( 1031): injectionDisconnectImpl: Injection camera disconnect
+10-02 10:59:19.013 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:26,active:false,isNote:false,isTerminal:false,notify:true
+10-02 10:59:19.015 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] Stats 11164ms:Client:,Component:c2.android.vorbis.decoder,Qin:26,DQin:0/0,Render:0,Drop:25,DQout:0/0
+10-02 10:59:19.015 D/MediaCodec( 1067): [0xeacc2930] setState: 7
+10-02 10:59:19.015 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: FLUSHING
+10-02 10:59:19.016 D/MediaCodec( 1067): [0xeacc2930] setState: 8
+10-02 10:59:19.016 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: FLUSHED
+10-02 10:59:19.016 D/MediaCodec( 1067): [0xeacc2930] [c2.android.vorbis.decoder] release
+10-02 10:59:19.016 D/MediaCodec( 1067): [0xeacc2930] setState: 10
+10-02 10:59:19.017 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: RELEASING
+10-02 10:59:19.019 D/MediaCodec( 1067): [0xeacc2930] [c2.android.vorbis.decoder] kWhatReleaseCompleted
+10-02 10:59:19.019 D/MediaCodec( 1067): [0xeacc2930] setState: 0
+10-02 10:59:19.019 I/MediaCodec( 1067): [mId: 338] [audio-debug-dec] setState: UNINITIALIZED
+10-02 10:59:19.020 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:19.020 I/Camera  ( 5947): Open camera top activityName is fr.emmanuel.multicam.MainActivity
+10-02 10:59:19.020 I/CameraBase( 5947): Connect camera (legacy API) - rotationOverride 0, forceSlowJpegMode 0
+10-02 10:59:19.021 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:19.021 I/MiCameraSceneIdentify( 1031): setClientActivityName: The activity is fr.emmanuel.multicam.MainActivity 
+10-02 10:59:19.021 I/CameraService( 1031): CameraService::connect call (PID 5947 "fr.emmanuel.multicam", camera ID 1) and Camera API version 1
+10-02 10:59:19.024 I/CameraImpl( 1031): ATMs hidl service not found, try find ATMs aidl service
+10-02 10:59:19.024 D/camerahalserver( 1083): [HIDL][ATMs]Received factor(APP_NAME), factor_value(fr.emmanuel.multicam)
+10-02 10:59:19.028 I/camopt_killer( 1307): kill process 7465, uid 10177 with camera boost
+10-02 10:59:19.031 D/MediaCodec( 1067): [0xeacc3dc0] setState: 7
+10-02 10:59:19.031 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: FLUSHING
+10-02 10:59:19.032 D/MediaCodec( 1067): [0xeacc3dc0] setState: 8
+10-02 10:59:19.032 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: FLUSHED
+10-02 10:59:19.032 D/MediaCodec( 1067): [0xeacc3dc0] [c2.android.vorbis.decoder] release
+10-02 10:59:19.032 D/MediaCodec( 1067): [0xeacc3dc0] setState: 10
+10-02 10:59:19.032 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: RELEASING
+10-02 10:59:19.034 I/BpBinder( 1109): onLastStrongRef automatically unlinking death recipients: android.hardware.media.bufferpool2.IClientManager
+10-02 10:59:19.034 D/MediaCodec( 1067): [0xeacc3dc0] [c2.android.vorbis.decoder] kWhatReleaseCompleted
+10-02 10:59:19.034 D/MediaCodec( 1067): [0xeacc3dc0] setState: 0
+10-02 10:59:19.034 I/MediaCodec( 1067): [mId: 339] [audio-debug-dec] setState: UNINITIALIZED
+10-02 10:59:19.035 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:19.035 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:19.037 I/Camera2ClientBase( 1031): Camera 1: Opened. Client: fr.emmanuel.multicam (PID 5947, UID 10128)
+10-02 10:59:19.037 I/MiCameraCustomize( 1031): parseFunctionMask: activity: fr.emmanuel.multicam.MainActivity，package: fr.emmanuel.multicam, cameraid: 1
+10-02 10:59:19.037 I/MiCameraCustomize( 1031): trdCloudControl: activity: fr.emmanuel.multicam.MainActivity,package: fr.emmanuel.multicam
+10-02 10:59:19.038 I/CameraService( 1031): makeClient: Camera1 API (legacy), rotationOverride 0, forceSlowJpegMode 0
+10-02 10:59:19.038 D/CameraService( 1031): notifyCameraOpening: Start camera ops, package name = fr.emmanuel.multicam, client UID = 10128
+10-02 10:59:19.039 I/LS_CCM  (  902): [85] onUnavailable:  Camera 1 onUnavailable   
+10-02 10:59:19.049 I/CameraImpl( 1031): initializeDeviceInfo 454 roleId:1 cameraId:1
+10-02 10:59:19.052 I/Camera2-Parameters( 1031): Camera 1: Disabling ZSL mode
+10-02 10:59:19.052 I/Camera2-Parameters( 1031): initialize: allowZslMode: 0 slowJpegMode 0
+10-02 10:59:19.055 D/MiuiEmbeddingWindow( 1307): notifyCameraStateChanged packageName:fr.emmanuel.multicam cameraState:1
+10-02 10:59:19.057 D/MiuiEmbeddingWindow( 1307): close:3rdApp camera pipeline :fr.emmanuel.multicam, force=true
+10-02 10:59:19.060 D/Camera  ( 5947): initCameraHook
+10-02 10:59:19.062 D/CameraHook( 5947): camera hook event handler loaded: com.xiaomi.camera.companion.impl.SimpleHookEventHandler@28d4026
+10-02 10:59:19.062 D/Camera  ( 5947): CameraProxy#setHooksEnabled: true
+10-02 10:59:19.063 D/CameraActivity( 5947): camera parameter NULL
+10-02 10:59:19.063 D/Camera  ( 5947): CameraProxy#getCamera
+10-02 10:59:19.069 I/VirtualCameraProxy( 5947): App task topActivity: ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:19.069 D/Preview ( 5947): front camera is oriented -270deg from natural
+10-02 10:59:19.077 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.078 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.079 D/CameraPreview( 5947): before set camera
+10-02 10:59:19.080 D/CameraPreview( 5947): before getParameters
+10-02 10:59:19.082 D/CameraPreview( 5947): before setPreviewSize
+10-02 10:59:19.086 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.086 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.092 I/VirtualCameraProxy( 5947): App task topActivity: ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:19.099 I/MTK_APPList(  922): [notifyAPPstate] multi_resumed_app_info[0] fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity, pid:5947, activityId:198305212, fps:-1, isMultiWindow:0
+10-02 10:59:19.100 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:19.100 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:19.100 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.102 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:19.103 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:19.103 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:19.107 E/VirtualCameraManager( 5947): connect: virtual camera service is currently unavailable!
+10-02 10:59:19.107 D/Camera  ( 5947): CameraProxy#setHooksEnabled: false
+10-02 10:59:19.107 D/CameraEventHandler( 5947): Remote camera setup completed, and it cost about 44ms
+10-02 10:59:19.108 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:19.108 W/SimpleHookEventHandler( 5947): setDisplayOrientation: virtual camera is either uninited or already released
+10-02 10:59:19.108 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:19.108 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:19.108 W/SimpleHookEventHandler( 5947): setParameters: virtual camera is either uninited or already released
+10-02 10:59:19.108 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:19.109 W/SimpleHookEventHandler( 5947): setParameters: virtual camera is either uninited or already released
+10-02 10:59:19.110 W/SimpleHookEventHandler( 5947): startPreview: virtual camera is either uninited or already released
+10-02 10:59:19.124 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:19.124 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:19.124 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:19.124 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:19.133 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:19.138 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fc0ca19e8
+10-02 10:59:19.138 D/CameraService( 1031): startCameraStreamingOps: startOp for uid 10128
+10-02 10:59:19.139 W/PluginManager( 5947): THREAD WARNING: exec() call to CameraPreview.switchCamera blocked the main thread for 415ms. Plugin should use CordovaInterface.getThreadPool().
+10-02 10:59:19.144 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:26,active:true,isNote:false,isTerminal:false,notify:true
+10-02 10:59:19.145 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e6340
+10-02 10:59:19.161 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1280x720), sId = 1, tId = -1, Primary camera id: 1, AllSensorSize: 1
+10-02 10:59:19.161 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1280x720), sId = 1, tId = -1, Primary camera id: 1, AllSensorSize: 1.
+10-02 10:59:19.198 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-0-0-0
+10-02 10:59:19.200 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7512][key_status_bar_home_state = android.widget.RemoteViews@116b356[key_prompt_type = [I@bd2bfd7[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@67960c4[key_prompt_pending = PendingIntent{8c21bad: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:19.372 D/CameraActivity( 5947): CameraPreview startRecord camera: back width: 1280, height: 720, quality: 85
+10-02 10:59:19.377 W/CameraActivity( 5947): ************orientationHint ***********= 0
+10-02 10:59:19.378 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:19.378 D/MediaRecorder( 5947): constructor+ 0xb4000071e2039b50
+10-02 10:59:19.378 D/MediaRecorder( 5947): constructor- 0xb4000071e2039b50
+10-02 10:59:19.379 D/MediaRecorder( 5947): init+ 0xb4000071e2039b50
+10-02 10:59:19.380 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:19.385 D/MediaRecorder( 5947): init- 0xb4000071e2039b50
+10-02 10:59:19.389 D/MediaRecorder( 5947): prepare+ 0xb4000071e2039b50
+10-02 10:59:19.390 D/MediaRecorder( 5947): prepare- 0xb4000071e2039b50
+10-02 10:59:19.390 D/CameraActivity( 5947): Starting recording
+10-02 10:59:19.390 D/MediaRecorder( 5947): start+ 0xb4000071e2039b50
+10-02 10:59:19.391 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.391 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.391 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:19.392 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:19.392 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:19.394 D/MediaCodec( 1067): CreateByComponentName: name c2.mtk.avc.encoder
+10-02 10:59:19.395 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:19.395 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:19.395 D/MediaCodec( 1067): [0xeacc0010] init: CCodec 0xf0045cd0, CCodecBufferChannel 0xeaa41270
+10-02 10:59:19.396 D/MediaCodec( 1067): [0xeacc0010] setState: 1
+10-02 10:59:19.396 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: INITIALIZING
+10-02 10:59:19.403 I/android.hardware.media.c2-mediatek(  901): missing struct descriptor #Param::CoreIndex(--004) for field values of struct #Param::CoreIndex(F-12004)
+10-02 10:59:19.404 I/android.hardware.media.c2-mediatek(  901): missing struct descriptor #Param::CoreIndex(--1812) for field values of struct #Param::CoreIndex(F-11812)
+10-02 10:59:19.431 D/MediaCodec( 1067): [0xeacc0010] setState: 2
+10-02 10:59:19.431 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: INITIALIZED
+10-02 10:59:19.432 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:19.432 D/MediaCodec( 1067): [0xeacc0010] init: CCodec 0xf0045cd0, CCodecBufferChannel 0xeaa41270
+10-02 10:59:19.433 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] configure: ClientName: fr.emmanuel.multicam ComponentName: c2.mtk.avc.encoder
+10-02 10:59:19.433 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:19.433 I/MediaCodec( 1067):   string mime = "video/avc"
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t width = 1920
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t height = 1080
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t stride = 1920
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t slice-height = 1080
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t color-format = 2130708361
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t bitrate = 20000000
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t bitrate-mode = 1
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t frame-rate = 30
+10-02 10:59:19.433 I/MediaCodec( 1067):   float i-frame-interval = 1.000000
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t xiaomi-video-file-type = 0
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t vendor.mtk.venc.nal.length.prefer = 1
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t vendor.mtk.venc.nal.length.bytes = 4
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t android._input-metadata-buffer-type = 2
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t feature-nal-length-bitstream = 1
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t nal-length-in-bytes = 4
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t vendor.qti-ext-enc-nal-length-bs.num-bytes = 4
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t android._using-recorder = 1
+10-02 10:59:19.433 I/MediaCodec( 1067):   int32_t x-* = 1
+10-02 10:59:19.433 I/MediaCodec( 1067): }
+10-02 10:59:19.433 I/MediaCodec( 1067): MediaStub sendFrameRate : app set :30
+10-02 10:59:19.434 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:19.434 I/MediaCodec( 1067): MediaStub sendWidth/sendHeight
+10-02 10:59:19.434 I/MediaCodec( 1067): MediaStub sendMine
+10-02 10:59:19.434 I/MediaCodec( 1067): MediaStub sendDolbyVision
+10-02 10:59:19.434 I/MediaCodec( 1067): MediaStub sendPackageName
+10-02 10:59:19.434 D/MediaImpl( 1067): MediaImpl::sendPackageName: fr.emmanuel.multicam
+10-02 10:59:19.434 D/MediaStub( 1067): MediaStub::sendPackageName fr.emmanuel.multicam
+10-02 10:59:19.434 D/MediaCodec( 1067): shapeMediaFormat: deltas(1): AMessage(what = 0x00000000) = {
+10-02 10:59:19.434 D/MediaCodec( 1067):     int32_t android._encoding-quality-level = 0
+10-02 10:59:19.434 D/MediaCodec( 1067):   }
+10-02 10:59:19.436 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:19.436 D/MediaCodec( 1067): [0xeacc0010] setState: 3
+10-02 10:59:19.436 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: CONFIGURING
+10-02 10:59:19.442 D/MediaCodec( 1067): [0xeacc0010] setState: 4
+10-02 10:59:19.442 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: CONFIGURED
+10-02 10:59:19.442 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:19.442 D/MediaCodec( 1067): [0xeacc0010] setState: 5
+10-02 10:59:19.442 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: STARTING
+10-02 10:59:19.447 D/MediaCodec( 1067): [0xeacc0010] setState: 6
+10-02 10:59:19.447 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: STARTED
+10-02 10:59:19.448 D/AudioRecord( 1067): set(): 0xeb640af0, inputSource 0, sampleRate 48000, format 0x1, channelMask 0x10, frameCount 2048, notificationFrames 1024, sessionId 0, transferType 0, flags 0, attributionSource AttributionSourceState{pid: 5947, uid: 10128, deviceId: 0, packageName: fr.emmanuel.multicam, attributionTag: (null), token: binder:0xf00c77b0, renouncedPermissions: [], next: []}uid 10128, pid 5947
+10-02 10:59:19.454 D/AudioUtilmtk(  947): checkWhiteList(): Not find packageName fr.emmanuel.multicam in scenarioName RecordScreenOff_Irq 
+10-02 10:59:19.456 D/APM_AudioPolicyManager(  947): getInputForAttr AudioPlayBackCapture not supported, appName: fr.emmanuel.multicam
+10-02 10:59:19.456 D/APM_AudioPolicyManager(  947): ->Debug: getInputForDevice: 5289: getInputForDevice() packageName=fr.emmanuel.multicam, uid=10128
+10-02 10:59:19.464 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e6340
+10-02 10:59:19.482 D/MediaCodec( 1067): CreateByComponentName: name c2.android.aac.encoder
+10-02 10:59:19.483 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:19.483 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:19.483 D/MediaCodec( 1067): [0xeacc7b70] init: CCodec 0xf0046590, CCodecBufferChannel 0xeaa45bf0
+10-02 10:59:19.483 D/MediaCodec( 1067): [0xeacc7b70] setState: 1
+10-02 10:59:19.483 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: INITIALIZING
+10-02 10:59:19.500 D/MediaCodec( 1067): [0xeacc7b70] setState: 2
+10-02 10:59:19.500 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: INITIALIZED
+10-02 10:59:19.501 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:19.501 D/MediaCodec( 1067): [0xeacc7b70] init: CCodec 0xf0046590, CCodecBufferChannel 0xeaa45bf0
+10-02 10:59:19.501 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] configure: ClientName: fr.emmanuel.multicam ComponentName: c2.android.aac.encoder
+10-02 10:59:19.501 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:19.501 I/MediaCodec( 1067):   string mime = "audio/mp4a-latm"
+10-02 10:59:19.501 I/MediaCodec( 1067):   int32_t aac-profile = 2
+10-02 10:59:19.501 I/MediaCodec( 1067):   int32_t max-input-size = 2048
+10-02 10:59:19.501 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:19.501 I/MediaCodec( 1067):   int32_t sample-rate = 48000
+10-02 10:59:19.501 I/MediaCodec( 1067):   int32_t bitrate = 192000
+10-02 10:59:19.501 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:19.501 I/MediaCodec( 1067): }
+10-02 10:59:19.502 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:19.502 D/MediaCodec( 1067): shapeMediaFormat: deltas(0): AMessage(what = 0x00000000) = {
+10-02 10:59:19.502 D/MediaCodec( 1067):   }
+10-02 10:59:19.502 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:19.502 D/MediaCodec( 1067): [0xeacc7b70] setState: 3
+10-02 10:59:19.502 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: CONFIGURING
+10-02 10:59:19.504 D/MediaCodec( 1067): [0xeacc7b70] setState: 4
+10-02 10:59:19.504 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: CONFIGURED
+10-02 10:59:19.505 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:19.505 D/MediaCodec( 1067): [0xeacc7b70] setState: 5
+10-02 10:59:19.505 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: STARTING
+10-02 10:59:19.517 D/MediaCodec( 1067): [0xeacc7b70] setState: 6
+10-02 10:59:19.517 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: STARTED
+10-02 10:59:19.518 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:19.524 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:19.525 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=9.37 dur=1067.62 max=768.23 min=32.62
+10-02 10:59:19.539 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:19.544 D/MediaCodec( 1067): CreateByType: mime audio/vorbis, encoder 0 pid 1031
+10-02 10:59:19.545 E/MediaCodec( 1067): No packages for calling UID
+10-02 10:59:19.545 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:19.545 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:19.545 D/MediaCodec( 1067): [0xeacc2930] init: CCodec 0xf00494d0, CCodecBufferChannel 0xeaa44ed0
+10-02 10:59:19.545 D/MediaCodec( 1067): [0xeacc2930] setState: 1
+10-02 10:59:19.545 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: INITIALIZING
+10-02 10:59:19.558 D/MediaCodec( 1067): [0xeacc2930] setState: 2
+10-02 10:59:19.558 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: INITIALIZED
+10-02 10:59:19.559 D/MediaCodec( 1067): [0xeacc2930] init: CCodec 0xf00494d0, CCodecBufferChannel 0xeaa44ed0
+10-02 10:59:19.559 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] configure: ClientName:  ComponentName: c2.android.vorbis.decoder
+10-02 10:59:19.559 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:19.559 I/MediaCodec( 1067):   string mime = "audio/vorbis"
+10-02 10:59:19.559 I/MediaCodec( 1067):   int64_t durationUs = 518820
+10-02 10:59:19.559 I/MediaCodec( 1067):   Buffer csd-0 = {
+10-02 10:59:19.559 I/MediaCodec( 1067):     00000000:  01 76 6f 72 62 69 73 00  00 00 00 01 22 56 00 00  .vorbis....."V..
+10-02 10:59:19.559 I/MediaCodec( 1067):     00000010:  00 00 00 00 50 c3 00 00  00 00 00 00 a9 01        ....P.........
+10-02 10:59:19.559 I/MediaCodec( 1067):   }
+10-02 10:59:19.559 I/MediaCodec( 1067):   Buffer *csd-1 = 0xe8887550
+10-02 10:59:19.559 I/MediaCodec( 1067):   int32_t bitrate = 50000
+10-02 10:59:19.559 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:19.559 I/MediaCodec( 1067):   int32_t sample-rate = 22050
+10-02 10:59:19.559 I/MediaCodec( 1067):   int32_t channel-mask = 1
+10-02 10:59:19.559 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:19.559 I/MediaCodec( 1067): }
+10-02 10:59:19.560 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:19.560 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:19.560 D/MediaCodec( 1067): [0xeacc2930] setState: 3
+10-02 10:59:19.560 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: CONFIGURING
+10-02 10:59:19.562 D/MediaCodec( 1067): [0xeacc2930] setState: 4
+10-02 10:59:19.563 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: CONFIGURED
+10-02 10:59:19.563 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:19.563 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:19.563 D/MediaCodec( 1067): [0xeacc2930] setState: 5
+10-02 10:59:19.563 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: STARTING
+10-02 10:59:19.571 D/MediaCodec( 1067): [0xeacc2930] setState: 6
+10-02 10:59:19.571 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: STARTED
+10-02 10:59:19.575 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] queueInputBuffer: index: 2 pts: 0 timediff: 0
+10-02 10:59:19.576 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] queueInputBuffer: index: 3 pts: 0 timediff: 1
+10-02 10:59:19.577 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] queueInputBuffer: index: 0 pts: 11609 timediff: 1
+10-02 10:59:19.580 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:19.866 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:19.866 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 2, current total missed framenumber = 5, current total framenumber 6, all max missed framenumber 21, all total missed framenumber 788109, total framenumber 3535260, SessionMaxFps 0
+10-02 10:59:19.866 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:19.866 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:19.936 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:19.936 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:19.936 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:19.936 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:19.942 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:19.945 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fecbd4c58
+10-02 10:59:19.947 I/AudioRecord( 1067): start mSessionID=2177 start(458): sync event 0 trigger session 0  packageName: fr.emmanuel.multicam
+10-02 10:59:19.949 D/APM_AudioPolicyManager(  947): startInput input:790, session:2177, portId:458, source=6, appname fr.emmanuel.multicam, uid 10128, flags=0x0)
+10-02 10:59:19.949 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e6340
+10-02 10:59:19.951 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:27,active:true,isNote:false,isTerminal:false,notify:true
+10-02 10:59:19.959 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1920x1080), sId = 1, tId = -1, Primary camera id: 1, AllSensorSize: 1
+10-02 10:59:19.959 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1920x1080), sId = 1, tId = -1, Primary camera id: 1, AllSensorSize: 1.
+10-02 10:59:19.962 W/BpBinder( 5947): PerfMonitor binderTransact: time=572ms interface=android.media.IMediaRecorder code=8
+10-02 10:59:19.962 D/MediaRecorder( 5947): start- 0xb4000071e2039b50
+10-02 10:59:19.962 D/CameraPreview( 5947): onStartRecordVideo started
+10-02 10:59:20.004 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-1-0-0
+10-02 10:59:20.005 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7508][key_status_bar_home_state = android.widget.RemoteViews@667ee63[key_prompt_type = [I@874da60[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@a8a6b19[key_prompt_pending = PendingIntent{7e767de: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:20.558 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=13.55 dur=1033.05 max=383.70 min=33.25
+10-02 10:59:20.568 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] queueInputBuffer: index: 0 pts: 9740 timediff: 0
+10-02 10:59:20.572 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] queueInputBuffer: index: 1 pts: 29740 timediff: 3
+10-02 10:59:20.609 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] queueInputBuffer: index: 2 pts: 49740 timediff: 37
+10-02 10:59:20.637 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] queueInputBuffer: index: 0 pts: 31366 timediff: 0
+10-02 10:59:20.638 I/BatteryNotifier( 1067): noteStartVideo: the video refcount for uid(10128) clientName(fr.emmanuel.multicam) is 0.
+10-02 10:59:20.673 W/android.hardware.media.c2-mediatek(  901): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. This might not be intended. AIBinder_DeathRecipient_setOnUnlinked should be called first.
+10-02 10:59:20.676 I/MediaCodec( 1067): isHDR: standard =1,transfer = 3
+10-02 10:59:20.678 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] queueInputBuffer: index: 1 pts: 71422 timediff: 41
+10-02 10:59:20.717 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] queueInputBuffer: index: 2 pts: 111479 timediff: 39
+10-02 10:59:21.558 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=24.99 dur=1000.60 max=51.03 min=32.12
+10-02 10:59:22.576 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=24.57 dur=1017.70 max=51.05 min=32.73
+10-02 10:59:23.577 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=24.98 dur=1000.64 max=51.53 min=31.93
+10-02 10:59:23.644 W/xiaomi.discover( 7913): ClassLoaderContext classpath size mismatch. expected=1, found=0 (DLC[];PCL[base.apk*217194814]{PCL[/system/framework/org.apache.http.legacy.jar*1129637092]#PCL[/system/framework/com.android.location.provider.jar*1570284764]#PCL[/system/framework/com.android.media.remotedisplay.jar*487574312]#PCL[/system_ext/framework/androidx.window.extensions.jar*2548032050]#PCL[/system_ext/framework/androidx.window.sidecar.jar*2175288658]} | DLC[];PCL[])
+10-02 10:59:23.695 W/xiaomi.discover( 7913): ClassLoaderContext classpath element checksum mismatch. expected=217194814, found=2456157915 (DLC[];PCL[base.apk*217194814]{PCL[/system/framework/org.apache.http.legacy.jar*1129637092]#PCL[/system/framework/com.android.location.provider.jar*1570284764]#PCL[/system/framework/com.android.media.remotedisplay.jar*487574312]#PCL[/system_ext/framework/androidx.window.extensions.jar*2548032050]#PCL[/system_ext/framework/androidx.window.sidecar.jar*2175288658]} | DLC[];PCL[/data/app/~~MBDPMHMXK1PlD64-ABEyFA==/com.xiaomi.discover-SJ6wpxHJI9P2wefh43VYag==/base.apk*2456157915]{PCL[/system_ext/framework/com.android.extensions.appfunctions.jar*2880224042]#PCL[/system_ext/framework/androidx.window.extensions.jar*2548032050]#PCL[/system_ext/framework/androidx.window.sidecar.jar*2175288658]})
+10-02 10:59:24.451 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] Stats 5008ms:Client:fr.emmanuel.multicam,Component:c2.mtk.avc.encoder,Qin:96,DQin:0/0,Render:0,encode:96,DQout:0/0
+10-02 10:59:24.511 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] Stats 5006ms:Client:fr.emmanuel.multicam,Component:c2.android.aac.encoder,Qin:211,DQin:0/0,Render:0,encode:186,DQout:0/0
+10-02 10:59:24.527 D/PolicyMaker( 1307): uid =10128 pkg=fr.emmanuel.multicam reason=VISIBLE_APP
+10-02 10:59:24.577 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=24.98 dur=1000.75 max=50.45 min=33.05
+10-02 10:59:25.579 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=24.97 dur=1001.17 max=50.30 min=33.19
+10-02 10:59:25.976 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT capturePreviewSurface.request atMs=1790931565976 detail={"tag":"p7f-B-front-pixelcopy"}", source:  (9)
+10-02 10:59:26.036 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT capturePreviewSurface.ok atMs=1790931566033 detail={"tag":"p7f-B-front-pixelcopy","afterMs":57,"b64len":96496}", source:  (9)
+10-02 10:59:26.110 D/CameraActivity( 5947): stopRecord
+10-02 10:59:26.110 D/MediaRecorder( 5947): stop+ 0xb4000071e2039b50
+10-02 10:59:26.132 D/MediaCodec( 1067): [0xeacc0010] [c2.mtk.avc.encoder] release
+10-02 10:59:26.133 D/MediaCodec( 1067): [0xeacc0010] setState: 10
+10-02 10:59:26.133 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: RELEASING
+10-02 10:59:26.134 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#567] MediaCodec discarded an unknown buffer
+10-02 10:59:26.134 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#567] MediaCodec discarded an unknown buffer
+10-02 10:59:26.134 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#567] MediaCodec discarded an unknown buffer
+10-02 10:59:26.134 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#567] MediaCodec discarded an unknown buffer
+10-02 10:59:26.134 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#567] MediaCodec discarded an unknown buffer
+10-02 10:59:26.134 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#567] MediaCodec discarded an unknown buffer
+10-02 10:59:26.134 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#567] MediaCodec discarded an unknown buffer
+10-02 10:59:26.150 D/MediaCodec( 1067): [0xeacc0010] [c2.mtk.avc.encoder] kWhatReleaseCompleted
+10-02 10:59:26.150 D/MediaCodec( 1067): [0xeacc0010] setState: 0
+10-02 10:59:26.150 I/MediaCodec( 1067): [mId: 340] [video-debug-enc] setState: UNINITIALIZED
+10-02 10:59:26.150 I/BpBinder(  901): onLastStrongRef automatically unlinking death recipients: android.hardware.media.bufferpool2.IClientManager
+10-02 10:59:26.152 I/BatteryNotifier( 1067): noteStopVideo: the video refcount for uid(10128) clientName(fr.emmanuel.multicam) is 0.
+10-02 10:59:26.154 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:26.154 I/MediaCodec( 1067): MediaStub sendVideoPlayData
+10-02 10:59:26.154 D/MediaImpl( 1067): MediaImpl::sendVideoPlayData::mediacodec_packgeName : fr.emmanuel.multicam
+10-02 10:59:26.154 D/MediaImpl( 1067): MediaImpl::sendVideoPlayData::packgeName : fr.emmanuel.multicam
+10-02 10:59:26.154 D/send_data_to_xlog( 1067): send_video_play_to_xlog::packgeName : fr.emmanuel.multicam
+10-02 10:59:26.160 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:26.165 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:26.185 D/MediaCodec( 1067): CreateByType: mime audio/vorbis, encoder 0 pid 1031
+10-02 10:59:26.186 E/MediaCodec( 1067): No packages for calling UID
+10-02 10:59:26.186 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:26.187 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:26.187 D/MediaCodec( 1067): [0xeacc5250] init: CCodec 0xf0045cd0, CCodecBufferChannel 0xeaa417b0
+10-02 10:59:26.187 D/MediaCodec( 1067): [0xeacc5250] setState: 1
+10-02 10:59:26.187 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: INITIALIZING
+10-02 10:59:26.205 D/MediaCodec( 1067): [0xeacc5250] setState: 2
+10-02 10:59:26.205 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: INITIALIZED
+10-02 10:59:26.206 D/MediaCodec( 1067): [0xeacc5250] init: CCodec 0xf0045cd0, CCodecBufferChannel 0xeaa417b0
+10-02 10:59:26.206 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] configure: ClientName:  ComponentName: c2.android.vorbis.decoder
+10-02 10:59:26.206 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:26.206 I/MediaCodec( 1067):   string mime = "audio/vorbis"
+10-02 10:59:26.206 I/MediaCodec( 1067):   int64_t durationUs = 518820
+10-02 10:59:26.206 I/MediaCodec( 1067):   Buffer csd-0 = {
+10-02 10:59:26.206 I/MediaCodec( 1067):     00000000:  01 76 6f 72 62 69 73 00  00 00 00 01 22 56 00 00  .vorbis....."V..
+10-02 10:59:26.206 I/MediaCodec( 1067):     00000010:  00 00 00 00 50 c3 00 00  00 00 00 00 a9 01        ....P.........
+10-02 10:59:26.206 I/MediaCodec( 1067):   }
+10-02 10:59:26.206 I/MediaCodec( 1067):   Buffer *csd-1 = 0xe8897990
+10-02 10:59:26.206 I/MediaCodec( 1067):   int32_t bitrate = 50000
+10-02 10:59:26.206 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:26.206 I/MediaCodec( 1067):   int32_t sample-rate = 22050
+10-02 10:59:26.206 I/MediaCodec( 1067):   int32_t channel-mask = 1
+10-02 10:59:26.206 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:26.206 I/MediaCodec( 1067): }
+10-02 10:59:26.207 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:26.208 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:26.208 D/MediaCodec( 1067): [0xeacc5250] setState: 3
+10-02 10:59:26.208 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: CONFIGURING
+10-02 10:59:26.211 D/MediaCodec( 1067): [0xeacc5250] setState: 4
+10-02 10:59:26.211 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: CONFIGURED
+10-02 10:59:26.212 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:26.212 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:26.212 D/MediaCodec( 1067): [0xeacc5250] setState: 5
+10-02 10:59:26.212 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: STARTING
+10-02 10:59:26.222 D/MediaCodec( 1067): [0xeacc5250] setState: 6
+10-02 10:59:26.222 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: STARTED
+10-02 10:59:26.226 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] queueInputBuffer: index: 2 pts: 0 timediff: 0
+10-02 10:59:26.227 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] queueInputBuffer: index: 3 pts: 0 timediff: 1
+10-02 10:59:26.228 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] queueInputBuffer: index: 0 pts: 11609 timediff: 1
+10-02 10:59:26.231 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:26.378 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:26.378 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:26.378 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:26.379 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 1, current total missed framenumber = 30, current total framenumber 154, all max missed framenumber 21, all total missed framenumber 788139, total framenumber 3535414, SessionMaxFps 0
+10-02 10:59:26.379 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:26.380 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:26.433 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:26.433 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:26.433 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:26.433 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:26.438 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:26.439 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fbc64b9c8
+10-02 10:59:26.441 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e6340
+10-02 10:59:26.443 D/MediaCodec( 1067): [0xeacc7b70] [c2.android.aac.encoder] release
+10-02 10:59:26.443 D/MediaCodec( 1067): [0xeacc7b70] setState: 10
+10-02 10:59:26.443 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: RELEASING
+10-02 10:59:26.444 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#610] MediaCodec discarded an unknown buffer
+10-02 10:59:26.444 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#610] MediaCodec discarded an unknown buffer
+10-02 10:59:26.444 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#610] MediaCodec discarded an unknown buffer
+10-02 10:59:26.444 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#610] MediaCodec discarded an unknown buffer
+10-02 10:59:26.446 D/MediaCodec( 1067): [0xeacc7b70] [c2.android.aac.encoder] kWhatReleaseCompleted
+10-02 10:59:26.446 D/MediaCodec( 1067): [0xeacc7b70] setState: 0
+10-02 10:59:26.446 I/MediaCodec( 1067): [mId: 341] [audio-debug-enc] setState: UNINITIALIZED
+10-02 10:59:26.447 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:26.447 I/AudioRecord( 1067): stop mSessionID=2177, mPortID=458, mActice: 1 packageName: fr.emmanuel.multicam
+10-02 10:59:26.447 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:26.455 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1280x720), sId = 1, tId = -1, Primary camera id: 1, AllSensorSize: 1
+10-02 10:59:26.455 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1280x720), sId = 1, tId = -1, Primary camera id: 1, AllSensorSize: 1.
+10-02 10:59:26.534 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:27,active:false,isNote:false,isTerminal:false,notify:true
+10-02 10:59:26.547 W/BpBinder( 5947): PerfMonitor binderTransact: time=438ms interface=android.media.IMediaRecorder code=7
+10-02 10:59:26.547 D/MediaRecorder( 5947): stop- 0xb4000071e2039b50
+10-02 10:59:26.548 D/MediaRecorder( 5947): reset+ 0xb4000071e2039b50
+10-02 10:59:26.548 D/MediaRecorder( 5947): reset- 0xb4000071e2039b50
+10-02 10:59:26.548 D/MediaRecorder( 5947): release+ 0xb4000071e2039b50
+10-02 10:59:26.548 I/AudioRecord( 1067): stop mSessionID=2177, mPortID=458, mActice: 0 packageName: fr.emmanuel.multicam
+10-02 10:59:26.549 D/MediaRecorder( 5947): release- 0xb4000071e2039b50
+10-02 10:59:26.549 D/MediaRecorder( 5947): destructor+ 0xb4000071e2039b50
+10-02 10:59:26.549 D/MediaRecorder( 5947): destructor- 0xb4000071e2039b50
+10-02 10:59:26.549 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:26.552 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:26.552 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:26.552 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:26.552 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:26.553 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:26.553 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:26.553 I/Camera2Client( 1031): startPreviewL: Camera 1: Preview already active, ignoring restart
+10-02 10:59:26.553 D/CameraPreview( 5947): onStopRecordVideo success
+10-02 10:59:26.556 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT stopRecordVideo.ok atMs=1790931566555 detail={"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":447}", source:  (9)
+10-02 10:59:26.588 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-0-0-0
+10-02 10:59:26.589 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7512][key_status_bar_home_state = android.widget.RemoteViews@d4ee0bc[key_prompt_type = [I@772845[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@b5f5b9a[key_prompt_pending = PendingIntent{89f1ccb: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:26.641 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e6340
+10-02 10:59:26.762 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=17.74 dur=1183.70 max=383.33 min=33.07
+10-02 10:59:27.797 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=13.53 dur=1034.60 max=83.89 min=50.30
+10-02 10:59:28.831 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=12.58 dur=1033.63 max=83.88 min=66.34
+10-02 10:59:29.865 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=12.57 dur=1034.23 max=84.09 min=66.24
+10-02 10:59:30.704 D/CameraActivity( 5947): numberOfCameras: 2
+10-02 10:59:30.704 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:30.705 I/Camera3-Device( 1031): flush: Camera 1: Flushing all requests
+10-02 10:59:30.777 D/Camera  ( 5947): releaseCameraHook
+10-02 10:59:30.778 D/VirtualCameraManager( 5947): unbind virtual camera service
+10-02 10:59:30.778 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:30.779 I/Camera3-Device( 1031): flush: Camera 1: Flushing all requests
+10-02 10:59:30.787 D/BufferQueueConsumer( 1031): [Camera2-JpegConsumer](id:40700000099,api:0,p:-1,c:1031) disconnect
+10-02 10:59:30.787 I/Camera3-Device( 1031): disconnectImpl: Camera: 1 E
+10-02 10:59:30.857 D/MiuiEmbeddingWindow( 1307): notifyCameraStateChanged packageName:fr.emmanuel.multicam cameraState:2
+10-02 10:59:30.857 D/CameraService( 1031): finishCameraStreamingOps: finishOp for uid 10128
+10-02 10:59:30.858 I/LS_CCM  (  902): [63] onAvailable:  Camera 1 onAvailable   
+10-02 10:59:30.859 D/MiuiEmbeddingWindow( 1307): close:3rdApp camera pipeline :fr.emmanuel.multicam, force=true
+10-02 10:59:30.859 I/CameraService( 1031): disconnect: Disconnected client for camera 1 for PID 5947
+10-02 10:59:30.859 D/CameraImpl( 1031): setRFLowerPower:71 
+10-02 10:59:30.859 E/CameraImpl( 1031): triggerCalVariance: cameraServer send preview frame : variace = 30, maxInterval = 87, minInterval = 56, first frame = 1,last frame = 51
+10-02 10:59:30.859 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 2, current total missed framenumber = 67, current total framenumber 51, all max missed framenumber 21, all total missed framenumber 788206, total framenumber 3535465, SessionMaxFps 0
+10-02 10:59:30.860 I/Camera2Client( 1031): Camera 1: Closed
+10-02 10:59:30.860 I/Camera2ClientBase( 1031): ~Camera2ClientBase: Client object's dtor for Camera Id 1 completed. Client was: fr.emmanuel.multicam (PID 5947, UID 10128)
+10-02 10:59:30.860 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:26,active:false,isNote:false,isTerminal:false,notify:true
+10-02 10:59:30.861 I/Camera3-Device( 1031): disconnectImpl: Camera: 1 E
+10-02 10:59:30.861 I/Camera3DeviceInjectionMethods( 1031): injectionDisconnectImpl: Injection camera disconnect
+10-02 10:59:30.861 D/CameraActivity( 5947): cameraCurrentlyLocked := 1
+10-02 10:59:30.861 D/CameraActivity( 5947): cameraCurrentlyLocked new: 0
+10-02 10:59:30.864 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] Stats 11301ms:Client:,Component:c2.android.vorbis.decoder,Qin:29,DQin:0/0,Render:0,Drop:25,DQout:0/0
+10-02 10:59:30.864 D/MediaCodec( 1067): [0xeacc2930] setState: 7
+10-02 10:59:30.864 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: FLUSHING
+10-02 10:59:30.865 D/MediaCodec( 1067): [0xeacc2930] setState: 8
+10-02 10:59:30.865 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: FLUSHED
+10-02 10:59:30.865 D/MediaCodec( 1067): [0xeacc2930] [c2.android.vorbis.decoder] release
+10-02 10:59:30.865 D/MediaCodec( 1067): [0xeacc2930] setState: 10
+10-02 10:59:30.865 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: RELEASING
+10-02 10:59:30.868 D/MediaCodec( 1067): [0xeacc2930] [c2.android.vorbis.decoder] kWhatReleaseCompleted
+10-02 10:59:30.868 D/MediaCodec( 1067): [0xeacc2930] setState: 0
+10-02 10:59:30.868 I/MediaCodec( 1067): [mId: 342] [audio-debug-dec] setState: UNINITIALIZED
+10-02 10:59:30.870 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:30.870 I/Camera  ( 5947): Open camera top activityName is fr.emmanuel.multicam.MainActivity
+10-02 10:59:30.870 I/CameraBase( 5947): Connect camera (legacy API) - rotationOverride 0, forceSlowJpegMode 0
+10-02 10:59:30.870 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:30.871 I/MiCameraSceneIdentify( 1031): setClientActivityName: The activity is fr.emmanuel.multicam.MainActivity 
+10-02 10:59:30.871 I/CameraService( 1031): CameraService::connect call (PID 5947 "fr.emmanuel.multicam", camera ID 0) and Camera API version 1
+10-02 10:59:30.872 I/CameraImpl( 1031): ATMs hidl service not found, try find ATMs aidl service
+10-02 10:59:30.872 D/camerahalserver( 1083): [HIDL][ATMs]Received factor(APP_NAME), factor_value(fr.emmanuel.multicam)
+10-02 10:59:30.874 I/camopt_killer( 1307): kill process 6561, uid 10153 with camera boost
+10-02 10:59:30.877 I/camopt_killer( 1307): kill process 7913, uid 10177 with camera boost
+10-02 10:59:30.885 D/MediaCodec( 1067): [0xeacc5250] setState: 7
+10-02 10:59:30.885 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: FLUSHING
+10-02 10:59:30.885 D/MediaCodec( 1067): [0xeacc5250] setState: 8
+10-02 10:59:30.885 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: FLUSHED
+10-02 10:59:30.886 D/MediaCodec( 1067): [0xeacc5250] [c2.android.vorbis.decoder] release
+10-02 10:59:30.886 D/MediaCodec( 1067): [0xeacc5250] setState: 10
+10-02 10:59:30.886 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: RELEASING
+10-02 10:59:30.887 I/BpBinder( 1109): onLastStrongRef automatically unlinking death recipients: android.hardware.media.bufferpool2.IClientManager
+10-02 10:59:30.888 D/MediaCodec( 1067): [0xeacc5250] [c2.android.vorbis.decoder] kWhatReleaseCompleted
+10-02 10:59:30.888 D/MediaCodec( 1067): [0xeacc5250] setState: 0
+10-02 10:59:30.888 I/MediaCodec( 1067): [mId: 343] [audio-debug-dec] setState: UNINITIALIZED
+10-02 10:59:30.888 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:30.888 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:30.892 I/Camera2ClientBase( 1031): Camera 0: Opened. Client: fr.emmanuel.multicam (PID 5947, UID 10128)
+10-02 10:59:30.892 I/MiCameraCustomize( 1031): parseFunctionMask: activity: fr.emmanuel.multicam.MainActivity，package: fr.emmanuel.multicam, cameraid: 0
+10-02 10:59:30.892 I/MiCameraCustomize( 1031): trdCloudControl: activity: fr.emmanuel.multicam.MainActivity,package: fr.emmanuel.multicam
+10-02 10:59:30.892 I/CameraService( 1031): makeClient: Camera1 API (legacy), rotationOverride 0, forceSlowJpegMode 0
+10-02 10:59:30.892 D/CameraService( 1031): notifyCameraOpening: Start camera ops, package name = fr.emmanuel.multicam, client UID = 10128
+10-02 10:59:30.893 I/CameraService( 1031): onTorchStatusChangedLocked: Torch status changed for cameraId=0, newStatus=0
+10-02 10:59:30.895 I/LS_CCM  (  902): [85] onUnavailable:  Camera 0 onUnavailable   
+10-02 10:59:30.903 I/CameraProviderManager( 1031): Camera device device@1.1/internal/0 torch status is now NOT_AVAILABLE
+10-02 10:59:30.903 I/CameraService( 1031): onTorchStatusChangedLocked: Torch status changed for cameraId=0, newStatus=0
+10-02 10:59:30.905 I/CameraImpl( 1031): initializeDeviceInfo 454 roleId:0 cameraId:0
+10-02 10:59:30.906 E/Camera2-Parameters( 1031): buildFastInfo: Unknown override AE mode: 0
+10-02 10:59:30.906 E/Camera2-Parameters( 1031): buildFastInfo: Unknown override AE mode: 0
+10-02 10:59:30.906 I/Camera2-Parameters( 1031): Camera 0: Disabling ZSL mode
+10-02 10:59:30.906 I/Camera2-Parameters( 1031): initialize: allowZslMode: 0 slowJpegMode 1
+10-02 10:59:30.908 D/MiuiEmbeddingWindow( 1307): notifyCameraStateChanged packageName:fr.emmanuel.multicam cameraState:1
+10-02 10:59:30.910 D/MiuiEmbeddingWindow( 1307): close:3rdApp camera pipeline :fr.emmanuel.multicam, force=true
+10-02 10:59:30.913 D/Camera  ( 5947): initCameraHook
+10-02 10:59:30.915 D/CameraHook( 5947): camera hook event handler loaded: com.xiaomi.camera.companion.impl.SimpleHookEventHandler@7022dfe
+10-02 10:59:30.916 D/Camera  ( 5947): CameraProxy#setHooksEnabled: true
+10-02 10:59:30.916 D/CameraActivity( 5947): camera parameter NULL
+10-02 10:59:30.916 D/Camera  ( 5947): CameraProxy#getCamera
+10-02 10:59:30.920 I/VirtualCameraProxy( 5947): App task topActivity: ComponentInfo{fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity}
+10-02 10:59:30.921 D/Preview ( 5947): back camera is oriented -90deg from natural
+10-02 10:59:30.923 E/VirtualCameraManager( 5947): connect: virtual camera service is currently unavailable!
+10-02 10:59:30.923 D/Camera  ( 5947): CameraProxy#setHooksEnabled: false
+10-02 10:59:30.923 D/CameraEventHandler( 5947): Remote camera setup completed, and it cost about 8ms
+10-02 10:59:30.923 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:30.923 W/SimpleHookEventHandler( 5947): setDisplayOrientation: virtual camera is either uninited or already released
+10-02 10:59:30.923 W/SimpleHookEventHandler( 5947): getParameters: virtual camera is either uninited or already released
+10-02 10:59:30.925 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:30.925 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:30.925 D/CameraPreview( 5947): before set camera
+10-02 10:59:30.925 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:30.926 D/CameraPreview( 5947): before getParameters
+10-02 10:59:30.927 D/CameraPreview( 5947): before setPreviewSize
+10-02 10:59:30.930 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:30.930 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:30.930 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:30.932 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:30.932 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:30.932 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:30.932 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:30.933 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:30.933 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:30.935 I/MTK_APPList(  922): [notifyAPPstate] multi_resumed_app_info[0] fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity, pid:5947, activityId:198305212, fps:-1, isMultiWindow:0
+10-02 10:59:30.942 I/MTK_APPList(  922): [notifyAPPstate] multi_resumed_app_info[0] fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity, pid:5947, activityId:198305212, fps:-1, isMultiWindow:0
+10-02 10:59:30.968 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:30.968 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:30.968 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:30.968 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:30.975 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:30.977 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fbc64b9e8
+10-02 10:59:30.977 D/CameraService( 1031): startCameraStreamingOps: startOp for uid 10128
+10-02 10:59:30.978 W/PluginManager( 5947): THREAD WARNING: exec() call to CameraPreview.switchCamera blocked the main thread for 276ms. Plugin should use CordovaInterface.getThreadPool().
+10-02 10:59:30.982 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:26,active:true,isNote:false,isTerminal:false,notify:true
+10-02 10:59:30.983 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e2e10
+10-02 10:59:30.995 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1
+10-02 10:59:30.995 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1.
+10-02 10:59:31.034 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-0-0-0
+10-02 10:59:31.035 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7512][key_status_bar_home_state = android.widget.RemoteViews@9f8579f[key_prompt_type = [I@d69f0ec[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@bacb5[key_prompt_pending = PendingIntent{c95df4a: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:31.163 D/CameraActivity( 5947): CameraPreview startRecord camera: back width: 1280, height: 720, quality: 85
+10-02 10:59:31.168 W/CameraActivity( 5947): ************orientationHint ***********= 0
+10-02 10:59:31.168 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:31.169 D/MediaRecorder( 5947): constructor+ 0xb4000071e2039b50
+10-02 10:59:31.169 D/MediaRecorder( 5947): constructor- 0xb4000071e2039b50
+10-02 10:59:31.170 D/MediaRecorder( 5947): init+ 0xb4000071e2039b50
+10-02 10:59:31.171 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:31.178 D/MediaRecorder( 5947): init- 0xb4000071e2039b50
+10-02 10:59:31.182 D/MediaRecorder( 5947): prepare+ 0xb4000071e2039b50
+10-02 10:59:31.182 D/MediaRecorder( 5947): prepare- 0xb4000071e2039b50
+10-02 10:59:31.183 D/CameraActivity( 5947): Starting recording
+10-02 10:59:31.183 D/MediaRecorder( 5947): start+ 0xb4000071e2039b50
+10-02 10:59:31.185 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:31.185 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:31.185 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:31.185 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:31.186 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:31.187 D/MediaCodec( 1067): CreateByComponentName: name c2.mtk.avc.encoder
+10-02 10:59:31.188 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:31.189 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:31.189 D/MediaCodec( 1067): [0xeacc5250] init: CCodec 0xf0045cd0, CCodecBufferChannel 0xeaa417b0
+10-02 10:59:31.190 D/MediaCodec( 1067): [0xeacc5250] setState: 1
+10-02 10:59:31.190 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: INITIALIZING
+10-02 10:59:31.196 I/android.hardware.media.c2-mediatek(  901): missing struct descriptor #Param::CoreIndex(--004) for field values of struct #Param::CoreIndex(F-12004)
+10-02 10:59:31.198 I/android.hardware.media.c2-mediatek(  901): missing struct descriptor #Param::CoreIndex(--1812) for field values of struct #Param::CoreIndex(F-11812)
+10-02 10:59:31.209 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e2e10
+10-02 10:59:31.226 D/MediaCodec( 1067): [0xeacc5250] setState: 2
+10-02 10:59:31.226 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: INITIALIZED
+10-02 10:59:31.227 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:31.227 D/MediaCodec( 1067): [0xeacc5250] init: CCodec 0xf0045cd0, CCodecBufferChannel 0xeaa417b0
+10-02 10:59:31.227 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] configure: ClientName: fr.emmanuel.multicam ComponentName: c2.mtk.avc.encoder
+10-02 10:59:31.227 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:31.227 I/MediaCodec( 1067):   string mime = "video/avc"
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t width = 1920
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t height = 1080
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t stride = 1920
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t slice-height = 1080
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t color-format = 2130708361
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t bitrate = 20000000
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t bitrate-mode = 1
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t frame-rate = 30
+10-02 10:59:31.227 I/MediaCodec( 1067):   float i-frame-interval = 1.000000
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t xiaomi-video-file-type = 0
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t vendor.mtk.venc.nal.length.prefer = 1
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t vendor.mtk.venc.nal.length.bytes = 4
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t android._input-metadata-buffer-type = 2
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t feature-nal-length-bitstream = 1
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t nal-length-in-bytes = 4
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t vendor.qti-ext-enc-nal-length-bs.num-bytes = 4
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t android._using-recorder = 1
+10-02 10:59:31.227 I/MediaCodec( 1067):   int32_t x-* = 1
+10-02 10:59:31.227 I/MediaCodec( 1067): }
+10-02 10:59:31.227 I/MediaCodec( 1067): MediaStub sendFrameRate : app set :30
+10-02 10:59:31.228 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:31.228 I/MediaCodec( 1067): MediaStub sendWidth/sendHeight
+10-02 10:59:31.228 I/MediaCodec( 1067): MediaStub sendMine
+10-02 10:59:31.228 I/MediaCodec( 1067): MediaStub sendDolbyVision
+10-02 10:59:31.228 I/MediaCodec( 1067): MediaStub sendPackageName
+10-02 10:59:31.228 D/MediaImpl( 1067): MediaImpl::sendPackageName: fr.emmanuel.multicam
+10-02 10:59:31.228 D/MediaStub( 1067): MediaStub::sendPackageName fr.emmanuel.multicam
+10-02 10:59:31.228 D/MediaCodec( 1067): shapeMediaFormat: deltas(1): AMessage(what = 0x00000000) = {
+10-02 10:59:31.228 D/MediaCodec( 1067):     int32_t android._encoding-quality-level = 0
+10-02 10:59:31.228 D/MediaCodec( 1067):   }
+10-02 10:59:31.230 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:31.230 D/MediaCodec( 1067): [0xeacc5250] setState: 3
+10-02 10:59:31.230 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: CONFIGURING
+10-02 10:59:31.233 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=8.04 dur=1368.49 max=567.85 min=66.56
+10-02 10:59:31.235 D/MediaCodec( 1067): [0xeacc5250] setState: 4
+10-02 10:59:31.235 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: CONFIGURED
+10-02 10:59:31.236 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:31.236 D/MediaCodec( 1067): [0xeacc5250] setState: 5
+10-02 10:59:31.236 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: STARTING
+10-02 10:59:31.242 D/MediaCodec( 1067): [0xeacc5250] setState: 6
+10-02 10:59:31.242 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: STARTED
+10-02 10:59:31.243 D/AudioRecord( 1067): set(): 0xeb640af0, inputSource 0, sampleRate 48000, format 0x1, channelMask 0x10, frameCount 2048, notificationFrames 1024, sessionId 0, transferType 0, flags 0, attributionSource AttributionSourceState{pid: 5947, uid: 10128, deviceId: 0, packageName: fr.emmanuel.multicam, attributionTag: (null), token: binder:0xf00d1170, renouncedPermissions: [], next: []}uid 10128, pid 5947
+10-02 10:59:31.250 D/AudioUtilmtk(  947): checkWhiteList(): Not find packageName fr.emmanuel.multicam in scenarioName RecordScreenOff_Irq 
+10-02 10:59:31.252 D/APM_AudioPolicyManager(  947): getInputForAttr AudioPlayBackCapture not supported, appName: fr.emmanuel.multicam
+10-02 10:59:31.252 D/APM_AudioPolicyManager(  947): ->Debug: getInputForDevice: 5289: getInputForDevice() packageName=fr.emmanuel.multicam, uid=10128
+10-02 10:59:31.273 D/MediaCodec( 1067): CreateByComponentName: name c2.android.aac.encoder
+10-02 10:59:31.274 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:31.274 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:31.275 D/MediaCodec( 1067): [0xeacc2930] init: CCodec 0xf00494d0, CCodecBufferChannel 0xeaa45bf0
+10-02 10:59:31.275 D/MediaCodec( 1067): [0xeacc2930] setState: 1
+10-02 10:59:31.275 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: INITIALIZING
+10-02 10:59:31.298 D/MediaCodec( 1067): [0xeacc2930] setState: 2
+10-02 10:59:31.298 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: INITIALIZED
+10-02 10:59:31.299 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:31.299 D/MediaCodec( 1067): [0xeacc2930] init: CCodec 0xf00494d0, CCodecBufferChannel 0xeaa45bf0
+10-02 10:59:31.299 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] configure: ClientName: fr.emmanuel.multicam ComponentName: c2.android.aac.encoder
+10-02 10:59:31.299 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:31.299 I/MediaCodec( 1067):   string mime = "audio/mp4a-latm"
+10-02 10:59:31.299 I/MediaCodec( 1067):   int32_t aac-profile = 2
+10-02 10:59:31.299 I/MediaCodec( 1067):   int32_t max-input-size = 2048
+10-02 10:59:31.299 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:31.299 I/MediaCodec( 1067):   int32_t sample-rate = 48000
+10-02 10:59:31.299 I/MediaCodec( 1067):   int32_t bitrate = 192000
+10-02 10:59:31.299 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:31.299 I/MediaCodec( 1067): }
+10-02 10:59:31.300 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:31.300 D/MediaCodec( 1067): shapeMediaFormat: deltas(0): AMessage(what = 0x00000000) = {
+10-02 10:59:31.300 D/MediaCodec( 1067):   }
+10-02 10:59:31.300 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:31.301 D/MediaCodec( 1067): [0xeacc2930] setState: 3
+10-02 10:59:31.301 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: CONFIGURING
+10-02 10:59:31.305 D/MediaCodec( 1067): [0xeacc2930] setState: 4
+10-02 10:59:31.305 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: CONFIGURED
+10-02 10:59:31.306 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:31.306 D/MediaCodec( 1067): [0xeacc2930] setState: 5
+10-02 10:59:31.306 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: STARTING
+10-02 10:59:31.319 D/MediaCodec( 1067): [0xeacc2930] setState: 6
+10-02 10:59:31.319 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: STARTED
+10-02 10:59:31.320 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:31.328 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:31.350 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:31.353 D/MediaCodec( 1067): CreateByType: mime audio/vorbis, encoder 0 pid 1031
+10-02 10:59:31.354 E/MediaCodec( 1067): No packages for calling UID
+10-02 10:59:31.354 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:31.354 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:31.354 D/MediaCodec( 1067): [0xeacc7b70] init: CCodec 0xf0045f70, CCodecBufferChannel 0xeaa42770
+10-02 10:59:31.354 D/MediaCodec( 1067): [0xeacc7b70] setState: 1
+10-02 10:59:31.354 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] setState: INITIALIZING
+10-02 10:59:31.372 D/MediaCodec( 1067): [0xeacc7b70] setState: 2
+10-02 10:59:31.372 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] setState: INITIALIZED
+10-02 10:59:31.373 D/MediaCodec( 1067): [0xeacc7b70] init: CCodec 0xf0045f70, CCodecBufferChannel 0xeaa42770
+10-02 10:59:31.373 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] configure: ClientName:  ComponentName: c2.android.vorbis.decoder
+10-02 10:59:31.373 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:31.373 I/MediaCodec( 1067):   string mime = "audio/vorbis"
+10-02 10:59:31.373 I/MediaCodec( 1067):   int64_t durationUs = 518820
+10-02 10:59:31.373 I/MediaCodec( 1067):   Buffer csd-0 = {
+10-02 10:59:31.373 I/MediaCodec( 1067):     00000000:  01 76 6f 72 62 69 73 00  00 00 00 01 22 56 00 00  .vorbis....."V..
+10-02 10:59:31.373 I/MediaCodec( 1067):     00000010:  00 00 00 00 50 c3 00 00  00 00 00 00 a9 01        ....P.........
+10-02 10:59:31.373 I/MediaCodec( 1067):   }
+10-02 10:59:31.373 I/MediaCodec( 1067):   Buffer *csd-1 = 0xe8899410
+10-02 10:59:31.373 I/MediaCodec( 1067):   int32_t bitrate = 50000
+10-02 10:59:31.373 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:31.373 I/MediaCodec( 1067):   int32_t sample-rate = 22050
+10-02 10:59:31.373 I/MediaCodec( 1067):   int32_t channel-mask = 1
+10-02 10:59:31.373 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:31.373 I/MediaCodec( 1067): }
+10-02 10:59:31.374 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:31.374 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:31.374 D/MediaCodec( 1067): [0xeacc7b70] setState: 3
+10-02 10:59:31.374 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] setState: CONFIGURING
+10-02 10:59:31.378 D/MediaCodec( 1067): [0xeacc7b70] setState: 4
+10-02 10:59:31.378 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] setState: CONFIGURED
+10-02 10:59:31.378 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:31.379 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:31.379 D/MediaCodec( 1067): [0xeacc7b70] setState: 5
+10-02 10:59:31.379 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] setState: STARTING
+10-02 10:59:31.387 D/MediaCodec( 1067): [0xeacc7b70] setState: 6
+10-02 10:59:31.387 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] setState: STARTED
+10-02 10:59:31.391 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] queueInputBuffer: index: 2 pts: 0 timediff: 0
+10-02 10:59:31.392 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] queueInputBuffer: index: 3 pts: 0 timediff: 1
+10-02 10:59:31.393 I/MediaCodec( 1067): [mId: 346] [audio-debug-dec] queueInputBuffer: index: 0 pts: 11609 timediff: 1
+10-02 10:59:31.396 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:31.516 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:31.517 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 1, current total missed framenumber = 0, current total framenumber 10, all max missed framenumber 21, all total missed framenumber 788206, total framenumber 3535475, SessionMaxFps 0
+10-02 10:59:31.517 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:31.517 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:31.595 D/JavaheapMonitor( 9585): Java heap used=2M max=256M, proc: com.google.android.providers.media.module
+10-02 10:59:31.599 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:31.599 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:31.599 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:31.599 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:31.604 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:31.607 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fc0ca1c58
+10-02 10:59:31.610 I/AudioRecord( 1067): start mSessionID=2201 start(463): sync event 0 trigger session 0  packageName: fr.emmanuel.multicam
+10-02 10:59:31.611 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e2e10
+10-02 10:59:31.614 D/APM_AudioPolicyManager(  947): startInput input:798, session:2201, portId:463, source=6, appname fr.emmanuel.multicam, uid 10128, flags=0x0)
+10-02 10:59:31.615 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:27,active:true,isNote:false,isTerminal:false,notify:true
+10-02 10:59:31.621 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1920x1080), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1
+10-02 10:59:31.621 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1920x1080), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1.
+10-02 10:59:31.625 W/BpBinder( 5947): PerfMonitor binderTransact: time=443ms interface=android.media.IMediaRecorder code=8
+10-02 10:59:31.626 D/MediaRecorder( 5947): start- 0xb4000071e2039b50
+10-02 10:59:31.626 D/CameraPreview( 5947): onStartRecordVideo started
+10-02 10:59:31.668 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-1-0-0
+10-02 10:59:31.669 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7508][key_status_bar_home_state = android.widget.RemoteViews@e863f08[key_prompt_type = [I@e8d76a1[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@de6c0c6[key_prompt_pending = PendingIntent{9209887: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:32.249 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=22.64 dur=1015.91 max=300.68 min=15.35
+10-02 10:59:32.355 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] queueInputBuffer: index: 0 pts: 14057 timediff: 0
+10-02 10:59:32.375 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] queueInputBuffer: index: 1 pts: 34057 timediff: 20
+10-02 10:59:32.395 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] queueInputBuffer: index: 2 pts: 54057 timediff: 21
+10-02 10:59:32.406 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] queueInputBuffer: index: 0 pts: 8542 timediff: 0
+10-02 10:59:32.407 I/BatteryNotifier( 1067): noteStartVideo: the video refcount for uid(10128) clientName(fr.emmanuel.multicam) is 0.
+10-02 10:59:32.440 W/android.hardware.media.c2-mediatek(  901): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. This might not be intended. AIBinder_DeathRecipient_setOnUnlinked should be called first.
+10-02 10:59:32.441 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] queueInputBuffer: index: 1 pts: 42306 timediff: 35
+10-02 10:59:32.443 I/MediaCodec( 1067): isHDR: standard =1,transfer = 3
+10-02 10:59:32.472 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] queueInputBuffer: index: 2 pts: 76071 timediff: 31
+10-02 10:59:33.250 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.98 dur=1000.71 max=34.26 min=32.53
+10-02 10:59:34.251 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=28.96 dur=1001.41 max=49.99 min=32.93
+10-02 10:59:35.252 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.99 dur=1000.46 max=33.87 min=32.79
+10-02 10:59:35.341 D/PolicyMaker( 1307): uid =10128 pkg=fr.emmanuel.multicam reason=VISIBLE_APP
+10-02 10:59:36.250 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] Stats 5015ms:Client:fr.emmanuel.multicam,Component:c2.mtk.avc.encoder,Qin:114,DQin:0/0,Render:0,encode:114,DQout:0/0
+10-02 10:59:36.269 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.49 dur=1017.31 max=49.78 min=32.86
+10-02 10:59:36.315 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] Stats 5009ms:Client:fr.emmanuel.multicam,Component:c2.android.aac.encoder,Qin:211,DQin:0/0,Render:0,encode:186,DQout:0/0
+10-02 10:59:37.286 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.49 dur=1017.38 max=49.99 min=31.39
+10-02 10:59:37.639 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT capturePreviewSurface.request atMs=1790931577637 detail={"tag":"p7f-C-rear-pixelcopy"}", source:  (9)
+10-02 10:59:37.703 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT capturePreviewSurface.ok atMs=1790931577701 detail={"tag":"p7f-C-rear-pixelcopy","afterMs":64,"b64len":125612}", source:  (9)
+10-02 10:59:37.748 I/manuel.multicam( 5947): Background young concurrent mark compact GC freed 1312KB AllocSpace bytes, 43(4196KB) LOS objects, 49% free, 5316KB/10MB, paused 1.004ms,5.661ms total 60.571ms
+10-02 10:59:37.749 D/Camera  ( 5947): releaseCameraHook
+10-02 10:59:37.750 D/Camera  ( 5947): releaseCameraHook
+10-02 10:59:37.786 D/CameraActivity( 5947): stopRecord
+10-02 10:59:37.786 D/MediaRecorder( 5947): stop+ 0xb4000071e2039b50
+10-02 10:59:37.816 D/MediaCodec( 1067): [0xeacc5250] [c2.mtk.avc.encoder] release
+10-02 10:59:37.817 D/MediaCodec( 1067): [0xeacc5250] setState: 10
+10-02 10:59:37.817 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: RELEASING
+10-02 10:59:37.817 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#744] MediaCodec discarded an unknown buffer
+10-02 10:59:37.817 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#744] MediaCodec discarded an unknown buffer
+10-02 10:59:37.817 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#744] MediaCodec discarded an unknown buffer
+10-02 10:59:37.817 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#744] MediaCodec discarded an unknown buffer
+10-02 10:59:37.817 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#744] MediaCodec discarded an unknown buffer
+10-02 10:59:37.818 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#744] MediaCodec discarded an unknown buffer
+10-02 10:59:37.818 D/CCodecBufferChannel( 1067): [c2.mtk.avc.encoder#744] MediaCodec discarded an unknown buffer
+10-02 10:59:37.829 D/MediaCodec( 1067): [0xeacc5250] [c2.mtk.avc.encoder] kWhatReleaseCompleted
+10-02 10:59:37.829 D/MediaCodec( 1067): [0xeacc5250] setState: 0
+10-02 10:59:37.829 I/MediaCodec( 1067): [mId: 344] [video-debug-enc] setState: UNINITIALIZED
+10-02 10:59:37.829 I/BpBinder(  901): onLastStrongRef automatically unlinking death recipients: android.hardware.media.bufferpool2.IClientManager
+10-02 10:59:37.830 I/BatteryNotifier( 1067): noteStopVideo: the video refcount for uid(10128) clientName(fr.emmanuel.multicam) is 0.
+10-02 10:59:37.831 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:37.832 I/MediaCodec( 1067): MediaStub sendVideoPlayData
+10-02 10:59:37.832 D/MediaImpl( 1067): MediaImpl::sendVideoPlayData::mediacodec_packgeName : fr.emmanuel.multicam
+10-02 10:59:37.832 D/MediaImpl( 1067): MediaImpl::sendVideoPlayData::packgeName : fr.emmanuel.multicam
+10-02 10:59:37.832 D/send_data_to_xlog( 1067): send_video_play_to_xlog::packgeName : fr.emmanuel.multicam
+10-02 10:59:37.838 I/hwservicemanager(  507): getTransport: Cannot find entry android.hardware.media.omx@1.0::IOmx/default in either framework or device VINTF manifest.
+10-02 10:59:37.840 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:37.864 D/MediaCodec( 1067): CreateByType: mime audio/vorbis, encoder 0 pid 1031
+10-02 10:59:37.866 E/MediaCodec( 1067): No packages for calling UID
+10-02 10:59:37.866 I/MediaCodec( 1067): MediaCodec::MediaCodec()
+10-02 10:59:37.866 I/MediaCodec( 1067): init video box disabled for codec not supported
+10-02 10:59:37.866 D/MediaCodec( 1067): [0xeacc0010] init: CCodec 0xf004b990, CCodecBufferChannel 0xeaa42f50
+10-02 10:59:37.866 D/MediaCodec( 1067): [0xeacc0010] setState: 1
+10-02 10:59:37.866 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] setState: INITIALIZING
+10-02 10:59:37.884 D/MediaCodec( 1067): [0xeacc0010] setState: 2
+10-02 10:59:37.884 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] setState: INITIALIZED
+10-02 10:59:37.885 D/MediaCodec( 1067): [0xeacc0010] init: CCodec 0xf004b990, CCodecBufferChannel 0xeaa42f50
+10-02 10:59:37.885 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] configure: ClientName:  ComponentName: c2.android.vorbis.decoder
+10-02 10:59:37.885 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] configure: ClientFormat: AMessage(what = 0x00000000) = {
+10-02 10:59:37.885 I/MediaCodec( 1067):   string mime = "audio/vorbis"
+10-02 10:59:37.885 I/MediaCodec( 1067):   int64_t durationUs = 518820
+10-02 10:59:37.885 I/MediaCodec( 1067):   Buffer csd-0 = {
+10-02 10:59:37.885 I/MediaCodec( 1067):     00000000:  01 76 6f 72 62 69 73 00  00 00 00 01 22 56 00 00  .vorbis....."V..
+10-02 10:59:37.885 I/MediaCodec( 1067):     00000010:  00 00 00 00 50 c3 00 00  00 00 00 00 a9 01        ....P.........
+10-02 10:59:37.885 I/MediaCodec( 1067):   }
+10-02 10:59:37.885 I/MediaCodec( 1067):   Buffer *csd-1 = 0xe88958d0
+10-02 10:59:37.885 I/MediaCodec( 1067):   int32_t bitrate = 50000
+10-02 10:59:37.885 I/MediaCodec( 1067):   int32_t channel-count = 1
+10-02 10:59:37.885 I/MediaCodec( 1067):   int32_t sample-rate = 22050
+10-02 10:59:37.885 I/MediaCodec( 1067):   int32_t channel-mask = 1
+10-02 10:59:37.885 I/MediaCodec( 1067):   int32_t priority = 0
+10-02 10:59:37.885 I/MediaCodec( 1067): }
+10-02 10:59:37.886 E/MediaCodec( 1067): Media Quality Service not found.
+10-02 10:59:37.886 I/MediaCodec( 1067): configure : init video box disabled
+10-02 10:59:37.886 D/MediaCodec( 1067): [0xeacc0010] setState: 3
+10-02 10:59:37.886 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] setState: CONFIGURING
+10-02 10:59:37.891 D/MediaCodec( 1067): [0xeacc0010] setState: 4
+10-02 10:59:37.891 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] setState: CONFIGURED
+10-02 10:59:37.891 I/MediaCodec( 1067): MediaCodec will operate in async mode
+10-02 10:59:37.892 D/MediaCodec( 1067): keep callback message for reclaim
+10-02 10:59:37.892 D/MediaCodec( 1067): [0xeacc0010] setState: 5
+10-02 10:59:37.892 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] setState: STARTING
+10-02 10:59:37.901 D/MediaCodec( 1067): [0xeacc0010] setState: 6
+10-02 10:59:37.901 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] setState: STARTED
+10-02 10:59:37.905 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] queueInputBuffer: index: 2 pts: 0 timediff: 0
+10-02 10:59:37.905 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] queueInputBuffer: index: 3 pts: 0 timediff: 1
+10-02 10:59:37.906 I/MediaCodec( 1067): [mId: 347] [audio-debug-dec] queueInputBuffer: index: 0 pts: 11609 timediff: 1
+10-02 10:59:37.911 I/MediaCodec( 1067): isHDR: standard =0,transfer = 0
+10-02 10:59:38.018 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:38.018 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:38.018 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:38.019 W/CameraImpl( 1031): dumpMissedFrameInfo: cameraServer current max missed framenumber = 1, current total missed framenumber = 2, current total framenumber 185, all max missed framenumber 21, all total missed framenumber 788208, total framenumber 3535660, SessionMaxFps 0
+10-02 10:59:38.019 D/CameraImpl( 1031): executeSceneIdentify MiStreamUsecase value is 2 
+10-02 10:59:38.019 D/CameraImpl( 1031): executeSceneIdentify 1405 sucessfully update 2
+10-02 10:59:38.069 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:38.069 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:38.069 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] debug.camera.rawunpak = -1,  useUnpakFmt = 0
+10-02 10:59:38.069 I/MtkCam/HwInfoHelper( 1083): [getImgoFmt] vendor.debug.camera.afraw = -1, don't use Af Raw
+10-02 10:59:38.072 I/mtkcam-AppStreamMgr( 1083): [configure] condition to turn on camera hal dejitter is not satisfied
+10-02 10:59:38.073 E/CameraImpl( 1031): reportSdkConfigureStreams 634 0x6fbc64b9c8
+10-02 10:59:38.075 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e2e10
+10-02 10:59:38.077 D/MediaCodec( 1067): [0xeacc2930] [c2.android.aac.encoder] release
+10-02 10:59:38.077 D/MediaCodec( 1067): [0xeacc2930] setState: 10
+10-02 10:59:38.077 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: RELEASING
+10-02 10:59:38.077 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#641] MediaCodec discarded an unknown buffer
+10-02 10:59:38.077 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#641] MediaCodec discarded an unknown buffer
+10-02 10:59:38.077 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#641] MediaCodec discarded an unknown buffer
+10-02 10:59:38.078 D/CCodecBufferChannel( 1067): [c2.android.aac.encoder#641] MediaCodec discarded an unknown buffer
+10-02 10:59:38.079 D/MediaCodec( 1067): [0xeacc2930] [c2.android.aac.encoder] kWhatReleaseCompleted
+10-02 10:59:38.079 D/MediaCodec( 1067): [0xeacc2930] setState: 0
+10-02 10:59:38.079 I/MediaCodec( 1067): [mId: 345] [audio-debug-enc] setState: UNINITIALIZED
+10-02 10:59:38.080 I/MediaCodec( 1067): MediaStub sendHdrInfo/sendFrameRateFloatCal/updateFrcAieAisAceState
+10-02 10:59:38.080 I/MediaCodec( 1067): MediaCodec::~MediaCodec()
+10-02 10:59:38.081 I/AudioRecord( 1067): stop mSessionID=2201, mPortID=463, mActice: 1 packageName: fr.emmanuel.multicam
+10-02 10:59:38.088 I/Beauty2:( 1083): [getConfigSetting] Beauty2:: max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1
+10-02 10:59:38.088 D/MtkCam/MI_FEATURE_XIAOMI_VIDEOFILTER( 1083): [getConfigSetting] max out size(1280x720), sId = 0, tId = -1, Primary camera id: 0, AllSensorSize: 1.
+10-02 10:59:38.200 W/MIUISafety-Monitor(10678): sync fr.emmanuel.multicam,userId:0,op:27,active:false,isNote:false,isTerminal:false,notify:true
+10-02 10:59:38.212 W/BpBinder( 5947): PerfMonitor binderTransact: time=425ms interface=android.media.IMediaRecorder code=7
+10-02 10:59:38.212 D/MediaRecorder( 5947): stop- 0xb4000071e2039b50
+10-02 10:59:38.212 D/MediaRecorder( 5947): reset+ 0xb4000071e2039b50
+10-02 10:59:38.212 D/MediaRecorder( 5947): reset- 0xb4000071e2039b50
+10-02 10:59:38.212 D/MediaRecorder( 5947): release+ 0xb4000071e2039b50
+10-02 10:59:38.213 I/AudioRecord( 1067): stop mSessionID=2201, mPortID=463, mActice: 0 packageName: fr.emmanuel.multicam
+10-02 10:59:38.214 D/MediaRecorder( 5947): release- 0xb4000071e2039b50
+10-02 10:59:38.214 D/MediaRecorder( 5947): destructor+ 0xb4000071e2039b50
+10-02 10:59:38.214 D/MediaRecorder( 5947): destructor- 0xb4000071e2039b50
+10-02 10:59:38.215 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:38.218 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:38.218 I/CameraImpl( 1031): Modify FD Mode from 0 to 1 for app fr.emmanuel.multicam
+10-02 10:59:38.218 I/CameraImpl( 1031): ORGINAL callbacksEnabled is 0
+10-02 10:59:38.218 I/CameraImpl( 1031): MODIFY callbacksEnabled is 0
+10-02 10:59:38.218 I/CameraImpl( 1031): getPluginRequestCount, not burst mode, captureType(0), success(0)
+10-02 10:59:38.218 E/Camera-JNI( 5947): event hooking is disabled
+10-02 10:59:38.218 I/Camera2Client( 1031): startPreviewL: Camera 0: Preview already active, ignoring restart
+10-02 10:59:38.219 D/CameraPreview( 5947): onStopRecordVideo success
+10-02 10:59:38.222 I/chromium( 5947): [INFO:CONSOLE:9] "POC_EVENT stopRecordVideo.ok atMs=1790931578221 detail={"path":"/data/user/0/fr.emmanuel.multicam/cache/videoTmp.mp4","stopAfterMs":437}", source:  (9)
+10-02 10:59:38.239 E/CameraImpl( 1031): reportSdkRequest 663 0xb4000071821e2e10
+10-02 10:59:38.253 W/MIUISafety-Flares(10678): setStatus event:1,content:MultiCam,type:1-0-0-0
+10-02 10:59:38.254 D/CommandQueueExt( 2151): setStatus: setStatus: what = 1, action = action_update_prompt, ext = Bundle[mParcelledData.dataSize=7512][key_status_bar_home_state = android.widget.RemoteViews@5be764d[key_prompt_type = [I@6b20502[key_prompt_controlCenterDotColor = -13184665[key_prompt_contentDescription = MultiCam[key_status_bar_mini_state = android.widget.RemoteViews@8deee13[key_prompt_pending = PendingIntent{9275850: android.os.BinderProxy@f575a09}[key_status_bar_priority = 1[key_fullscreen_dot_visibility = 0[key_dot_color = -13184665
+10-02 10:59:38.287 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=22.99 dur=1000.41 max=266.49 min=32.81
+10-02 10:59:39.305 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.48 dur=1017.78 max=50.23 min=32.71
+10-02 10:59:40.322 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.49 dur=1017.23 max=50.24 min=32.37
+10-02 10:59:41.340 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.48 dur=1017.73 max=50.29 min=32.92
+10-02 10:59:42.357 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=29.49 dur=1017.46 max=49.66 min=32.70
+10-02 10:59:43.390 I/BufferQueueProducer(  960): [21eb6bc SurfaceView[fr.emmanuel.multicam/fr.emmanuel.multicam.MainActivity](BLAST)#15005](this:0xb400007756810510,id:-1,api:0,p:-1,c:960) queueBuffer: fps=30.00 dur=1033.31 max=33.97 min=32.71
