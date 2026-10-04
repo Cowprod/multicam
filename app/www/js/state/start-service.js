@@ -62,6 +62,7 @@
   function startModel() { return global.MultiCamStartModel; }
   function camera() { return global.MultiCamCameraRecord; }
   function sampler() { return global.MultiCamPreviewSampler || null; }
+  function camSwitch() { return global.MultiCamCameraSwitchService || null; }
   function armService() { return global.MultiCamArmService; }
 
   function selfDid() {
@@ -375,6 +376,12 @@
         }
         var o = opts || {};
         return Promise.resolve(camera().startRecording(opts)).then(function (res) {
+          /* J09-08b1 : le segment 1 s'ouvre ICI, et nulle part ailleurs. C'est
+           * le seul endroit du code où un recorder démarre pour un Take — le
+           * redémarrage d'un segment passe par `camera-record`, jamais par ce
+           * point. L'index est donc attribué une fois par Take, au bon moment. */
+          var cs = camSwitch();
+          if (cs && typeof cs.onRecordingStarted === "function") cs.onRecordingStarted();
           var smp = sampler();
           if (smp && typeof smp.start === "function") {
             smp.start({
@@ -391,7 +398,16 @@
         if (!camera() || typeof camera().stopRecording !== "function") return Promise.resolve(null);
         var smp = sampler();
         if (smp && typeof smp.stop === "function") smp.stop("rec_stop");
-        return Promise.resolve(camera().stopRecording());
+        /* Le retour natif porte le `path` du fichier finalisé : c'est le seul
+         * fait qui rattache un index à un fichier. Il est transmis AU MOMENT de
+         * l'arrêt, parce qu'après `stopRecording` plus personne ne le connaît —
+         * `camera-record` ne conserve qu'un chemin unique, déjà écrasé au
+         * segment suivant. */
+        return Promise.resolve(camera().stopRecording()).then(function (res) {
+          var cs = camSwitch();
+          if (cs && typeof cs.onRecordingStopped === "function") cs.onRecordingStopped(res || {});
+          return res;
+        });
       },
       log: log,
       onChange: function () {

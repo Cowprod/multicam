@@ -237,14 +237,18 @@ function register(h) {
       eq(r.code, env.M.ERR.CAMERA_OFF, "on RECONFIGURE une preview, on ne l'ouvre pas");
     });
 
-    it("M10. `attachToTake` remet le compteur de segments à zéro pour un NOUVEAU Take", () => {
+it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
       const env = bootModel();
-      const st = env.M.createState(SID);
-      st.segmentIndex = 3;
+      let st = env.M.createState(SID);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 900 });
+      st = env.M.closeCurrentSegment(st, { path: "/tmp/a.mp4", stoppedAtMs: 1000 });
       st.switchCount = 3;
       st.activeCamera = "FRONT";
-      const next = env.M.attachToTake(st, SID, TAKE + 1, 1000);
-      eq(next.segmentIndex, 0, "les segments sont comptés par Take, pas par session");
+      const next = env.M.attachToTake(st, SID, TAKE + 1, 2000);
+      eq(next.currentSegment, null, "aucun segment en cours n'est celui du Take précédent");
+      eq(next.segments.length, 0, "l'historique ne mélange pas deux plans");
+      eq(env.M.currentIndex(next), 0, "et le compteur repart de zéro");
+      eq(env.M.nextSegmentIndex(next), 1, "le prochain segment du nouveau Take est le 1");
       eq(next.switchCount, 3, "switchCount est un diagnostic CUMULATIF du device, pas un état du Take");
       eq(next.switchingCamera, "", "et aucune bascule ne survit au changement de Take");
       /* La caméra ACTIVE est un fait physique : elle ne s'efface pas parce
@@ -253,41 +257,191 @@ function register(h) {
     });
 
     /* Regression du terrain : le segment se clot APRES la bascule, donc
-     * `activeCamera` vaut deja la CIBLE. Reprendre cette valeur pour
-     * `fromCamera` produisait `from === to` et rattachait le fichier a la
-     * mauvaise camera. Une depart inconnue reste inconnue. */
+     * `activeCamera` vaut deja la CIBLE. Le segment porte donc SA caméra de
+     * depart — celle releue AVANT la bascule — et jamais la cible. */
     it("M11. un segment NE FABRIQUE PAS sa caméra de départ", () => {
       const env = bootModel();
       let st = stateWith(["REAR", "FRONT"]);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 900 });
       st = env.M.beginSwitch(st, { commandId: "cs-test-1" }, "FRONT", 1000);
       st = env.M.confirmSwitch(st, "FRONT", "FRONT", 1100);
       eq(st.activeCamera, "FRONT", "la cible est desormais l'actif");
-      const closed = env.M.closeSegment(st, {
-        segmentIndex: 1, path: "/tmp/seg0.mp4",
-        /* `fromFacing` inconnu : le segment precedent filmait bien une
-         * camera, mais on ne l'a pas reellement relue. */
-        fromCamera: "", toCamera: "FRONT",
-        closedAtMs: 1200, durationMs: 90
-      });
-      eq(closed.lastSegment.fromCamera, "",
-        "pas de repli sur la cible : on ne devine pas un fait de depart");
-      eq(closed.lastSegment.toCamera, "FRONT");
-      eq(closed.lastSegment.path, "/tmp/seg0.mp4");
+      /* Aucune caméra de depart n'est fournie à la clôture : on ne l'invente pas. */
+      const closed = env.M.closeCurrentSegment(st, { path: "/tmp/seg1.mp4", stoppedAtMs: 1200 });
+      eq(closed.segments[0].camera, "REAR",
+        "pas de repli sur la cible : le segment garde la caméra relue à son ouverture");
+      eq(closed.segments[0].path, "/tmp/seg1.mp4");
+      eq(closed.segments[0].segmentIndex, 1, "et il porte l'index qu'il avait à l'ouverture");
     });
 
     it("M11b. une caméra de départ RELUE est conservée telle quelle", () => {
       const env = bootModel();
       let st = stateWith(["REAR", "FRONT"]);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 900 });
       st = env.M.beginSwitch(st, { commandId: "cs-test-1" }, "FRONT", 1000);
       st = env.M.confirmSwitch(st, "FRONT", 1100);
-      const closed = env.M.closeSegment(st, {
-        segmentIndex: 1, path: "/tmp/seg0.mp4",
-        fromCamera: "REAR", toCamera: "FRONT",
-        closedAtMs: 1200, durationMs: 90
+      const closed = env.M.closeCurrentSegment(st, {
+        path: "/tmp/seg1.mp4", camera: "REAR", stoppedAtMs: 1200
       });
-      eq(closed.lastSegment.fromCamera, "REAR",
+      eq(closed.segments[0].camera, "REAR",
         "le segment porte la camera RELUE, pas la cible");
-      eq(closed.lastSegment.toCamera, "FRONT");
+      eq(closed.segments[0].startedAtMs, 900, "et son instant d'ouverture, pas celui de la bascule");
+    });
+  });
+
+  /* ══════════════════ P · identité des segments (J09-08b1) ══════════════════ */
+
+  /* Ces tests verrouillent la SÉQUENCE, pas seulement chaque étape : c'est
+   * l'enchaînement 1 → 2 → 3 qui satisfait la décision produit, et une
+   * transition correcte prise isolément peut composer une suite fausse. */
+
+  function idxs(st) { return st.segments.map((s) => s.segmentIndex); }
+
+  /* Un Take filmé en trois segments, deux bascules, un STOP. */
+  function takeInThreeSegments(env) {
+    const M = env.M;
+    let st = M.attachToTake(M.createState(SID), SID, TAKE, 0);
+    st = M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+    const first = st.currentSegment.segmentIndex;
+    st = M.closeCurrentSegment(st, { path: "/tmp/seg1.mp4", stoppedAtMs: 2000 });
+    st = M.openSegment(st, { camera: "FRONT", startedAtMs: 3000 });
+    const second = st.currentSegment.segmentIndex;
+    st = M.closeCurrentSegment(st, { path: "/tmp/seg2.mp4", stoppedAtMs: 4000 });
+    st = M.openSegment(st, { camera: "REAR", startedAtMs: 5000 });
+    const third = st.currentSegment.segmentIndex;
+    st = M.closeCurrentSegment(st, { path: "/tmp/seg3.mp4", stoppedAtMs: 6000 });
+    return { state: st, opened: [first, second, third] };
+  }
+
+  describe("J09-08b1 · identité des segments — index attribué à l'ouverture", () => {
+    it("P1. le premier segment d'un Take est le segment 1", () => {
+      const env = bootModel();
+      const st0 = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      eq(st0.currentSegment, null, "rien n'est ouvert avant le top");
+      eq(env.M.currentIndex(st0), 0, "0 n'est pas un index : c'est l'absence de segment");
+      const st = env.M.openSegment(st0, { camera: "REAR", startedAtMs: 1000 });
+      eq(st.currentSegment.segmentIndex, 1, "le premier segment d'un Take vaut 1");
+      eq(st.currentSegment.camera, "REAR", "il porte la caméra RÉELLEMENT ouverte");
+      eq(st.currentSegment.path, "", "son fichier n'existe pas encore : aucun chemin n'est deviné");
+      eq(st.currentSegment.startedAtMs, 1000);
+      eq(st.currentSegment.stoppedAtMs, 0);
+      eq(st.segments.length, 0, "l'historique ne contient pas le segment en cours");
+    });
+
+    it("P2. une bascule clôture le 1 et ouvre le 2", () => {
+      const env = bootModel();
+      let st = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      st = env.M.closeCurrentSegment(st, { path: "/tmp/seg1.mp4", stoppedAtMs: 2000 });
+      st = env.M.openSegment(st, { camera: "FRONT", startedAtMs: 3000 });
+      eq(idxs(st).join(","), "1", "l'historique contient le segment fermé");
+      eq(env.M.currentIndex(st), 2, "et le segment en cours est le 2");
+      eq(st.segments[0].path, "/tmp/seg1.mp4", "le chemin reste attaché au fichier qui l'a produit");
+      eq(st.segments[0].camera, "REAR", "et au segment 1, pas au segment 2");
+    });
+
+    it("P3. une seconde bascule clôture le 2 et ouvre le 3", () => {
+      const env = bootModel();
+      let st = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      st = env.M.closeCurrentSegment(st, { path: "/tmp/seg1.mp4", stoppedAtMs: 2000 });
+      st = env.M.openSegment(st, { camera: "FRONT", startedAtMs: 3000 });
+      st = env.M.closeCurrentSegment(st, { path: "/tmp/seg2.mp4", stoppedAtMs: 4000 });
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 5000 });
+      eq(idxs(st).join(","), "1,2", "l'historique est ORDONNÉ et sans trou");
+      eq(env.M.currentIndex(st), 3, "le segment en cours est le 3");
+    });
+
+    it("P4. le STOP clôture le dernier : historique [1,2,3], plus rien en cours", () => {
+      const env = bootModel();
+      const r = takeInThreeSegments(env);
+      eq(r.opened.join(","), "1,2,3", "les trois segments se sont ouverts dans l'ordre");
+      eq(idxs(r.state).join(","), "1,2,3", "le STOP clôt le dernier : aucun fichier sans index");
+      eq(env.M.currentIndex(r.state), 0, "plus aucun segment en cours");
+      eq(r.state.currentSegment, null);
+      eq(r.state.segments[2].path, "/tmp/seg3.mp4",
+        "le fichier du segment 3 est rattaché au segment 3, pas à l'index du suivant");
+    });
+
+    it("P5. chaque segment porte la caméra qui a réellement enregistré", () => {
+      const env = bootModel();
+      const r = takeInThreeSegments(env);
+      eq(r.state.segments.map((s) => s.camera).join(","), "REAR,FRONT,REAR",
+        "REAR → FRONT → REAR, dans l'ordre des segments");
+      eq(r.state.segments.map((s) => s.path).join(","),
+        "/tmp/seg1.mp4,/tmp/seg2.mp4,/tmp/seg3.mp4",
+        "et chaque chemin va avec SON segment");
+    });
+
+    it("P6. aucun index n'est réutilisé dans un même Take", () => {
+      const env = bootModel();
+      let st = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      st = env.M.closeCurrentSegment(st, { path: "/tmp/seg1.mp4", stoppedAtMs: 2000 });
+      /* Une clôture SANS segment ouvert ne doit consommer aucun numéro. */
+      st = env.M.closeCurrentSegment(st, { stoppedAtMs: 2500 });
+      eq(idxs(st).join(","), "1", "une clôture sans segment n'invente pas d'entrée");
+      /* Le segment suivant ne peut pas reprendre un numéro déjà porté. */
+      const reopened = env.M.openSegment(st, { camera: "FRONT", startedAtMs: 3000 });
+      eq(env.M.currentIndex(reopened), 2, "l'historique n'a pas bougé : il reste un seul segment");
+      eq(idxs(reopened).join(","), "1");
+      const all = idxs(reopened).concat([env.M.currentIndex(reopened)]);
+      eq(new Set(all).size, all.length, "deux segments d'un même Take ne partagent jamais un index");
+    });
+
+    it("P7. un nouveau Take recommence à 1", () => {
+      const env = bootModel();
+      const r = takeInThreeSegments(env);
+      const next = env.M.attachToTake(r.state, SID, TAKE + 1, 7000);
+      eq(env.M.nextSegmentIndex(next), 1, "le compteur de segments est propre à un Take");
+      eq(next.segments.length, 0);
+      eq(env.M.currentIndex(env.M.openSegment(next, { camera: "REAR", startedAtMs: 8000 })), 1);
+    });
+
+    it("P8. un STOP sans switch donne un historique [1]", () => {
+      const env = bootModel();
+      let st = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      st = env.M.closeCurrentSegment(st, { path: "/tmp/only.mp4", stoppedAtMs: 9000 });
+      eq(idxs(st).join(","), "1", "un Take sans bascule produit UN segment, indexé 1");
+      eq(env.M.currentIndex(st), 0);
+      eq(st.segments[0].stoppedAtMs, 9000, "clos par le STOP : il porte son instant de fin");
+    });
+
+    it("P9. un segment déjà ouvert n'en ouvre pas un second", () => {
+      const env = bootModel();
+      let st = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      const again = env.M.openSegment(st, { camera: "FRONT", startedAtMs: 1100 });
+      eq(env.M.currentIndex(again), 1, "un Take ne filme qu'avec un recorder : un seul segment ouvert");
+      eq(again.currentSegment.camera, "REAR", "et le segment ouvert n'a pas changé de caméra");
+    });
+
+    it("P10. un segment porte tous les champs exigés, même inconnus", () => {
+      const env = bootModel();
+      let st = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      st = env.M.openSegment(st, { startedAtMs: 1000 });
+      st = env.M.closeCurrentSegment(st, { stoppedAtMs: 2000 });
+      const seg = st.segments[0];
+      ["segmentIndex", "camera", "path", "startedAtMs", "stoppedAtMs"]
+        .forEach((k) => yes(k in seg, "champ manquant sur un segment : " + k));
+      eq(seg.camera, "", "une caméra non relue reste inconnue");
+      eq(seg.path, "", "un fichier non confirmé reste sans chemin");
+      eq(seg.startedAtMs, 1000);
+      eq(seg.stoppedAtMs, 2000);
+    });
+
+    it("P11. la vue publie l'index du segment EN COURS, pas un compteur de fermés", () => {
+      const env = bootModel();
+      let st = env.M.attachToTake(env.M.createState(SID), SID, TAKE, 0);
+      st = env.M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      st = env.M.closeCurrentSegment(st, { path: "/tmp/seg1.mp4", stoppedAtMs: 2000 });
+      st = env.M.openSegment(st, { camera: "FRONT", startedAtMs: 3000 });
+      const v = env.M.view(st, { recording: true });
+      eq(v.segmentIndex, 2, "le 2 est en cours : c'est lui que l'écran doit afficher");
+      eq(v.segmentCount, 2, "l'historique et le segment courant ensemble");
+      eq(v.currentSegment.camera, "FRONT");
+      eq(v.segments.map((s) => s.segmentIndex).join(","), "1");
     });
   });
 
@@ -591,7 +745,7 @@ function register(h) {
       const r = await p;
       yes(r.ok, "l'ACK de la Capture conclut l'ordre");
       eq(r.camera, "FRONT", "et il porte la caméra CONFIRMÉE par la cible");
-      eq(r.segmentIndex, 2, "ainsi que le nouveau numéro de segment");
+      eq(r.segmentIndex, 2, "ainsi que l'index du segment désormais EN COURS");
     });
 
     it("S2. une cible qui n'est pas Capture du Take est refusée SANS émission", async () => {
@@ -721,8 +875,128 @@ function register(h) {
       env.svc.reset();
       const v = env.svc.view();
       eq(v.busy, false, "aucune bascule ne survit à un reset");
-      eq(v.segmentIndex, 0);
+      eq(v.segmentIndex, 0, "aucun segment en cours après un reset");
       eq(v.switchingCamera, "", "pas de bascule fantôme affichée après un reset");
+    });
+  });
+
+  /* ══════════════════ S12 · identité des segments, en service (J09-08b1) ══════════════════ */
+
+  /* Ces tests traversent le VRAI chemin natif : `camera-record` pilote le faux
+   * plugin (stop → switch → relecture → restart) et le service indexe. Un
+   * modèle correct mais jamais appelé par le service ne prouverait rien — c'est
+   * l'enchaînement qui est la décision produit.
+   *
+   * L'ouverture et la clôture du segment 1 sont déclenchées par les MÊMES hooks
+   * que le start-service appelle (`onRecordingStarted` / `onRecordingStopped`) :
+   * on reproduit ici le contrat, pas la machine de START. */
+  describe("J09-08b1 · service — indexation d'un Take complet", () => {
+    async function top(env) {
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      /* Comme le start-service, sur l'accusé natif du top. */
+      env.svc.onRecordingStarted();
+      return env;
+    }
+
+    /* Un chemin différent par fichier : c'est ce qui prouve qu'un index suit
+     * SON fichier et pas seulement sa position. */
+    function nameFile(env, n) { env.CameraPreview.videoPath = "file:///cache/videoTmp_" + n + ".mp4"; }
+
+    function hist(v) { return v.segments.map((s) => s.segmentIndex).join(","); }
+
+    it("S12. START → switch → switch → STOP : segments 1, 2, 3, tous clôturés", async () => {
+      const env = await top(bootService());
+
+      let v = env.svc.view();
+      eq(v.segmentIndex, 1, "au top, le fichier en cours EST le segment 1");
+      eq(v.currentSegment.camera, "REAR", "il filme avec la caméra réellement ouverte");
+      eq(v.currentSegment.path, "", "et son fichier n'existe pas encore");
+      eq(hist(v), "", "rien n'est clôturé : l'historique est vide");
+
+      nameFile(env, 10);
+      const r1 = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      yes(r1.ok, "le premier switch aboutit");
+      eq(r1.segmentIndex, 2, "après le 1er switch, le NOUVEAU fichier est le segment 2");
+      eq(r1.closedSegmentIndex, 1, "et le fichier clos était le segment 1");
+      eq(r1.closedPath, "file:///cache/videoTmp_10.mp4");
+
+      v = env.svc.view();
+      eq(hist(v), "1", "un seul segment clôturé");
+      eq(v.segmentIndex, 2, "le segment 2 est en cours");
+      eq(v.currentSegment.camera, "FRONT");
+      eq(v.segments[0].camera, "REAR", "le segment 1 porte la caméra qui a filmé");
+      eq(v.segments[0].path, "file:///cache/videoTmp_10.mp4",
+        "et le chemin du fichier réellement produit");
+      yes(v.segments[0].stoppedAtMs > 0, "le segment clos par la bascule porte son instant de fin");
+      yes(v.segments[0].startedAtMs > 0, "et son instant d'ouverture");
+      yes(v.segments[0].startedAtMs <= v.segments[0].stoppedAtMs,
+        "un segment ne peut pas s'être arrêté avant d'avoir démarré");
+
+      nameFile(env, 11);
+      const r2 = await adv(env, () => env.svc.requestSwitch("REAR"));
+      yes(r2.ok, "le second switch aboutit");
+      eq(r2.segmentIndex, 3, "après le 2e switch, le nouveau fichier est le segment 3");
+      eq(r2.closedSegmentIndex, 2);
+
+      v = env.svc.view();
+      eq(hist(v), "1,2", "deux segments clôturés, dans l'ordre");
+      eq(v.segmentIndex, 3);
+
+      /* STOP : le segment 3 est clôturé comme les deux autres. */
+      nameFile(env, 12);
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((res) => { env.svc.onRecordingStopped(res); }));
+
+      v = env.svc.view();
+      eq(v.segmentIndex, 0, "plus aucun segment en cours après le STOP");
+      eq(v.currentSegment, null);
+      eq(hist(v), "1,2,3", "AUCUN fichier produit par ce Take ne reste sans index");
+      eq(v.segments.map((s) => s.path).join(","),
+        "file:///cache/videoTmp_10.mp4,file:///cache/videoTmp_11.mp4,file:///cache/videoTmp_12.mp4",
+        "chaque chemin va avec son propre index");
+      eq(v.segments.map((s) => s.camera).join(","), "REAR,FRONT,REAR",
+        "et chaque segment porte la caméra qui l'a réellement enregistré");
+      eq(env.svc.view().segmentCount, 3);
+    });
+
+    it("S13. un STOP sans switch donne un unique segment 1", async () => {
+      const env = await top(bootService());
+      eq(env.svc.view().segmentIndex, 1);
+      nameFile(env, 20);
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((res) => { env.svc.onRecordingStopped(res); }));
+      const v = env.svc.view();
+      eq(hist(v), "1");
+      eq(v.segments[0].path, "file:///cache/videoTmp_20.mp4");
+      eq(v.segments[0].camera, "REAR");
+      eq(v.segmentIndex, 0);
+    });
+
+    it("S14. un double top n'ouvre pas un second segment", async () => {
+      const env = await top(bootService());
+      env.svc.onRecordingStarted();
+      const v = env.svc.view();
+      eq(v.segmentIndex, 1, "un seul segment ouvert pour un seul Take");
+      eq(hist(v), "", "et toujours aucun segment clôturé");
+      if (!/CAMERA_SEGMENT_OPEN_SKIP reason=already_open/.test(env.logText())) {
+        throw new Error("un second top doit être journalisé comme refusé");
+      }
+    });
+
+    it("S15. un nouveau plan repart de 1", async () => {
+      const env = await top(bootService());
+      nameFile(env, 30);
+      await adv(env, () => env.svc.requestSwitch("FRONT"));
+      eq(env.svc.view().segmentIndex, 2);
+      env.svc.onStartView({ active: true, sid: SID, takeNumber: TAKE + 1 });
+      const v = env.svc.view();
+      eq(v.segmentIndex, 0, "le nouveau Take n'hérite d'aucun segment en cours");
+      eq(hist(v), "", "ni d'un historique qui n'est pas le sien");
+      env.svc.onRecordingStarted();
+      eq(env.svc.view().segmentIndex, 1, "et son premier segment est le 1");
     });
   });
 

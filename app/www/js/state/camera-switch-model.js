@@ -16,6 +16,18 @@
  * Master ne voit donc jamais « REAR → FRONT » avant que le device n'ait
  * réellement changé, et un échec laisse l'état exactement où il était.
  *
+ * ---------- J09-08b1 : L'IDENTITÉ D'UN SEGMENT ----------
+ *
+ * Un segment porte son index dès son OUVERTURE, pas à sa clôture. Le premier
+ * segment d'un Take est le segment 1 ; après un switch, le nouveau fichier est
+ * le segment 2 ; puis 3. `currentSegment` porte l'index du fichier en cours et
+ * `segments[]` l'historique ordonné de ceux qui sont clos — le dernier inclus,
+ * clos par le STOP. Aucun index n'est réutilisé dans un même Take.
+ *
+ * Ce qui précède était un compteur de segments DÉJÀ FERMÉS : il ne disait pas
+ * à quel fichier un numéro appartenait, la valeur publiée changeait sous les
+ * pieds du même fichier, et le dernier segment d'un Take n'était jamais numéroté.
+ *
  * ---------- POURQUOI UN MODÈLE SÉPARÉ ----------
  *
  * Les invariants §35.2 (session, Take, cible, disponibilité, concurrence,
@@ -93,10 +105,23 @@
       switchingCamera: "",
       /* FAIT natif : la caméra réellement ouverte. */
       activeCamera: "",
-      /* Nombre de segments déjà FINALISÉS par ce device sur le Take courant.
-       * 0 = le premier segment est en cours ou n'a jamais démarré. */
-      segmentIndex: 0,
-      lastSegment: null,
+      /* ---------- J09-08b1 : L'IDENTITÉ DU SEGMENT ----------
+       *
+       * `currentSegment` est le segment MÉMOIRE en cours d'enregistrement. Il
+       * reçoit son `segmentIndex` À L'OUVERTURE — c'est-à-dire quand le
+       * recorder démarre — et plus jamais ensuite. Le premier segment d'un Take
+       * porte donc 1, celui qui suit 2, puis 3.
+       *
+       * `segments` est l'historique ORDONNÉ des segments clôturés du Take
+       * courant. Il ne manque jamais d'entrée : tout fichier produit par un Take
+       * finit ici, y compris le dernier, clos par le STOP.
+       *
+       * Ces deux notions sont distinctes par construction : `segmentIndex` n'est
+       * plus un compteur de « segments déjà fermés », et `currentSegment` n'est
+       * plus le dernier segment fermé. Un compteur ne disait pas à quel fichier
+       * un numéro appartenait — c'était la ambiguïté constatée sur J09-07. */
+      currentSegment: null,
+      segments: [],
       /* Compteurs de diagnostic (parsersables dans les logs de campagne). */
       switchCount: 0,
       failCount: 0,
@@ -342,28 +367,77 @@
     return out;
   }
 
-  /* Enregistrement du segment finalisé par la segmentation (§35.3).
-   * `path` est celui renvoyé par `stopRecordVideo` : c'est le SEUL lien entre un
-   * segment et un fichier réel, on ne l'invente jamais. */
-  function closeSegment(state, info) {
+  /* ---------- J09-08b1 : identité et historique des segments ---------- */
+
+  /* Le prochain index est calculé sur le MAXIMUM DÉJÀ VU, jamais sur la
+   * longueur de l'historique : `longueur + 1` ne vaut « suivant » que tant que
+   * l'historique est une suite contiguë, et le reutiliserait dès qu'elle cessera
+   * de l'être. Sur le maximum, l'invariant tient par construction : deux
+   * segments d'un même Take ne peuvent pas partager un index. */
+  function nextSegmentIndex(state) {
+    var st = state || {};
+    var max = 0;
+    (st.segments || []).forEach(function (s) {
+      if (s && typeof s.segmentIndex === "number" && s.segmentIndex > max) max = s.segmentIndex;
+    });
+    if (st.currentSegment && typeof st.currentSegment.segmentIndex === "number"
+      && st.currentSegment.segmentIndex > max) {
+      max = st.currentSegment.segmentIndex;
+    }
+    return max + 1;
+  }
+
+  /* Index du segment EN COURS, 0 quand rien n'est en cours. 0 n'est pas un
+   * index : aucun segment d'un Take ne le porte. */
+  function currentIndex(state) {
+    return (state && state.currentSegment) ? state.currentSegment.segmentIndex : 0;
+  }
+
+  /* Ouverture d'un segment, au moment où son recorder démarre.
+   *
+   * `info.camera` est la caméra RÉELLEMENT ouverte, lue du natif — jamais la
+   * caméra demandée. `info.path` reste vide à l'ouverture : le chemin n'existe
+   * qu'à la clôture, quand `stopRecordVideo` le renvoie. */
+  function openSegment(state, info) {
+    var o = info || {};
     var out = clone(state);
-    var i = (info && typeof info.segmentIndex === "number" && info.segmentIndex >= 0)
-      ? info.segmentIndex
-      : out.segmentIndex + 1;
-    out.segmentIndex = i;
-    out.lastSegment = {
-      index: i,
-      path: (info && typeof info.path === "string") ? info.path : "",
-      /* PAS de repli sur `out.activeCamera` : à ce moment `activeCamera` vaut
-       * la CIBLE, pas la caméra du segment que l'on clôt. Reprendre cette
-       * valeur produirait `from === to` et rattacherait le fichier à la
-       * mauvaise caméra — un fait inventé, précisément ce qu'on ne tolère pas.
-       * Une départ inconnue reste inconnue. */
-      fromCamera: normalizeCamera(info && info.fromCamera),
-      toCamera: normalizeCamera(info && info.toCamera),
-      closedAtMs: (info && typeof info.closedAtMs === "number") ? info.closedAtMs : 0,
-      durationMs: (info && typeof info.durationMs === "number") ? info.durationMs : 0
+    /* Un Take ne filme qu'avec UN recorder : un second segment ouvert ici
+     * donnerait deux fichiers pour un seul index. On ne devine pas lequel des
+     * deux est le bon — l'appelant journalise le refus et n'inscrit rien. */
+    if (out.currentSegment) return out;
+    out.currentSegment = {
+      segmentIndex: nextSegmentIndex(out),
+      camera: normalizeCamera(o.camera),
+      path: (typeof o.path === "string") ? o.path : "",
+      startedAtMs: (typeof o.startedAtMs === "number") ? o.startedAtMs : 0,
+      stoppedAtMs: 0
     };
+    return out;
+  }
+
+  /* Clôture du segment courant : il quitte le devant et rejoint l'historique
+   * avec SON index et SA caméra. Aucun accès au natif ici : `info` ne porte que
+   * des faits déjà lus (`closedPath`, `closedAtMs`), et une donnée absente reste
+   * absente — jamais un chemin ni un instant devinés. */
+  function closeCurrentSegment(state, info) {
+    var o = info || {};
+    var out = clone(state);
+    var cur = out.currentSegment;
+    /* Clôturer sans segment ouvert n'invente pas d'entrée : un historique
+     * contenant un segment qui n'a jamais existé serait un fait fabriqué. */
+    if (!cur) return out;
+    out.segments = out.segments.concat([{
+      segmentIndex: cur.segmentIndex,
+      /* PAS de repli sur `activeCamera` : à la clôture, cette valeur vaut la
+       * CIBLE, pas la caméra du segment que l'on clôt. Reprendre cette valeur
+       * rattacherait le fichier à la mauvaise caméra. Un départ inconnu reste
+       * inconnu. */
+      camera: normalizeCamera(o.camera || cur.camera),
+      path: (typeof o.path === "string" && o.path) ? o.path : cur.path,
+      startedAtMs: cur.startedAtMs,
+      stoppedAtMs: (typeof o.stoppedAtMs === "number") ? o.stoppedAtMs : 0
+    }]);
+    out.currentSegment = null;
     return out;
   }
 
@@ -389,9 +463,10 @@
     out.sessionId = sid;
     out.takeNumber = tnum;
     /* Les SEGMENTS sont comptés par Take : un nouveau plan repart à 1, sinon
-     * l'écran REC afficherait un segment 12 pour un Take qui n'en a qu'un. */
-    out.segmentIndex = 0;
-    out.lastSegment = null;
+     * le segment N+1 porterait le numéro d'un autre Take, et l'historique
+     * mélangerait deux plans sur un même écran. */
+    out.currentSegment = null;
+    out.segments = [];
     out.requestedCamera = "";
     out.switchingCamera = "";
     out.lastError = "";
@@ -451,8 +526,13 @@
       switchingCamera: st.switchingCamera,
       activeCamera: st.activeCamera,
       busy: !!st.switchingCamera,
-      segmentIndex: st.segmentIndex,
-      lastSegment: st.lastSegment ? clone(st.lastSegment) : null,
+      /* `segmentIndex` est l'IDENTITÉ du segment en cours (0 = rien en cours).
+       * Les écrans et le réseau le lisent sous ce nom : ce n'est plus un
+       * compteur de segments fermés. */
+      segmentIndex: currentIndex(st),
+      currentSegment: st.currentSegment ? clone(st.currentSegment) : null,
+      segments: (st.segments || []).map(function (s) { return clone(s); }),
+      segmentCount: (st.segments || []).length + (st.currentSegment ? 1 : 0),
       switchCount: st.switchCount,
       failCount: st.failCount,
       lastError: st.lastError,
@@ -503,7 +583,10 @@
     beginSwitch: beginSwitch,
     confirmSwitch: confirmSwitch,
     failSwitch: failSwitch,
-    closeSegment: closeSegment,
+    openSegment: openSegment,
+    closeCurrentSegment: closeCurrentSegment,
+    currentIndex: currentIndex,
+    nextSegmentIndex: nextSegmentIndex,
     recordSwitchDuration: recordSwitchDuration,
     attachToTake: attachToTake,
     applyAvailability: applyAvailability,

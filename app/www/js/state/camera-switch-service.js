@@ -27,6 +27,14 @@
  * une nouvelle étiquette. On suspend donc l'échantillonneur AVANT toute
  * opération physique et on ne le reprend qu'APRÈS la confirmation native et le
  * redémarrage du segment — jamais avant.
+ *
+ * ---------- J09-08b1 : l'identité des segments ----------
+ *
+ * Ce module est le SEUL propriétaire de l'indexation d'un Take. Le segment
+ * s'ouvre à l'ouverture du recorder (top), se clôture à la bascule ou au STOP,
+ * et porte toujours son index. Le champ `segmentIndex` publié dans les ACK et
+ * dans `camera_state` désigne le segment EN COURS : il ne compte plus les
+ * segments fermés.
  */
 
 (function (global) {
@@ -263,24 +271,37 @@
       camera: requested
     };
 
-    return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
+return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
       var conf = m.confirmSwitch(st(), requested, res.to, nowMs());
       conf = m.recordSwitchDuration(conf, res.gapMs, nowMs());
+      /* J09-08b1 : le segment qui vient d'être fermé rejoint l'historique AVEC
+       * SON index et SA caméra (`res.from`, lue avant la bascule), puis le
+       * segment suivant s'ouvre avec l'index SUIVANT. `segmentIndex` publié
+       * plus bas désigne donc le segment EN COURS — celui dont le recorder
+       * vient de repartir — et non le fichier qui vient de être clôturé. */
+      var closedIndex = 0;
       if (res.segmented) {
-        conf = m.closeSegment(conf, {
-          segmentIndex: st().segmentIndex + 1,
+        conf = m.closeCurrentSegment(conf, {
           path: res.closedPath,
-          fromCamera: res.from,
-          toCamera: res.to,
-          closedAtMs: res.atMs,
-          durationMs: res.gapMs
+          camera: res.from,
+          stoppedAtMs: res.closedAtMs
         });
+        if (conf.segments.length) {
+          closedIndex = conf.segments[conf.segments.length - 1].segmentIndex;
+        }
+        conf = m.openSegment(conf, { camera: res.to, startedAtMs: res.atMs });
+        log("CAMERA_SEGMENT_FINAL segmentIndex=" + (closedIndex || "—")
+          + " camera=" + (res.from || "—")
+          + " path=" + (res.closedPath || "—")
+          + " reason=camera_switch");
       }
       set(conf);
+      var currentIndex = m.currentIndex(conf);
       log("CAMERA_SWITCH_CONFIRM commandId=" + (cmd.commandId || "—")
         + " confirmed=" + (conf.activeCamera || "—")
         + " segmented=" + (res.segmented ? 1 : 0)
-        + " segmentIndex=" + conf.segmentIndex
+        + " segmentIndex=" + currentIndex
+        + " closedSegmentIndex=" + (closedIndex || "—")
         + " closedPath=" + (res.closedPath || "—")
         + " gapMs=" + res.gapMs);
       resumeSampling(requested);
@@ -290,7 +311,8 @@
         idempotent: false,
         camera: conf.activeCamera,
         segmented: res.segmented === true,
-        segmentIndex: conf.segmentIndex,
+        segmentIndex: currentIndex,
+        closedSegmentIndex: closedIndex,
         closedPath: res.closedPath || "",
         gapMs: res.gapMs,
         view: m.view(conf, { recording: recordingNow() })
@@ -318,6 +340,70 @@
         view: m.view(next, { recording: recordingNow() })
       };
     });
+  }
+
+  /* ---------- J09-08b1 : cycle de vie des segments ----------
+   *
+   * Trois moments, trois points d'entrée, et un seul propriétaire de l'index :
+   *
+   *   - le TOP d'un Take  → le segment 1 s'ouvre (`onRecordingStarted`) ;
+   *   - une bascule       → le segment courant est clos, le suivant s'ouvre
+   *                         (`execute`), sans jamais recalculer `+ 1` ;
+   *   - le STOP           → le dernier segment est clos (`onRecordingStopped`).
+   *
+   * Les deux hooks sont appelés par le start-service, au seul endroit où un
+   * recorder démarre ou s'arrête pour un Take. Ils ne lisent AUCUN fait natif
+   * pour décider QUAND : seulement pour dire QUELLE caméra filme.
+   */
+
+  /* Ouverture. La caméra vient du facing du WRAPPER NATIF, établi dès la
+   * préparation — et NON du modèle, dont `activeCamera` peut encore être vide au
+   * top (constaté sur le terrain : `activeCamera:""` pendant le REC). Ni la
+   * caméra demandée ni un vide : une caméra non relue reste inconnue. */
+  function onRecordingStarted() {
+    var m = model();
+    var s = st();
+    if (!m || !s) return 0;
+    var cam = camera();
+    var cv = (cam && typeof cam.view === "function") ? cam.view() : null;
+    var facing = (cv && cv.activeFacing) || "";
+    if (s.currentSegment) {
+      log("CAMERA_SEGMENT_OPEN_SKIP reason=already_open"
+        + " segmentIndex=" + m.currentIndex(s));
+      return m.currentIndex(s);
+    }
+    var next = m.openSegment(s, { camera: facing, startedAtMs: nowMs() });
+    set(next);
+    log("CAMERA_SEGMENT_OPEN segmentIndex=" + m.currentIndex(next)
+      + " camera=" + (m.normalizeCamera(facing) || "—")
+      + " take=" + (s.takeNumber == null ? "—" : s.takeNumber));
+    return m.currentIndex(next);
+  }
+
+  /* Clôture par le STOP. `res` est le retour NATIF de `stopRecordVideo` : son
+   * `path` est le seul lien entre un segment et un fichier réel, on ne l'invente
+   * jamais. Sans lui le segment est clôturé avec un chemin vide — ce qui est
+   * encore exact, et vaut mieux qu'un chemin deviné. */
+  function onRecordingStopped(res) {
+    var m = model();
+    var s = st();
+    if (!m || !s) return null;
+    if (!s.currentSegment) {
+      log("CAMERA_SEGMENT_FINAL_SKIP reason=no_current_segment");
+      return null;
+    }
+    var r = res || {};
+    var closed = m.closeCurrentSegment(s, {
+      path: (typeof r.path === "string") ? r.path : "",
+      stoppedAtMs: (typeof r.atMs === "number") ? r.atMs : nowMs()
+    });
+    set(closed);
+    var last = closed.segments[closed.segments.length - 1];
+    log("CAMERA_SEGMENT_FINAL segmentIndex=" + last.segmentIndex
+      + " camera=" + (last.camera || "—")
+      + " path=" + (last.path || "—")
+      + " reason=stop");
+    return last;
   }
 
   /* ---------- commande locale (Capture+Master) ---------- */
@@ -412,7 +498,7 @@
         + " camera=" + v.camera + " reason=already_active");
       return Promise.resolve({
         ok: true, idempotent: true, camera: v.camera, segmented: false,
-        segmentIndex: st().segmentIndex, gapMs: 0,
+        segmentIndex: m.currentIndex(st()), gapMs: 0,
         view: m.view(st(), { recording: recordingNow() })
       });
     }
@@ -610,7 +696,7 @@
       idempotent: res.idempotent === true,
       segmented: res.segmented === true,
       segmentIndex: (res.view && typeof res.view.segmentIndex === "number")
-        ? res.view.segmentIndex : st().segmentIndex,
+        ? res.view.segmentIndex : m.currentIndex(st()),
       closedPath: res.closedPath || "",
       gapMs: (typeof res.gapMs === "number") ? res.gapMs : 0,
       confirmedAtMs: nowMs()
@@ -724,6 +810,9 @@
     syncActiveCamera: syncActiveCamera,
     broadcastState: broadcastState,
     onStartView: onStartView,
+    /* J09-08b1 : segments — appelés par le start-service */
+    onRecordingStarted: onRecordingStarted,
+    onRecordingStopped: onRecordingStopped,
     onAck: onAck,
     lastTakeOf: lastTakeOf,
     view: view,

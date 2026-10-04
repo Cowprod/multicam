@@ -557,6 +557,11 @@
    * segment est perdu, et il est plus honnête de le dire que d'en enregistrer
    * un sous un facing qui n'est plus le sien.
    *
+   * L'INDEX d'un segment n'est pas décidé ici : c'est l'orchestrateur qui le
+   * porte, et il l'attribue à l'ouverture (§J09-08b1). Ce wrapper ne fait que
+   * rendre les deux faits de clôture dont l'index dépend — le chemin du fichier
+   * et l'instant exact de l'arrêt.
+   *
    * `switchInFlight` sérialise : deux commandes concurrentes partagent la même
    * bascule et ne peuvent pas se chevaucher sur le même MediaRecorder.
    */
@@ -621,6 +626,11 @@
             ok: true, segmented: false, restarted: false,
             from: fromFacing, to: fromDir(facing),
             closedPath: r.closed.closed,
+            /* J09-08b1 : l'instant de clôture du fichier doit remonter avec lui,
+             * sinon le segment clôturé par la bascule porterait un `stoppedAt`
+             * inconnu. Aucun segment ne peut être inventé, mais un fait déjà mesuré
+             * ne doit pas être perdu. */
+            closedAtMs: r.closed.closedAtMs || 0,
             gapMs: nowMs() - gapStartMs,
             atMs: nowMs(), alreadyActive: r.sw.alreadyActive === true
           };
@@ -646,6 +656,7 @@
             ok: true, segmented: true, restarted: true,
             from: fromFacing, to: fromDir(facing),
             closedPath: r.closed.closed,
+            closedAtMs: r.closed.closedAtMs || 0,
             gapMs: nowMs() - gapStartMs,
             atMs: nowMs(), alreadyActive: r.sw.alreadyActive === true
           };
