@@ -42,7 +42,7 @@
 "use strict";
 
 function register(h) {
-  const { describe, it, createEnv, load, loadAll } = h;
+  const { describe, it, createEnv, load, loadAll, fakeDom } = h;
 
   /* Assertion de valeur : le message nomme l'écart, sinon un échec de test
    * n'explique pas CE QUI a divergé. */
@@ -368,88 +368,6 @@ function register(h) {
    * Le faux DOM ci-dessous reproduit donc le contrat du WebView : `children`
    * est une collection ARRAY-LIKE SANS `indexOf`, et `querySelector` ne sait
    * que lire les sélecteurs de classe utilisés par l'écran. */
-  function fakeDom(ids) {
-    const byId = {};
-    function el(tag) {
-      const set = new Set();
-      const node = {
-        tagName: String(tag).toUpperCase(),
-        className: "",
-        textContent: "",
-        dataset: {},
-        parentNode: null,
-        _kids: [],
-        _attrs: {},
-        _set: set,
-        classList: {
-          add(c) { set.add(c); },
-          remove(c) { set.delete(c); },
-          contains(c) { return set.has(c); },
-          toggle(c, on) {
-            const want = on === undefined ? !set.has(c) : !!on;
-            if (want) set.add(c); else set.delete(c);
-          }
-        },
-        appendChild(c) { node._kids.push(c); c.parentNode = node; return c; },
-        removeChild(c) {
-          const i = node._kids.indexOf(c);
-          if (i >= 0) { node._kids.splice(i, 1); c.parentNode = null; }
-          return c;
-        },
-        insertBefore(c, ref) {
-          const cur = node._kids.indexOf(c);
-          if (cur >= 0) node._kids.splice(cur, 1);
-          const at = ref ? node._kids.indexOf(ref) : -1;
-          if (at < 0) node._kids.push(c); else node._kids.splice(at, 0, c);
-          c.parentNode = node;
-          return c;
-        },
-        setAttribute(k, v) { node._attrs[k] = String(v); },
-        getAttribute(k) { return Object.prototype.hasOwnProperty.call(node._attrs, k) ? node._attrs[k] : null; },
-        removeAttribute(k) { delete node._attrs[k]; },
-        querySelector(sel) {
-          /* Recherche dans TOUTE la descendance, comme querySelector : les
-           * sélecteurs de l'écran (`.tile-media`, `.tile-name`, `.tile-state`,
-           * `img`) pointent des petits-enfants de la vignette. */
-          const cls = sel.charAt(0) === "." ? sel.slice(1) : null;
-          const tag = cls ? null : sel;
-          for (const kid of node._kids) {
-            if (cls ? kid._set && kid._set.has(cls) : kid.tagName === String(tag).toUpperCase()) return kid;
-            const deep = kid.querySelector ? kid.querySelector(sel) : null;
-            if (deep) return deep;
-          }
-          return null;
-        }
-      };
-      Object.defineProperty(node, "className", {
-        get() { return [...set].join(" "); },
-        set(v) {
-          set.clear();
-          String(v).split(/\s+/).filter(Boolean).forEach(function (c) { set.add(c); });
-        }
-      });
-      Object.defineProperty(node, "children", {
-        get() {
-          const live = node._kids.slice();
-          const col = { length: live.length };
-          live.forEach((k, i) => { col[i] = k; });
-          /* AUCUN indexOf : c'est le contrat HTMLCollection du WebView. */
-          return col;
-        }
-      });
-      return node;
-    }
-    (ids || []).forEach(function (id) { byId[id] = el("div"); });
-    return {
-      byId,
-      createElement: el,
-      createTextNode(text) {
-        return { nodeType: 3, textContent: String(text), parentNode: null };
-      },
-      getElementById(id) { return byId[id] || null; },
-      querySelector() { return null; }
-    };
-  }
 
   const DOM_IDS = ["liveGrid", "liveSession", "liveTake", "liveTimer", "liveCount", "livePhase", "liveEmpty"];
 

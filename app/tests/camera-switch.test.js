@@ -27,7 +27,7 @@
 "use strict";
 
 function register(h) {
-  const { describe, it, createEnv, loadAll, flush } = h;
+  const { describe, it, createEnv, loadAll, flush, fakeDom } = h;
 
   const ME = "DEV-1";
   const CAP = "DEV-2";
@@ -2013,6 +2013,312 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
       eq(s.segmentIndex, 0);
       eq(s.segmentState, "", "un segment terminé ne laisse pas d'état fantôme");
       eq(s.recording, false, "et le Master's ne croit plus à un enregistrement");
+    });
+  });
+
+  /* ══════════════════ D · UI : ce qui est AFFICHÉ ══════════════════ */
+
+  /* J09-08d : jusqu'ici, la publication (J09-08c) et la réception de
+   * `camera_state` étaient justes, mais RIEN ne les affichait : la modal
+   * Master ne montrait ni l'état du segment ni l'enregistrement, et la vue
+   * locale Capture n'affichait rien du tout. Ces tests lisent donc le TEXTE
+   * réellement projeté dans le DOM, pas seulement le descripteur. */
+  describe("J09-08d · UI — l'état caméra/segment réellement affiché", () => {
+    /* Les ids que `live.js` et `live-detail.js` écrivent : le reste du DOM
+     * n'existe pas dans ce test, et c'est sans importance — un `byId` qui rend
+     * null est une projection absente, pas une erreur. */
+    const UI_IDS = [
+      "liveGrid", "liveSession", "liveTake", "liveTimer", "liveCount", "livePhase",
+      "liveEmpty", "liveLocalCam", "liveDetailModal", "ldName", "ldState", "ldRecorder",
+      "ldBattery", "ldStorage", "ldNetwork", "ldTelemetryAge", "ldPreviewAge",
+      "ldSkillVideo", "ldSkillAudio", "ldSkillGps", "ldCamBox", "ldCamState",
+      "ldCamActions", "ldCamNote", "ldIncidents", "ldImage", "ldNoImg", "ldClose"
+    ];
+
+    function withDom(env) {
+      const dom = fakeDom(UI_IDS);
+      env.document = dom;
+      env.window.document = dom;
+      return dom;
+    }
+
+    /* Vue LOCALE : le service est celui de CE device, donc la mosaïque et la
+     * modal lisent le même état que la Capture. */
+    function bootUi(opts) {
+      const env = bootService(opts);
+      loadAll(env, ["state/live-model.js", "ui/live.js", "ui/live-detail.js"]);
+      const dom = withDom(env);
+      const model = env.MultiCamLiveModel;
+      model.bind({
+        localDid: ME,
+        getParticipants: (sid) => (sid === SID
+          ? [{ deviceId: ME, deviceName: ME, role: "capture" },
+            { deviceId: CAP, deviceName: CAP, role: "capture" }]
+          : [])
+      });
+      model.setTake(SID, TAKE);
+      model.syncParticipants();
+      model.setLiveness(ME, true);
+      model.setLiveness(CAP, true);
+      env.uiDom = dom;
+      env.liveModel = model;
+      env.live = env.MultiCamLiveScreen;
+      env.detail = env.MultiCamLiveDetail;
+      return env;
+    }
+
+    /* Vue SUPERVISION : ce device est un Master SANS Capture locale, et l'état
+     * qu'il affiche vient d'un `camera_state` reçu — c'est le chemin du test C'. */
+    function bootSup() {
+      const env = createEnv({ skills: ["capture", "controller"] });
+      loadAll(env, [
+        "state/camera-switch-model.js", "state/camera-state-inbox.js",
+        "state/live-model.js", "ui/live.js", "ui/live-detail.js"
+      ]);
+      const dom = withDom(env);
+      const model = env.MultiCamLiveModel;
+      model.bind({
+        localDid: OTHER,
+        getParticipants: (sid) => (sid === SID
+          ? [{ deviceId: CAP, deviceName: CAP, role: "capture" }] : [])
+      });
+      model.setTake(SID, TAKE);
+      model.syncParticipants();
+      model.setLiveness(CAP, true);
+      env.uiDom = dom;
+      env.liveModel = model;
+      env.live = env.MultiCamLiveScreen;
+      env.detail = env.MultiCamLiveDetail;
+      env.inbox = env.MultiCamCameraStateInbox;
+      return env;
+    }
+
+    /* Ce que l'écran RÉELLEMENT écrit : en-tête local + modal du même device,
+     * lus dans le DOM. Une capture pour MEMOIRE aussi, sinon un test pourrait
+     * passer sur un descripteur que la peinture n'utilise pas. */
+    function shot(env, deviceId) {
+      const did = deviceId || ME;
+      const mv = env.liveModel.view();
+      const v = env.live.render(mv, {
+        nowMs: 1000, recStartedAtMs: 0, sessionName: "Tournage", phase: "REC"
+      });
+      const opened = env.detail.open(did);
+      return {
+        header: env.uiDom.byId.liveLocalCam.textContent,
+        modal: env.uiDom.byId.ldCamState.textContent,
+        note: env.uiDom.byId.ldCamNote.textContent,
+        cam: (opened && opened.camera) || null,
+        actions: (opened && opened.cameraActions) || [],
+        tiles: v.tiles,
+        grid: env.uiDom.byId.liveGrid,
+        view: v
+      };
+    }
+
+    function noInvented(text, what) {
+      no(text.indexOf("segment 0") >= 0, "jamais « segment 0 » : le segment 0 n'existe pas (" + what + ")");
+      no(text.indexOf("segment 0 ") >= 0, what);
+    }
+
+    async function top(env) {
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.svc.refreshAvailability());
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      return env;
+    }
+    function nameFile(env, n) { env.CameraPreview.videoPath = "file:///cache/videoTmp_" + n + ".mp4"; }
+
+    /* ---------- A · REC initial ---------- */
+
+    it("A. REC initial : caméra confirmée, segment 1, enregistrement", async () => {
+      const env = await top(bootUi());
+      const r = shot(env);
+
+      eq(r.header, "Caméra Arrière · segment 1 · enregistrement",
+        "l'en-tête local affiche les TROIS faits, dans cet ordre");
+      eq(r.modal, r.header, "la modal dit exactement la même chose : une seule source");
+      eq(r.cam.active, "REAR");
+      eq(r.cam.segmentIndex, 1);
+      eq(r.cam.segmentState, "recording");
+      eq(r.cam.recording, true);
+      eq(r.cam.hasSegment, true);
+      noInvented(r.header, "A");
+      noInvented(r.modal, "A/modal");
+    });
+
+    it("A2. la mosaïque garde son ordre et sa structure", async () => {
+      const env = await top(bootUi());
+      const r = shot(env);
+      eq(r.view.count, 2, "deux vignettes : le device local et la Capture distante");
+      eq(r.grid.children.length, 2, "une vignette par Capture, pas une ligne ajoutée par fait");
+      eq(r.tiles.map((t) => t.deviceId).join(","), ME + "," + CAP,
+        "l'ordre vient du plan de START, il n'a pas bougé");
+      eq(r.tiles.map((t) => t.badges.length).join(","), "0,0",
+        "aucun badge textuel n'est ajouté à la vignette");
+      eq(r.actions.length, 2, "les deux contrôles caméra existent toujours");
+    });
+
+    /* ---------- B · après bascule ---------- */
+
+    it("B. après bascule : nouvelle caméra, segment 2, enregistrement", async () => {
+      const env = await top(bootUi());
+      nameFile(env, 60);
+      const sw = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      yes(sw.ok);
+      const r = shot(env);
+
+      eq(r.header, "Caméra Selfie · segment 2 · enregistrement");
+      eq(r.modal, r.header);
+      eq(r.cam.active, "FRONT", "c'est la caméra RELUE qui s'affiche");
+      eq(r.cam.segmentIndex, 2);
+      eq(r.cam.segmentState, "recording");
+      eq(r.cam.recording, true);
+    });
+
+    /* ---------- C · segment en échec ---------- */
+
+    it("C. restart_failed après création : segment failed, et la NOUVELLE caméra reste visible", async () => {
+      const env = await top(bootUi());
+      nameFile(env, 61);
+      env.CameraPreview.nextPath = "file:///cache/videoTmp_62.mp4";
+      env.CameraPreview.failRecordAfterStart = true;
+
+      const sw = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(sw.ok);
+      eq(sw.code, "restart_failed");
+      const r = shot(env);
+
+      eq(r.cam.active, "FRONT",
+        "le natif a ouvert la FRONT : l'échec du redémarrage ne la fait pas disparaître");
+      eq(r.cam.segmentState, "failed");
+      eq(r.cam.segmentIndex, 2, "le segment réellement créé garde SON index");
+      eq(r.cam.recording, true,
+        "le natif confirme un recorder vivant : l'écran ne peut pas écrire « n'enregistre »");
+      eq(r.header, "Caméra Selfie · segment 2 en échec · enregistrement");
+      eq(r.modal, r.header);
+      noInvented(r.header, "C");
+    });
+
+    it("C'. failed + recording=false : l'écran montre la caméra ET dit l'échec", () => {
+      const env = bootSup();
+      /* Ce que la Capture publie quand son recorder est mort en laissant un
+       * segment ouvert : la caméra reste un fait, l'échec aussi. */
+      yes(env.inbox.record({
+        sessionId: SID, deviceId: CAP, from: CAP, phase: "REC",
+        availableCameras: ["REAR", "FRONT"],
+        activeCamera: "FRONT", requestedCamera: "REAR",
+        segmentIndex: 2, segmentState: "failed", recording: false,
+        lastErrorCode: "restart_failed", lastError: "restart_failed:true",
+        atMs: 1000, updatedAtMs: 1000
+      }), "le camera_state est recevable");
+
+      const r = shot(env, CAP);
+      eq(r.cam.source, "supervision", "le Master lit l'état PUBLIE par la Capture");
+      eq(r.cam.active, "FRONT");
+      eq(r.cam.segmentState, "failed");
+      eq(r.cam.recording, false);
+      eq(r.modal, "Caméra Selfie · segment 2 en échec · n'enregistre pas");
+      noInvented(r.modal, "C'/modal");
+      eq(r.note.indexOf("Segment 2 en échec") >= 0, true,
+        "la note explique l'échec : sans elle, l'opérateur croirait à une bascule ratée");
+      eq(r.header, "", "un Master sans Capture locale n'affiche pas de ligne locale");
+    });
+
+    /* ---------- D · STOP ---------- */
+
+    it("D. STOP : « aucun segment actif », jamais « segment 0 »", async () => {
+      const env = await top(bootUi());
+      nameFile(env, 63);
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((res) => { env.svc.onRecordingStopped(res); }));
+
+      const r = shot(env);
+      eq(r.cam.segmentIndex, 0, "le fait reste 0");
+      eq(r.cam.hasSegment, false);
+      eq(r.cam.segmentState, "", "et il n'y a plus d'état de segment à afficher");
+      eq(r.cam.recording, false);
+      eq(r.header, "Caméra Arrière · aucun segment actif · n'enregistre pas");
+      eq(r.modal, r.header);
+      noInvented(r.header, "D");
+      noInvented(r.modal, "D/modal");
+    });
+
+    /* ---------- E · caméra inconnue ---------- */
+
+    it("E. activeCamera inconnue : état neutre, jamais REAR ni FRONT", async () => {
+      const env = await top(bootUi({ failState: "STATE_KO" }));
+      const r = shot(env);
+
+      eq(r.cam.known, false, "aucun état caméra n'a été publié : le service n'a rien confirmé");
+      eq(r.cam.active, "", "et donc aucune caméra à afficher");
+      eq(r.header, "Caméra inconnue", "état neutre, et rien d'autre : ni caméra, "
+        + "ni segment, ni enregistrement — aucun de ces faits n'est connu");
+      eq(r.modal, r.header);
+      no(r.header.indexOf("Arrière") >= 0, "aucune caméra ne peut être inventée (en-tête)");
+      no(r.modal.indexOf("Arrière") >= 0, "aucune caméra ne peut être inventée (modal)");
+      no(r.modal.indexOf("Selfie") >= 0, "ni l'autre caméra, non plus");
+      eq(r.actions.length, 0, "sans inventaire confirmé, aucun bouton de bascule : "
+        + "l'état neutre se lit aussi dans les contrôles");
+    });
+
+    /* ---------- F · bascule en vol ---------- */
+
+    it("F. pendant une bascule : « Changement… », et l'actif reste lisible", async () => {
+      /* `switchLatencyMs` élevé : la confirmation native arrive 5 s plus tard,
+       * donc la bascule est observable — on ne lit pas un état qu'on a
+       * laissé filer. */
+      const env = await top(bootUi({ switchLatencyMs: 5000 }));
+      /* La bascule n'est PAS attendue : on lit l'écran pendant qu'elle vole.
+       * L'horloge virtuelle n'avance pas (flush ne déclenche que les microtâches),
+       * donc la bascule reste en vol le temps de la lecture. */
+      env.svc.requestSwitch("FRONT");
+      /* On avance l'horloge NATIVE par pas de 1 ms jusqu'à ce que la bascule
+       * soit engagée : la confirmation est à 5 s, donc elle ne peut pas
+       * arriver pendant cette lecture. */
+      for (let i = 0; i < 60 && !env.svc.view().switchingCamera; i++) {
+        await flush(1);
+        await env.clock.advance(1);
+      }
+      yes(env.svc.view().switchingCamera, "la bascule est bien en vol au moment de la lecture");
+      const r = shot(env);
+
+      eq(r.cam.switching, "FRONT", "la cible est en vol");
+      eq(r.cam.active, "REAR", "l'actif, lui, n'a pas encore bougé");
+      eq(r.cam.changing, true);
+      eq(r.header.indexOf("Changement vers Selfie…") >= 0, true,
+        "l'en-tête annonce le changement : « attendu " + r.header + " »");
+      eq(r.modal.indexOf("Changement vers Selfie…") >= 0, true);
+      eq(r.modal.indexOf("Caméra Arrière") >= 0, true,
+        "et il rappelle la caméra qui filme EN ATTENDANT");
+      eq(r.actions.length, 2, "les contrôles existent toujours");
+      eq(r.actions.every((a) => a.disabled), true,
+        "pendant une bascule, aucun bouton n'est actif : c'est le service qui refuse");
+    });
+
+    /* ---------- G · demandée ≠ active ---------- */
+
+    it("G. requestedCamera n'est jamais présentée comme la caméra réelle", async () => {
+      const env = await top(bootUi());
+      nameFile(env, 64);
+      env.CameraPreview.failSwitch = true;
+
+      const sw = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(sw.ok, "la bascule native a échoué");
+
+      const r = shot(env);
+      eq(r.cam.requested, "FRONT", "la demande existe");
+      eq(r.cam.active, "REAR", "mais le fait reste l'ancienne caméra");
+      eq(r.header, "Caméra Arrière · aucun segment actif · n'enregistre pas");
+      eq(r.modal, r.header);
+      no(r.modal.indexOf("Caméra Selfie") >= 0,
+        "la caméra DEMANDÉE ne peut pas s'afficher comme active : " + r.modal);
+      no(r.header.indexOf("Caméra Selfie") >= 0,
+        "ni dans l'en-tête : " + r.header);
+      eq(r.actions.map((a) => a.active).join(","), "true,false",
+        "c'est l'active qui allume son bouton, pas la demandée");
     });
   });
 

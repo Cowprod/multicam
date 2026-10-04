@@ -173,6 +173,28 @@
       camAvailable.sort(function (a, b) { return m.CAMERAS.indexOf(a) - m.CAMERAS.indexOf(b); });
     }
 
+    /* ---------- J09-08d : le segment RÉEL, pas une intention ----------
+     *
+     * `slot.camera` est la seule source : service local pour CE device, dernier
+     * `camera_state` reçu pour les autres. Ces trois champs disent ce que la
+     * Capture FILME réellement, et ils ne se déduisent l'un l'autre de aucune
+     * façon — d'où trois champs distincts :
+     *
+     *   - `segmentIndex` = index du segment EN COURS, `0` s'il n'y en a pas ;
+     *   - `segmentState` = état réel de ce segment (`recording` / `closed` /
+     *     `failed`), `""` s'il n'y en a pas ;
+     *   - `recording` = RELECTURE native de l'enregistreur.
+     *
+     * Un `segmentIndex` de 0 ne s'affiche JAMAIS comme « segment 0 » : il
+     * signifie « aucun segment actif », et c'est ce qui s'écrit. */
+    var segIdx = (cs && typeof cs.segmentIndex === "number" && isFinite(cs.segmentIndex))
+      ? Math.round(cs.segmentIndex) : null;
+    var segState = (cs && typeof cs.segmentState === "string") ? cs.segmentState : "";
+    var segKnown = (segIdx !== null);
+    var hasSegment = segIdx !== null && segIdx > 0;
+    var recKnown = !!(cs && typeof cs.recording === "boolean");
+    var recording = recKnown ? cs.recording === true : null;
+
     var cameraActions = [];
     if (camAvailable.length) {
       camAvailable.forEach(function (c) {
@@ -202,6 +224,34 @@
     } else if (camAvailable.length < 2) {
       cameraNote = "Une seule caméra disponible : rien à basculer.";
     }
+
+    /* La phrase vit dans le descripteur, pas dans la peinture : le DOM n'est
+     * qu'une projection, donc un test peut lire exactement ce qui est écrit. */
+    var camDesc = {
+      known: !!cs,
+      active: camActive,
+      activeLabel: camActive ? m.label(camActive) : "—",
+      /* `requestedCamera` n'est JAMAIS promu en `active` : c'est une demande,
+       * pas un fait. Il reste disponible pour l'écran, sans le confondre. */
+      requested: (cs && m) ? m.normalizeCamera(cs.requestedCamera) : "",
+      switching: camSwitching,
+      switchingLabel: camSwitching ? m.label(camSwitching) : "",
+      changing: !!camSwitching,
+      available: camAvailable,
+      busy: !!camSwitching,
+      segmentIndex: segIdx,
+      segmentKnown: segKnown,
+      hasSegment: hasSegment,
+      segmentState: segState,
+      segmentStateLabel: SEG_LABEL[segState] || "",
+      recording: recording,
+      recordingKnown: recKnown,
+      lastSwitchDurationMs: (cs && typeof cs.lastSwitchDurationMs === "number") ? cs.lastSwitchDurationMs : null,
+      lastError: (cs && cs.lastError) ? cs.lastError : "",
+      lastErrorCode: (cs && cs.lastErrorCode) ? cs.lastErrorCode : "",
+      source: (cs && cs.source) || ""
+    };
+    camDesc.stateText = cameraLine(camDesc);
 
     return {
       sessionId: s.sessionId || "",
@@ -263,20 +313,7 @@
        * deux dans `actions` ferait passer une bascule de caméra pour un ordre
        * d'arrêt, et les tests J09-06 le vérifient explicitement. */
       actions: [],
-      camera: {
-        known: !!cs,
-        active: camActive,
-        activeLabel: camActive ? m.label(camActive) : "—",
-        switching: camSwitching,
-        switchingLabel: camSwitching ? m.label(camSwitching) : "",
-        available: camAvailable,
-        busy: !!camSwitching,
-        segmentIndex: (cs && typeof cs.segmentIndex === "number") ? cs.segmentIndex : null,
-        lastSwitchDurationMs: (cs && typeof cs.lastSwitchDurationMs === "number") ? cs.lastSwitchDurationMs : null,
-        lastError: (cs && cs.lastError) ? cs.lastError : "",
-        lastErrorCode: (cs && cs.lastErrorCode) ? cs.lastErrorCode : "",
-        source: (cs && cs.source) || ""
-      },
+      camera: camDesc,
       cameraActions: cameraActions,
       cameraNote: cameraNote
     };
@@ -305,6 +342,47 @@
     if (n && n.textContent !== text) n.textContent = text;
   }
 
+  /* ---------- J09-08d : la PHRASE d'état caméra ----------
+   *
+   * Une seule phrase, toujours dans le même ordre : caméra, puis segment, puis
+   * enregistrement. Trois règles, et pas une de plus :
+   *
+   *   - une caméra non confirmée s'écrit « Caméra inconnue » — un « REAR » ou
+   *     un « FRONT » par défaut afficherait une caméra que personne n'a vue ;
+   *   - une bascule en vol s'écrit « Changement vers … » : tant que la cible
+   *     n'est pas confirmée, c'est elle qui est en train de changer, pas
+   *     l'actif ;
+   *   - `0` et l'absence de segment s'écrivent « aucun segment actif ». Jamais
+   *     « segment 0 » : le segment 0 n'a jamais existé.
+   *
+   * `recording` n'est écrit que s'il a été mesuré. Un état absent d'une source
+   * plus ancienne ne devient pas « n'enregistre pas ». */
+  var SEG_LABEL = {
+    recording: "en enregistrement",
+    closed: "clôturé",
+    failed: "en échec"
+  };
+
+  function cameraLine(c) {
+    if (!c || !c.known) return "Caméra inconnue";
+    var cur = c.activeLabel && c.activeLabel !== "—" ? c.activeLabel : "";
+    if (c.switching) {
+      return (cur ? ("Caméra " + cur + " → ") : "") + "Changement vers "
+        + (c.switchingLabel || "?") + "…";
+    }
+    var parts = [cur ? ("Caméra " + cur) : "Caméra inconnue"];
+    if (c.hasSegment) {
+      parts.push("segment " + c.segmentIndex
+        + (c.segmentState === "failed" ? " en échec" : ""));
+    } else if (c.segmentKnown) {
+      parts.push("aucun segment actif");
+    }
+    if (c.recordingKnown) {
+      parts.push(c.recording ? "enregistrement" : "n'enregistre pas");
+    }
+    return parts.join(" · ");
+  }
+
   /* Les icônes de la modal : vidéo / audio / GPS quand elles sont RÉELLEMENT
    * annoncées par la Capture. Pas d'icône « cochée » sur une capacité
    * inconnue : l'absence se dit dans `notes`. */
@@ -320,16 +398,7 @@
     if (!box || !d) return;
     var c = d.camera || {};
     var state = byId("ldCamState");
-    if (state) {
-      if (!c.known) {
-        state.textContent = "Caméra inconnue";
-      } else if (c.switching) {
-        state.textContent = "Caméra " + c.activeLabel + " → bascule vers " + c.switchingLabel + "…";
-      } else {
-        state.textContent = "Caméra " + c.activeLabel
-          + (typeof c.segmentIndex === "number" && c.segmentIndex > 0 ? " · segment " + c.segmentIndex : "");
-      }
-    }
+    if (state) state.textContent = c.stateText || "Caméra inconnue";
     box.classList.toggle("unknown", !c.known);
     box.classList.toggle("busy", !!c.busy);
 
@@ -355,8 +424,18 @@
     if (note) {
       /* L'erreur du dernier switch reste visible tant qu'elle n'est pas
        * résolue : un échec silencieux ferait croire que l'ordre est passé. */
-      if (c.lastError) note.textContent = c.lastErrorCode + " — " + c.lastError;
-      else note.textContent = d.cameraNote || "";
+      /* Deux faits distincts, tous deux affichables : l'ERREUR de l'opération
+       * (bascule refusée ou non confirmée) et l'ÉTAT du segment qui en découle.
+       * Les masquer l'un derrière l'autre ferait croire, à l'opérateur, soit à
+       * une bascule ratée alors que la caméra a changé, soit à une bascule
+       * réussie alors qu'un fichier n'est pas finalisé. */
+      var notes = [];
+      if (c.hasSegment && c.segmentState === "failed") {
+        notes.push("Segment " + c.segmentIndex + " en échec : sa fin n'est pas confirmée."
+          + (c.recordingKnown && !c.recording ? " Rien n'est en cours d'enregistrement." : ""));
+      }
+      if (c.lastError) notes.push(c.lastErrorCode + " — " + c.lastError);
+      note.textContent = notes.length ? notes.join(" ") : (d.cameraNote || "");
     }
   }
 

@@ -258,6 +258,81 @@
     };
   }
 
+  /* ---------- J09-08d : caméra et segment RÉELS, dans la vue LOCALE ----------
+   *
+   * La mosaïque n'affiche pas ces valeurs et son ordre est FIGÉ par la
+   * maquette J09-05 : on n'y touche pas. Elles sont donc lues ici et projetées
+   * dans l'en-tête — la seule zone qui décrit CE device.
+   *
+   * UNE seule source : `slot.camera`, rempli par `live-model.js` soit depuis le
+   * service local (ce device), soit depuis le dernier `camera_state` reçu. L'UI
+   * ne recompose rien et ne devine aucune valeur :
+   *
+   *   - `activeCamera` vide ou absent -> « Caméra inconnue », jamais REAR ;
+   *   - `requestedCamera` n'est JAMAIS promu : c'est une demande ;
+   *   - `segmentIndex` 0 ou absent -> « aucun segment actif », jamais « segment 0 » ;
+   *   - `recording` n'est écrit que s'il a été MESURÉ. */
+  var SEG_LABEL = {
+    recording: "en enregistrement",
+    closed: "clôturé",
+    failed: "en échec"
+  };
+
+  function camOf(c) {
+    var m = global.MultiCamCameraSwitchModel;
+    var active = (c && m) ? m.normalizeCamera(c.activeCamera) : "";
+    var switching = (c && m) ? m.normalizeCamera(c.switchingCamera) : "";
+    var segIdx = (c && typeof c.segmentIndex === "number" && isFinite(c.segmentIndex))
+      ? Math.round(c.segmentIndex) : null;
+    var segState = (c && typeof c.segmentState === "string") ? c.segmentState : "";
+    var recKnown = !!(c && typeof c.recording === "boolean");
+    var out = {
+      known: !!c,
+      active: active,
+      activeLabel: (active && m) ? m.label(active) : "",
+      requested: (c && m) ? m.normalizeCamera(c.requestedCamera) : "",
+      switching: switching,
+      switchingLabel: (switching && m) ? m.label(switching) : "",
+      segmentIndex: segIdx,
+      segmentKnown: segIdx !== null,
+      hasSegment: segIdx !== null && segIdx > 0,
+      segmentState: segState,
+      segmentStateLabel: SEG_LABEL[segState] || "",
+      recording: recKnown ? c.recording === true : null,
+      recordingKnown: recKnown
+    };
+    out.text = cameraLine(out);
+    return out;
+  }
+
+  function cameraLine(c) {
+    if (!c || !c.known) return "Caméra inconnue";
+    var cur = c.activeLabel || "";
+    if (c.switching) {
+      return (cur ? ("Caméra " + cur + " → ") : "") + "Changement vers "
+        + (c.switchingLabel || "?") + "…";
+    }
+    var parts = [cur ? ("Caméra " + cur) : "Caméra inconnue"];
+    if (c.hasSegment) {
+      parts.push("segment " + c.segmentIndex + (c.segmentState === "failed" ? " en échec" : ""));
+    } else if (c.segmentKnown) {
+      parts.push("aucun segment actif");
+    }
+    if (c.recordingKnown) parts.push(c.recording ? "enregistrement" : "n'enregistre pas");
+    return parts.join(" · ");
+  }
+
+  function localCamera(slots) {
+    var local = (slots || []).filter(function (s) { return !!s.isLocal; })[0] || null;
+    /* Pas de Capture locale = ce device n'est qu'un Master : la ligne reste
+     * VIDE. « Caméra inconnue » dirait ici quelque chose de faux — il n'y a
+     * même pas de caméra à ne pas connaître. */
+    if (!local) return { known: false, isLocal: false, text: "" };
+    var out = camOf(local.camera);
+    out.isLocal = true;
+    return out;
+  }
+
   function tiles(modelView, rec) {
     var v = modelView || {};
     var slots = Array.isArray(v.slots) ? v.slots : [];
@@ -287,6 +362,8 @@
       cols: COLS[ts.length] || colsFor(ts.length),
       gridClass: gridClass(ts.length),
       tiles: ts,
+      /* J09-08d : l'état caméra/segment de CE device, hors mosaïque. */
+      localCamera: localCamera(v.slots),
       empty: ts.length === 0
     };
   }
@@ -506,6 +583,8 @@
     }
     var count = byId("liveCount");
     if (count) count.textContent = v.count + (v.count > 1 ? " Captures" : " Capture");
+    var localCam = byId("liveLocalCam");
+    if (localCam) localCam.textContent = v.localCamera.text;
     var empty = byId("liveEmpty");
     if (empty) empty.classList.toggle("d-none", !v.empty);
     /* La modal ouverte suit le MÊME rendu (pas de second timer) : ses valeurs
