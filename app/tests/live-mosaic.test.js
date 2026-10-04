@@ -44,6 +44,15 @@
 function register(h) {
   const { describe, it, createEnv, load, loadAll } = h;
 
+  /* Assertion de valeur : le message nomme l'écart, sinon un échec de test
+   * n'explique pas CE QUI a divergé. */
+  function eq(actual, want, msg) {
+    if (actual !== want) {
+      throw new Error((msg || "valeur inattendue")
+        + " — attendu " + JSON.stringify(want) + ", obtenu " + JSON.stringify(actual));
+    }
+  }
+
   const SID = "SIDAAAAA";
   const SID2 = "SIDBBBBB";
   const LOCAL = "dddddddd-0000-0000-0000-000000000001";   /* Master + Capture */
@@ -475,6 +484,75 @@ function register(h) {
       return n ? n.textContent : "?";
     });
   }
+
+  /* J09-08c : le segment publié par une Capture doit atteindre la supervision
+   * Master's SANS être republié ni réinterprété par l'écran. Un champ perdu
+   * entre l'inbox et la vue serait un Master's affichant un segment sans son
+   * état — donc une segmentation qu'il ne peut pas nommer. */
+  describe("J09-08c mosaïque — l'état du segment publié traverse jusqu'à l'écran", () => {
+    function envSupervision(participants, loadCamera) {
+      const e = createEnv({});
+      const files = ["state/preview-inbox.js", "state/live-model.js", "ui/live.js"];
+      if (loadCamera !== false) {
+        files.push("state/camera-switch-model.js", "state/camera-state-inbox.js");
+      }
+      loadAll(e, files);
+      const model = e.window.MultiCamLiveModel;
+      model.bind({
+        localDid: LOCAL,
+        getParticipants: function (sid) { return sid === SID ? participants : []; }
+      });
+      model.setTake(SID, 7);
+      model.syncParticipants();
+      return { e, model };
+    }
+
+    it("C1. la supervision Master's lit le segment, son état et l'enregistrement", () => {
+      const parts = [{ deviceId: A, deviceName: A, role: "capture" }];
+      const { e, model } = envSupervision(parts);
+      const inbox = e.window.MultiCamCameraStateInbox;
+
+      /* Un `camera_state` de Capture, tel que le transport le délivre. */
+      if (!inbox.record({
+        sessionId: SID, deviceId: A, from: A,
+        availableCameras: ["REAR", "FRONT"],
+        activeCamera: "FRONT", requestedCamera: "FRONT",
+        segmentIndex: 2, segmentState: "recording", recording: true,
+        phase: "REC", atMs: 1000, updatedAtMs: 1000
+      })) throw new Error("camera_state refuse a tort");
+
+      const slot = model.view().slots.filter((s) => s.deviceId === A)[0];
+      if (!slot || !slot.camera) throw new Error("la supervision ignore l'etat recu");
+      eq(slot.camera.source, "supervision", "l'etat vient bien de la Capture distante");
+      eq(slot.camera.activeCamera, "FRONT");
+      eq(slot.camera.segmentIndex, 2, "le segment EN COURS est designe par son index");
+      eq(slot.camera.segmentState, "recording", "et son etat reel l'accompagne");
+      eq(slot.camera.recording, true, "le Master's voit que la Capture filme");
+    });
+
+    it("C2. apres le STOP : segmentIndex 0 et plus d'enregistrement suppose", () => {
+      const parts = [{ deviceId: A, deviceName: A, role: "capture" }];
+      const { e, model } = envSupervision(parts);
+      const inbox = e.window.MultiCamCameraStateInbox;
+
+      inbox.record({
+        sessionId: SID, deviceId: A, from: A, availableCameras: ["REAR"],
+        activeCamera: "REAR", segmentIndex: 1, segmentState: "recording",
+        recording: true, atMs: 1000, updatedAtMs: 1000
+      });
+      inbox.record({
+        sessionId: SID, deviceId: A, from: A, availableCameras: ["REAR"],
+        activeCamera: "REAR", segmentIndex: 0, segmentState: "",
+        recording: false, atMs: 2000, updatedAtMs: 2000
+      });
+
+      const c = model.view().slots.filter((s) => s.deviceId === A)[0].camera;
+      eq(c.segmentIndex, 0, "le STOP est visible : plus aucun segment en cours");
+      eq(c.segmentState, "", "et il ne reste pas un etat fantome");
+      eq(c.recording, false,
+        "un Master's ne doit pas croire qu'un enregistrement existe encore");
+    });
+  });
 
   describe("J09-05 mosaïque — rendu DOM (projection du modèle)", () => {
     it("M17. 2 Captures -> DEUX vignettes rendues, dans l'ordre, en-tête écrit", () => {

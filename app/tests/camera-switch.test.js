@@ -1762,6 +1762,260 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
     });
   });
 
+  describe("J09-08c · publication réseau — le segment et la caméra RÉELS", () => {
+    /* Ce que la Capture DIFFUSE n'a rien à voir avec ce qu'elle INTENTIONNE.
+     * On vérifie donc le dernier `camera_state` émis, pas l'écran : un Master's
+     * ne peut afficher que ce qui a été publié. */
+    async function top(env) {
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      /* Le plan de START sonde l'inventaire avant d'enregistrer : ce que la
+       * Capture publie doit déjà porter un inventaire PROBE, jamais une liste
+       * de caméras « connues puis devinées ». */
+      await adv(env, () => env.svc.refreshAvailability());
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      return env;
+    }
+    function nameFile(env, n) { env.CameraPreview.videoPath = "file:///cache/videoTmp_" + n + ".mp4"; }
+    function pub(env, reason) {
+      const all = reqs(env, "camera_state");
+      const found = reason ? all.filter((p) => p.env.reason === reason) : all;
+      yes(found.length, "un camera_state a bien été publié" + (reason ? " (" + reason + ")" : ""));
+      return found[found.length - 1].env;
+    }
+    function noSegments(env, tag) {
+      const all = reqs(env, "camera_state");
+      for (let i = 0; i < all.length; i++) {
+        const e = all[i].env;
+        no("segments" in e, tag + ": aucun catalogue de segments n'est publié (paquet #" + i + ")");
+        no("currentSegment" in e, tag + ": le segment en cours ne voyage pas en clair");
+      }
+    }
+
+    /* ---------- A · ouverture du segment 1 ---------- */
+
+    it("A. REC démarre : activeCamera confirmée, segmentIndex 1, segmentState recording", async () => {
+      const env = await top(bootService());
+
+      const e = pub(env, "rec_started");
+      eq(e.activeCamera, "REAR", "la caméra publiée est celle RELUE au natif");
+      eq(e.segmentIndex, 1, "le segment EN COURS est le premier : l'index est né avec lui");
+      eq(e.segmentState, "recording");
+      eq(e.recording, true, "et l'enregistrement est une relecture, pas une intention");
+      eq((e.availableCameras || []).join(","), "REAR,FRONT",
+        "l'inventaire reste l'inventaire probes");
+      noSegments(env, "A");
+
+      /* Un Master's ne doit pas attendre la première bascule pour savoir que
+       * la Capture filme : sans cet événement, l'ouverture resterait invisible. */
+      eq(pub(env, "rec_started").atMs > 0, true, "l'instant de mesure accompagne l'état");
+    });
+
+    /* ---------- B et C · les bascules ---------- */
+
+    it("B. bascule réussie : nouvelle activeCamera, segmentIndex 2, recording", async () => {
+      const env = await top(bootService());
+      nameFile(env, 30);
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      yes(r.ok);
+
+      const e = pub(env, "switch_confirmed");
+      eq(e.activeCamera, "FRONT", "la caméra publiée est celle qui filme MAINTENANT");
+      eq(e.segmentIndex, 2, "le nouveau segment est N+1 : l'ancien index n'est pas recyclé");
+      eq(e.segmentState, "recording");
+      eq(e.recording, true);
+      noSegments(env, "B");
+    });
+
+    it("C. seconde bascule : segmentIndex 3, l'historique n'est pas transmis", async () => {
+      const env = await top(bootService());
+      nameFile(env, 31);
+      await adv(env, () => env.svc.requestSwitch("FRONT"));
+      await adv(env, () => env.svc.requestSwitch("REAR"));
+
+      const e = pub(env, "switch_confirmed");
+      eq(e.activeCamera, "REAR");
+      eq(e.segmentIndex, 3);
+      eq(e.segmentState, "recording");
+      noSegments(env, "C");
+      eq(env.svc.view().segments.length, 2,
+        "les deux segments clos existent côté Capture — et restent côté Capture");
+    });
+
+    /* ---------- D · STOP ---------- */
+
+    it("D. STOP : segmentIndex 0 et segmentState vide, sans inventer de segment", async () => {
+      const env = await top(bootService());
+      nameFile(env, 32);
+
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((res) => { env.svc.onRecordingStopped(res); }));
+
+      const e = pub(env, "stop");
+      eq(e.segmentIndex, 0, "plus aucun segment en cours : 0, pas le dernier index vu");
+      eq(e.segmentState, "", "et pas un état fantou");
+      eq(e.recording, false, "le REC est fini : la relecture le dit");
+      eq(e.activeCamera, "REAR", "la caméra reste un fait, même après la clôture");
+      noSegments(env, "D");
+    });
+
+    it("D2. STOP en échec : le segment reste en failed, il n'est ni effacé ni maquillé", async () => {
+      const env = await top(bootService());
+      nameFile(env, 33);
+      env.CameraPreview.failStop = "STOP_TIMEOUT";
+
+      let failed = null;
+      try {
+        await adv(env, () => env.MultiCamCameraRecord.stopRecording());
+      } catch (e) {
+        failed = e;
+      }
+      yes(failed, "l'arrêt a bien échoué");
+      env.svc.onRecordingStopFailed(failed || {});
+
+      const e = pub(env, "stop_failed");
+      eq(e.segmentIndex, 1, "le segment existe encore : sa fin est inconnue, pas fausse");
+      eq(e.segmentState, "failed");
+      eq(e.recording, true,
+        "le natif dit que le recorder tourne : le publié doit le dire aussi, "
+        + "sinon le Master's croit à un silence alors qu'un fichier s'écrit");
+      noSegments(env, "D2");
+    });
+
+    /* ---------- E et F · échecs ---------- */
+
+    it("E. restart_failed après bascule native confirmée : la NOUVELLE caméra est publiée", async () => {
+      const env = await top(bootService());
+      nameFile(env, 34);
+      env.CameraPreview.failRecord = true;   /* KO avant création du segment */
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok);
+      eq(r.code, "restart_failed");
+
+      const e = pub(env, "switch_failed");
+      eq(e.activeCamera, "FRONT",
+        "le natif a ouvert la FRONT : l'ancien REAR ne peut plus être publié");
+      eq(e.segmentIndex, 0, "aucun segment n'a été créé : il n'y a rien à nommer");
+      eq(e.segmentState, "", "donc pas de « failed » sur un segment imaginaire");
+      eq(e.recording, false);
+    });
+
+    it("E2. restart_failed APRÈS création : segment failed, segmentIndex 2", async () => {
+      const env = await top(bootService());
+      nameFile(env, 35);
+      env.CameraPreview.nextPath = "file:///cache/videoTmp_36.mp4";
+      env.CameraPreview.failRecordAfterStart = true;
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok);
+      eq(r.code, "restart_failed");
+
+      const e = pub(env, "switch_failed");
+      eq(e.activeCamera, "FRONT");
+      eq(e.segmentIndex, 2, "le segment a bien été ouvert par le natif : il est nommé");
+      eq(e.segmentState, "failed", "et sa fin est inconue, ce qui se dit");
+      eq(e.recording, true);
+    });
+
+    it("F. bascule native KO : la caméra DEMANDÉE n'est jamais publiée comme active", async () => {
+      const env = await top(bootService());
+      nameFile(env, 37);
+      env.CameraPreview.failSwitch = true;
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok);
+
+      const e = pub(env, "switch_failed");
+      eq(e.activeCamera, "REAR", "l'actif reste la caméra qui filme réellement");
+      no(e.activeCamera === "FRONT",
+        "une caméra demandée n'est un fait qu'une fois relue au natif");
+      eq(e.requestedCamera, "FRONT",
+        "la DEMANDE reste publiée comme demande : c'est le seul endroit où elle a sa place");
+      /* Le segment 1 avait été RÉELLEMENT clôturé avant la bascule (son fichier
+       * existe, il est indexé) et le redémarrage n'a jamais eu lieu : aucun
+       * segment n'est donc en cours. Publier 1/« recording » inventerait un
+       * enregistrement qui n'existe pas. */
+      eq(e.segmentIndex, 0, "plus de segment en cours : l'index du dernier segment clos "
+        + "ne peut pas servir d'index courant");
+      eq(e.segmentState, "");
+      eq(e.recording, false, "et plus rien n'enregistre — le natif le dit");
+      eq(env.svc.view().segments.map((sg) => sg.segmentIndex + ":" + sg.state).join(","), "1:closed",
+        "le fichier réellement produit reste nommé, en historique");
+    });
+
+    /* ---------- G · réception côté Master's ---------- */
+
+    it("G. le Master's conserve EXACTEMENT ce qui a été publié", async () => {
+      const env = await top(bootService());
+      const inbox = env.MultiCamCameraStateInbox;
+      nameFile(env, 38);
+      await adv(env, () => env.svc.requestSwitch("FRONT"));
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((res) => { env.svc.onRecordingStopped(res); }));
+
+      /* On rejoue ce que le transport transmet : l'enveloppe ajoute `from`
+       * (l'auteur) et son instant de réception, jamais un fait de segment. */
+      const states = reqs(env, "camera_state");
+      yes(states.length >= 3, "ouverture, bascule et STOP ont tous publié");
+      let t = 1000;
+      states.forEach((p) => {
+        t += 100;
+        yes(inbox.record(Object.assign({ from: p.env.deviceId, updatedAtMs: t }, p.env)),
+          "un paquet bien formé est retenu");
+      });
+
+      const s = inbox.forDevice(env.svc.view().deviceId, SID);
+      const last = states[states.length - 1].env;
+      eq(s.activeCamera, last.activeCamera, "la caméra confirmée, ni plus ni moins");
+      eq(s.segmentIndex, last.segmentIndex);
+      eq(s.segmentState, last.segmentState);
+      eq(s.recording, last.recording);
+      eq(s.availableCameras.join(","), (last.availableCameras || []).join(","));
+      eq(s.segmentIndex, 0, "et le Master's sait que le Take s'est arrêté");
+      eq(s.recording, false);
+    });
+
+    it("G2. l'inbox refuse un segmentState inconnu et garde le précédent", async () => {
+      const env = await top(bootService());
+      const inbox = env.MultiCamCameraStateInbox;
+      const did = env.svc.view().deviceId;
+
+      function in4(o) {
+        return inbox.record(Object.assign({
+          sessionId: SID, deviceId: did, from: did,
+          activeCamera: "REAR", availableCameras: ["REAR", "FRONT"],
+          segmentIndex: 1, segmentState: "recording", recording: true,
+          updatedAtMs: 2000
+        }, o));
+      }
+
+      yes(in4({}), "un état complet passe");
+      eq(inbox.forDevice(did, SID).segmentState, "recording");
+
+      /* Un vocabulaire qu'aucun segment ne peut produire : on ne l'invente pas. */
+      yes(in4({ segmentState: "RECHARGEMENT" }), "le paquet reste recevable");
+      eq(inbox.forDevice(did, SID).segmentState, "recording",
+        "mais l'état précédent est conservé : un mot inconnu ne l'écrase pas");
+
+      /* `recording` doit être un booléen : une chaîne n'est pas une preuve. */
+      yes(in4({ recording: "true", updatedAtMs: 2200 }), "paquet recevable");
+      eq(inbox.forDevice(did, SID).recording, true,
+        "et l'enregistrement connu reste le seul fait retenu");
+
+      /* La chaîne VIDE, elle, est une publication : « plus aucun segment ». */
+      yes(in4({ segmentIndex: 0, segmentState: "", recording: false, updatedAtMs: 2400 }),
+        "le STOP est recevable");
+      const s = inbox.forDevice(did, SID);
+      eq(s.segmentIndex, 0);
+      eq(s.segmentState, "", "un segment terminé ne laisse pas d'état fantôme");
+      eq(s.recording, false, "et le Master's ne croit plus à un enregistrement");
+    });
+  });
+
   /* ══════════════════ B · mémoire de supervision ══════════════════ */
 
   describe("J09-07 · mémoire de supervision — convergence des Masters", () => {

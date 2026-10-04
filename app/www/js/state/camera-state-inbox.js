@@ -46,6 +46,34 @@
     return c || "";
   }
 
+  /* ---------- J09-08c : champs d'état du segment ----------
+   *
+   * Trois règles, appliquées sans exception :
+   *
+   *   - `recording` n'est retenu que s'il est un BOOLÉEN explicite. Le champ
+   *     est un état instantané, pas une croissance : le garder « vrai » faute de
+   *     information inventerait un enregistrement qui n'existe plus ;
+   *   - `segmentState` n'est retenu que s'il appartient au vocabulaire du
+   *     modèle. Un mot inconnu — ou un champ absent d'une Capture plus
+   *     ancienne — ne doit jamais atteindre l'écran sous une forme que personne
+   *     n'a prévue : l'état précédent est alors conservé, exactement comme pour
+   *     `segmentIndex`. Une chaîne VIDE reste acceptée : c'est la publication
+   *     « plus aucun segment en cours », pas une absence d'information ;
+   *   - aucun des deux ne passe par la règle de fraîcheur `newer`, qui est faite
+   *     pour l'annonce puis le résultat d'une bascule. Ces deux champs peuvent
+   *     RECULER légitimement : un STOP ramène `segmentIndex` à 0,
+   *     `segmentState` à "" et `recording` à false. Un paquet retardé ne doit
+   *     donc pas ressusciter un état antérieur. */
+  /* `null` = rien de recevable (champ absent, vocabulaire inconnu, modèle
+   * absent). La chaîne vide, elle, est une valeur : « aucun segment ». */
+  function safeSegmentState(v) {
+    var m = model();
+    if (!m || !m.SEG || typeof v !== "string") return null;
+    if (v === m.SEG.RECORDING || v === m.SEG.CLOSED || v === m.SEG.FAILED) return v;
+    if (v === "") return "";
+    return null;
+  }
+
   function safeCameras(v) {
     var m = model();
     if (!m || !Array.isArray(v)) return [];
@@ -74,7 +102,8 @@
     var prev = BY_DEVICE[did] || {
       deviceId: did, sessionId: "", takeNumber: null,
       availableCameras: [], requestedCamera: "", switchingCamera: "",
-      activeCamera: "", segmentIndex: 0, switchCount: 0,
+      activeCamera: "", segmentIndex: 0, segmentState: "", recording: false,
+      switchCount: 0,
       lastError: "", lastErrorCode: "", lastSwitchDurationMs: 0,
       updatedAtMs: 0, atMs: 0, phase: ""
     };
@@ -96,8 +125,16 @@
       requestedCamera: newer ? (requested || prev.requestedCamera) : prev.requestedCamera,
       switchingCamera: newer ? switching : prev.switchingCamera,
       activeCamera: newer ? (active || prev.activeCamera) : prev.activeCamera,
+      /* `segmentIndex` = index du segment EN COURS, 0 s'il n'y en a pas. C'est
+       * un état instantané comme les deux suivants : il RECULE au STOP, donc il
+       * ne passe pas par `newer`. */
       segmentIndex: isNum(env.segmentIndex) && env.segmentIndex >= 0
         ? Math.round(env.segmentIndex) : prev.segmentIndex,
+      segmentState: (function () {
+        var seg = safeSegmentState(env.segmentState);
+        return (seg === null) ? prev.segmentState : seg;
+      })(),
+      recording: (typeof env.recording === "boolean") ? env.recording : prev.recording,
       switchCount: isNum(env.switchCount) && env.switchCount >= 0
         ? Math.round(env.switchCount) : prev.switchCount,
       lastError: newer ? (typeof env.lastError === "string" ? env.lastError : "") : prev.lastError,

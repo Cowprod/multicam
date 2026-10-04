@@ -399,6 +399,12 @@
             availableCameras: (v.availableCameras || []).slice(),
             busy: v.busy === true,
             segmentIndex: v.segmentIndex,
+            /* J09-08c : le segment réellement en cours, son état et la
+             * relecture native de l'enregistrement. Les trois voyagent de
+             * pair : un index sans état laisse supposer un enregistrement
+             * que le Master's ne peut pas voir. */
+            segmentState: v.segmentState || "",
+            recording: v.recording === true,
             lastError: v.lastError || "",
             lastErrorCode: v.lastErrorCode || "",
             lastSwitchDurationMs: v.lastSwitchDurationMs,
@@ -418,6 +424,10 @@
           availableCameras: (r.availableCameras || []).slice(),
           busy: r.busy === true,
           segmentIndex: r.segmentIndex,
+          /* Mêmes trois champs que la branche locale : la supervision
+           * affiche ce que la Capture a publié, ni plus ni moins. */
+          segmentState: r.segmentState || "",
+          recording: r.recording === true,
           lastError: r.lastError || "",
           lastErrorCode: r.lastErrorCode || "",
           lastSwitchDurationMs: r.lastSwitchDurationMs,

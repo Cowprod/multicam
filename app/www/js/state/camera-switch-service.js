@@ -480,11 +480,27 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
         + " segmentIndex=" + m.currentIndex(s));
       return m.currentIndex(s);
     }
+    /* J09-08c : le segment qui s'ouvre PORTE la caméra relue au natif
+     * (J09-08b4). Publier « caméra inconnue » pour un segment dont on vient de
+     * lire la caméra serait un fait faux côté Master's. On converge donc vers
+     * CETTE relecture — jamais vers une demande, et sans compter de bascule :
+     * il n'y en a pas eu. */
+    var confirmed = m.normalizeCamera(facing);
+    if (confirmed && !m.normalizeCamera(s.activeCamera)) {
+      s = m.applyConfirmed(s, confirmed, nowMs(), true);
+      set(s);
+      log("CAMERA_ACTIVE_ADOPT reason=segment_open camera=" + confirmed
+        + " source=native_readback");
+    }
     var next = m.openSegment(s, { camera: facing, startedAtMs: nowMs() });
     set(next);
     log("CAMERA_SEGMENT_OPEN segmentIndex=" + m.currentIndex(next)
       + " camera=" + (m.normalizeCamera(facing) || "—")
       + " take=" + (s.takeNumber == null ? "—" : s.takeNumber));
+    /* J09-08c : le segment vient d'OUVRIR. Sans cet événement, le Master's
+     * n'apprendrait l'existence du segment 1 qu'à la première bascule — donc
+     * des minutes entières, voire tout un plan. */
+    broadcastState("rec_started");
     return m.currentIndex(next);
   }
 
@@ -518,6 +534,7 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
         + " camera=" + ((failed.currentSegment && failed.currentSegment.camera) || "—")
         + " reason=" + (r.detail || "stop_unconfirmed")
         + " note=close_unconfirmed");
+      broadcastState("stop_unconfirmed");
       return failed.currentSegment;
     }
     var closed = m.closeCurrentSegment(s, {
@@ -531,6 +548,10 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
       + " path=" + (last.path || "—")
       + " state=" + last.state
       + " reason=stop");
+    /* J09-08c : plus aucun segment en cours → `segmentIndex` part à 0 et
+     * `segmentState` à "". C'est le seul moyen, pour un Master's, de savoir
+     * que le Take s'est arrêté sans attendre la prochaine bascule. */
+    broadcastState("stop");
     return last;
   }
 
@@ -556,6 +577,7 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
       + " reason=" + code
       + " recorderRunning=" + (e.recorderRunning === true ? 1 : 0)
       + " note=close_unconfirmed");
+    broadcastState("stop_failed");
     return failed.currentSegment;
   }
 
@@ -878,8 +900,23 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
       availableCameras: v.availableCameras,
       requestedCamera: v.requestedCamera,
       switchingCamera: v.switchingCamera,
+      /* `activeCamera` est la caméra RELUE au natif (J09-08b3), jamais la cible
+       * demandée. */
       activeCamera: v.activeCamera,
+      /* ---------- J09-08c : le segment publié EST le segment réel ----------
+       *
+       * `segmentIndex` désigne le segment EN COURS et vaut 0 quand il n'y en a
+       * pas — c'est le segment que le Master's doit pouvoir nommer, pas un
+       * compteur de fichiers déjà closed. `segmentState` en donne l'état réel
+       * (`recording` / `closed` / `failed`, "" si rien ne tourne), et `recording`
+       * est la RELECTURE native : sans elle, un Master ne peut pas distinguer
+       * « le segment est en échec » de « plus rien n'enregistre ».
+       *
+       * `segments[]` n'est PAS transmis : le protocole n'en a jamais eu besoin,
+       * et le catalogue média appartient à J10. */
       segmentIndex: v.segmentIndex,
+      segmentState: v.segmentState || "",
+      recording: v.recording === true,
       switchCount: v.switchCount,
       lastError: v.lastError,
       lastErrorCode: v.lastErrorCode,
