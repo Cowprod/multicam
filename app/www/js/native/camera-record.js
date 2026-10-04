@@ -751,18 +751,31 @@
       .then(function (closed) {
         /* --- 2. bascule --- */
         return switchCameraTo(facing).then(function (sw) {
-          /* --- 3. relecture INDÉPENDANTE de l'état natif --- */
+          /* --- 3. relecture INDÉPENDANTE de l'état natif --- *
+           *
+           * C'est LE POINT UNIQUE où la caméra active est confirmée, et il ne
+           * se trouve pas dans le callback de `switchCameraTo` : celui-ci peut
+           * annoncer une cible que le natif n'a pas atteinte (§35.1). La
+           * relecture, elle, fait foi — et elle corrige au passage le facing
+           * mémorisé, que le callback optimiste venait d'écrire. */
           return getCameraState().then(function (nat) {
             if (!nat.available) {
+              /* Relecture IMPOSSIBLE : rien n'est confirmé, donc rien n'est
+               * rapporté. `facts.to` reste vide et l'appelant garde son état —
+               * fail closed, plutôt qu'un facing deviné. */
               throw nativeError("state_unavailable", "getCameraState a échoué: " + (nat.reason || "—"));
             }
+            /* J09-08b3 : `to` est la caméra RÉELLEMENT active, lue au natif —
+             * jamais la caméra DEMANDÉE. Les deux diffèrent quand le pilote
+             * n'atterrit pas sur la cible : c'est alors la relecture qui
+             * devient le fait à publier, y compris sur un échec. */
+            facts.to = nat.facing;
             if (nat.facing !== fromDir(facing)) {
               throw nativeError("switch_failed",
                 "relecture native " + (nat.facing || "—") + " != demandé " + fromDir(facing));
             }
             /* La caméra d'arrivée est CONFIRMÉE : c'est elle qu'un éventuel
              * segment N+1 portera, jamais la caméra demandée. */
-            facts.to = nat.facing;
             return { closed: closed, sw: sw, nat: nat };
           });
         });
@@ -772,7 +785,10 @@
         if (!wasRecording) {
           return {
             ok: true, segmented: false, restarted: false,
-            from: fromFacing, to: fromDir(facing),
+            /* J09-08b3 : `to` vient de la RELECTURE (fait), jamais de la cible
+             * demandée (intention) — même quand il n'y a pas de segmentation,
+             * la caméra publiée doit être celle qui filme. */
+            from: fromFacing, to: facts.to,
             closedPath: r.closed.closed,
             /* J09-08b1 : l'instant de clôture du fichier doit remonter avec lui,
              * sinon le segment clôturé par la bascule porterait un `stoppedAt`
@@ -805,7 +821,7 @@
           facts.recorderStarted = true;
           return {
             ok: true, segmented: true, restarted: true,
-            from: fromFacing, to: facts.to || fromDir(facing),
+            from: fromFacing, to: facts.to,
             closedPath: facts.closedPath,
             closedAtMs: facts.closedAtMs || 0,
             closedConfirmed: true,

@@ -268,7 +268,13 @@ function fakeCameraPreview(env, opts) {
       later(() => {
         if (api.failSwitch) { if (ko) ko(api.failSwitch); return; }
         const already = facing === api.activeFacing;
-        api.activeFacing = facing;
+        /* J09-08b3 : un natif peut NE PAS atterrir sur la cible demandée
+         * (caméra absente, repli du pilote). Le callback continue d'annoncer la
+         * cible — c'est bien ce que ferait un plugin qui se trompe — mais
+         * `getCameraState` rend la vérité, et c'est elle qui doit faire foi.
+         * `switchLandsOn` simule ce cas ; par défaut le natif atterrit bien
+         * sur la cible. */
+        api.activeFacing = api.switchLandsOn || facing;
         api.switchCount += 1;
         if (ok) ok({
           facing: facing,
@@ -308,6 +314,9 @@ function fakeCameraPreview(env, opts) {
    * « bascule refusée par le natif » sans bricoler le faux. */
   api.physicalCameras = (opts.physicalCameras || ["back", "front"]).slice();
   api.activeFacing = opts.activeFacing || "back";
+  /* J09-08b3 : facing réellement atteint par `switchCameraTo`, alors que le
+   * callback en annonce toujours la cible. */
+  api.switchLandsOn = opts.switchLandsOn || "";
   api.nativeResolutions = opts.nativeResolutions || ["1920x1080", "1280x720"];
   api.recording = !!opts.recording;
   api.recordingPath = opts.recordingPath || "";

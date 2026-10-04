@@ -326,11 +326,39 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
        * décident si un index a été consommé. */
       var before = m.currentIndex(next);
       next = reconcileSegments(m, next, err || {}, code, nowMs());
+      /* ---------- J09-08b3 : la caméra ACTIVE, elle, est un fait séparé ----------
+       *
+       * Un échec de bascule ne dit RIEN de la caméra : le natif a pu basculer
+       * et n'avoir échoué qu'au redémarrage du recorder. `facts.to` est la
+       * RELECTURE — la seule preuve — et elle fait foi même quand l'opération
+       * d'ensemble est un échec. Sans cette adoption, l'écran annonçait l'ancienne
+       * caméra pendant que l'appareil filmait avec l'autre : un état faux, et
+       * faux dans le sens le plus coûteux, puisqu'il ordonne au Master's de
+       * recadrer une image qu'il ne voit pas.
+       *
+       * `facts.to` vide (bascule native refusée, relecture impossible) →
+       * RIEN n'est adopté : l'ancienne valeur reste, et elle est encore la
+       * bonne. Aucune valeur n'est jamais déduite de la caméra demandée. */
+      var confirmed = (err && err.to) || "";
+      if (confirmed) {
+        var previousCamera = next.activeCamera;
+        next = m.applyConfirmed(next, confirmed, nowMs(), true);
+        if (next.activeCamera !== previousCamera) {
+          log("CAMERA_ACTIVE_ADOPT code=" + code
+            + " from=" + (previousCamera || "—")
+            + " to=" + next.activeCamera
+            + " note=native_readback");
+        }
+      }
       set(next);
       log("CAMERA_SWITCH_FAIL commandId=" + (cmd.commandId || "—")
         + " code=" + code + " requested=" + requested
+        /* `active` est la caméra RÉELLEMENT lue au natif, adoptée ou non : c'est
+         * le seul champ qui distingue « rien n'a bougé » de « ça a basculé puis
+         * le recorder n'a pas redémarré ». */
         + " active=" + (next.activeCamera || "—")
         + " recording=" + (recordingNow() ? 1 : 0)
+        + " segmentState=" + (next.currentSegment ? (next.currentSegment.state || "—") : "none")
         + " segmentIndex=" + before + "→" + m.currentIndex(next)
         + " err=" + String((err && err.message) || err));
       /* L'échantillonnage ne reprend QUE si un recorder tourne encore : sinon il

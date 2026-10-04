@@ -1152,14 +1152,12 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
       const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
       no(r.ok, "le switch doit échouer");
       eq(r.code, "restart_failed", "et le motif est celui du REDÉMARRAGE, pas un refus générique");
-      /* La caméra PUBLIÉE reste l'ancienne : c'est le contrat J09-07 inchangé
-       * (« un échec laisse l'état exactement où il était »), et ce jalon ne
-       * touche pas au contrat de l'ACK. L'écart avec le natif — qui a, lui,
-       * basculé et l'a confirmé — est RÉEL et reste à arbitrer plus tard ; il
-       * est signalé ici pour qu'on ne le croie pas résolu. Le segment en échec,
-       * lui, porte la caméra confirmée (C1) : le lien index → fichier, lui, est
-       * exact. */
-      eq(r.camera, "REAR", "la caméra publiée ne bouge pas sur un échec");
+      /* J09-08b3 : la bascule NATIVE a réussi et la relecture l'atteste. Le
+       * redémarrage, lui, a échoué — ce sont deux faits distincts, et c'est la
+       * caméra qui l'emporte : la cible est publiée. La segmentation reste
+       * celle de J09-08b2 (rien n'est ouvert, aucun index consommé). */
+      eq(r.camera, "FRONT", "la caméra publiée est celle qui FILME, pas celle qui filmeait");
+      eq(env.svc.view().activeCamera, "FRONT", "et l'état du service l'a adoptée, lui aussi");
 
       const v = env.svc.view();
       eq(hist(v), "1", "N rejoint l'historique : un fichier réellement produit ne peut pas être perdu");
@@ -1169,6 +1167,8 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
       eq(v.currentSegment, null, "AUCUN N+1 fantôme : rien n'a été créé");
       eq(v.segmentIndex, 0);
       eq(v.segmentState, "");
+      eq(v.activeCamera, "FRONT",
+        "le natif confirme FRONT : même sans segment ouvert, c'est la caméra publiée");
       no(env.MultiCamCameraRecord.isRecording(), "le natif confirme qu'aucun recorder ne tourne");
       yes(uniq(v));
     });
@@ -1225,6 +1225,8 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
       eq(v.currentSegment.state, "failed", "mais sa fin n'est pas confirmée : il est marqué en échec");
       eq(v.segmentState, "failed");
       eq(v.currentSegment.camera, "FRONT", "il porte la caméra CONFIRMÉE, jamais la demandée");
+      eq(v.activeCamera, "FRONT",
+        "et l'ACTIF va dans le même sens : un seul fait, pas deux caméras en conflit");
       eq(v.currentSegment.path, "file:///cache/videoTmp_61.mp4", "son chemin est conservé quand il est connu");
       eq(v.currentSegment.failureCode, "restart_failed");
       yes(v.currentSegment.failedAtMs > 0);
@@ -1446,6 +1448,186 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
       eq(err.closedPath, "");
       eq(err.recorderStarted, false, "et surtout AUCUNE preuve de création : rien ne sera ouvert");
       yes(env.rec.isRecording(), "le recorder d'origine n'a pas été touché");
+    });
+  });
+
+  /* ══════════════════ J09-08b3 · cohérence de `activeCamera` ══════════════════ */
+
+  /* Une bascule est une opération en DEUX temps : le natif change de caméra,
+   * puis le recorder repart sur la nouvelle. Ces deux temps peuvent réussir ou
+   * échouer séparément — et l'échec du second ne dit rien du premier.
+   *
+   * Tant que `activeCamera` a suivi le résultat GLOBAL de l'opération, un
+   * `restart_failed` annonçait au Master's l'ancienne caméra pendant que
+   * l'appareil filmait avec l'autre. Un Master's qui recadre sur cette valeur
+   * cadre une image qu'il n'a pas : l'erreur coûte cher, en temps de tournage.
+   *
+   * Ces tests fixent donc la règle unique : **`activeCamera` est la caméra lue
+   * au natif, jamais l'intention.** Elle est la SEULE authority qui décide, et
+   * elle reste vraie que le redémarrage réussisse ou échoue. */
+  describe("J09-08b3 · cohérence de `activeCamera` après une bascule", () => {
+    async function top(env) {
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      return env;
+    }
+    function nameFile(env, n) { env.CameraPreview.videoPath = "file:///cache/videoTmp_" + n + ".mp4"; }
+    function hist(v) { return v.segments.map((s) => s.segmentIndex).join(","); }
+
+    /* ---------- A · les deux temps réussissent ---------- */
+
+    it("A. switch natif OK + restart OK : activeCamera = cible et recording = true", async () => {
+      const env = await top(bootService());
+      nameFile(env, 80);
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      yes(r.ok, "rien n'a échoué : l'ACK est un succès");
+      eq(r.camera, "FRONT");
+      const v = env.svc.view();
+      eq(v.activeCamera, "FRONT");
+      yes(v.recording, "le recorder repart, et c'est dit");
+      eq(v.segmentState, "recording");
+      eq(v.segmentIndex, 2, "l'indexation reste celle de J09-08b1");
+      eq(hist(v), "1");
+    });
+
+    /* ---------- B · la bascule réussit, le redémarrage échoue ---------- */
+
+    it("B. switch OK + restart KO AVANT création : la cible est publiée, rien n'est ouvert", async () => {
+      const env = await top(bootService());
+      nameFile(env, 81);
+      env.CameraPreview.failRecord = true;
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok, "le redémarrage a échoué : l'ACK reste un ÉCHEC");
+      eq(r.code, "restart_failed");
+      eq(r.camera, "FRONT", "la caméra publiée est celle que le natif a réellement ouverte");
+      const v = env.svc.view();
+      eq(v.activeCamera, "FRONT");
+      no(v.recording, "et rien n'enregistre : aucun faux ACCÈS au REC");
+      eq(v.currentSegment, null, "aucun segment n'a été créé, donc rien à publier comme failed");
+      eq(v.segmentState, "");
+      eq(hist(v), "1", "le fichier réellement produit reste à l'histoire");
+    });
+
+    it("B'. switch OK + restart KO APRÈS création : segment failed, et le REC reste le fait relu", async () => {
+      const env = await top(bootService());
+      nameFile(env, 82);
+      env.CameraPreview.nextPath = "file:///cache/videoTmp_83.mp4";
+      env.CameraPreview.failRecordAfterStart = true;
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok, "l'opération d'ensemble reste un échec — on n'invente pas de succès");
+      eq(r.code, "restart_failed");
+      eq(r.camera, "FRONT");
+      const v = env.svc.view();
+      eq(v.activeCamera, "FRONT");
+      eq(v.segmentState, "failed", "le segment existe et sa fin est inconnue : il le dit");
+      eq(v.currentSegment.camera, "FRONT", "segment et actif portent la MÊME caméra");
+      eq(v.currentSegment.path, "file:///cache/videoTmp_83.mp4");
+      /* Le natif, relu, dit qu'un recorder tourne. Le publier `false` serait un
+       * menteur d'un autre genre : le Master's croirait à tort que rien
+       * n'écrit sur la carte pendant qu'un fichier s'écrit. `recording` est donc
+       * le FAIT, et l'honnêteté se paie ici par `ok:false` + `segmentState`. */
+      yes(v.recording, "la relecture dit qu'un recorder tourne : on ne le déclare pas arrêté");
+      yes(env.MultiCamCameraRecord.isRecording(), "et le wrapper lui non plus");
+    });
+
+    /* ---------- C · la bascule native échoue ---------- */
+
+    it("C. switch natif KO : activeCamera reste l'ancienne caméra RÉELLEMENT active", async () => {
+      const env = await top(bootService());
+      nameFile(env, 84);
+      /* Une bascule réussie d'abord, pour que « l'ancienne » ne soit pas REAR. */
+      yes((await adv(env, () => env.svc.requestSwitch("FRONT"))).ok);
+      eq(env.svc.view().activeCamera, "FRONT");
+
+      env.CameraPreview.failSwitch = "CAMERA_DISCONNECTED";
+      const r = await adv(env, () => env.svc.requestSwitch("REAR"));
+      no(r.ok);
+      eq(r.code, "switch_failed");
+      eq(r.camera, "FRONT",
+        "la cible REAR n'a jamais été ouverte : elle ne peut pas devenir l'actif");
+      eq(env.svc.view().activeCamera, "FRONT", "l'actif reste donc FRONT — la vérité");
+    });
+
+    /* ---------- D · la relecture fait foi ---------- */
+
+    it("D. callback et relecture CONTRADICTOIRES : c'est la relecture qui fait foi", async () => {
+      /* Le faux annonce la cible dans son callback mais n'atterrit pas dessus :
+       * c'est le cas réel d'un pilote qui revient en arrière. */
+      const env = await enterRec(bootRecord({ switchLandsOn: "back" }));
+      await native(env, () => env.rec.prepare({ startPlanId: "P1" }));
+      await native(env, () => env.rec.startRecording({ startPlanId: "P1", takeNumber: TAKE }));
+
+      let err = null;
+      try { await native(env, () => env.rec.switchSegmented({ camera: "front" })); }
+      catch (e) { err = e; }
+      yes(err, "la commande n'a pas été exécutée comme demandée : elle échoue");
+      eq(err.code, "switch_failed");
+      eq(err.to, "REAR", "le fait rapporté est la caméra RELUE, pas celle demandée");
+      eq(env.rec.view().activeFacing, "REAR",
+        "et le facing mémorisé suit la relecture : le callback optimiste n'a pas fait foi");
+    });
+
+    /* ---------- E · demandé ≠ confirmé ---------- */
+
+    it("E. requestedCamera != confirmedCamera : activeCamera = confirmedCamera, jamais la cible", async () => {
+      const env = await top(bootService());
+      nameFile(env, 85);
+      /* Le device est en REAR et la cible FRONT, mais le natif ne bouge pas. */
+      env.CameraPreview.switchLandsOn = "back";
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok);
+      eq(r.code, "switch_failed");
+      eq(r.camera, "REAR", "la cible demandée n'est jamais adoptée comme active");
+      const v = env.svc.view();
+      eq(v.activeCamera, "REAR");
+      eq(v.requestedCamera, "FRONT", "la DEMANDE reste tracée : elle ne vaut pas fait");
+      eq(v.switchingCamera, "", "et plus aucune bascule n'est en vol");
+      eq(v.segments[0].camera, "REAR", "le segment clos garde SA caméra de départ");
+      no(v.recording, "le natif confirme qu'aucun recorder ne tourne");
+    });
+
+    /* ---------- F · l'indexation n'a pas bougé ---------- */
+
+    it("F. l'adoption de la caméra ne consomme AUCUN index", async () => {
+      /* B : rien n'est créé → le suivant reste N+1. */
+      const b = await top(bootService());
+      nameFile(b, 86);
+      b.CameraPreview.failRecord = true;
+      no((await adv(b, () => b.svc.requestSwitch("FRONT"))).ok);
+      eq(b.svc.view().activeCamera, "FRONT", "la caméra, elle, a bien bougé");
+      eq(hist(b.svc.view()), "1");
+      eq(b.svc.view().segmentIndex, 0);
+
+      b.CameraPreview.failRecord = false;
+      nameFile(b, 87);
+      await adv(b, () => b.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      b.svc.onRecordingStarted();
+      eq(b.svc.view().segmentIndex, 2, "le prochain segment est N+1 : aucun numéro sauté");
+
+      /* B' : un N+1 réel existe → le suivant est N+2. */
+      const c = await top(bootService());
+      nameFile(c, 88);
+      c.CameraPreview.failRecordAfterStart = true;
+      no((await adv(c, () => c.svc.requestSwitch("FRONT"))).ok);
+      eq(c.svc.view().segmentIndex, 2, "le N+1 réel garde son index");
+      eq(c.svc.view().activeCamera, "FRONT");
+
+      c.CameraPreview.failRecordAfterStart = false;
+      nameFile(c, 89);
+      const ok = await adv(c, () => c.svc.requestSwitch("REAR"));
+      yes(ok.ok, "la bascule suivante repart d'un état cohérent");
+      eq(ok.closedSegmentIndex, 2, "c'est le N+1 en échec qui est clos");
+      eq(ok.segmentIndex, 3, "et le nouveau fichier est N+2");
+      eq(hist(c.svc.view()), "1,2", "l'historique reste ordonné et sans trou");
     });
   });
 
