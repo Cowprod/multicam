@@ -1631,6 +1631,137 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
     });
   });
 
+  /* ══════════════════ J09-08b4 · plus de caméra demandée ══════════════════ */
+
+  /* Au top d'un Take, la caméra demandée n'est qu'une INTENTION : le natif a pu
+   * ouvrir l'autre (§35.1 — c'est même pour ça que la bascule ciblee existe).
+   * `startRecording` gardait pourtant ce filet : `activeFacing || demande ||
+   * "REAR"`. Une intention utilisée comme fait a deux conséquences concretes :
+   *
+   *   - le segment 1 se voyait attribuer REAR alors que personne n'avait vu
+   *     quelle caméra filme ;
+   *   - le Master's ne pouvait plus distinguer « filmé en REAR » de « non
+   *     vérifié » : l'erreur devenait invisible au lieu d'être visible.
+   *
+   * Ces tests vérifient qu'une caméra inconnue reste inconnue, et que seule une
+   * RELECTURE — jamais une demande, jamais une constante — peut renseigner le
+   * premier segment d'un Take. */
+  describe("J09-08b4 · la caméra d'un segment ne peut pas venir d'une demande", () => {
+    async function top(env) {
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      return env;
+    }
+
+    /* ---------- A · le natif a parlé ---------- */
+
+    it("A. facing natif connu : le segment 1 porte la caméra RELUE", async () => {
+      const env = await top(bootService());
+
+      eq(env.MultiCamCameraRecord.view().activeFacing, "REAR",
+        "la relecture de préparation a établi le fait");
+      const v = env.svc.view();
+      eq(v.currentSegment.segmentIndex, 1);
+      eq(v.currentSegment.camera, "REAR", "le segment porte la caméra réellement ouverte");
+      eq(env.CameraPreview.lastRecordOptions.cameraDirection, "back",
+        "le natif reçoit la direction confirmée");
+      /* `activeCamera` du MODÈLE reste vide au top : c'est le comportement J09-07
+       * documenté en S8b — il se remplit à la première relecture de service ou
+       * à la première bascule. Ce qui compte ici, c'est que la valeur qu'il
+       * prendra ensuite soit le MÊME fait, jamais la demande. */
+      await adv(env, () => env.svc.syncActiveCamera());
+      eq(env.svc.view().activeCamera, "REAR",
+        "l'actif vient de la relecture, il ne dérive pas de la demande");
+    });
+
+    /* ---------- B et C · le natif n'a rien dit ---------- */
+
+    it("B. facing natif INCONNU + demande REAR : le segment ne peut pas valoir REAR", async () => {
+      const env = await top(bootService({ failState: "STATE_KO" }));
+
+      eq(env.MultiCamCameraRecord.view().activeFacing, "",
+        "aucune relecture n'a abouti : la caméra reste inconnue");
+      eq(env.CameraPreview.lastRecordOptions.cameraDirection, "",
+        "et le natif ne reçoit AUCUNE direction : pas de REAR fabriqué");
+      const v = env.svc.view();
+      no(v.currentSegment.camera === "REAR", "la demande ne vaut pas preuve de caméra active");
+      eq(v.currentSegment.camera, "", "le segment assume son caméra inconnue");
+      eq(v.segmentIndex, 1, "le segment existe et reste numéroté : l'inconnu n'est pas un trou");
+      yes(env.MultiCamCameraRecord.isRecording(), "l'enregistrement, lui, a bien démarré");
+    });
+
+    it("C. facing natif INCONNU + demande FRONT : le segment ne peut pas valoir FRONT", async () => {
+      const env = await bootService({ failState: "STATE_KO" });
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      /* La caméra demandée est le FRONT : c'est elle qu'un repli laisserait
+       * fuiter si l'inconnu n'était pas respecté. */
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE, camera: "FRONT"
+      }));
+      env.svc.onRecordingStarted();
+
+      eq(env.CameraPreview.lastRecordOptions.cameraDirection, "",
+        "aucune direction n'est transmise : ni back, ni front");
+      const v = env.svc.view();
+      no(v.currentSegment.camera === "FRONT", "une intention ne devient jamais un fait");
+      eq(v.currentSegment.camera, "");
+      eq(v.segmentIndex, 1);
+    });
+
+    /* ---------- D · la relecture arrive à temps ---------- */
+
+    it("D. relecture native disponible au démarrage : c'est sa valeur qui prevails", async () => {
+      const env = bootService({ failState: "STATE_KO" });
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      eq(env.MultiCamCameraRecord.view().activeFacing, "", "au départ, rien n'est connu");
+
+      /* Le natif redevient lisible, et il filme en FRONT — alors que le plan
+       * demande REAR. C'est le cas réel : une caméra verrouillée par un autre
+       * processus, ou un pilote qui impose son choix. */
+      env.CameraPreview.failState = null;
+      env.CameraPreview.activeFacing = "front";
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE, camera: "REAR"
+      }));
+      env.svc.onRecordingStarted();
+
+      eq(env.MultiCamCameraRecord.view().activeFacing, "FRONT",
+        "la relecture fait foi, et la demande REAR n'a rien dit");
+      eq(env.CameraPreview.lastRecordOptions.cameraDirection, "front",
+        "la direction transmise est celle RELUE, pas celle demandée");
+      eq(env.svc.view().currentSegment.camera, "FRONT",
+        "le segment porte la caméra qui filme réellement");
+      await adv(env, () => env.svc.syncActiveCamera());
+      eq(env.svc.view().activeCamera, "FRONT",
+        "et l'actif converge vers le même fait — surtout pas vers le REAR demandé");
+    });
+
+    /* ---------- E · rien d'autre n'a bougé ---------- */
+
+    it("E. le switch normal et les index sont intacts", async () => {
+      const env = await top(bootService());
+
+      const a = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      yes(a.ok);
+      eq(env.CameraPreview.lastRecordOptions.cameraDirection, "front",
+        "après une bascule confirmée, la direction est celle du facing confirmé");
+      const b = await adv(env, () => env.svc.requestSwitch("REAR"));
+      yes(b.ok);
+      eq(env.CameraPreview.lastRecordOptions.cameraDirection, "back");
+
+      const v = env.svc.view();
+      eq(v.segments.map((s) => s.segmentIndex).join(","), "1,2", "deux segments clôturés, dans l'ordre");
+      eq(v.segments.map((s) => s.camera).join(","), "REAR,FRONT",
+        "chacun porte la caméra qui a réellement filmé");
+      eq(v.segmentIndex, 3, "le segment en cours est N+1 du dernier : aucun index consommé");
+      eq(v.currentSegment.camera, "REAR");
+      eq(v.activeCamera, "REAR");
+    });
+  });
+
   /* ══════════════════ B · mémoire de supervision ══════════════════ */
 
   describe("J09-07 · mémoire de supervision — convergence des Masters", () => {

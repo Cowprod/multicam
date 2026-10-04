@@ -64,9 +64,13 @@
    * l'arrière alors même que le natif avait réussi. */
   var DIR_FACING = { back: "REAR", rear: "REAR", front: "FRONT" };
 
+  /* J09-08b4 : une valeur INCONNUE rend `""`, plus `back`. Cette fonction ne
+   * traduit plus une absence en fait — la seule direction inventée de tout le
+   * wrapper est celle de l'OUVERTURE (`prepare`), qui en a besoin et se fait
+   * relire juste après. */
   function toDir(facing) {
     var up = String(facing || "").toUpperCase();
-    return FACING_DIR[up] || FACING_DIR.REAR;
+    return FACING_DIR[up] || "";
   }
 
   function fromDir(dir) {
@@ -183,7 +187,14 @@
     /* La caméra d'ouverture est celle DÉJÀ connue (J09-07), sinon celle
      * demandée, sinon REAR (comportement J08 inchangé). Résoudre une caméra
      * DIFFÉRENTE à cet endroit coûtait une CRÉATION de SurfaceView ;
-     * `switchCameraTo` reconfigure la surface existante sans la détruire. */
+     * `switchCameraTo` reconfigure la surface existante sans la détruire.
+     *
+     * J09-08b4 : c'est le SEUL endroit du wrapper où une direction peut être
+     * inventée, et il faut bien qu'il en invente une — sans direction, le natif
+     * n'ouvre rien et le plan ne peut même pas être armé. Ce n'est donc pas une
+     * affirmation : le résultat est relu par `settleFacingOnPrepare`, et c'est
+     * cette relecture, jamais cette intention, qui alimente ensuite
+     * `activeCamera` et la caméra des segments. */
     var o = {
       x: 0,
       y: 0,
@@ -258,6 +269,41 @@
     }, function () { return false; });
   }
 
+  /* ---------- J09-08b4 : facing de l'enregistrement, relu et fail closed ----------
+   *
+   * Appelée par `startRecording` au moment de construire le payload. Elle ne
+   * sert qu'à ça : établir le fait, ou constater son absence.
+   *
+   *   - facing déjà confirmé → il est rendu tel quel, sans appel natif (le
+   *   chemin nominal ne coûte donc RIEN) ;
+   *   - facing inconnu    → une relecture native est tentée. C'est le même
+   *   `getCameraState` qui alimente `activeFacing` : s'il répond, le fait est
+   *   établi et utilisé comme tel ;
+   *   - relecture impossible ou muette → `""`. L'inconnu reste inconnu, et
+   *   surtout : `opts.camera` n'est jamais consulté. Une intention ne devient
+   *   jamais un fait, même sous pression d'un top de Take. */
+  function settleFacingForRecord() {
+    /* Toujours une promesse : l'appelant enchaîne sans se demander si la
+     * relecture a eu lieu ou non. */
+    if (state.activeFacing) return Promise.resolve(state.activeFacing);
+    if (typeof global.CameraPreview === "undefined"
+      || !global.CameraPreview || typeof global.CameraPreview.getCameraState !== "function") {
+      return Promise.resolve("");
+    }
+    /* Le shim d'abord : sans lui, `getCameraState` peut manquer sur un build
+     * qui n'a pas embarqué le JS patché, et l'appel se refuserait en silence —
+     * donc un facing resterait inconnu sans qu'aucune erreur ne remonte. */
+    installSwitchShim();
+    return getCameraState().then(function (r) {
+      if (!r || !r.available) {
+        log("CAMERA_FACING_UNKNOWN reason=" + ((r && r.reason) || "—")
+          + " context=startRecordVideo");
+        return "";
+      }
+      return state.activeFacing || "";
+    }, function () { return ""; });
+  }
+
   /* Relâche la préparation (plan annulé, remplacé, non-participation). Ne
    * touche JAMAIS à un enregistrement en cours : c'est stopRecord() qui décide
    * de la libération. */
@@ -313,82 +359,107 @@
       });
     }
     var size = resolveSize(opts);
-    /* J09-07 : le segment est enregistré sur la caméra RÉELLEMENT ouverte, pas
-     * sur une constante. Hardcoder "back" ici ferait qu'après un switch validé
-     * le fichier serait nommé/arithmétiqué par le facing de l'ancien segment —
-     * et surtout l master's afficherait un segment REAR pendant que la caméra
-     * filme en FRONT. */
-    var facing = state.activeFacing || fromDir(opts.camera) || "REAR";
-    var payload = {
-      cameraDirection: toDir(facing),
-      width: size.width,
-      height: size.height,
-      withFlash: false
-      /* PAS de `quality` : le wrapper JS du plugin l'attend en NOMBRE 0-100
-       * (un libellé J06 "medium" y provoquait un JSONException -> "JSON error")
-       * et le natif l'ignore pour la vidéo : le réglage effectif est
-       * `camcorderProfile`. Sans `quality`, le wrapper applique sa propre
-       * valeur par défaut documentée (85). */
-    };
-    var profile = resolveProfile(opts);
-    if (profile) payload.camcorderProfile = profile;   /* absent → plugin choisit */
-    state.lastRecOpts = {
-      width: size.width,
-      height: size.height,
-      quality: opts.quality,
-      profile: profile,
-      takeNumber: opts.takeNumber,
-      startPlanId: opts.startPlanId || ""
-    };
-    var t0 = nowMs();
-    state.recording = true;
-    state.counter += 1;
-    log("CAMERA_REC_REQUEST startPlanId=" + (opts.startPlanId || "—")
-      + " take=" + (opts.takeNumber || "—")
-      + " camera=" + facing
-      + " w=" + payload.width + " h=" + payload.height
-      + " quality=plugin_default"
-      + " qualityLabel=" + resolveQuality(opts)
-      + " profile=" + (profile || "auto")
-      + " targetLocalMs=" + (isNum(opts.localTargetMs) ? opts.localTargetMs : "—"));
-    return new Promise(function (resolve, reject) {
-      cp.startRecordVideo(payload, function (r) {
-        var ackMs = nowMs();
-        state.stopUnconfirmed = false;
-        log("CAMERA_REC_OK startPlanId=" + (opts.startPlanId || "—")
-          + " take=" + (opts.takeNumber || "—")
-          + " ackAtMs=" + ackMs
-          + " callDt=" + (ackMs - t0) + "ms"
-          + " detail=" + JSON.stringify(r || {}));
-        resolve({ atMs: ackMs, detail: "startRecordVideo_ok" });
-      }, function (e) {
-        var raw = String(e);
-        state.lastError = raw;
-        log("CAMERA_REC_KO startPlanId=" + (opts.startPlanId || "—")
-          + " take=" + (opts.takeNumber || "—")
-          + " err=" + raw + " callDt=" + (nowMs() - t0) + "ms");
-        /* J09-08b2 : le callback d'erreur ne dit PAS si un recorder a été
-         * CRÉÉ. `startRecordVideo` peut avoir ouvert un MediaRecorder puis avoir
-         * échoué (fichier impossible, erreur d'enregistreur) — ou n'avoir rien
-         * fait du tout. Les deux cas partagent le même callback, donc on ne les
-         * devine pas : on RELIT l'état natif. C'est la seule preuve disponible,
-         * et son ABSENCE vaut refus — sans elle, aucun segment ne sera ouvert. */
-        return recheckRecorder(function (nat) {
-          var started = (nat.available && nat.recording === true);
-          /* `state.recording` avait été posé à `true` par-dessus un démarrage
-           * demandé : on ne le garde que si le natif le confirme. Une relecture
-           * impossible laisse l'état à `false` — fail closed, aucun recorder
-           * n'est annoncé sans fait. */
-          state.recording = started;
-          if (started && nat.path) state.videoPath = nat.path;
+    /* ---------- J09-08b4 : plus de caméra DEMANDÉE à l'enregistrement ----------
+     *
+     * Jusque-là : `activeFacing || fromDir(opts.camera) || "REAR"`. La caméra
+     * demandée — puis, à défaut, REAR — servait de valeur de remplacement, donc
+     * de faux fait. Or une intention n'est pas une preuve : au top d'un Take,
+     * si la relecture native n'a encore rien donné, le segment 1 se voyait
+     * attribuer REAR alors que personne n'avait vu quelle caméra filme. Sur
+     * l'écran du Master's, un segment REAR filmé en FRONT est indétectable —
+     * personne ne peut plus savoir que l'image est mal attribuée.
+     *
+     * Règle : la direction annoncée est celle LUE au natif, ou `""` — inconnu.
+     * Jamais la demande, jamais une constante.
+     *
+     * Le natif tolère cette absence sans risque : sur ce plugin, `startRecord`
+     * ignore la chaîne reçue et enregistre avec la caméra DÉJÀ ouverte
+     * (`mCamera`, profil choisi sur `defaultCameraId`). La direction du payload
+     * est donc une étiquette de traçabilité, pas une sélection — et `""` ne
+     * fait basculer personne.
+     *
+     * `prepare()` fait exception et garde son choix : c'est l'OUVERTURE de la
+     * surface, là où une instruction est unavoidable. Elle est immédiatement
+     * suivie d'une relecture (`settleFacingOnPrepare`), donc ce qui est publié
+     * ensuite reste un fait. */
+    /* La relecture est ASYNCHRONE : le payload ne peut donc pas être construit
+     * avant qu'elle ait répondu. On enchaîne sur sa réponse au lieu de le
+     * remplir en amont avec une valeur devinée. */
+    return settleFacingForRecord().then(function (facing) {
+      log("CAMERA_REC_FACING source=" + (facing ? "confirmed" : "native_unknown")
+        + " facing=" + (facing || "—")
+        + (facing ? "" : " note=no_confirmed_facing"));
+      var payload = {
+        cameraDirection: toDir(facing),
+        width: size.width,
+        height: size.height,
+        withFlash: false
+        /* PAS de `quality` : le wrapper JS du plugin l'attend en NOMBRE 0-100
+         * (un libellé J06 "medium" y provoquait un JSONException -> "JSON error")
+         * et le natif l'ignore pour la vidéo : le réglage effectif est
+         * `camcorderProfile`. Sans `quality`, le wrapper applique sa propre
+         * valeur par défaut documentée (85). */
+      };
+      var profile = resolveProfile(opts);
+      if (profile) payload.camcorderProfile = profile;   /* absent → plugin choisit */
+      state.lastRecOpts = {
+        width: size.width,
+        height: size.height,
+        quality: opts.quality,
+        profile: profile,
+        takeNumber: opts.takeNumber,
+        startPlanId: opts.startPlanId || ""
+      };
+      var t0 = nowMs();
+      state.recording = true;
+      state.counter += 1;
+      log("CAMERA_REC_REQUEST startPlanId=" + (opts.startPlanId || "—")
+        + " take=" + (opts.takeNumber || "—")
+        + " camera=" + facing
+        + " w=" + payload.width + " h=" + payload.height
+        + " quality=plugin_default"
+        + " qualityLabel=" + resolveQuality(opts)
+        + " profile=" + (profile || "auto")
+        + " targetLocalMs=" + (isNum(opts.localTargetMs) ? opts.localTargetMs : "—"));
+      return new Promise(function (resolve, reject) {
+        cp.startRecordVideo(payload, function (r) {
+          var ackMs = nowMs();
           state.stopUnconfirmed = false;
-          log("CAMERA_REC_KO_FACT recorderStarted=" + (started ? 1 : 0)
-            + " path=" + (nat.path || "—")
-            + " note=" + (nat.available ? "state_reread" : "state_unreadable"));
-          reject(segError("start_failed", raw, {
-            recorderStarted: started,
-            recorderPath: started ? (nat.path || "") : ""
-          }));
+          log("CAMERA_REC_OK startPlanId=" + (opts.startPlanId || "—")
+            + " take=" + (opts.takeNumber || "—")
+            + " ackAtMs=" + ackMs
+            + " callDt=" + (ackMs - t0) + "ms"
+            + " detail=" + JSON.stringify(r || {}));
+          resolve({ atMs: ackMs, detail: "startRecordVideo_ok" });
+        }, function (e) {
+          var raw = String(e);
+          state.lastError = raw;
+          log("CAMERA_REC_KO startPlanId=" + (opts.startPlanId || "—")
+            + " take=" + (opts.takeNumber || "—")
+            + " err=" + raw + " callDt=" + (nowMs() - t0) + "ms");
+          /* J09-08b2 : le callback d'erreur ne dit PAS si un recorder a été
+           * CRÉÉ. `startRecordVideo` peut avoir ouvert un MediaRecorder puis avoir
+           * échoué (fichier impossible, erreur d'enregistreur) — ou n'avoir rien
+           * fait du tout. Les deux cas partagent le même callback, donc on ne les
+           * devine pas : on RELIT l'état natif. C'est la seule preuve disponible,
+           * et son ABSENCE vaut refus — sans elle, aucun segment ne sera ouvert. */
+          return recheckRecorder(function (nat) {
+            var started = (nat.available && nat.recording === true);
+            /* `state.recording` avait été posé à `true` par-dessus un démarrage
+             * demandé : on ne le garde que si le natif le confirme. Une relecture
+             * impossible laisse l'état à `false` — fail closed, aucun recorder
+             * n'est annoncé sans fait. */
+            state.recording = started;
+            if (started && nat.path) state.videoPath = nat.path;
+            state.stopUnconfirmed = false;
+            log("CAMERA_REC_KO_FACT recorderStarted=" + (started ? 1 : 0)
+              + " path=" + (nat.path || "—")
+              + " note=" + (nat.available ? "state_reread" : "state_unreadable"));
+            reject(segError("start_failed", raw, {
+              recorderStarted: started,
+              recorderPath: started ? (nat.path || "") : ""
+            }));
+          });
         });
       });
     });
