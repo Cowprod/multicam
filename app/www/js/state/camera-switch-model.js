@@ -28,6 +28,23 @@
  * à quel fichier un numéro appartenait, la valeur publiée changeait sous les
  * pieds du même fichier, et le dernier segment d'un Take n'était jamais numéroté.
  *
+ * ---------- J09-08b2 : L'ÉTAT EXPLICITE D'UN SEGMENT ----------
+ *
+ * Un segment n'est plus « présent » ou « absent » : il est `recording`,
+ * `closed` ou `failed`. L'état n'est pas décoratif, c'est lui qui décide si un
+ * segment entre dans l'historique :
+ *
+ *   - `closed`  sa clôture est CONFIRMÉE par le natif (chemin + instant) ;
+ *   - `failed`  il a bien existé — donc il porte un index — mais sa clôture
+ *               n'est pas confirmée. Il reste DEVANT l'historique, jamais dans
+ *               l'historique : un fichier dont on ignore s'il existe ne peut
+ *               pas être présenté comme finalisé.
+ *
+ * Un segment `failed` reste le segment EN COURS : il garde son index, et le
+ * suivant PORTERA l'index suivant. C'est ce qui rend la règle « aucun index
+ * réutilisé » tenable même après un échec — un `restart_failed` ne fabrique
+ * jamais un N+1 fantôme, et un échec ne fait jamais disparaître un N+1 réel.
+ *
  * ---------- POURQUOI UN MODÈLE SÉPARÉ ----------
  *
  * Les invariants §35.2 (session, Take, cible, disponibilité, concurrence,
@@ -70,6 +87,17 @@
   };
 
   var LABELS = { REAR: "Arrière", FRONT: "Selfie" };
+
+  /* ---------- J09-08b2 : cycle de vie d'un segment ----------
+   *
+   * Ces trois valeurs sont un vocabulaire STABLE : elles sont journalisées et
+   * publiées. « absent » n'en fait pas partie — un segment existe dès que son
+   * recorder a démarré, et son état dit ce qu'on sait de sa fin. */
+  var SEG = {
+    RECORDING: "recording",
+    CLOSED: "closed",
+    FAILED: "failed"
+  };
 
   /* ---------- normalisation ---------- */
 
@@ -119,7 +147,13 @@
        * Ces deux notions sont distinctes par construction : `segmentIndex` n'est
        * plus un compteur de « segments déjà fermés », et `currentSegment` n'est
        * plus le dernier segment fermé. Un compteur ne disait pas à quel fichier
-       * un numéro appartenait — c'était la ambiguïté constatée sur J09-07. */
+       * un numéro appartenait — c'était la ambiguïté constatée sur J09-07.
+       *
+       * ---------- J09-08b2 : l'état du segment ----------
+       *
+       * `currentSegment.state` est `recording` ou `failed` ; une entrée de
+       * `segments` est `closed` ou `failed` (un segmentclos par le STOP après
+       * un échec conserve son `failureCode` : le fait observé ne s'efface pas). */
       currentSegment: null,
       segments: [],
       /* Compteurs de diagnostic (parsersables dans les logs de campagne). */
@@ -369,11 +403,15 @@
 
   /* ---------- J09-08b1 : identité et historique des segments ---------- */
 
-  /* Le prochain index est calculé sur le MAXIMUM DÉJÀ VU, jamais sur la
+/* Le prochain index est calculé sur le MAXIMUM DÉJÀ VU, jamais sur la
    * longueur de l'historique : `longueur + 1` ne vaut « suivant » que tant que
-   * l'historique est une suite contiguë, et le reutiliserait dès qu'elle cessera
+   * l'historique est une suite contiguë, et le réutiliserait dès qu'elle cessera
    * de l'être. Sur le maximum, l'invariant tient par construction : deux
-   * segments d'un même Take ne peuvent pas partager un index. */
+   * segments d'un même Take ne peuvent pas partager un index.
+   *
+   * J09-08b2 : un segment `failed` COMPTE. Il a occupé un index et un fichier,
+   * donc le suivant ne peut pas le reprendre — que l'échec ait eu lieu avant ou
+   * après la bascule. */
   function nextSegmentIndex(state) {
     var st = state || {};
     var max = 0;
@@ -397,7 +435,12 @@
    *
    * `info.camera` est la caméra RÉELLEMENT ouverte, lue du natif — jamais la
    * caméra demandée. `info.path` reste vide à l'ouverture : le chemin n'existe
-   * qu'à la clôture, quand `stopRecordVideo` le renvoie. */
+   * qu'à la clôture, quand `stopRecordVideo` le renvoie.
+   *
+   * J09-08b2 : l'ouverture ne concernera QUE le segment N+1 d'une bascule dont
+   * le natif a CONFIRMÉ la création du recorder (`recorderStarted === true`).
+   * Un `restart_failed` sans cette preuve n'appelle donc pas cette fonction, et
+   * aucun segment fantôme n'apparaît. */
   function openSegment(state, info) {
     var o = info || {};
     var out = clone(state);
@@ -410,7 +453,12 @@
       camera: normalizeCamera(o.camera),
       path: (typeof o.path === "string") ? o.path : "",
       startedAtMs: (typeof o.startedAtMs === "number") ? o.startedAtMs : 0,
-      stoppedAtMs: 0
+      stoppedAtMs: 0,
+      /* J09-08b2 : le recorder vient de démarrer, la fin du segment est
+       * entièrement inconnue. */
+      state: SEG.RECORDING,
+      failureCode: "",
+      failedAtMs: 0
     };
     return out;
   }
@@ -435,9 +483,45 @@
       camera: normalizeCamera(o.camera || cur.camera),
       path: (typeof o.path === "string" && o.path) ? o.path : cur.path,
       startedAtMs: cur.startedAtMs,
-      stoppedAtMs: (typeof o.stoppedAtMs === "number") ? o.stoppedAtMs : 0
+      stoppedAtMs: (typeof o.stoppedAtMs === "number") ? o.stoppedAtMs : 0,
+      /* J09-08b2 : la clôture est CONFIRMÉE, le segment est donc `closed`. Un
+       * échec antérieur reste porté par `failureCode`/`failedAtMs` : le fait
+       * observé ne disparaît pas parce qu'un arrêt plus tard a réussi. */
+      state: SEG.CLOSED,
+      failureCode: cur.failureCode || "",
+      failedAtMs: cur.failedAtMs || 0
     }]);
     out.currentSegment = null;
+    return out;
+  }
+
+  /* ---------- J09-08b2 : ÉCHEC DE CLÔTURE ----------
+   *
+   * Le segment a EXISTÉ — son recorder a démarré, donc son index est brûlé —
+   * mais sa clôture n'est pas confirmée : on ignore si le fichier a été
+   * finalisé, et même s'il existe. Deux invariants tiennent ici, et ils sont
+   * opposés à ceux d'une clôture :
+   *
+   *   1. le segment reste EN COURS (`currentSegment`) : il n'entre pas dans
+   *      `segments[]`, donc l'historique ne présente jamais un fichier dont la
+   *      fin est inconnue comme finalisé ;
+   *   2. AUCUN index n'est consommé : `nextSegmentIndex()` repart du maximum
+   *      observé, ce segment compris. Le prochain segment portera donc N+1, pas
+   *      N+2 — un échec ne saute pas de numéro.
+   *
+   * Sans segment ouvert, il n'y a rien à échouer : on n'invente pas d'entrée. */
+  function markSegmentFailed(state, info) {
+    var o = info || {};
+    var out = clone(state);
+    var cur = out.currentSegment;
+    if (!cur) return out;
+    cur.state = SEG.FAILED;
+    cur.failureCode = (typeof o.failureCode === "string") ? o.failureCode : "";
+    cur.failedAtMs = (typeof o.failedAtMs === "number") ? o.failedAtMs : 0;
+    /* Un chemin DÉJÀ connu est conservé : le fichier a été produit, il existe
+     * donc — même si sa fin reste inconnue. Mais un chemin absent le reste :
+     * on n'en fabrique aucun. */
+    if (typeof o.path === "string" && o.path) cur.path = o.path;
     return out;
   }
 
@@ -532,6 +616,10 @@
       segmentIndex: currentIndex(st),
       currentSegment: st.currentSegment ? clone(st.currentSegment) : null,
       segments: (st.segments || []).map(function (s) { return clone(s); }),
+      /* J09-08b2 : l'état du segment EN COURS, lisible sans traverser
+       * `currentSegment` ("" = rien en cours). Un écran doit pouvoir écrire
+       * « enregistrement non confirmé » sans recalculer quoi que ce soit. */
+      segmentState: st.currentSegment ? (st.currentSegment.state || "") : "",
       segmentCount: (st.segments || []).length + (st.currentSegment ? 1 : 0),
       switchCount: st.switchCount,
       failCount: st.failCount,
@@ -572,6 +660,8 @@
   global.MultiCamCameraSwitchModel = {
     CAMERAS: CAMERAS,
     ERR: ERR,
+    /* J09-08b2 */
+    SEG: SEG,
     normalizeCamera: normalizeCamera,
     label: label,
     createState: createState,
@@ -585,6 +675,7 @@
     failSwitch: failSwitch,
     openSegment: openSegment,
     closeCurrentSegment: closeCurrentSegment,
+    markSegmentFailed: markSegmentFailed,
     currentIndex: currentIndex,
     nextSegmentIndex: nextSegmentIndex,
     recordSwitchDuration: recordSwitchDuration,

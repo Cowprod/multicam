@@ -79,6 +79,13 @@
     preparePromise: null,  /* préparation en cours, partagée par tous les appelants */
     recording: false,      /* startRecordVideo a été appelé et n'a pas été arrêté */
     videoPath: "",         /* chemin renvoyé par stopRecordVideo (prise J09) */
+    /* ---------- J09-08b2 : arrêt NON CONFIRMÉ ----------
+     *
+     * Un `stopRecordVideo` en erreur ne prouve pas que le recorder s'est arrêté.
+     * Tant que ce drapeau est levé, `videoPath` ne désigne plus rien de fiable :
+     * le chemin mémorisé appartient au segment PRÉCÉDENT, et le renvoyer ferait
+     * rattacher un faux fichier au segment courant. On le refuse donc. */
+    stopUnconfirmed: false,
     preparedFor: "",       /* startPlanId ayant motivé la préparation (traçabilité) */
     lastError: "",
     counter: 0,            /* idempotence : un même startPlanId ne démarre qu'une fois */
@@ -347,6 +354,7 @@
     return new Promise(function (resolve, reject) {
       cp.startRecordVideo(payload, function (r) {
         var ackMs = nowMs();
+        state.stopUnconfirmed = false;
         log("CAMERA_REC_OK startPlanId=" + (opts.startPlanId || "—")
           + " take=" + (opts.takeNumber || "—")
           + " ackAtMs=" + ackMs
@@ -354,12 +362,34 @@
           + " detail=" + JSON.stringify(r || {}));
         resolve({ atMs: ackMs, detail: "startRecordVideo_ok" });
       }, function (e) {
-        state.recording = false;
-        state.lastError = String(e);
+        var raw = String(e);
+        state.lastError = raw;
         log("CAMERA_REC_KO startPlanId=" + (opts.startPlanId || "—")
           + " take=" + (opts.takeNumber || "—")
-          + " err=" + String(e) + " callDt=" + (nowMs() - t0) + "ms");
-        reject(new Error("startRecordVideo_failed:" + String(e)));
+          + " err=" + raw + " callDt=" + (nowMs() - t0) + "ms");
+        /* J09-08b2 : le callback d'erreur ne dit PAS si un recorder a été
+         * CRÉÉ. `startRecordVideo` peut avoir ouvert un MediaRecorder puis avoir
+         * échoué (fichier impossible, erreur d'enregistreur) — ou n'avoir rien
+         * fait du tout. Les deux cas partagent le même callback, donc on ne les
+         * devine pas : on RELIT l'état natif. C'est la seule preuve disponible,
+         * et son ABSENCE vaut refus — sans elle, aucun segment ne sera ouvert. */
+        return recheckRecorder(function (nat) {
+          var started = (nat.available && nat.recording === true);
+          /* `state.recording` avait été posé à `true` par-dessus un démarrage
+           * demandé : on ne le garde que si le natif le confirme. Une relecture
+           * impossible laisse l'état à `false` — fail closed, aucun recorder
+           * n'est annoncé sans fait. */
+          state.recording = started;
+          if (started && nat.path) state.videoPath = nat.path;
+          state.stopUnconfirmed = false;
+          log("CAMERA_REC_KO_FACT recorderStarted=" + (started ? 1 : 0)
+            + " path=" + (nat.path || "—")
+            + " note=" + (nat.available ? "state_reread" : "state_unreadable"));
+          reject(segError("start_failed", raw, {
+            recorderStarted: started,
+            recorderPath: started ? (nat.path || "") : ""
+          }));
+        });
       });
     });
   }
@@ -378,6 +408,13 @@
     var cp = plugin();
     if (!state.recording) {
       var t0 = nowMs();
+      /* J09-08b2 : un arrêt précédent a échoué sans être confirmé. Le chemin
+       * mémorisé date du segment D'AVANT : le renvoyer rattacherait un fichier
+       * périmé au segment courant. On le déclare absent plutôt que périmé. */
+      if (state.stopUnconfirmed) {
+        log("CAMERA_REC_STOP_UNCONFIRMED path=— note=no_confirmed_closure");
+        return Promise.resolve({ atMs: t0, path: "", detail: "stop_unconfirmed" });
+      }
       return Promise.resolve({ atMs: t0, path: state.videoPath || "", detail: "not_recording" });
     }
     state.recording = false;
@@ -385,14 +422,78 @@
       cp.stopRecordVideo(function (p) {
         var atMs = nowMs();
         state.videoPath = (typeof p === "string") ? p : "";
+        state.stopUnconfirmed = false;
         log("CAMERA_REC_STOP_OK atMs=" + atMs + " path=" + (state.videoPath || "—")
           + " previewKept=" + (state.prepared ? 1 : 0));
         resolve({ atMs: atMs, path: state.videoPath, detail: "stopRecordVideo_ok" });
       }, function (e) {
-        state.lastError = String(e);
-        log("CAMERA_REC_STOP_KO err=" + String(e));
-        reject(new Error("stopRecordVideo_failed:" + String(e)));
+        var raw = String(e);
+        state.lastError = raw;
+        /* J09-08b2 : même méthode que pour un démarrage refusé — on relit le
+         * natif, car « le callback d'erreur a fired » ne veut pas dire « le
+         * recorder est arrêté ». Sans relecture, l'état reste celui du dernier
+         * fait : le segment n'est pas déclaré clos. */
+        return recheckRecorder(function (nat) {
+          if (nat.available) state.recording = (nat.recording === true);
+          /* Tout `videoPath` devient PÉRIMÉ : il désigne le segment précédent. */
+          state.videoPath = "";
+          state.stopUnconfirmed = true;
+          log("CAMERA_REC_STOP_KO err=" + raw
+            + " recorderRunning=" + (state.recording ? 1 : 0)
+            + " note=" + (nat.available ? "state_reread" : "state_unreadable"));
+          reject(segError("stop_failed", raw, {
+            closed: false,
+            closedPath: "",
+            closedAtMs: 0,
+            recorderRunning: state.recording === true
+          }));
+        });
       });
+    });
+  }
+
+  /* ---------- J09-08b2 : faits de segmentation sur un échec ----------
+   *
+   * `startRecordVideo` et `stopRecordVideo` ne distinguent pas « rien ne s'est
+   * passé » de « quelque chose a commencé puis a échoué » : un seul callback
+   * d'erreur pour les deux. Les deux DISCRIMINANTS qui décident de l'identité
+   * des segments doivent donc venir d'une RELECTURE de l'état natif :
+   *
+   *   `recorderStarted`  un recorder a été RÉELLEMENT créé. C'est le SEUL motif
+   *                       d'ouvrir un segment : sans cette preuve, un
+   *                       `restart_failed` ne fabrique pas de N+1 fantôme.
+   *   `closed`           la clôture du segment N est CONFIRMÉE (chemin + instant).
+   *
+   * Absents, ils valent `false`. C'est une décision fail closed : on préfère un
+   * segment en trop à un index consommé par un fichier qui n'a jamais existé. */
+  function segError(code, raw, facts) {
+    var f = facts || {};
+    var e = nativeError(code, raw, f.detail || null);
+    e.stopAttempted = f.stopAttempted === true;
+    e.closed = f.closed === true;
+    e.closedPath = (typeof f.closedPath === "string") ? f.closedPath : "";
+    e.closedAtMs = (typeof f.closedAtMs === "number") ? f.closedAtMs : 0;
+    e.recorderStarted = f.recorderStarted === true;
+    e.recorderPath = (typeof f.recorderPath === "string") ? f.recorderPath : "";
+    e.recorderRunning = f.recorderRunning === true;
+    e.from = (typeof f.from === "string") ? f.from : "";
+    e.to = (typeof f.to === "string") ? f.to : "";
+    return e;
+  }
+
+  /* Relecture de l'état natif APRÈS un refus : la seule preuve de ce qu'ont
+   * réellement fait les callbacks. Appelle toujours le rappel, et n'échoue
+   * jamais — une absence de fait est un fait absent, pas une exception. */
+  function recheckRecorder(cb) {
+    return getCameraState().then(function (nat) {
+      if (!nat || !nat.available) { cb({ available: false, recording: false, path: "" }); return; }
+      cb({
+        available: true,
+        recording: nat.recording === true,
+        path: (typeof nat.recordFilePath === "string") ? nat.recordFilePath : ""
+      });
+    }, function () {
+      cb({ available: false, recording: false, path: "" });
     });
   }
 
@@ -562,6 +663,22 @@
    * rendre les deux faits de clôture dont l'index dépend — le chemin du fichier
    * et l'instant exact de l'arrêt.
    *
+   * ---------- J09-08b2 : ce qu'un ÉCHEC doit rapporter ----------
+ *
+ * Une séquence d'opérations peut échouer n'importe où, et l'échec ne dit pas
+ * ce qui a déjà eu lieu. Chaque rejet porte donc les faits observés :
+ *
+ *   stopAttempted   la fermeture du segment N a été tentée ;
+ *   closed          elle est CONFIRMÉE (chemin + instant disponibles) ;
+ *   recorderStarted un recorder N+1 a RÉELLEMENT été créé (relecture native
+ *                   après l'échec du démarrage) ;
+ *   from / to       caméras de départ et d'arrivée, cette dernière étant
+    *                   publiée uniquement après la relecture INDÉPENDANTE.
+ *
+    * Ces champs valent `false` tant qu'ils ne sont pas prouvés. C'est ce qui
+   * permet à l'orchestrateur de ne RIEN inscrire sur un refus, de closer le seul
+   * segment N sur une bascule confirmée, et de n'ouvrir un N+1 que sur une preuve.
+   *
    * `switchInFlight` sérialise : deux commandes concurrentes partagent la même
    * bascule et ne peuvent pas se chevaucher sur le même MediaRecorder.
    */
@@ -572,7 +689,10 @@
      * facing invalide ferait fermer le segment N sans jamais rouvrir de segment,
      * c'est-à-dire un Take corrompu. */
     if (!FACING_DIR[facing]) {
-      return Promise.reject(nativeError("unknown_camera",
+      /* `segError` et non `nativeError` : TOUT rejet de `switchSegmented` porte
+       * le jeu complet de faits, y compris ceux qui valent `false`. Un appelant
+       * ne doit pas avoir à deviner ce qu'un refus laisse intact. */
+      return Promise.reject(segError("unknown_camera",
         "caméra " + String(opts.camera) + " hors modèle"));
     }
     var wasRecording = state.recording;
@@ -586,8 +706,20 @@
 
     if (state.switchInFlight) {
       log("CAMERA_SWITCH_REFUSE target=" + facing + " code=switch_in_progress");
-      return Promise.reject(nativeError("switch_in_progress", "bascule déjà en cours"));
+      return Promise.reject(segError("switch_in_progress", "bascule déjà en cours"));
     }
+
+    /* J09-08b2 : les faits de segmentation sont ACCUMULÉS pendant l'opération,
+     * puis rattachés à l'erreur quelle qu'elle soit. Sans eux l'orchestrateur ne
+     * peut pas distinguer trois situations qu'un `restart_failed` ne distingue
+     * pas : rien n'a été touché, le segment N est clos, ou un N+1 existe. C'est
+     * cette distinction qui décide si un index a été consommé. */
+    var facts = {
+      stopAttempted: false,
+      closed: false, closedPath: "", closedAtMs: 0,
+      recorderStarted: false, recorderPath: "",
+      from: fromFacing, to: ""
+    };
 
     var op = Promise.resolve()
       .then(function () {
@@ -596,11 +728,24 @@
           log("CAMERA_SWITCH_SEGMENT_SKIP target=" + facing + " reason=not_recording mode=preview_only");
           return { closed: null, closedAtMs: 0 };
         }
+        facts.stopAttempted = true;
         return stopRecording().then(function (r) {
+          facts.closed = true;
+          facts.closedPath = (r && r.path) || "";
+          facts.closedAtMs = (r && r.atMs) || nowMs();
           log("CAMERA_SWITCH_SEGMENT_CLOSED target=" + facing
-            + " path=" + ((r && r.path) || "—")
+            + " path=" + (facts.closedPath || "—")
             + " stopDt=" + (r && r.atMs ? (r.atMs - gapStartMs) : 0) + "ms");
-          return { closed: (r && r.path) || "", closedAtMs: (r && r.atMs) || nowMs() };
+          return { closed: facts.closedPath, closedAtMs: facts.closedAtMs };
+        }, function (err) {
+          /* L'arrêt est tenté et NON CONFIRMÉ : la caméra n'est même pas
+           * basculée. On propage un `stop_failed` discriminable plutôt que le
+           * message brut, pour que l'orchestrateur sache que la clôture n'a
+           * pas eu lieu — et qu'il ne referme donc pas le segment N. */
+          throw segError("stop_failed", String((err && err.message) || err), {
+            stopAttempted: true,
+            recorderRunning: !!(err && err.recorderRunning === true)
+          });
         });
       })
       .then(function (closed) {
@@ -615,6 +760,9 @@
               throw nativeError("switch_failed",
                 "relecture native " + (nat.facing || "—") + " != demandé " + fromDir(facing));
             }
+            /* La caméra d'arrivée est CONFIRMÉE : c'est elle qu'un éventuel
+             * segment N+1 portera, jamais la caméra demandée. */
+            facts.to = nat.facing;
             return { closed: closed, sw: sw, nat: nat };
           });
         });
@@ -631,6 +779,8 @@
              * inconnu. Aucun segment ne peut être inventé, mais un fait déjà mesuré
              * ne doit pas être perdu. */
             closedAtMs: r.closed.closedAtMs || 0,
+            closedConfirmed: false,
+            recorderStarted: false,
             gapMs: nowMs() - gapStartMs,
             atMs: nowMs(), alreadyActive: r.sw.alreadyActive === true
           };
@@ -652,16 +802,26 @@
           camera: fromDir(facing)
         };
         return startRecording(restart).then(function () {
+          facts.recorderStarted = true;
           return {
             ok: true, segmented: true, restarted: true,
-            from: fromFacing, to: fromDir(facing),
-            closedPath: r.closed.closed,
-            closedAtMs: r.closed.closedAtMs || 0,
+            from: fromFacing, to: facts.to || fromDir(facing),
+            closedPath: facts.closedPath,
+            closedAtMs: facts.closedAtMs || 0,
+            closedConfirmed: true,
+            recorderStarted: true,
             gapMs: nowMs() - gapStartMs,
             atMs: nowMs(), alreadyActive: r.sw.alreadyActive === true
           };
         }, function (err) {
-          throw nativeError("restart_failed", String((err && err.message) || err));
+          /* Le seul fait qui décide de l'existence d'un segment N+1 : la
+           * RELECTURE faite par `startRecording` après son échec. Sans elle,
+           * `recorderStarted` reste `false` et aucun N+1 n'est inventé. */
+          facts.recorderStarted = !!(err && err.recorderStarted === true);
+          facts.recorderPath = (err && err.recorderPath) || "";
+          throw segError("restart_failed", String((err && err.message) || err), {
+            detail: (err && err.detail) || null
+          });
         });
       });
 
@@ -675,8 +835,27 @@
       return res;
     }, function (err) {
       state.switchInFlight = null;
+      /* Rattachement des faits à l'erreur : l'orchestrateur décide sur eux, il
+       * ne les redécouvre pas. Un refus antérieur à toute opération matérielle
+       * porte donc `closed:false` et `recorderStarted:false` — l'absence de
+       * preuve, pas une preuve d'absence d'effet. */
+      if (err && typeof err === "object") {
+        err.stopAttempted = facts.stopAttempted;
+        err.closed = facts.closed;
+        err.closedPath = facts.closedPath;
+        err.closedAtMs = facts.closedAtMs;
+        err.recorderStarted = facts.recorderStarted;
+        err.recorderPath = facts.recorderPath;
+        err.from = facts.from;
+        err.to = facts.to;
+      }
       log("CAMERA_SWITCH_SEGMENT_KO target=" + fromDir(facing)
         + " code=" + ((err && err.code) || "—") + " err=" + String((err && err.message) || err)
+        + " stopAttempted=" + (facts.stopAttempted ? 1 : 0)
+        + " closed=" + (facts.closed ? 1 : 0)
+        + " closedPath=" + (facts.closedPath || "—")
+        + " recorderStarted=" + (facts.recorderStarted ? 1 : 0)
+        + " to=" + (facts.to || "—")
         + " recording=" + (state.recording ? 1 : 0));
       throw err;
     });

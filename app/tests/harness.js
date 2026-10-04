@@ -117,6 +117,15 @@ function fakeCameraPreview(env, opts) {
     /* knobs de test */
     failStartCamera: opts.failStartCamera || null,
     failRecord: opts.failRecord || false,
+    /* J09-08b2 : un démarrage qui CRÉE le recorder puis échoue quand même.
+     * C'est le cas que `startRecordVideo` ne distingue pas d'un refus simple :
+     * le callback d'erreur est le même. */
+    failRecordAfterStart: opts.failRecordAfterStart || false,
+    /* Un arrêt en erreur. Par défaut le recorder RESTE vivant (c'est
+     * précisément pour ça que l'arrêt échoue) ; `failStopDropsRecorder` simule
+     * la panne où le natif a arrêté sans pouvoir le confirmer. */
+    failStop: opts.failStop || null,
+    failStopDropsRecorder: opts.failStopDropsRecorder || false,
     videoPath: opts.videoPath || "file:///storage/emulated/0/Movies/take.mp4",
     /* actions de contrôle appelées par les tests */
     pause() { env.document._fire("pause"); },
@@ -147,6 +156,16 @@ function fakeCameraPreview(env, opts) {
          * REDÉMARRAGE de segment laisserait le faux sur « arrêté » et le
          * basculeur suivant croirait sortir de REC — donc ne pas segmenter. */
         api.recording = true;
+        /* Le chemin du fichier EN COURS : c'est la seule preuve qu'un recorder
+         * a réellement été créé, lue ensuite par `getCameraState`
+         * (J09-08b2). `nextPath` permet de distinguer le fichier du segment
+         * qu'on démarre de celui du segment précédent. */
+        api.recordingPath = api.nextPath || api.videoPath || "";
+        if (api.failRecordAfterStart) {
+          /* Le recorder existe, et le démarrage échoue quand même. */
+          if (ko) ko("record_failed_after_start");
+          return;
+        }
         if (ok) ok("OK");
       }, 0);
     },
@@ -154,7 +173,16 @@ function fakeCameraPreview(env, opts) {
       calls.stopRecordVideo += 1;
       api.ops.push("stopRecordVideo");
       later(() => {
+        if (api.failStop) {
+          /* Un arrêt en échec ne signifie PAS « recorder arrêté » : par défaut
+           * le faux le laisse tourner — sinon le cas ne se distingue plus d'un
+           * refus simple. */
+          if (api.failStopDropsRecorder) api.recording = false;
+          if (ko) ko(String(api.failStop));
+          return;
+        }
         api.recording = false;
+        api.recordingPath = "";
         if (ok) ok(api.videoPath);
       }, 0);
     },
@@ -224,6 +252,10 @@ function fakeCameraPreview(env, opts) {
           cameraCurrentlyLocked: api.nativeIndexOf(api.activeFacing),
           numberOfCameras: api.physicalCameras.length,
           recording: api.recording,
+          /* J09-08b2 : le fichier du recorder EN COURS. C'est la relecture qui
+           * permet de distinguer « un recorder a été créé » de « rien n'a été
+           * créé », information que le callback d'erreur ne donne pas. */
+          recordFilePath: api.recordingPath || "",
           facing: api.activeFacing,
           availableFacings: api.physicalCameras.slice()
         });
@@ -278,6 +310,8 @@ function fakeCameraPreview(env, opts) {
   api.activeFacing = opts.activeFacing || "back";
   api.nativeResolutions = opts.nativeResolutions || ["1920x1080", "1280x720"];
   api.recording = !!opts.recording;
+  api.recordingPath = opts.recordingPath || "";
+  api.nextPath = opts.nextPath || "";
   api.switchCount = 0;
   api.switchTargets = [];
   api.failSwitch = opts.failSwitch || null;

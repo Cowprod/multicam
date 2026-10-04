@@ -320,11 +320,18 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
     }, function (err) {
       var code = (err && err.code) || "switch_failed";
       var next = m.failSwitch(st(), code, String((err && err.message) || err), nowMs());
+      /* J09-08b2 : un échec de bascule n'est PAS « rien ne s'est passé ». Le
+       * segment N peut avoir été clos, et un N+1 peut réellement exister. Ce
+       * sont les FAITS rapportés par le wrapper — jamais une déduction — qui
+       * décident si un index a été consommé. */
+      var before = m.currentIndex(next);
+      next = reconcileSegments(m, next, err || {}, code, nowMs());
       set(next);
       log("CAMERA_SWITCH_FAIL commandId=" + (cmd.commandId || "—")
         + " code=" + code + " requested=" + requested
         + " active=" + (next.activeCamera || "—")
         + " recording=" + (recordingNow() ? 1 : 0)
+        + " segmentIndex=" + before + "→" + m.currentIndex(next)
         + " err=" + String((err && err.message) || err));
       /* L'échantillonnage ne reprend QUE si un recorder tourne encore : sinon il
        * produirait des frames d'un enregistrement arrêté. */
@@ -349,12 +356,85 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
    *   - le TOP d'un Take  → le segment 1 s'ouvre (`onRecordingStarted`) ;
    *   - une bascule       → le segment courant est clos, le suivant s'ouvre
    *                         (`execute`), sans jamais recalculer `+ 1` ;
-   *   - le STOP           → le dernier segment est clos (`onRecordingStopped`).
+   *   - le STOP           → le dernier segment est clos (`onRecordingStopped`) ;
+   *   - un échec          → `reconcileSegments` : on ne referme que ce qui a
+   *                         été CONFIRMÉ, et on n'ouvre un segment que sur la
+   *                         preuve qu'un recorder a été créé (`onRecordingStopFailed`).
    *
    * Les deux hooks sont appelés par le start-service, au seul endroit où un
    * recorder démarre ou s'arrête pour un Take. Ils ne lisent AUCUN fait natif
    * pour décider QUAND : seulement pour dire QUELLE caméra filme.
    */
+
+  /* ---------- J09-08b2 : réconciliation des segments sur échec ----------
+   *
+   * Un échec de bascule est le moment où un Take se déforme si on ne fait rien
+   * de structuré : la caméra a pu changer, le recorder s'être arrêté, un fichier
+   * s'être finalisé — et le modèle, lui, ne voyait qu'un `switch_failed`. Ce
+   * module réconcilie donc l'historique à partir des SEULS faits rapportés par
+   * le wrapper natif :
+   *
+   *   `closed === true`         le segment N est CONFIRMÉMENT clos : il rejoint
+   *                             l'historique avec son chemin et son instant ;
+   *   `recorderStarted === true` un recorder N+1 a été RÉELLEMENT créé puis a
+   *                             échoué : il s'ouvre avec l'index suivant et
+   *                             reste marqué en échec, devant l'historique ;
+   *   `stopAttempted === true`  la clôture a été tentée sans être confirmée :
+   *                             le segment reste EN COURS, marqué en échec.
+   *
+   * Aucun de ces trois faits n'étant présent, RIEN n'est inscrit : c'est la
+   * règle qui interdit à un `restart_failed` de fabriquer un N+1 fantôme, et à
+   * un refus sans effet physique de faire prétendre qu'un fichier a été perdu. */
+  function reconcileSegments(m, state, facts, code, atMs) {
+    var out = state;
+    if (!m || !out) return out;
+
+    if (facts.closed === true) {
+      out = m.closeCurrentSegment(out, {
+        path: facts.closedPath,
+        /* `from` et non `activeCamera` : après une bascule confirmée, cette
+         * dernière vaut la CIBLE. C'est le segment N qui est clos, donc c'est
+         * sa caméra de DÉPART qui doit lui être attribuée. */
+        camera: facts.from,
+        stoppedAtMs: facts.closedAtMs
+      });
+      var last = out.segments[out.segments.length - 1];
+      if (last) {
+        log("CAMERA_SEGMENT_FINAL segmentIndex=" + last.segmentIndex
+          + " camera=" + (last.camera || "—")
+          + " path=" + (last.path || "—")
+          + " state=" + last.state
+          + " reason=" + code);
+      }
+    }
+
+    if (facts.recorderStarted === true) {
+      /* Le N+1 a EXISTÉ : il porte un index, et son fichier est peut-être sur le
+       * disque. L'ouvrir est donc obligatoire — c'est l'index qui a été brûlé.
+       * Il reste `failed` : on ignore si ce fichier est complet. */
+      out = m.openSegment(out, { camera: facts.to, startedAtMs: atMs });
+      out = m.markSegmentFailed(out, {
+        failureCode: code,
+        failedAtMs: atMs,
+        path: facts.recorderPath
+      });
+      log("CAMERA_SEGMENT_FAILED segmentIndex=" + m.currentIndex(out)
+        + " camera=" + ((out.currentSegment && out.currentSegment.camera) || "—")
+        + " path=" + ((out.currentSegment && out.currentSegment.path) || "—")
+        + " state=" + ((out.currentSegment && out.currentSegment.state) || "—")
+        + " reason=" + code + " note=recorder_created");
+    } else if (facts.closed !== true && facts.stopAttempted === true) {
+      /* Clôture NON CONFIRMÉE : le segment reste devant l'historique, avec SON
+       * index. Aucun index n'est consommé et aucun fichier n'est présenté comme
+       * finalisé — le prochain segment portera N+1, pas N+2. */
+      out = m.markSegmentFailed(out, { failureCode: code, failedAtMs: atMs });
+      log("CAMERA_SEGMENT_FAILED segmentIndex=" + m.currentIndex(out)
+        + " camera=" + ((out.currentSegment && out.currentSegment.camera) || "—")
+        + " reason=" + code + " note=close_unconfirmed"
+        + " recorderRunning=" + (facts.recorderRunning ? 1 : 0));
+    }
+    return out;
+  }
 
   /* Ouverture. La caméra vient du facing du WRAPPER NATIF, établi dès la
    * préparation — et NON du modèle, dont `activeCamera` peut encore être vide au
@@ -383,7 +463,14 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
   /* Clôture par le STOP. `res` est le retour NATIF de `stopRecordVideo` : son
    * `path` est le seul lien entre un segment et un fichier réel, on ne l'invente
    * jamais. Sans lui le segment est clôturé avec un chemin vide — ce qui est
-   * encore exact, et vaut mieux qu'un chemin deviné. */
+   * encore exact, et vaut mieux qu'un chemin deviné.
+   *
+   * J09-08b2 : un chemin n'est accepté que sur une CLÔTURE CONFIRMÉE
+   * (`stopRecordVideo_ok`). Les autres issues — `not_recording`,
+   * `stop_unconfirmed` — renvoient un `videoPath` qui appartient au segment
+   * PRÉCÉDENT : l'attacher au segment courant fabriquerait un faux lien
+   * index → fichier. Un segment dont la fin n'est pas confirmée est donc marqué
+   * en ÉCHEC, pas présenté comme finalisé. */
   function onRecordingStopped(res) {
     var m = model();
     var s = st();
@@ -393,6 +480,18 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
       return null;
     }
     var r = res || {};
+    if (r.detail !== "stopRecordVideo_ok") {
+      var failed = m.markSegmentFailed(s, {
+        failureCode: r.detail || "stop_unconfirmed",
+        failedAtMs: (typeof r.atMs === "number") ? r.atMs : nowMs()
+      });
+      set(failed);
+      log("CAMERA_SEGMENT_FAILED segmentIndex=" + m.currentIndex(failed)
+        + " camera=" + ((failed.currentSegment && failed.currentSegment.camera) || "—")
+        + " reason=" + (r.detail || "stop_unconfirmed")
+        + " note=close_unconfirmed");
+      return failed.currentSegment;
+    }
     var closed = m.closeCurrentSegment(s, {
       path: (typeof r.path === "string") ? r.path : "",
       stoppedAtMs: (typeof r.atMs === "number") ? r.atMs : nowMs()
@@ -402,8 +501,34 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
     log("CAMERA_SEGMENT_FINAL segmentIndex=" + last.segmentIndex
       + " camera=" + (last.camera || "—")
       + " path=" + (last.path || "—")
+      + " state=" + last.state
       + " reason=stop");
     return last;
+  }
+
+  /* Arrêt NON CONFIRMÉ : le STOP du plan a échoué, la clôture du segment n'est
+   * donc pas établie. Le segment reste EN COURS et identifiable, l'historique
+   * est inchangé et aucun index n'est consommé : un arrêt raté ne doit jamais
+   * faire disparaître un fichier du Take, ni faire sauter un numéro au
+   * segment suivant. Un nouvel essai de STOP refermera ce MÊME segment. */
+  function onRecordingStopFailed(err) {
+    var m = model();
+    var s = st();
+    if (!m || !s) return null;
+    var e = err || {};
+    var code = e.code || "stop_failed";
+    if (!s.currentSegment) {
+      log("CAMERA_SEGMENT_FAILED_SKIP reason=no_current_segment code=" + code);
+      return null;
+    }
+    var failed = m.markSegmentFailed(s, { failureCode: code, failedAtMs: nowMs() });
+    set(failed);
+    log("CAMERA_SEGMENT_FAILED segmentIndex=" + m.currentIndex(failed)
+      + " camera=" + ((failed.currentSegment && failed.currentSegment.camera) || "—")
+      + " reason=" + code
+      + " recorderRunning=" + (e.recorderRunning === true ? 1 : 0)
+      + " note=close_unconfirmed");
+    return failed.currentSegment;
   }
 
   /* ---------- commande locale (Capture+Master) ---------- */
@@ -813,6 +938,8 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
     /* J09-08b1 : segments — appelés par le start-service */
     onRecordingStarted: onRecordingStarted,
     onRecordingStopped: onRecordingStopped,
+    /* J09-08b2 : un arrêt NON confirmé ne clôture aucun segment. */
+    onRecordingStopFailed: onRecordingStopFailed,
     onAck: onAck,
     lastTakeOf: lastTakeOf,
     view: view,

@@ -1000,6 +1000,455 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
     });
   });
 
+  /* ══════════════════ J09-08b2 · échecs de segmentation ══════════════════ */
+
+  /* Un échec de bascule est le seul moment où l'identité d'un segment peut être
+   * perdue : la caméra a pu changer, le recorder s'arrêter, un fichier se
+   * finaliser. Ces tests traversent le VRAI chemin natif (faux plugin compris) et
+   * vérifient trois choses, dans tous les cas :
+   *
+   *   - l'IDENTITÉ : un segment porte toujours son index, et l'historique ne
+   *     présente jamais comme finalisé un fichier dont la fin est inconnue ;
+   *   - l'INDEX : aucun numéro n'est consommé ni réutilisé par un échec, et le
+   *     segment suivant est N+1 ou N+2 SELON qu'un recorder a réellement été
+   *     créé — jamais par hasard ;
+   *   - le DISCRIMINANT : sans relecture prouvant la création d'un recorder, on
+   *     n'ouvre rien. C'est la règle fail closed qui rend les deux précédentes
+   *     tenables.
+   *
+   * Le natif ne distingue pas « rien ne s'est passé » de « un recorder a été
+   * créé puis a échoué » : les deux partagent le callback d'erreur. Le faux
+   * reproduit cette ambiguïté (`failRecordAfterStart`), et c'est la RELECTURE de
+   * `getCameraState` qui tranche. */
+  describe("J09-08b2 · échecs de segmentation — identité du segment et index", () => {
+    async function top(env) {
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      return env;
+    }
+
+    function nameFile(env, n) { env.CameraPreview.videoPath = "file:///cache/videoTmp_" + n + ".mp4"; }
+    function hist(v) { return v.segments.map((s) => s.segmentIndex).join(","); }
+    function states(v) { return v.segments.map((s) => s.state).join(","); }
+    function uniq(v) {
+      const all = v.segments.map((s) => s.segmentIndex);
+      if (v.currentSegment) all.push(v.currentSegment.segmentIndex);
+      return new Set(all).size === all.length;
+    }
+
+    /* Une tentative DOIT échouer : le rejet est capturé avant l'avancée de
+     * l'horloge, sinon Node le traite comme non géré et tue la suite. */
+    async function tryAdv(env, fn, ms) {
+      const guarded = Promise.resolve().then(fn).then((v) => ({ v }), (e) => ({ e }));
+      await env.clock.advance(ms || 40);
+      return guarded;
+    }
+
+    /* ---------- A · arrêt non confirmé ---------- */
+
+    it("A1. un arrêt NON CONFIRMÉ ne clôture aucun segment et ne consomme aucun index", async () => {
+      const env = await top(bootService());
+      nameFile(env, 40);
+      env.CameraPreview.failStop = "STOP_TIMEOUT";
+
+      const stopped = await tryAdv(env, () => env.MultiCamCameraRecord.stopRecording());
+      yes(stopped.e, "un arrêt en erreur doit remonter en erreur");
+      eq(stopped.e.code, "stop_failed");
+      eq(stopped.e.closed, false, "la clôture n'est PAS confirmée : c'est le fait décisif");
+      eq(stopped.e.closedPath, "", "et aucun chemin n'est produit");
+      eq(stopped.e.recorderRunning, true,
+        "la relecture dit que le recorder tourne toujours : l'arrêt a échoué sans rien arrêter");
+      /* Contrat du start-service : un arrêt en erreur passe par
+       * `onRecordingStopFailed`, JAMAIS par `onRecordingStopped`. */
+      env.svc.onRecordingStopFailed(stopped.e);
+
+      const v = env.svc.view();
+      eq(v.segmentIndex, 1, "le segment reste EN COURS : un arrêt raté ne le fait pas disparaître");
+      eq(v.currentSegment.segmentIndex, 1, "et il reste IDENTIFIABLE");
+      eq(v.currentSegment.state, "failed", "son état le dit : la fin du fichier n'est pas confirmée");
+      eq(v.currentSegment.failureCode, "stop_failed");
+      eq(hist(v), "", "l'historique ne présente aucun fichier comme finalisé");
+      eq(v.segmentCount, 1, "mais le Take compte bien un segment de moins qu'un STOP réussi");
+      yes(uniq(v));
+    });
+
+    it("A2. la reprise referme LE MÊME segment : pas de saut, pas de doublon", async () => {
+      const env = await top(bootService());
+      nameFile(env, 41);
+      env.CameraPreview.failStop = "STOP_TIMEOUT";
+      const stopped = await tryAdv(env, () => env.MultiCamCameraRecord.stopRecording());
+      env.svc.onRecordingStopFailed(stopped.e);
+
+      env.CameraPreview.failStop = null;
+      nameFile(env, 42);
+      const res = await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((r) => { env.svc.onRecordingStopped(r); return r; }));
+      eq(res.detail, "stopRecordVideo_ok");
+      let v = env.svc.view();
+      eq(hist(v), "1", "la reprise referme le segment 1 : aucun index sauté");
+      eq(v.segments[0].path, "file:///cache/videoTmp_42.mp4", "et lui attribue LE BON fichier");
+      eq(v.segments[0].state, "closed");
+      eq(v.segments[0].failureCode, "stop_failed",
+        "l'échec antérieur reste porté par le segment : le fait observé ne s'efface pas");
+      eq(v.segmentIndex, 0);
+
+      /* Le segment suivant du Take vaut 2 : l'échec n'a consommé aucun numéro. */
+      env.svc.onRecordingStarted();
+      eq(env.svc.view().segmentIndex, 2,
+        "un arrêt raté ne fait pas sauter un index : le suivant est N+1");
+    });
+
+    it("A3. le wrapper ne rend JAMAIS un chemin périmé après un arrêt raté", async () => {
+      /* Un arrêt RÉUSSI, puis un segment redémarré : c'est le seul contexte où
+       * `videoPath` désigne un fichier qui n'est PAS celui du segment courant. */
+      const env = await enterRec(bootRecord());
+      env.CameraPreview.videoPath = "/tmp/seg1.mp4";
+      await native(env, () => env.rec.stopRecording());
+      await native(env, () => env.rec.startRecording({ startPlanId: "P1", takeNumber: TAKE }));
+      eq(env.rec.view().videoPath, "/tmp/seg1.mp4", "le chemin mémorisé est celui du segment précédent");
+
+      env.CameraPreview.failStop = "STOP_TIMEOUT";
+      let err = null;
+      try { await native(env, () => env.rec.stopRecording()); } catch (e) { err = e; }
+      yes(err, "un arrêt en erreur ne doit jamais résoudre");
+      eq(err.code, "stop_failed");
+      eq(err.closed, false);
+      eq(err.closedPath, "");
+      eq(err.closedAtMs, 0);
+      yes(env.rec.isRecording(),
+        "la relecture dit que le recorder tourne : l'état publié reste le dernier fait connu");
+      eq(env.rec.view().videoPath, "",
+        "le chemin du segment précédent est purgé : il ne décrit plus rien de courant");
+    });
+
+    it("A4. un arrêt raté dont le recorder a DISPARU ne rend pas non plus de chemin", async () => {
+      const env = await enterRec(bootRecord({ failStopDropsRecorder: true }));
+      env.CameraPreview.videoPath = "/tmp/seg1.mp4";
+      await native(env, () => env.rec.stopRecording());
+      await native(env, () => env.rec.startRecording({ startPlanId: "P1", takeNumber: TAKE }));
+      env.CameraPreview.failStop = "STOP_TIMEOUT";
+
+      let err = null;
+      try { await native(env, () => env.rec.stopRecording()); } catch (e) { err = e; }
+      eq(err.code, "stop_failed");
+      eq(err.recorderRunning, false, "la relecture dit qu'aucun recorder ne tourne");
+      no(env.rec.isRecording());
+
+      const again = await native(env, () => env.rec.stopRecording());
+      eq(again.detail, "stop_unconfirmed", "un arrêt déjà raté ne se déguise pas en arrêt propre");
+      eq(again.path, "", "et il ne rend surtout pas le fichier du segment précédent");
+    });
+
+    /* ---------- B · redémarrage refusé avant toute création ---------- */
+
+    it("B1. un redémarrage refusé AVANT création ne fabrique aucun segment", async () => {
+      const env = await top(bootService());
+      nameFile(env, 50);
+      env.CameraPreview.failRecord = true;
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok, "le switch doit échouer");
+      eq(r.code, "restart_failed", "et le motif est celui du REDÉMARRAGE, pas un refus générique");
+      /* La caméra PUBLIÉE reste l'ancienne : c'est le contrat J09-07 inchangé
+       * (« un échec laisse l'état exactement où il était »), et ce jalon ne
+       * touche pas au contrat de l'ACK. L'écart avec le natif — qui a, lui,
+       * basculé et l'a confirmé — est RÉEL et reste à arbitrer plus tard ; il
+       * est signalé ici pour qu'on ne le croie pas résolu. Le segment en échec,
+       * lui, porte la caméra confirmée (C1) : le lien index → fichier, lui, est
+       * exact. */
+      eq(r.camera, "REAR", "la caméra publiée ne bouge pas sur un échec");
+
+      const v = env.svc.view();
+      eq(hist(v), "1", "N rejoint l'historique : un fichier réellement produit ne peut pas être perdu");
+      eq(v.segments[0].path, "file:///cache/videoTmp_50.mp4");
+      eq(v.segments[0].state, "closed");
+      eq(v.segments[0].camera, "REAR", "et il porte SA caméra de départ, pas la cible");
+      eq(v.currentSegment, null, "AUCUN N+1 fantôme : rien n'a été créé");
+      eq(v.segmentIndex, 0);
+      eq(v.segmentState, "");
+      no(env.MultiCamCameraRecord.isRecording(), "le natif confirme qu'aucun recorder ne tourne");
+      yes(uniq(v));
+    });
+
+    it("B2. après un redémarrage refusé, le segment suivant est bien N+1", async () => {
+      const env = await top(bootService());
+      nameFile(env, 51);
+      env.CameraPreview.failRecord = true;
+      no((await adv(env, () => env.svc.requestSwitch("FRONT"))).ok);
+      eq(env.svc.view().segmentIndex, 0, "rien n'est en cours après le refus");
+
+      env.CameraPreview.failRecord = false;
+      nameFile(env, 52);
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      eq(env.svc.view().segmentIndex, 2,
+        "le refus n'a consommé aucun index : le prochain fichier est le segment 2");
+      eq(hist(env.svc.view()), "1");
+    });
+
+    it("B3. un échec de bascule APRÈS la clôture referme N, sans créer de N+1", async () => {
+      const env = await top(bootService({ failSwitch: "CAMERA_DISCONNECTED" }));
+      nameFile(env, 53);
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok);
+      eq(r.code, "switch_failed", "c'est la bascule qui a échoué, pas le redémarrage");
+      eq(r.camera, "REAR", "et la cible ne s'est pas declarée acquise à tort");
+
+      const v = env.svc.view();
+      eq(hist(v), "1", "le segment N est clos et il le dit");
+      eq(v.segments[0].path, "file:///cache/videoTmp_53.mp4");
+      eq(v.segmentCount, 1);
+      eq(v.currentSegment, null, "et rien n'est ouvert à la place");
+      eq(v.activeCamera, "REAR", "la caméra n'a pas bougé : la bascule n'est pas confirmée");
+    });
+
+    /* ---------- C · recorder N+1 créé puis échec ---------- */
+
+    it("C1. un N+1 RÉELLEMENT créé reste le segment en cours, marqué en échec", async () => {
+      const env = await top(bootService());
+      nameFile(env, 60);
+      env.CameraPreview.nextPath = "file:///cache/videoTmp_61.mp4";
+      env.CameraPreview.failRecordAfterStart = true;
+
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok, "le switch doit échouer");
+      eq(r.code, "restart_failed");
+
+      const v = env.svc.view();
+      eq(hist(v), "1", "le segment N est clos, il a produit un fichier");
+      eq(v.segmentIndex, 2, "et le N+1 EXISTE : son index lui revient, il n'est pas jeté");
+      eq(v.currentSegment.state, "failed", "mais sa fin n'est pas confirmée : il est marqué en échec");
+      eq(v.segmentState, "failed");
+      eq(v.currentSegment.camera, "FRONT", "il porte la caméra CONFIRMÉE, jamais la demandée");
+      eq(v.currentSegment.path, "file:///cache/videoTmp_61.mp4", "son chemin est conservé quand il est connu");
+      eq(v.currentSegment.failureCode, "restart_failed");
+      yes(v.currentSegment.failedAtMs > 0);
+      eq(v.segmentCount, 2, "deux segments, un seul clôturé");
+      yes(env.MultiCamCameraRecord.isRecording(), "et le recorder existe bien : la relecture le dit");
+      yes(uniq(v));
+    });
+
+    it("C2. après un N+1 en échec, le fichier suivant est N+2", async () => {
+      const env = await top(bootService());
+      nameFile(env, 63);
+      env.CameraPreview.failRecordAfterStart = true;
+      no((await adv(env, () => env.svc.requestSwitch("FRONT"))).ok);
+      eq(env.svc.view().segmentIndex, 2);
+
+      env.CameraPreview.failRecordAfterStart = false;
+      nameFile(env, 64);
+      const r2 = await adv(env, () => env.svc.requestSwitch("REAR"));
+      yes(r2.ok, "la bascule suivante repart d'un état cohérent");
+      eq(r2.closedSegmentIndex, 2, "c'est le N+1 en échec qui est clos");
+      eq(r2.closedPath, "file:///cache/videoTmp_64.mp4",
+        "et son fichier est celui produit par l'arrêt qui a, lui, abouti");
+      eq(r2.segmentIndex, 3, "le nouveau fichier est le segment 3 : N+2, aucun index sauté");
+
+      const v = env.svc.view();
+      eq(hist(v), "1,2", "l'historique est ordonné et sans trou");
+      eq(v.currentSegment.camera, "REAR");
+      eq(v.currentSegment.state, "recording");
+      yes(uniq(v));
+    });
+
+    /* ---------- D · STOP après un échec ---------- */
+
+    it("D1. un STOP après un échec referme le Take sans doublon d'index", async () => {
+      const env = await top(bootService());
+      nameFile(env, 70);
+      env.CameraPreview.nextPath = "file:///cache/videoTmp_71.mp4";
+      env.CameraPreview.failRecordAfterStart = true;
+      no((await adv(env, () => env.svc.requestSwitch("FRONT"))).ok);
+      eq(env.svc.view().segmentIndex, 2);
+
+      env.CameraPreview.failRecordAfterStart = false;
+      nameFile(env, 72);
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((r) => { env.svc.onRecordingStopped(r); }));
+
+      const v = env.svc.view();
+      eq(hist(v), "1,2", "les DEUX segments produits sont clôturés, aucun n'est perdu");
+      eq(states(v), "closed,closed", "le fichier du N+1 a bien été finalisé par le STOP");
+      eq(v.segments[1].path, "file:///cache/videoTmp_72.mp4",
+        "et il porte LE fichier réel, pas le chemin du segment précédent");
+      eq(v.segments[1].failureCode, "restart_failed", "l'échec de création reste tracé");
+      eq(v.segmentIndex, 0);
+      eq(v.currentSegment, null);
+      yes(uniq(v), "aucun index partagé entre deux segments du même Take");
+
+      /* Et le Take peut continuer : le numéro suivant est 3. */
+      nameFile(env, 73);
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      eq(env.svc.view().segmentIndex, 3, "le max observé fait la loi : jamais de réutilisation");
+    });
+
+    it("D2. un STOP après un redémarrage refusé n'ajoute RIEN à l'historique", async () => {
+      const env = await top(bootService());
+      nameFile(env, 74);
+      env.CameraPreview.failRecord = true;
+      no((await adv(env, () => env.svc.requestSwitch("FRONT"))).ok);
+      eq(hist(env.svc.view()), "1");
+
+      /* Aucun recorder ne tourne : l'arrêt ne peut rien clôturer de plus. */
+      env.CameraPreview.failRecord = false;
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((r) => { env.svc.onRecordingStopped(r); }));
+      const v = env.svc.view();
+      eq(hist(v), "1", "pas de segment fantôme au STOP : rien n'était en cours");
+      eq(v.segmentIndex, 0);
+      eq(v.segments.length, 1);
+      yes(uniq(v));
+      yes(env.logText().indexOf("CAMERA_SEGMENT_FINAL_SKIP reason=no_current_segment") >= 0,
+        "et le Skip est journalisé : un STOP sans segment est dit, pas silencieusement absorbé");
+    });
+
+    it("D3. le STOP du start-service signale l'échec au modèle ET remonte l'erreur", async () => {
+      /* Le câblage réel : c'est le start-service qui appelle le hook d'échec. On
+       * capture les `deps` qu'il construit pour appeler le VRAI `stopRecording`. */
+      const env = bootService({ failStop: "STOP_TIMEOUT" });
+      loadAll(env, ["state/start-model.js", "state/start-service.js"]);
+      let deps = null;
+      env.MultiCamStartModel = {
+        createMachine(d) { deps = d; return { view: () => ({ active: false, phase: "IDLE", rev: 0 }), isActive: () => false }; }
+      };
+      env.MultiCamStartService.bind();
+      yes(deps && typeof deps.stopRecording === "function", "le start-service doit construire ses deps");
+
+      await top(env);
+      let err = null;
+      try { await adv(env, () => deps.stopRecording()); } catch (e) { err = e; }
+      yes(err, "l'erreur doit remonter au modèle : un STOP raté ne peut pas sembler réussi");
+      eq(err.code, "stop_failed");
+      const v = env.svc.view();
+      eq(v.segmentIndex, 1, "et le segment reste en cours");
+      eq(v.currentSegment.state, "failed", "marqué en échec par le hook du start-service");
+      eq(hist(v), "");
+    });
+
+    /* ---------- E · états explicites ---------- */
+
+    it("E1. le cycle nominal donne `recording` puis `closed`, sans autre état", async () => {
+      const env = await top(bootService());
+      let v = env.svc.view();
+      eq(v.currentSegment.state, "recording", "un segment qui film est `recording`");
+      eq(v.segmentState, "recording", "et la vue l'expose sans traverser le segment");
+
+      nameFile(env, 80);
+      await adv(env, () => env.svc.requestSwitch("FRONT"));
+      v = env.svc.view();
+      eq(states(v), "closed", "le segment clos par la bascule est `closed`");
+      eq(v.currentSegment.state, "recording", "et le suivant repart en `recording`");
+
+      nameFile(env, 81);
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((r) => { env.svc.onRecordingStopped(r); }));
+      v = env.svc.view();
+      eq(states(v), "closed,closed");
+      eq(v.segmentState, "", "plus rien en cours : pas d'état à afficher");
+    });
+
+    it("E2. le modèle : un échec conserve l'index, l'historique, et n'ouvre rien", () => {
+      const env = bootModel();
+      const M = env.M;
+      eq(M.SEG.RECORDING, "recording");
+      eq(M.SEG.CLOSED, "closed");
+      eq(M.SEG.FAILED, "failed");
+
+      let st = M.attachToTake(M.createState(SID), SID, TAKE, 0);
+      st = M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      const failed = M.markSegmentFailed(st, { failureCode: "stop_failed", failedAtMs: 1500 });
+      eq(failed.currentSegment.segmentIndex, 1, "le segment garde SON index");
+      eq(failed.currentSegment.state, M.SEG.FAILED);
+      eq(failed.currentSegment.failureCode, "stop_failed");
+      eq(failed.currentSegment.failedAtMs, 1500);
+      eq(failed.segments.length, 0, "l'historique ne reçoit pas un fichier non finalisé");
+      eq(M.currentIndex(failed), 1, "et il reste le segment EN COURS");
+      eq(M.nextSegmentIndex(failed), 2, "l'échec ne consomme aucun numéro");
+
+      /* Une clôture ultérieure referme LE MÊME segment, échec compris. */
+      const closed = M.closeCurrentSegment(failed, { path: "/tmp/seg1.mp4", stoppedAtMs: 2000 });
+      eq(closed.segments.length, 1);
+      eq(closed.segments[0].segmentIndex, 1);
+      eq(closed.segments[0].state, M.SEG.CLOSED);
+      eq(closed.segments[0].failureCode, "stop_failed", "le fait observé reste porté");
+      eq(M.currentIndex(closed), 0);
+
+      /* Sans segment ouvert, un échec n'invente rien. */
+      const none = M.markSegmentFailed(closed, { failureCode: "stop_failed" });
+      eq(none.segments.length, 1, "aucune entrée ajoutée");
+      eq(none.currentSegment, null);
+    });
+
+    it("E3. le modèle : deux échecs successifs ne créent toujours qu'un index", () => {
+      const env = bootModel();
+      const M = env.M;
+      let st = M.attachToTake(M.createState(SID), SID, TAKE, 0);
+      st = M.openSegment(st, { camera: "REAR", startedAtMs: 1000 });
+      st = M.markSegmentFailed(st, { failureCode: "restart_failed", failedAtMs: 1100 });
+      st = M.markSegmentFailed(st, { failureCode: "stop_failed", failedAtMs: 1200 });
+      eq(st.segments.length, 0, "aucun segment rejoindra l'historique sans clôture confirmée");
+      eq(M.currentIndex(st), 1, "et un seul index est en jeu");
+      eq(M.nextSegmentIndex(st), 2);
+      eq(st.currentSegment.failureCode, "stop_failed", "le dernier échec constaté est celui qui compte");
+    });
+
+    /* ---------- F · fail closed ---------- */
+
+    it("F1. un refus SANS effet physique ne touche à aucun segment", async () => {
+      const env = await top(bootService({ physicalCameras: ["back"] }));
+      await adv(env, () => env.svc.refreshAvailability());
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.ok);
+      eq(r.code, env.MultiCamCameraSwitchModel.ERR.CAMERA_NOT_AVAILABLE);
+
+      const v = env.svc.view();
+      eq(v.segmentIndex, 1, "le segment est intact");
+      eq(v.currentSegment.state, "recording", "et toujours en cours d'enregistrement");
+      eq(hist(v), "", "aucune clôture, aucune invention");
+      eq(env.CameraPreview.calls.stopRecordVideo, 0, "rien n'a été touché côté matériel");
+    });
+
+    it("F2. une erreur SANS FAITS n'inscrit rien : l'absence de preuve n'est pas une preuve", async () => {
+      const env = await top(bootService());
+      nameFile(env, 90);
+      /* Un échec qui ne rapporte AUCUN fait : on ne peut rien déduire, donc on
+       * n'inscrit rien. C'est le cas le plus défensif possible. */
+      const real = env.MultiCamCameraRecord.switchSegmented;
+      env.MultiCamCameraRecord.switchSegmented = function () { return Promise.reject(new Error("boom")); };
+      const r = await tryAdv(env, () => env.svc.requestSwitch("FRONT"));
+      no(r.v.ok);
+      eq(r.v.code, "switch_failed", "sans code, c'est le refus générique — jamais un succès");
+      env.MultiCamCameraRecord.switchSegmented = real;
+
+      const v = env.svc.view();
+      eq(v.segmentIndex, 1, "le segment reste en cours");
+      eq(v.currentSegment.state, "recording", "et l'on n'invente pas un échec non constaté");
+      eq(hist(v), "");
+      eq(v.currentSegment.path, "", "aucun chemin n'est attribué à un fichier non finalisé");
+    });
+
+    it("F3. un refus avant toute opération ne porte AUCUN fait de segmentation", async () => {
+      const env = await enterRec(bootRecord());
+      let err = null;
+      try { await native(env, () => env.rec.switchSegmented({ camera: "before" })); }
+      catch (e) { err = e; }
+      eq(err.code, "unknown_camera");
+      eq(err.stopAttempted, false, "rien n'a été tenté");
+      eq(err.closed, false);
+      eq(err.closedPath, "");
+      eq(err.recorderStarted, false, "et surtout AUCUNE preuve de création : rien ne sera ouvert");
+      yes(env.rec.isRecording(), "le recorder d'origine n'a pas été touché");
+    });
+  });
+
   /* ══════════════════ B · mémoire de supervision ══════════════════ */
 
   describe("J09-07 · mémoire de supervision — convergence des Masters", () => {

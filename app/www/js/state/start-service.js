@@ -407,6 +407,14 @@
           var cs = camSwitch();
           if (cs && typeof cs.onRecordingStopped === "function") cs.onRecordingStopped(res || {});
           return res;
+        }, function (err) {
+          /* J09-08b2 : un arrêt NON CONFIRMÉ ne clôture AUCUN segment. Le
+           * segment reste en cours et identifiable, l'historique ne bouge pas et
+           * aucun index n'est consommé. L'erreur est ensuite REMONTÉE à
+           * l'identique : le modèle doit toujours voir l'échec du STOP. */
+          var cs = camSwitch();
+          if (cs && typeof cs.onRecordingStopFailed === "function") cs.onRecordingStopFailed(err || {});
+          throw err;
         });
       },
       log: log,
