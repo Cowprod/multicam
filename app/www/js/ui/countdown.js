@@ -57,31 +57,125 @@
 
   /* ---------- ligne d'état local (Capture uniquement) ---------- */
 
-  /* États LOCAUX uniquement (UI 07). `local` est rempli par le service /
-   * configuration ; toute valeur absente est omise plutôt qu'inventée. */
-  function localStates() {
+  /* Recul factuel, sans valeur par défaut : un état absent n'est pas écrit.
+   * `src` est une fonction d'accès au champ, pour que la même ligne serve à la
+   * vue countdown et à la vue REC sans dupliquer la liste. */
+  function row(icon, label, value) {
+    if (value === null || value === undefined || value === "") return "";
+    return '<div class="cd-row"><i class="fa-solid ' + icon + '"></i>'
+      + '<span class="cd-row-label">' + esc(label) + '</span>'
+      + '<span class="cd-row-val">' + esc(value) + '</span></div>';
+  }
+
+  /* États LOCAUX uniquement (UI 07/08). `v` est la VUE courante du service ;
+   * toute valeur absente est OMISE plutôt qu'inventée. On ne liste ici que ce
+   * que la CONFIGURATION locale peut affirmer — la batterie et le réseau sont
+   * de la télémétrie, donc de l'écran de régie, pas de cette vue. */
+  function localStates(v) {
+    v = v || {};
     var cfg = (global.MultiCamNav && global.MultiCamNav.cfg) ? global.MultiCamNav.cfg() : null;
     var out = [];
-    function row(icon, label, value) {
-      if (value === null || value === undefined || value === "") return;
-      out.push('<div class="cd-row"><i class="fa-solid ' + icon + '"></i>'
-        + '<span class="cd-row-label">' + esc(label) + '</span>'
-        + '<span class="cd-row-val">' + esc(value) + '</span></div>');
-    }
-    if (cfg) {
-      var skills = (cfg.enabledSkills || []).indexOf("capture") >= 0 ? "Capture" : "";
-      var perms = (cfg.permissions || {});
-      row("fa-video", "Rôle", skills);
-      row("fa-microphone", "Audio", perms.recordAudio === false ? "Refusé" : (perms.recordAudio === true ? "Autorisé" : ""));
-      row("fa-satellite-dish", "GPS", (cfg.gps && cfg.gps.profile) || "");
-      row("fa-hard-drive", "Stockage", (cfg.storage && cfg.storage.mode) === "saf" ? "SAF" : "Interne");
-    }
-    var v = state.lastView || {};
-    if (v.camera) {
-      row("fa-camera", "Caméra", v.camera.prepared ? "Prête" : "Non préparée");
-      row("fa-circle-check", "Top local", v.offsetKnown ? ("offset " + Math.round(v.offsetMs) + " ms") : "Offset inconnu");
+
+    if (!cfg) return "";
+
+    var skills = (cfg.enabledSkills || []).indexOf("capture") >= 0 ? "Capture" : "";
+    out.push(row("fa-video", "Rôle", skills));
+
+    /* Audio : la CAPABILITÉ de l'appareil, puis l'AUTORISATION. Deux lignes
+     * distinctes — « micro présent mais refusé » et « pas de micro » ne sont
+     * pas la même information pour l'opérateur. */
+    var perms = cfg.permissions || {};
+    if (perms.recordAudio === true) out.push(row("fa-microphone", "Audio", "Autorisé"));
+    else if (perms.recordAudio === false) out.push(row("fa-microphone", "Audio", "Refusé"));
+
+    var gpsProfile = (cfg.gps && cfg.gps.profile) || "";
+    out.push(row("fa-satellite-dish", "GPS", gpsProfile));
+    out.push(row("fa-hard-drive", "Stockage", (cfg.storage && cfg.storage.mode) === "saf" ? "SAF" : "Interne"));
+
+    /* Caméra et top local : redondants en REC, où la caméra occupe sa propre
+     * ligne et le top sa propre ligne d'écart. On ne les répète donc pas. */
+    if (v.phase !== "REC") {
+      if (v.camera) {
+        out.push(row("fa-camera", "Caméra", v.camera.prepared ? "Prête" : "Non préparée"));
+      }
+      out.push(row("fa-circle-check", "Top local", v.offsetKnown
+        ? ("offset " + Math.round(v.offsetMs) + " ms") : "Offset inconnu"));
     }
     return out.join("");
+  }
+
+  /* ---------- vue REC (J09-07, §35.2) ---------- */
+
+  /* La Capture n'affiche QUE son propre état. Aucune donnée d'un autre device
+   * n'est lue ici — c'est l'invariant UI 07/08 : une Capture ne supervise
+   * personne, elle se surveille elle-même. */
+  function renderRec(v) {
+    byId("cdRecSession").textContent = v.sessionName || "—";
+    byId("cdRecTake").textContent = v.takeNumber ? "Take " + pad3(v.takeNumber) : "—";
+    var cfg = (global.MultiCamNav && global.MultiCamNav.cfg) ? global.MultiCamNav.cfg() : null;
+    byId("cdRecDevice").textContent = (cfg && cfg.deviceName) || "—";
+    byId("cdRecTimer").textContent = mmss(v.recElapsedMs);
+
+    var d = v.lastStart;
+    if (d && typeof d.deltaMs === "number") {
+      var txt = "Top local : " + (d.deltaMs >= 0 ? "+" : "") + Math.round(d.deltaMs) + " ms";
+      if (d.ackMs && typeof d.ackDeltaMs === "number") {
+        txt += " · accusé natif : " + (d.ackDeltaMs >= 0 ? "+" : "") + Math.round(d.ackDeltaMs) + " ms";
+      }
+      byId("cdRecDelta").textContent = txt;
+    } else {
+      byId("cdRecDelta").textContent = "—";
+    }
+
+    /* Caméra : l'état AFFICHÉ est toujours le fait confirmé. Pendant une
+     * bascule, on écrit « bascule vers X… » et surtout PAS la caméra cible :
+     * afficher FRONT alors que la caméra filme encore REAR serait un faux ACK
+     * visuel. */
+    var cam = v.cameraSwitch || {};
+    var lbl = byId("cdRecCamLabel");
+    var camTxt;
+    if (cam.switchingCamera) camTxt = "Bascule vers " + (modelLabel(cam.switchingCamera)) + "…";
+    else if (cam.activeCamera) camTxt = modelLabel(cam.activeCamera);
+    else camTxt = "inconnue";
+    lbl.textContent = "Caméra " + camTxt;
+    var box = byId("cdRecCam");
+    if (box) {
+      box.classList.toggle("switching", !!cam.switchingCamera);
+      box.classList.toggle("unknown", !cam.activeCamera);
+    }
+
+    /* Segments : le compteur vient du modèle, jamais d'un calcul local. */
+    var seg = byId("cdRecSeg");
+    if (seg) {
+      seg.textContent = (typeof cam.segmentIndex === "number" && cam.segmentIndex > 0)
+        ? ("Segment " + cam.segmentIndex + (cam.lastSwitchDurationMs
+          ? " · dernier switch " + cam.lastSwitchDurationMs + " ms" : ""))
+        : "Segment 1";
+    }
+
+    /* Erreur : fail closed et VISIBLE. Une bascule refusée ou échouée doit rester
+     * à l'écran tant qu'elle n'a pas été résolue — sinon l'opérateur croit que
+     * son ordre est passé. */
+    var errBox = byId("cdRecErr");
+    if (errBox) {
+      if (cam.lastError) {
+        errBox.textContent = cam.lastErrorCode + " — " + cam.lastError;
+        errBox.classList.remove("d-none");
+      } else {
+        errBox.classList.add("d-none");
+        errBox.textContent = "";
+      }
+    }
+
+    byId("cdRecLocal").innerHTML = localStates(v);
+    var emg = byId("cdEmergency");
+    if (emg) emg.classList.toggle("d-none", !v.showEmergencyStop);
+    showView("cdRec");
+  }
+
+  function modelLabel(camera) {
+    var m = global.MultiCamCameraSwitchModel;
+    return (m && typeof m.label === "function") ? m.label(camera) : (camera || "");
   }
 
   /* ---------- rendu ---------- */
@@ -111,32 +205,13 @@
     var cfg = (global.MultiCamNav && global.MultiCamNav.cfg) ? global.MultiCamNav.cfg() : null;
     byId("cdDeviceCap").textContent = (cfg && cfg.deviceName) || "—";
     byId("cdDigitCap").textContent = String(v.digit || v.countdownSeconds || 0);
-    byId("cdLocalCap").innerHTML = localStates();
+    byId("cdLocalCap").innerHTML = localStates(v);
     showView("cdCapture");
   }
 
   function renderExcluded(v) {
     byId("cdExclCause").textContent = v.excludeMessage || "indisponible";
     showView("cdExcluded");
-  }
-
-  function renderRec(v) {
-    byId("cdRecSession").textContent = v.sessionName || "—";
-    byId("cdRecTake").textContent = v.takeNumber ? "Take " + pad3(v.takeNumber) : "—";
-    byId("cdRecTimer").textContent = mmss(v.recElapsedMs);
-    var d = v.lastStart;
-    if (d && typeof d.deltaMs === "number") {
-      var txt = "Top local : " + (d.deltaMs >= 0 ? "+" : "") + Math.round(d.deltaMs) + " ms";
-      if (d.ackMs && typeof d.ackDeltaMs === "number") {
-        txt += " · accusé natif : " + (d.ackDeltaMs >= 0 ? "+" : "") + Math.round(d.ackDeltaMs) + " ms";
-      }
-      byId("cdRecDelta").textContent = txt;
-    } else {
-      byId("cdRecDelta").textContent = "—";
-    }
-    var emg = byId("cdEmergency");
-    if (emg) emg.classList.toggle("d-none", !v.showEmergencyStop);
-    showView("cdRec");
   }
 
   /* Badge compact : Storage (et tout device qui ne doit pas quitter son écran). */

@@ -1,2 +1,6 @@
 # Fichiers parasites macOS — jamais committés.
 .DS_Store
+
+# Python : caches de compilation des patchs.
+__pycache__/
+*.pyc

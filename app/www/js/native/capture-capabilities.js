@@ -137,6 +137,15 @@
   global.MultiCamCaptureCapabilities = {
     installShim: installShim,
     probe: probe,
+    /* J09-07 : SONDE BRUTE, non normalisée.
+     *
+     * `probe()` retourne la forme J06, qui réduit chaque facing à la liste des
+     * RÉSOLUTIONS d'enregistrement. Cette information est fausse pour l'inventaire
+     * des caméras : une caméra arrière sans profil 720P/1080P/2160P y verrait une
+     * liste vide et serait déclarée inexistante. Le changement de caméra (§35.3)
+     * doit donc lire la réponse native brute, où `cameras[]` porte `facing` par
+     * caméra physique. */
+    probeRaw: rawProbe,
     capabilitiesFor: capabilitiesFor,
     setFixtureMap: setFixtureMap,
     clearFixtures: clearFixtures

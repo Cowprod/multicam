@@ -52,6 +52,27 @@
 
   var VALID_PROFILES = { "720P": true, "1080P": true, "2160P": true };
 
+  /* Modèle REAR/FRONT <-> direction du plugin. Le plugin ne connaît que
+   * "back"/"front" et résout lui-même le cameraId (CameraActivity
+   * .setDefaultCameraId) : cette table est donc le SEUL endroit du projet où les
+   * deux vocabulaires se rencontrent. */
+  var FACING_DIR = { REAR: "back", FRONT: "front" };
+  /* `fromDir` sert sur deux vocabulaires : les directions NATIVES ("back") ET
+   * les facings du modèle ("REAR"). Il faut donc accepter les deux écritures —
+   * sans l'entrée "rear", `fromDir("REAR")` rendait "" et la vérification
+   * post-bascule comparait une cible vide, faisant échouer toute bascule vers
+   * l'arrière alors même que le natif avait réussi. */
+  var DIR_FACING = { back: "REAR", rear: "REAR", front: "FRONT" };
+
+  function toDir(facing) {
+    var up = String(facing || "").toUpperCase();
+    return FACING_DIR[up] || FACING_DIR.REAR;
+  }
+
+  function fromDir(dir) {
+    return DIR_FACING[String(dir || "").toLowerCase()] || "";
+  }
+
   var state = {
     prepared: false,       /* PreviewSurface créée par startCamera */
     preparing: false,      /* startCamera en vol (une seule surface par device) */
@@ -60,7 +81,21 @@
     videoPath: "",         /* chemin renvoyé par stopRecordVideo (prise J09) */
     preparedFor: "",       /* startPlanId ayant motivé la préparation (traçabilité) */
     lastError: "",
-    counter: 0             /* idempotence : un même startPlanId ne démarre qu'une fois */
+    counter: 0,            /* idempotence : un même startPlanId ne démarre qu'une fois */
+    /* ---------- J09-07 : caméra réellement ouverte ---------- */
+    /* `activeFacing` n'est écrit qu'à partir d'un fait NATIF
+     * (`getCameraState` / `switchCameraTo`), jamais à partir d'une intention :
+     * il alimente le modèle `camera-switch-model` qui refuse d'afficher une
+     * bascule avant sa confirmation (§35.3 « pas de faux ACK »). */
+    activeFacing: "",
+    switchInFlight: null,  /* Promise de bascule : UNE seule opération physique */
+    switchCounter: 0,
+    /* Derniers RÉGLAGES d'enregistrement réellement appliqués. La segmentation
+     * (§35.3) redémarre un segment, pas une session : il doit donc corriger
+     * UNIQUEMENT la caméra et tout le reste doit être identique. Mémoriser les
+     * opts ici évite qu'un `switchSegmented` rejoue un profil par défaut et
+     * produise un segment de définition différente du précédent. */
+    lastRecOpts: null
   };
 
   function nowMs() { return Date.now(); }
@@ -138,12 +173,16 @@
       log("CAMERA_PREP_JOIN startPlanId=" + (opts.startPlanId || "—") + " reason=in_flight");
       return state.preparePromise;
     }
+    /* La caméra d'ouverture est celle DÉJÀ connue (J09-07), sinon celle
+     * demandée, sinon REAR (comportement J08 inchangé). Résoudre une caméra
+     * DIFFÉRENTE à cet endroit coûtait une CRÉATION de SurfaceView ;
+     * `switchCameraTo` reconfigure la surface existante sans la détruire. */
     var o = {
       x: 0,
       y: 0,
       width: viewportPx("innerWidth", "width"),
       height: viewportPx("innerHeight", "height"),
-      camera: (cp.CAMERA_DIRECTION && cp.CAMERA_DIRECTION.BACK) || "back",
+      camera: toDir(state.activeFacing || opts.camera || "REAR"),
       toBack: true,             /* preview native DERRIÈRE le WebView (UI 07) */
       tapPhoto: false,          /* pas de photo : J08 n'en capture aucune */
       tapFocus: false,
@@ -160,7 +199,7 @@
         state.preparedAtMs = nowMs();
         state.preparedFor = opts.startPlanId || "";
         log("CAMERA_PREP_OK startPlanId=" + (opts.startPlanId || "—")
-          + " camera=back toBack=1 dt=" + (state.preparedAtMs - t0) + "ms"
+          + " camera=" + toDir(state.activeFacing || opts.camera || "REAR") + " toBack=1 dt=" + (state.preparedAtMs - t0) + "ms"
           + " detail=" + JSON.stringify(r || {}));
         resolve({ ok: true, preparedAtMs: state.preparedAtMs, reused: false });
       }, function (e) {
@@ -171,12 +210,45 @@
       });
     }).then(function (r) {
       state.preparePromise = null;
+      if (!r.reused) return settleFacingOnPrepare().then(function () { return r; }, function () { return r; });
       return r;
     }, function (e) {
       state.preparePromise = null;
       throw e;
     });
     return state.preparePromise;
+  }
+
+  /* Établit le FAIT « quelle caméra filme » juste après l'ouverture de la
+   * surface.
+   *
+   * `startCamera` a réussi avec une direction DEMANDÉE, ce qui est une
+   * intention : le natif a pu verrouiller l'autre caméra (§35.1 — c'est
+   * exactement pour ça que `switchCameraTo` corrige ensuite `defaultCameraId`).
+   * Sans cette relecture, `activeFacing` resterait vide et le premier
+   * `switchSegmented` rapporterait `from: ""` — un segment dont on ignore la
+   * caméra d'origine. On préfère une lecture de plus au Take qu'une donnée
+   * fausse. Un échec n'est pas bloquant : la bascule suivante corrigera l'état. */
+  function settleFacingOnPrepare() {
+    /* Le shim D'ABORD : sans lui, `getCameraState` peut manquer sur le wrapper
+     * si le build n'a pas embarqué le JS plugin patché (voir setup-android.sh),
+     * et cette fonction rendrait `false` en silence — donc `activeFacing`
+     * resterait vide, le premier segment rapporterait `from: ""`, et le modèle
+     * rattacherait le fichier à la MAUVAISE caméra. Constaté sur le terrain. */
+    installSwitchShim();
+    if (typeof global.CameraPreview === "undefined"
+      || !global.CameraPreview || typeof global.CameraPreview.getCameraState !== "function") {
+      return Promise.resolve(false);
+    }
+    return getCameraState().then(function (r) {
+      if (!r || !r.available) {
+        log("CAMERA_FACING_UNKNOWN reason=" + ((r && r.reason) || "—"));
+        return false;
+      }
+      log("CAMERA_FACING_SET facing=" + (r.facing || "—")
+        + " cameraId=" + r.cameraId + " count=" + r.numberOfCameras);
+      return true;
+    }, function () { return false; });
   }
 
   /* Relâche la préparation (plan annulé, remplacé, non-participation). Ne
@@ -234,8 +306,14 @@
       });
     }
     var size = resolveSize(opts);
+    /* J09-07 : le segment est enregistré sur la caméra RÉELLEMENT ouverte, pas
+     * sur une constante. Hardcoder "back" ici ferait qu'après un switch validé
+     * le fichier serait nommé/arithmétiqué par le facing de l'ancien segment —
+     * et surtout l master's afficherait un segment REAR pendant que la caméra
+     * filme en FRONT. */
+    var facing = state.activeFacing || fromDir(opts.camera) || "REAR";
     var payload = {
-      cameraDirection: (cp.CAMERA_DIRECTION && cp.CAMERA_DIRECTION.BACK) || "back",
+      cameraDirection: toDir(facing),
       width: size.width,
       height: size.height,
       withFlash: false
@@ -247,11 +325,20 @@
     };
     var profile = resolveProfile(opts);
     if (profile) payload.camcorderProfile = profile;   /* absent → plugin choisit */
+    state.lastRecOpts = {
+      width: size.width,
+      height: size.height,
+      quality: opts.quality,
+      profile: profile,
+      takeNumber: opts.takeNumber,
+      startPlanId: opts.startPlanId || ""
+    };
     var t0 = nowMs();
     state.recording = true;
     state.counter += 1;
     log("CAMERA_REC_REQUEST startPlanId=" + (opts.startPlanId || "—")
       + " take=" + (opts.takeNumber || "—")
+      + " camera=" + facing
       + " w=" + payload.width + " h=" + payload.height
       + " quality=plugin_default"
       + " qualityLabel=" + resolveQuality(opts)
@@ -307,6 +394,282 @@
         reject(new Error("stopRecordVideo_failed:" + String(e)));
       });
     });
+  }
+
+  /* ---------- J09-07 §35.2 / §35.3 : état natif et bascule de caméra ----------
+   *
+   * Deux actions greffées par `app/camera-patches/apply_camera_switch_patch.py` :
+   *
+   *   `getCameraState()`      → FAIT : quel facing est réellement verrouillé,
+   *                             combien de caméras existent, la preview est-elle
+   *                             posée, un recorder est-il en cours.
+   *   `switchCameraTo(facing)`→ bascule CIBLEE et confirmée. L'API upstream
+   *                             `switchCamera()` ne vise aucune caméra et ne
+   *                             confirme rien ; elle est donc INUTILISABLE ici.
+   *
+   * Les erreurs natives arrivent en JSON (`{"ok":false,"error":"…"}`) : on les
+   * décode pour exposer un `code` stable au modèle, au lieu de laisser remonter
+   * une chaîne libre que ni l'ACK ni l'UI ne pourraient exploiter.
+   */
+
+  /* Installe les shims JS si le wrapper Cordova a été construit sans les
+   * méthodes patchées (build sans patch, ou plugin reinstallé). */
+  function installSwitchShim() {
+    var cp = plugin();
+    if (!cp || typeof global.cordova === "undefined" || typeof global.cordova.exec !== "function") {
+      return false;
+    }
+    if (typeof cp.switchCameraTo !== "function") {
+      cp.switchCameraTo = function (facing, onSuccess, onError) {
+        global.cordova.exec(onSuccess, onError, "CameraPreview", "switchCameraTo", [facing]);
+      };
+    }
+    if (typeof cp.getCameraState !== "function") {
+      cp.getCameraState = function (onSuccess, onError) {
+        global.cordova.exec(onSuccess, onError, "CameraPreview", "getCameraState", []);
+      };
+    }
+    return true;
+  }
+
+  function decodeNativeError(e) {
+    var raw = String(e);
+    try {
+      var o = JSON.parse(raw);
+      if (o && o.error) return { code: String(o.error), raw: raw };
+    } catch (x) { /* message natif libre */ }
+    return { code: "", raw: raw };
+  }
+
+  /* Fait natif brut, sans interprétation. Résout TOUJOURS (jamais de rejet) :
+   * l'absence de fait est un fait absent, pas une exception — l'appelant
+   * décide du refus. */
+  function getCameraState() {
+    installSwitchShim();
+    var cp = plugin();
+    if (!cp || typeof cp.getCameraState !== "function") {
+      return Promise.resolve({ available: false, reason: "plugin_unavailable" });
+    }
+    return new Promise(function (resolve) {
+      cp.getCameraState(function (res) {
+        var r = res || {};
+        var facing = fromDir(r.facing);
+        /* Une LECTURE native est un fait : elle rafraîchit le facing mémorisé.
+         * Sans cela, `activeFacing` ne serait établi qu'après une bascule, et le
+         * premier `switchSegmented` rapporterait `from: ""`. On n'écrit que si
+         * le natif a répondu quelque chose d'exploitable — une valeur vide ne
+         * remplace jamais une valeur connue. */
+        if (facing) state.activeFacing = facing;
+        resolve({
+          available: true,
+          facing: facing,
+          cameraId: (typeof r.cameraCurrentlyLocked === "number") ? r.cameraCurrentlyLocked : -1,
+          defaultCameraId: (typeof r.defaultCameraId === "number") ? r.defaultCameraId : -1,
+          numberOfCameras: (typeof r.numberOfCameras === "number") ? r.numberOfCameras : 0,
+          hasCamera: r.hasCamera === true,
+          recording: r.recording === true,
+          recordFilePath: typeof r.recordFilePath === "string" ? r.recordFilePath : ""
+        });
+      }, function (e) {
+        resolve({ available: false, reason: String(e) });
+      });
+    });
+  }
+
+  /* Bascule CIBLEE d'une seule caméra physique, SANS segmentation : c'est la
+   * primitive bas niveau. Le facing actif n'est mis à jour que sur un retour
+   * natif `ok:true` — une promesse résolue ne prouve donc jamais à elle seule
+   * que la caméra a changé. */
+  function switchCameraTo(facing) {
+    installSwitchShim();
+    var cp = plugin();
+    /* Fail-closed AVANT le moindre appel natif : `toDir` retombe sur REAR pour
+     * une valeur inconnue, donc une caméra hors modèle se traduirait par une
+     * bascule SILENCIEUSE vers l'arrière. Le modèle de caméras est la seule
+     * autorité ; une valeur qu'il ne reconnaît pas est un bug ou une corruption,
+     * pas une intention. */
+    if (!FACING_DIR[String(facing || "").toUpperCase()]) {
+      return Promise.reject(nativeError("unknown_camera",
+        "caméra " + String(facing) + " hors modèle"));
+    }
+    var want = toDir(facing);
+    if (!cp || typeof cp.switchCameraTo !== "function") {
+      return Promise.reject(nativeError("plugin_unavailable", "switchCameraTo indisponible"));
+    }
+    if (!state.prepared) {
+      return Promise.reject(nativeError("camera_off", "aucune PreviewSurface à reconfigurer"));
+    }
+    var t0 = nowMs();
+    return new Promise(function (resolve, reject) {
+      cp.switchCameraTo(want, function (res) {
+        var r = res || {};
+        var confirmed = fromDir(r.facing);
+        var atMs = nowMs();
+        if (!confirmed) {
+          reject(nativeError("switch_failed", "confirmation sans facing", r));
+          return;
+        }
+        state.activeFacing = confirmed;
+        state.switchCounter += 1;
+        state.lastError = "";
+        log("CAMERA_SWITCH_OK target=" + fromDir(want) + " confirmed=" + confirmed
+          + " alreadyActive=" + (r.alreadyActive ? 1 : 0)
+          + " cameraId=" + (r.cameraCurrentlyLocked == null ? "—" : r.cameraCurrentlyLocked)
+          + " nativeMs=" + (r.durationMs == null ? "—" : r.durationMs)
+          + " callDt=" + (atMs - t0) + "ms");
+        resolve({
+          ok: true,
+          alreadyActive: r.alreadyActive === true,
+          confirmed: confirmed,
+          cameraId: (typeof r.cameraCurrentlyLocked === "number") ? r.cameraCurrentlyLocked : -1,
+          atMs: atMs,
+          durationMs: (typeof r.durationMs === "number") ? r.durationMs : (atMs - t0)
+        });
+      }, function (e) {
+        var d = decodeNativeError(e);
+        state.lastError = d.raw;
+        log("CAMERA_SWITCH_KO target=" + fromDir(want) + " code=" + (d.code || "—")
+          + " err=" + d.raw + " callDt=" + (nowMs() - t0) + "ms");
+        reject(nativeError(d.code || "switch_failed", d.raw));
+      });
+    });
+  }
+
+  function nativeError(code, raw, detail) {
+    var e = new Error(code + ":" + String(raw));
+    e.code = code;
+    e.raw = String(raw);
+    e.detail = detail || null;
+    return e;
+  }
+
+  /* ---------- LA SEGMENTATION (§35.3) ----------
+   *
+   * Séquence IMPÉRATIVE, dans cet ordre exact, et aucune autre :
+   *
+   *   1. arrêter PROPREMENT le recorder courant  → fichier N finalisé
+   *   2. basculer la caméra                     → confirmation native
+   *   3. relire l'état natif                   → confirmation INDÉPENDANTE
+   *   4. démarrer immédiatement un recorder     → segment N+1
+   *
+   * Le Take reste REC pendant toute l'opération ; aucune autre Capture n'est
+   * touchée. Si l'étape 4 échoue on NE revient PAS à l'ancienne caméra : le
+   * segment est perdu, et il est plus honnête de le dire que d'en enregistrer
+   * un sous un facing qui n'est plus le sien.
+   *
+   * `switchInFlight` sérialise : deux commandes concurrentes partagent la même
+   * bascule et ne peuvent pas se chevaucher sur le même MediaRecorder.
+   */
+  function switchSegmented(opts) {
+    opts = opts || {};
+    var facing = String(opts.camera || "").toUpperCase();
+    /* Même garde qu'au niveau primitif, mais AVANT `stopRecording()` : sinon un
+     * facing invalide ferait fermer le segment N sans jamais rouvrir de segment,
+     * c'est-à-dire un Take corrompu. */
+    if (!FACING_DIR[facing]) {
+      return Promise.reject(nativeError("unknown_camera",
+        "caméra " + String(opts.camera) + " hors modèle"));
+    }
+    var wasRecording = state.recording;
+    /* La caméra de DÉPART est mémorisée À L'ENTRÉE, avant toute écriture : dès
+     * que `switchCameraTo` réussit, `state.activeFacing` vaut déjà la cible, et
+     * le lire après donnerait `from === to`. Or c'est `from` qui clôt le segment
+     * N côté orchestrateur — un `from` faux ferait rattacher le fichier au
+     * mauvais index et fausserait le décompte de segments du Take. */
+    var fromFacing = state.activeFacing || "";
+    var gapStartMs = nowMs();
+
+    if (state.switchInFlight) {
+      log("CAMERA_SWITCH_REFUSE target=" + facing + " code=switch_in_progress");
+      return Promise.reject(nativeError("switch_in_progress", "bascule déjà en cours"));
+    }
+
+    var op = Promise.resolve()
+      .then(function () {
+        /* --- 1. segment N --- */
+        if (!wasRecording) {
+          log("CAMERA_SWITCH_SEGMENT_SKIP target=" + facing + " reason=not_recording mode=preview_only");
+          return { closed: null, closedAtMs: 0 };
+        }
+        return stopRecording().then(function (r) {
+          log("CAMERA_SWITCH_SEGMENT_CLOSED target=" + facing
+            + " path=" + ((r && r.path) || "—")
+            + " stopDt=" + (r && r.atMs ? (r.atMs - gapStartMs) : 0) + "ms");
+          return { closed: (r && r.path) || "", closedAtMs: (r && r.atMs) || nowMs() };
+        });
+      })
+      .then(function (closed) {
+        /* --- 2. bascule --- */
+        return switchCameraTo(facing).then(function (sw) {
+          /* --- 3. relecture INDÉPENDANTE de l'état natif --- */
+          return getCameraState().then(function (nat) {
+            if (!nat.available) {
+              throw nativeError("state_unavailable", "getCameraState a échoué: " + (nat.reason || "—"));
+            }
+            if (nat.facing !== fromDir(facing)) {
+              throw nativeError("switch_failed",
+                "relecture native " + (nat.facing || "—") + " != demandé " + fromDir(facing));
+            }
+            return { closed: closed, sw: sw, nat: nat };
+          });
+        });
+      })
+      .then(function (r) {
+        /* --- 4. segment N+1 --- */
+        if (!wasRecording) {
+          return {
+            ok: true, segmented: false, restarted: false,
+            from: fromFacing, to: fromDir(facing),
+            closedPath: r.closed.closed,
+            gapMs: nowMs() - gapStartMs,
+            atMs: nowMs(), alreadyActive: r.sw.alreadyActive === true
+          };
+        }
+        /* On repart des réglages du segment COURANT et on ne change que la
+         * caméra : si le `camcorderProfile` mémorisé n'est pas supporté par la
+         * NOUVELLE caméra, le natif refuse (PROFILE_NOT_SUPPORTED) et la bascule
+         * est signalée en `restart_failed` — jamais un segment silencieux d'une
+         * autre définition. */
+        var prev = state.lastRecOpts || {};
+        var restart = {
+          startPlanId: opts.startPlanId || prev.startPlanId || "",
+          takeNumber: (opts.takeNumber == null) ? prev.takeNumber : opts.takeNumber,
+          localTargetMs: opts.localTargetMs,
+          width: prev.width,
+          height: prev.height,
+          quality: prev.quality,
+          profile: prev.profile,
+          camera: fromDir(facing)
+        };
+        return startRecording(restart).then(function () {
+          return {
+            ok: true, segmented: true, restarted: true,
+            from: fromFacing, to: fromDir(facing),
+            closedPath: r.closed.closed,
+            gapMs: nowMs() - gapStartMs,
+            atMs: nowMs(), alreadyActive: r.sw.alreadyActive === true
+          };
+        }, function (err) {
+          throw nativeError("restart_failed", String((err && err.message) || err));
+        });
+      });
+
+    state.switchInFlight = op.then(function (res) {
+      state.switchInFlight = null;
+      log("CAMERA_SWITCH_SEGMENT_OK target=" + fromDir(facing)
+        + " segmented=" + (res.segmented ? 1 : 0)
+        + " restarted=" + (res.restarted ? 1 : 0)
+        + " closedPath=" + (res.closedPath || "—")
+        + " gapMs=" + res.gapMs);
+      return res;
+    }, function (err) {
+      state.switchInFlight = null;
+      log("CAMERA_SWITCH_SEGMENT_KO target=" + fromDir(facing)
+        + " code=" + ((err && err.code) || "—") + " err=" + String((err && err.message) || err)
+        + " recording=" + (state.recording ? 1 : 0));
+      throw err;
+    });
+    return state.switchInFlight;
   }
 
   /* ---------- J09 §35.1 : cycle de vie de la preview permanente ---------- */
@@ -365,7 +728,11 @@
       videoPath: state.videoPath,
       preparedFor: state.preparedFor,
       lastError: state.lastError,
-      starts: state.counter
+      starts: state.counter,
+      /* J09-07 */
+      activeFacing: state.activeFacing,
+      switching: !!state.switchInFlight,
+      switches: state.switchCounter
     };
   }
 
@@ -382,6 +749,9 @@
     state.preparedFor = "";
     state.lastError = "";
     state.counter = 0;
+    /* Le natif n'a plus de caméra ouverte : le facing mémorisé n'a plus de
+     * référence. La prochaine `prepare()` repart de son `opts.camera` explicite. */
+    state.activeFacing = "";
     return true;
   }
 
@@ -393,6 +763,11 @@
     startPreview: startPreview,
     stopPreview: stopPreview,
     teardown: teardown,
+    /* J09-07 */
+    getCameraState: getCameraState,
+    switchCameraTo: switchCameraTo,
+    switchSegmented: switchSegmented,
+    installSwitchShim: installSwitchShim,
     view: view,
     isRecording: isRecording,
     reset: reset,

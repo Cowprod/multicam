@@ -35,8 +35,13 @@ PLATFORM = ROOT / 'platforms/android/app/src/main/java/com/cordovaplugincamerapr
 if not PREVIEW.exists():
     raise SystemExit('ERREUR: plugin introuvable (installer d abord): %s' % PREVIEW)
 
-def replace_once(text, old, new, label):
-    if new in text:
+def replace_once(text, old, new, label, marker=None):
+    # `marker` permet de tester l'idempotence sur un FRAGMENT stable plutot que
+    # sur `new` en entier. Necessaire ici : le texte insere n'est plus
+    # immediatement voisin de son ancre des qu'un autre patch a ajoute une
+    # branche entre les deux, alors que la modification, elle, est deja faite.
+    probe = marker if marker is not None else new
+    if probe in text:
         print('DEJA OK:', label)
         return text
     if old not in text:
@@ -61,19 +66,26 @@ s = replace_once(s,
     '  private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";\n',
     '  private static final String GET_CAMERA_CHARACTERISTICS_ACTION = "getCameraCharacteristics";\n'
     '  private static final String GET_CAPTURE_CAPABILITIES_ACTION = "getCaptureCapabilities";\n',
-    'action constant')
+    'action constant',
+    marker='private static final String GET_CAPTURE_CAPABILITIES_ACTION')
 
 # 2. branche execute()
+# Ancre volontairement COURTE : on se contente de la fin de la branche
+# `getCameraCharacteristics`. Une ancre plus longue exigeait que `return false;`
+# suive IMMEDIATEMENT cette branche — ce qui n'est vrai que si AUCUN autre patch
+# n'a encore inséré de branche ici. Le patch J09-07 en insère une, ce qui rendait
+# ce patch incapable de s'appliquer après lui : l'ordre d'application devenait
+# une contrainte invisible, non documentée, et un simple ré-appliquage en
+#Providerait un échec. `replace_once` étant déjà idempotent, cette ancre courte
+#rend les deux patches indépendants de leur ordre.
 s = replace_once(s,
-    '    } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {\n'
-    '      return getCameraCharacteristics(callbackContext);\n'
-    '    }\n\n    return false;',
-    '    } else if (GET_CAMERA_CHARACTERISTICS_ACTION.equals(action)) {\n'
+    '      return getCameraCharacteristics(callbackContext);\n    }\n',
     '      return getCameraCharacteristics(callbackContext);\n'
     '    } else if (GET_CAPTURE_CAPABILITIES_ACTION.equals(action)) {\n'
     '      return getCaptureCapabilities(callbackContext);\n'
-    '    }\n\n    return false;',
-    'execute branch')
+    '    }\n',
+    'execute branch',
+    marker='GET_CAPTURE_CAPABILITIES_ACTION.equals(action)')
 
 # 3. methode native (inseree avant getCameraCharacteristics)
 anchor = '  private boolean getCameraCharacteristics(CallbackContext callbackContext) {\n'

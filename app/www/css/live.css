@@ -125,3 +125,17 @@
  * une icône active sur une capacité inconnue serait une invention. */
 .modal-icon.on{color:#34d399;background:rgba(52,211,153,.16)}
 .modal-icon.off{color:rgba(255,255,255,.35)}
+/* ---------- J09-07 : contrôle de caméra d'une Capture ----------
+ *
+ * Un bloc sobre, dans la modal : deux boutons, une ligne d'état, une note.
+ * La ligne d'état ne dit JAMAIS la caméra cible avant confirmation — pendant
+ * une bascule, elle dit « bascule vers X… », ce qui est une intention VOULUE,
+ * donc signalée comme telle et pas présentée comme un état. */
+.ld-cam{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.55rem .7rem;background:rgba(255,255,255,.04)}
+.ld-cam.unknown{opacity:.75}
+/* Pendant une bascule, le cadre reste allumé : « ça bouge » doit être visible
+ * même si l'opérateur ne regarde pas le libellé. */
+.ld-cam.busy{border-color:#ffc107}
+.ld-cam-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.45rem}
+.ld-cam-actions:empty{margin-top:0}
+.ld-cam-actions .fa-solid{font-size:.7rem}

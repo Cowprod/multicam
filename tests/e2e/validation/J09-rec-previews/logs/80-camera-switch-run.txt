@@ -1,0 +1,85 @@
+== 0. preparation ==
+  61cc29567d91 pid=23645
+  61d54bba7d91 pid=22162
+  A(deviceId)=0c542f4c-c3d8-43cd-9e03-aaf004ba3ee4  B(deviceId)=68f01a99-254d-47d8-926b-bbf62be09230 skills=["capture","storage"]
+
+### 1. creation de la session sur A (Master)
+  SESSION sid=6NV42BFH (Regie J0907-021735)
+  pin=9088
+
+### 2. B rejoint la session (Capture) par le CHEMIN UI REEL
+  endpoint annonce = 192.168.92.57:45102
+  join (logcat) = SCREEN02_JOIN_OK sessionId=6NV42BFH rtt=199ms", source: http://localhost/js/ui/session-create.js (164)
+  dump 02-B-join-ui.json = "{\"panel\":\"panel-session\",\"pinStatus\":\"Vérification…\"}"
+  B a rejoint (annonceur) — l'appartenance est posee a l'etape 3
+
+### 3. le Master ADMET B comme membre Capture
+  dump 03-B-role.json = "{\"did\":\"68f01a99-254d-47d8-926b-bbf62be09230\",\"member\":true,\"roles\":[\"capture\"]}"
+  membres sur A = 1
+
+### 3b. roles confirms
+  dump 03-A-members.json = "{\"sid\":\"6NV42BFH\",\"masters\":[\"0c542f4c-c3d8-43cd-9e03-aaf004ba3ee4\",\"68f01a99-254d-47d8-926b-bbf62be09230\"],\"members\":[\"68f01a99-254d-47d8-926b-bbf62be09230\"]}"
+  shot 01-master-home.png
+
+### 4. selection de la Capture B dans le Take + ARM + REC
+  shot 02-master-take.png
+  dump 04-A-incident.json = "{\"modalShown\":true,\"recDisabled\":false,\"eligible\":true,\"incidents\":[{\"did\":\"68f01a99-254d-47d8-926b-bbf62be09230\",\"deviceName\":\"Cam 07\",\"skill\":\"capture\",\"skillStatus\":\"WARNING\",\"key\":\"sync\",\"status\":\"warn\",\"message\":\"Dégradée · delta -970 ms / dispersion 11 ms\"}]}"
+  modal d'incident ouvert (B en WARNING) -> passage par « Continuer REC »
+  B en REC apres 1 tentatives
+  dump 04-B-rec-on.json = "{\"phase\":\"REC\",\"rec\":true,\"switch\":{\"deviceId\":\"68f01a99-254d-47d8-926b-bbf62be09230\",\"sessionId\":\"6NV42BFH\",\"takeNumber\":1,\"availableCameras\":[],\"requestedCamera\":\"\",\"switchingCamera\":\"\",\"activeCamera\":\"\",\"busy\":false,\"segmentIndex\":0,\"lastSegment\":null,\"switchCount\":0,\"failCount\":0,\"lastError\":\"\",\"lastErrorCode\":\"\",\"lastErrorAtMs\":0,\"lastCommandId\":\"\",\"lastRequestedAtMs\":0,\"lastConfirmedAtMs\":0,\"lastSwitchDurationMs\":0,\"gapMaxMs\":0,\"cameraPhase\":\"unknown\",\"recording\":true,\"selectable\":[],\"phase\":\"REC\",\"unknown\":false}}"
+  shot 03-capture-rec-before.png
+  B avant bascule : "{"phase":"REC","rec":true,"switch":{"deviceId":"68f01a99-254d-47d8-926b-bbf62be09230","sessionId":"6NV42BFH","takeNumber":1,"availableCameras":[],"requestedCamera":"","switchingCamera":"","activeCamera":"","busy":false,"segmentIndex":0,"lastSegment":null,"switchCount":0,"failCount":0,"lastError":"","lastErrorCode":"","lastErrorAtMs":0,"lastCommandId":"","lastRequestedAtMs":0,"lastConfirmedAtMs":0,"lastSwitchDurationMs":0,"gapMaxMs":0,"cameraPhase":"unknown","recording":true,"selectable":[],"phase":"REC","unknown":false}}"
+  REC actif sur B: OK
+
+### 5. BASCULE demandée par le Master pendant le REC (B -> FRONT)
+  dump 05-A-order.json = "ORDER_SENT"
+  fenêtre REC->ACK : 8202 ms (mur, hors horloge du device)
+  dump 06-A-after-switch.json = "{\"deviceId\":\"0c542f4c-c3d8-43cd-9e03-aaf004ba3ee4\",\"sessionId\":\"6NV42BFH\",\"takeNumber\":1,\"availableCameras\":[],\"requestedCamera\":\"\",\"switchingCamera\":\"\",\"activeCamera\":\"\",\"busy\":false,\"segmentIndex\":0,\"lastSegment\":null,\"switchCount\":0,\"failCount\":0,\"lastError\":\"\",\"lastErrorCode\":\"\",\"lastErrorAtMs\":0,\"lastCommandId\":\"\",\"lastRequestedAtMs\":0,\"lastConfirmedAtMs\":0,\"lastSwitchDurationMs\":0,\"gapMaxMs\":0,\"cameraPhase\":\"unknown\",\"recording\":false,\"selectable\":[],\"phase\":\"REC\",\"unknown\":false}"
+  dump 07-B-after-switch.json = "{\"deviceId\":\"68f01a99-254d-47d8-926b-bbf62be09230\",\"sessionId\":\"6NV42BFH\",\"takeNumber\":1,\"availableCameras\":[\"REAR\",\"FRONT\"],\"requestedCamera\":\"FRONT\",\"switchingCamera\":\"\",\"activeCamera\":\"FRONT\",\"busy\":false,\"segmentIndex\":1,\"lastSegment\":{\"index\":1,\"path\":\"/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4\",\"fromCamera\":\"REAR\",\"toCamera\":\"FRONT\",\"closedAtMs\":1791073106082,\"durationMs\":1680},\"switchCount\":1,\"failCount\":0,\"lastError\":\"\",\"lastErrorCode\":\"\",\"lastErrorAtMs\":0,\"lastCommandId\":\"cs-mut2oku9-6k2dqu\",\"lastRequestedAtMs\":1791073104399,\"lastConfirmedAtMs\":1791073106083,\"lastSwitchDurationMs\":1680,\"gapMaxMs\":1680,\"cameraPhase\":\"active:FRONT\",\"recording\":true,\"selectable\":[{\"camera\":\"REAR\",\"label\":\"Arrière\",\"active\":false},{\"camera\":\"FRONT\",\"label\":\"Selfie\",\"active\":true}],\"phase\":\"REC\",\"unknown\":false}"
+  dump 08-B-native-after.json = "{\"phase\":\"REC\",\"rec\":true,\"native\":{\"prepared\":true,\"preparing\":false,\"recording\":true,\"videoPath\":\"/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4\",\"preparedFor\":\"\",\"lastError\":\"\",\"starts\":2,\"activeFacing\":\"FRONT\",\"switching\":false,\"switches\":1}}"
+  shot 04-capture-rec-after.png
+
+### 6. convergence de l'etat chez le Master (camera_state)
+  dump 09-A-inbox.json = "{\"deviceId\":\"68f01a99-254d-47d8-926b-bbf62be09230\",\"sessionId\":\"6NV42BFH\",\"takeNumber\":1,\"availableCameras\":[\"REAR\",\"FRONT\"],\"requestedCamera\":\"FRONT\",\"switchingCamera\":\"\",\"activeCamera\":\"FRONT\",\"segmentIndex\":1,\"switchCount\":1,\"lastError\":\"\",\"lastErrorCode\":\"\",\"lastSwitchDurationMs\":1680,\"atMs\":1791073106087,\"updatedAtMs\":1791073107195,\"phase\":\"REC\",\"busy\":false,\"cameraPhase\":\"active:FRONT\"}"
+
+### 7. preuve que le REC n'a PAS ete interrompu
+  dump 10-B-rec-integrity.json = "{\"starts\":2,\"recording\":true,\"prepared\":true}"
+
+### 8. facing hors modele refuse SANS fermer de segment
+  dump 11-A-order-none.json = "ORDER_NONE"
+  dump 12-A-after-none.json = "{\"deviceId\":\"0c542f4c-c3d8-43cd-9e03-aaf004ba3ee4\",\"sessionId\":\"6NV42BFH\",\"takeNumber\":1,\"availableCameras\":[],\"requestedCamera\":\"\",\"switchingCamera\":\"\",\"activeCamera\":\"\",\"busy\":false,\"segmentIndex\":0,\"lastSegment\":null,\"switchCount\":0,\"failCount\":0,\"lastError\":\"\",\"lastErrorCode\":\"\",\"lastErrorAtMs\":0,\"lastCommandId\":\"\",\"lastRequestedAtMs\":0,\"lastConfirmedAtMs\":0,\"lastSwitchDurationMs\":0,\"gapMaxMs\":0,\"cameraPhase\":\"unknown\",\"recording\":false,\"selectable\":[],\"phase\":\"REC\",\"unknown\":false}"
+  dump 13-B-after-none.json = "{\"deviceId\":\"68f01a99-254d-47d8-926b-bbf62be09230\",\"sessionId\":\"6NV42BFH\",\"takeNumber\":1,\"availableCameras\":[\"REAR\",\"FRONT\"],\"requestedCamera\":\"FRONT\",\"switchingCamera\":\"\",\"activeCamera\":\"FRONT\",\"busy\":false,\"segmentIndex\":1,\"lastSegment\":{\"index\":1,\"path\":\"/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4\",\"fromCamera\":\"REAR\",\"toCamera\":\"FRONT\",\"closedAtMs\":1791073106082,\"durationMs\":1680},\"switchCount\":1,\"failCount\":1,\"lastError\":\"caméra NONE hors modèle\",\"lastErrorCode\":\"unknown_camera\",\"lastErrorAtMs\":1791073114372,\"lastCommandId\":\"cs-mut2oku9-6k2dqu\",\"lastRequestedAtMs\":1791073104399,\"lastConfirmedAtMs\":1791073114350,\"lastSwitchDurationMs\":1680,\"gapMaxMs\":1680,\"cameraPhase\":\"active:FRONT\",\"recording\":true,\"selectable\":[{\"camera\":\"REAR\",\"label\":\"Arrière\",\"active\":false},{\"camera\":\"FRONT\",\"label\":\"Selfie\",\"active\":true}],\"phase\":\"REC\",\"unknown\":false}"
+
+### 9. STOP local sur B
+  shot 05-capture-after-stop.png
+  dump 14-B-after-stop.json = "{\"phase\":\"STOPPED\",\"rec\":false,\"switch\":{\"deviceId\":\"68f01a99-254d-47d8-926b-bbf62be09230\",\"sessionId\":\"6NV42BFH\",\"takeNumber\":1,\"availableCameras\":[\"REAR\",\"FRONT\"],\"requestedCamera\":\"FRONT\",\"switchingCamera\":\"\",\"activeCamera\":\"FRONT\",\"busy\":false,\"segmentIndex\":1,\"lastSegment\":{\"index\":1,\"path\":\"/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4\",\"fromCamera\":\"REAR\",\"toCamera\":\"FRONT\",\"closedAtMs\":1791073106082,\"durationMs\":1680},\"switchCount\":1,\"failCount\":1,\"lastError\":\"caméra NONE hors modèle\",\"lastErrorCode\":\"unknown_camera\",\"lastErrorAtMs\":1791073114372,\"lastCommandId\":\"cs-mut2oku9-6k2dqu\",\"lastRequestedAtMs\":1791073104399,\"lastConfirmedAtMs\":1791073114350,\"lastSwitchDurationMs\":1680,\"gapMaxMs\":1680,\"cameraPhase\":\"active:FRONT\",\"recording\":false,\"selectable\":[{\"camera\":\"REAR\",\"label\":\"Arrière\",\"active\":false},{\"camera\":\"FRONT\",\"label\":\"Selfie\",\"active\":true}],\"phase\":\"STOPPED\",\"unknown\":false}}"
+
+### 10. collecte des preuves
+  logs 61cc29567d91-camera-switch (     101 lignes)
+  logs 61d54bba7d91-camera-switch (      95 lignes)
+
+== oracles CAMERA_SWITCH / CAMERA_SEG (device B) ==
+  10-04 02:18:14.691 I/chromium(22162): [INFO:CONSOLE:50] "CAMERA_SWITCH_ATTACH sessionId=6NV42BFH take=1 segmentIndex=0", source: http://localhost/js/state/camera-switch-service.js (50)
+  10-04 02:18:24.400 I/chromium(22162): [INFO:CONSOLE:50] "CAMERA_SWITCH_BEGIN sessionId=6NV42BFH take=1 commandId=cs-mut2oku9-6k2dqu target=68f01a99-254d-47d8-926b-bbf62be09230 requested=FRONT active=REAR recording=1", source: http://localhost/js/state/camera-switch-service.js (50)
+  10-04 02:18:24.859 I/chromium(22162): [INFO:CONSOLE:103] "CAMERA_SWITCH_SEGMENT_CLOSED target=FRONT path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4 stopDt=456ms", source: http://localhost/js/native/camera-record.js (103)
+  10-04 02:18:25.385 D/CameraActivity(22162): J09_CAMERA_SWITCH_NATIVE from=0 to=1 facing=front dt=524ms
+  10-04 02:18:25.385 D/CameraPreview(22162): J09_CAMERA_SWITCH_RESULT target=front detail={"requestedFacing":"front","numberOfCameras":2,"targetCameraId":1,"ok":true,"alreadyActive":false,"cameraCurrentlyLocked":1,"defaultCameraId":1,"facing":"front","recording":false,"durationMs":524}
+  10-04 02:18:25.390 I/chromium(22162): [INFO:CONSOLE:103] "CAMERA_SWITCH_OK target=FRONT confirmed=FRONT alreadyActive=0 cameraId=1 nativeMs=524 callDt=528ms", source: http://localhost/js/native/camera-record.js (103)
+  10-04 02:18:26.084 I/chromium(22162): [INFO:CONSOLE:103] "CAMERA_SWITCH_SEGMENT_OK target=FRONT segmented=1 restarted=1 closedPath=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4 gapMs=1680", source: http://localhost/js/native/camera-record.js (103)
+  10-04 02:18:26.084 I/chromium(22162): [INFO:CONSOLE:50] "CAMERA_SWITCH_CONFIRM commandId=cs-mut2oku9-6k2dqu confirmed=FRONT segmented=1 segmentIndex=1 closedPath=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4 gapMs=1680", source: http://localhost/js/state/camera-switch-service.js (50)
+  10-04 02:18:26.092 I/chromium(22162): [INFO:CONSOLE:70] "CAMERA_SWITCH_REPLY sessionId=6NV42BFH commandId=cs-mut2oku9-6k2dqu ok=1 code=— sent=1", source: http://localhost/js/net/session-ws.js (70)
+  10-04 02:18:34.373 I/chromium(22162): [INFO:CONSOLE:50] "CAMERA_SWITCH_REJECT commandId=cs-mut2oski-sc500j code=unknown_camera reason=caméra NONE hors modèle target=68f01a99-254d-47d8-926b-bbf62be09230 requested=NONE", source: http://localhost/js/state/camera-switch-service.js (50)
+  10-04 02:18:34.373 I/chromium(22162): [INFO:CONSOLE:70] "CAMERA_SWITCH_REPLY sessionId=6NV42BFH commandId=cs-mut2oski-sc500j ok=0 code=unknown_camera sent=1", source: http://localhost/js/net/session-ws.js (70)
+
+== les 2 REC de B (doivent etre encadres par des segments) ==
+  10-04 02:18:20.412 I/chromium(22162): [INFO:CONSOLE:103] "CAMERA_REC_OK startPlanId=6NV42BFH#1#1#1 take=1 ackAtMs=1791073100410 callDt=743ms detail="OK"", source: http://localhost/js/native/camera-record.js (103)
+  10-04 02:18:24.859 I/chromium(22162): [INFO:CONSOLE:103] "CAMERA_REC_STOP_OK atMs=1791073104858 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_10.mp4 previewKept=1", source: http://localhost/js/native/camera-record.js (103)
+  10-04 02:18:26.083 I/chromium(22162): [INFO:CONSOLE:103] "CAMERA_REC_OK startPlanId=6NV42BFH#1#1#1 take=1 ackAtMs=1791073106082 callDt=684ms detail="OK"", source: http://localhost/js/native/camera-record.js (103)
+  10-04 02:18:43.444 I/chromium(22162): [INFO:CONSOLE:103] "CAMERA_REC_STOP_OK atMs=1791073123443 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_11.mp4 previewKept=1", source: http://localhost/js/native/camera-record.js (103)
+
+== proofs de pixels (la preview doit rester visible) ==
+  avant bascule :   03-capture-rec-before.png : image      : /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J09-rec-previews/screenshots/03-capture-rec-before.png (1340x800, 4 ch) region     : full sampled    : 134000 px mean RGB   : (40.4, 44.0, 57.6) distinct   : 153 buckets (16-level) dominant   : bucket(0, 0, 0) = 22.5% VARIANCE   : 16711 FALLBACK%  : 1.3%  (pixels == #111827) FLAT       : NO (photographic) NI_FALLBACK: NO VERDICT    : CAMERA_LIVE 
+  apres bascule :   04-capture-rec-after.png : image      : /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J09-rec-previews/screenshots/04-capture-rec-after.png (1340x800, 4 ch) region     : full sampled    : 134000 px mean RGB   : (25.7, 23.1, 25.0) distinct   : 76 buckets (16-level) dominant   : bucket(0, 0, 0) = 84.1% VARIANCE   : 27846 FALLBACK%  : 0.0%  (pixels == #111827) FLAT       : NO (photographic) NI_FALLBACK: NO VERDICT    : CAMERA_LIVE 
+  apres STOP    :   05-capture-after-stop.png : image      : /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J09-rec-previews/screenshots/05-capture-after-stop.png (1340x800, 4 ch) region     : full sampled    : 134000 px mean RGB   : (35.5, 30.4, 32.6) distinct   : 109 buckets (16-level) dominant   : bucket(0, 0, 0) = 56.1% VARIANCE   : 21421 FALLBACK%  : 0.2%  (pixels == #111827) FLAT       : NO (photographic) NI_FALLBACK: NO VERDICT    : CAMERA_LIVE 
+
+Preuves : /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J09-rec-previews/logs, /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J09-rec-previews/dumps, /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J09-rec-previews/screenshots

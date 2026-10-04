@@ -505,6 +505,16 @@
           <span>Preview <span id="ldPreviewAge">—</span></span>
         </div>
 
+        <!-- J09-07 : le SEUL contrôle de caméra de la supervision. Il n'agit
+             que sur la Capture ouverte dans ce modal, il n'est jamais activé
+             avant d'avoir reçu son état réel, et il disparaît dès que la
+             Capture est déconnectée ou en cours de bascule. -->
+        <div class="ld-cam mb-2" id="ldCamBox">
+          <div class="small muted"><i class="fa-solid fa-camera me-1"></i><span id="ldCamState">—</span></div>
+          <div class="ld-cam-actions" id="ldCamActions"></div>
+          <div class="small muted mt-1" id="ldCamNote"></div>
+        </div>
+
         <div class="incident-detail small rounded-3 p-2 bg-dark bg-opacity-50" id="ldIncidents"></div>
       </div>
     </div>
@@ -547,24 +557,35 @@
     <div class="cd-excl-sub small">Le départ de ce Take continue sans ce device.</div>
   </div>
 
-  <!-- ============ Écran 08 — REC (placeholder J08, monitoring = J09) ============ -->
+  <!-- ============ Écran 08 — REC ============ -->
+  <!-- Capture : VRAIE vue REC locale (§35.2). Elle ne montre QUE son propre
+       état — session, Take, REC, timer, rôle, audio, GPS, stockage, batterie,
+       réseau, caméra active. AUCUNE mosaïque, AUCUNE preview distante, AUCUNE
+       télémétrie d'un autre device : une Capture ne supervise personne. -->
   <div id="cdRec" class="cd-view d-none cd-rec">
-    <div class="cd-rec-top">
-      <span class="cd-rec-dot"></span>
-      <span class="cd-rec-label">REC</span>
-      <span class="cd-rec-timer" id="cdRecTimer">00:00</span>
-    </div>
-    <div class="cd-rec-meta">
-      <div id="cdRecSession">…</div>
-      <div id="cdRecTake">…</div>
-      <div class="cd-rec-delta small" id="cdRecDelta"></div>
-    </div>
-    <div class="cd-rec-note small">
-      Enregistrement effectif. Supervision multi-device, transfert et arrêt
-      global : <strong>jalon J09</strong>.
-    </div>
-    <div class="cd-foot">
-      <button id="cdEmergency" class="btn btn-outline-danger mainbtn d-none" type="button"><i class="fa-solid fa-stop me-2"></i>STOP local</button>
+    <div class="vig vig-cd" aria-hidden="true"></div>
+    <div class="cd-rec-overlay">
+      <div class="cd-rec-top">
+        <span class="cd-rec-dot"></span>
+        <span class="cd-rec-label">REC</span>
+        <span class="cd-rec-timer" id="cdRecTimer">00:00</span>
+      </div>
+      <div class="cd-rec-meta">
+        <div id="cdRecSession">…</div>
+        <div id="cdRecTake">…</div>
+        <div id="cdRecDevice">…</div>
+        <div class="cd-rec-delta small" id="cdRecDelta"></div>
+      </div>
+      <div class="cd-rec-cam" id="cdRecCam">
+        <i class="fa-solid fa-camera"></i>
+        <span id="cdRecCamLabel">Caméra —</span>
+      </div>
+      <div class="cd-rec-seg small" id="cdRecSeg"></div>
+      <div class="cd-rec-local" id="cdRecLocal"></div>
+      <div class="cd-rec-err small d-none" id="cdRecErr"></div>
+      <div class="cd-foot">
+        <button id="cdEmergency" class="btn btn-outline-danger mainbtn d-none" type="button"><i class="fa-solid fa-stop me-2"></i>STOP local</button>
+      </div>
     </div>
   </div>
 </section>
@@ -698,6 +719,12 @@
 <script src="js/state/preview-sampler.js"></script>
 <script src="js/state/preview-inbox.js"></script>
 <script src="js/state/preview-transport.js"></script>
+<!-- J09-07 : modèle pur d'abord, puis la frontière native, puis le service qui
+     les orchestre. L'ordre est une dépendance réelle : le service valide avec le
+     modèle et appelle la frontière, donc il ne peut pas précéder l'un des deux. -->
+<script src="js/state/camera-switch-model.js"></script>
+<script src="js/state/camera-state-inbox.js"></script>
+<script src="js/state/camera-switch-service.js"></script>
 <script src="js/state/live-model.js"></script>
 <script src="js/state/start-service.js"></script>
 <script src="js/ui/home.js"></script>

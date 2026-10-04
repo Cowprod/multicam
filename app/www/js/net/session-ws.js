@@ -142,7 +142,8 @@
     lifecycleBound: false, /* pause/resume déjà branchés sur le document */
     armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
     startBridge: null,     /* J08 : pont START (start-service) — idem, zéro logique ici */
-    previewBridge: null    /* J09 : pont PREVIEW (preview-inbox) — idem, zéro logique ici */
+    previewBridge: null,  /* J09 : pont PREVIEW (preview-inbox) — idem, zéro logique ici */
+    cameraBridge: null   /* J09-07 : pont CAMERA (camera-switch-service) — idem */
   };
 
   var _ipCache = "";       /* IPv4 synchrone (warm-up asynchrone via MultiCamNative) */
@@ -824,6 +825,15 @@
       case "preview_frame":
         handlePreviewFrame(env, entry);
         break;
+      case "camera_switch_request":
+        handleCameraSwitchRequest(env, entry, serverConn);
+        break;
+      case "camera_switch_result":
+        handleCameraSwitchResult(env);
+        break;
+      case "camera_state":
+        handleCameraState(env);
+        break;
       default:
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
         break;
@@ -973,6 +983,183 @@
     } else if (entry && entry.ws) {
       sendOn(entry.ws, env);
     }
+  }
+
+  /* ---------- J09-07 : transport du changement de caméra ----------
+   *
+   * QUATRE fonctions, et c'est tout — aucun état de caméra ici.
+   *
+   * `sendToDevice()`   — le SEUL envoi à device unique du fichier. Il existe
+   *                       parce que `broadcastTargeted()` ne l'est PAS : malgré
+   *                       son nom, il diffuse à tous les peers de la session. Or
+   *                       §35.2 veut qu'une commande de caméra atteigne UNE
+   *                       Capture précise. On réutilise donc le tri déjà éprouvé
+   *                       par `sendPreviewFrame()` : dé-duplication par deviceId
+   *                       (un Master est joignable par deux sockets), filtre
+   *                       `inSession`, premier chemin gagné prioritaire.
+   *
+   * `reply()`          — la RÉPONSE part sur la MÊME connexion que la demande,
+   *                       exactement comme `arm_result` et `start_probe_reply`.
+   *                       C'est la seule garantie que l'ACK atteint son
+   *                       destinataire sans être confondu avec une diffusion.
+   *
+   * `broadcastCameraState()` — l'état CONFIRMÉ part vers tous les Masters de la
+   *                       session. §35.3 : ils se convergent vers le fait réel,
+   *                       pas vers l'intention, et un Master doit pouvoir le
+   *                       savoir même si sa télémétrie est en retard.
+   *
+   * `handleCameraSwitchRequest()` / `handleCameraSwitchResult()` /
+   * `handleCameraState()` — le routage, et rien d'autre : le WS ne valide pas
+   *                       une commande de caméra, il ne connaît ni REAR ni
+   *                       FRONT. Il vérifie seulement la STRUCTURE et
+   *                       l'auto-déclaration, puis passe la main.
+   */
+
+  function sendToDevice(deviceId, session, kind, extra) {
+    if (!deviceId || typeof deviceId !== "string") return false;
+    var sid = (session && session.sessionId) || (extra && extra.sessionId) || "";
+    if (!sid) return false;
+    var env = envelope(kind, sid, extra);
+    var sent = false;
+    var self = localDid();
+
+    /* Le device ne s'envoie rien à lui-même : il exécute sa propre bascule par
+     * le chemin LOCAL (`requestSwitch`), jamais en se écoutant sur le réseau. */
+    if (deviceId === self) return false;
+
+    Object.keys(state.serverConns).forEach(function (uuid) {
+      if (sent) return;
+      var entry = state.serverConns[uuid];
+      if (!entry || entry.peerDid !== deviceId) return;
+      if (!inSession(entry, sid)) return;
+      if (sendServer(uuid, env)) sent = true;
+    });
+    Object.keys(state.clientConns).forEach(function (key) {
+      if (sent) return;
+      var entry = state.clientConns[key];
+      if (!entry || entry.did !== deviceId) return;
+      if (!inSession(entry, sid)) return;
+      if (sendOn(entry.ws, env)) sent = true;
+    });
+    emit(kind.toUpperCase() + "_TX sessionId=" + sid
+      + " target=" + deviceId + " sent=" + (sent ? 1 : 0));
+    return sent;
+  }
+
+  /* Réponse sur la connexion d'origine de `env` (stockée par le pont WS).
+   *
+   * Un seul `kind` de réponse pour la commande caméra : `camera_switch_result`
+   * porte À LA FOIS le succès et l'erreur, distingués par `ok` + `code`. Deux
+   * kinds obligeraient le pont à choisir avant de connaître le résultat, et donc
+   * à annoncer une intention d'erreur. */
+  function reply(env, extra) {
+    var rec = env && env.__conn;
+    if (!rec) return false;
+    var sent = rec.serverConn
+      ? sendServer(rec.serverConn.uuid, envelope("camera_switch_result", env.sessionId, extra))
+      : (rec.entry && rec.entry.ws ? sendOn(rec.entry.ws, envelope("camera_switch_result", env.sessionId, extra)) : false);
+    emit("CAMERA_SWITCH_REPLY sessionId=" + (env.sessionId || "—")
+      + " commandId=" + (extra.commandId || "—")
+      + " ok=" + (extra.ok ? 1 : 0) + " code=" + (extra.code || "—")
+      + " sent=" + (sent ? 1 : 0));
+    return sent === true;
+  }
+
+  /* Un seul chemin de réponse pour la commande caméra : le pont reçoit toujours
+   * `camera_switch_result`, quel que soit le verdict. */
+  function handleCameraSwitchRequest(env, entry, serverConn) {
+    if (cameraIsMalformed(env)) {
+      emit("CAMERA_TRANSPORT_DROP kind=camera_switch_request reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    var bridge = state.cameraBridge;
+    if (!bridge || typeof bridge.onCameraSwitchRequest !== "function") {
+      emit("CAMERA_TRANSPORT_DROP kind=camera_switch_request reason=no_bridge sessionId=" + (env.sessionId || "—"));
+      return;
+    }
+    /* On transporte la connexion d'origine pour que l'ACK reparte dessus. */
+    var tagged = env;
+    tagged.__conn = { entry: entry, serverConn: serverConn, replyKind: "camera_switch_result" };
+    try {
+      bridge.onCameraSwitchRequest(tagged, entry, serverConn);
+    } catch (e) {
+      emit("CAMERA_SWITCH_ERROR from=" + (env.from || "?") + " err=" + e);
+    }
+  }
+
+  function handleCameraSwitchResult(env) {
+    if (!env || !env.commandId || !env.from) {
+      emit("CAMERA_TRANSPORT_DROP kind=camera_switch_result reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    var bridge = state.cameraBridge;
+    if (!bridge || typeof bridge.onCameraSwitchResult !== "function") {
+      emit("CAMERA_TRANSPORT_DROP kind=camera_switch_result reason=no_bridge");
+      return;
+    }
+    bridge.onCameraSwitchResult(env);
+  }
+
+  function handleCameraState(env) {
+    if (!env || !env.deviceId || !env.from) {
+      emit("CAMERA_TRANSPORT_DROP kind=camera_state reason=malformed from=" + (env.from || "?"));
+      return;
+    }
+    if (env.from !== env.deviceId) {
+      emit("CAMERA_TRANSPORT_DROP kind=camera_state reason=not_self claimed=" + env.deviceId + " from=" + env.from);
+      return;
+    }
+    var bridge = state.cameraBridge;
+    if (!bridge || typeof bridge.onCameraState !== "function") {
+      emit("CAMERA_TRANSPORT_DROP kind=camera_state reason=no_bridge");
+      return;
+    }
+    bridge.onCameraState(env);
+  }
+
+  /* Validation STRUCTURELLE uniquement. Le WS ignore ce qu'est une caméra : il
+   * exige juste que la commande soit adressable et correlable. */
+  function cameraIsMalformed(env) {
+    if (!env.sessionId || !env.from) return true;
+    if (typeof env.targetDeviceId !== "string" || !env.targetDeviceId) return true;
+    if (typeof env.camera !== "string" || !env.camera) return true;
+    if (typeof env.commandId !== "string" || !env.commandId) return true;
+    return false;
+  }
+
+  function broadcastCameraState(session, extra) {
+    var sid = (session && session.sessionId) || (extra && extra.sessionId) || "";
+    if (!sid) return false;
+    var env = envelope("camera_state", sid, extra);
+    var sent = 0;
+    var self = localDid();
+    /* Même dé-duplication que `sendPreviewFrame` : un Master est joignable par
+     * deux sockets, et une image d'état en double ferait clignoter la vignette. */
+    var seen = {};
+    Object.keys(state.serverConns).forEach(function (uuid) {
+      var entry = state.serverConns[uuid];
+      if (!entry) return;
+      var did = entry.peerDid;
+      if (!did || did === self || seen[did]) return;
+      if (!inSession(entry, sid)) return;
+      if (!isMasterDevice(session, did)) return;
+      if (sendServer(uuid, env)) { sent++; seen[did] = true; }
+    });
+    Object.keys(state.clientConns).forEach(function (key) {
+      var entry = state.clientConns[key];
+      if (!entry) return;
+      var did = entry.did;
+      if (!did || did === self || seen[did]) return;
+      if (!inSession(entry, sid)) return;
+      if (!isMasterDevice(session, did)) return;
+      if (sendOn(entry.ws, env)) { sent++; seen[did] = true; }
+    });
+    emit("CAMERA_STATE_TX sessionId=" + sid
+      + " deviceId=" + (extra && extra.deviceId ? extra.deviceId : "—")
+      + " activeCamera=" + (extra && extra.activeCamera ? extra.activeCamera : "—")
+      + " switchingCamera=" + (extra && extra.switchingCamera ? extra.switchingCamera : "—")
+      + " masters=" + sent);
+    return sent > 0;
   }
 
   /* ---------- protocole : sync ---------- */
@@ -2228,6 +2415,13 @@ store().get(env.sessionId).then(function (local) {
     sendPreviewFrame: sendPreviewFrame,
     setPreviewBridge: function (bridge) {
       state.previewBridge = bridge || null;
+    },
+    /* J09-07 */
+    sendToDevice: sendToDevice,
+    reply: reply,
+    broadcastCameraState: broadcastCameraState,
+    setCameraSwitchBridge: function (bridge) {
+      state.cameraBridge = bridge || null;
     },
     onChanged: function (fn) {
       if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);

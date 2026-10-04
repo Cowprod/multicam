@@ -556,12 +556,29 @@
     var cam = camera() && camera().view ? camera().view() : {};
     v.camera = cam;
     v.recording = !!cam.recording;
+    /* J09-07 : l'écran REC de la Capture a besoin de l'état caméra CONFIRMÉ.
+     * On le publie ici — et pas dans `camera` — pour que la ligne « Caméra »
+     * reste celle de la PRÉPARATION (J08), qui est une autre question. */
+    var cs = global.MultiCamCameraSwitchService;
+    v.cameraSwitch = (cs && typeof cs.view === "function") ? cs.view() : null;
     return v;
   }
 
   function isActive() {
     var m = machine();
     return !!(m && m.isActive && m.isActive());
+  }
+
+  /* J09-07 — Accésseur ÉTROIT, volontairement distinct de `view()`.
+   * `view()` publie `cameraSwitch`, qui appelle `camera-switch-service.view()` ;
+   * si ce dernier lit le phase via `view()`, les deux s'appellent et la pile
+   * explose (constaté sur le terrain : « Maximum call stack size exceeded »).
+   * Tout module qui a besoin de la phase doit donc passer par ici, et par la
+   * machine — jamais par la vue agrégée. */
+  function phase() {
+    var m = machine();
+    if (m && typeof m.view === "function") return m.view().phase || "";
+    return startModel ? startModel().PHASE_IDLE : "";
   }
 
   function isRecording() {
@@ -594,6 +611,7 @@
     view: view,
     isActive: isActive,
     isRecording: isRecording,
+    phase: phase,
     machine: machine,
     selfDid: selfDid,
     onView: function (fn) {

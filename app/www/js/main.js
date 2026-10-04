@@ -292,6 +292,13 @@
     var screen = global.MultiCamCountdownScreen;
     if (!start || !screen) return;
     var v = start.view();
+    /* J09-07 : le service de bascule doit être attaché au Take AVANT toute
+     * chose — c'est lui qui sait à quel segment il appartient. Sans cet
+     * appel, `sessionId`/`takeNumber` restent vides pendant le REC et le
+     * Master ne peut rattacher l'état reçu à aucun Take (constaté sur le
+     * terrain : `takeNumber: null` sur tous les paquets `camera_state`). */
+    var camSwitch = global.MultiCamCameraSwitchService;
+    if (camSwitch && typeof camSwitch.onStartView === "function") camSwitch.onStartView(v);
     if (!v || !v.active) { onStartEnded(v); return; }
     /* Le rendu est toujours à jour, même quand on ne change pas de panneau. */
     if (current === "countdown") screen.render(v);
@@ -337,6 +344,15 @@
     /* J08 : idem pour le plan de START (pont START branché sur le WS) — un plan
      * reçu sans écran ouvert doit être adopté, caméra préparée comprise. */
     if (global.MultiCamStartService) global.MultiCamStartService.bind();
+    /* J09-07 : même raison pour une commande de caméra reçue sans écran ouvert.
+     * Une Capture pilotée à distance doit exécuter l'ordre même si l'opérateur
+     * regarde un autre écran : le pont est branché ici, au BOOT, pas à
+     * l'ouverture d'une vue. */
+    if (global.MultiCamCameraSwitchService) {
+      Promise.resolve(global.MultiCamCameraSwitchService.bind()).catch(function (err) {
+        console.log("CAMERA_SWITCH_BOOT_ERROR " + String((err && err.message) || err));
+      });
+    }
     return global.MultiCamSessionStore.list().then(function (sessions) {
       console.log("SESSION_BOOT stored=" + sessions.length
         + " open=" + sessions.filter(function (s) { return s.state === "open"; }).length

@@ -95,7 +95,12 @@ function fakeDocument(env) {
  * ce qui permet de tester les démarrages concurrents. */
 function fakeCameraPreview(env, opts) {
   opts = opts || {};
-  const calls = { startCamera: 0, stopCamera: 0, startRecordVideo: 0, stopRecordVideo: 0, capturePreviewSurface: 0 };
+  const calls = {
+    startCamera: 0, stopCamera: 0, startRecordVideo: 0, stopRecordVideo: 0,
+    capturePreviewSurface: 0,
+    /* J09-07 */
+    switchCameraTo: 0, getCameraState: 0, getCameraCharacteristics: 0, getCaptureCapabilities: 0
+  };
   /* Les callbacks natifs passent par les timers de l'ENV : avec
    * `createEnv({fakeClock:true})` ils deviennent virtuels et pilotables. */
   const later = (fn, ms) => (env.setTimeout || setTimeout)(fn, ms);
@@ -104,6 +109,11 @@ function fakeCameraPreview(env, opts) {
     calls,
     lastStartOptions: null,
     lastRecordOptions: null,
+    /* Journal d'ORDRE des opérations natives. Les compteurs de `calls` disent
+     * QUOI a été appelé, jamais dans quel ORDRE — et l'ordre
+     * stop → switch → relecture → restart est précisément ce que §35.1
+     * impose. Ce journal est donc la seule façon de l'asserter. */
+    ops: [],
     /* knobs de test */
     failStartCamera: opts.failStartCamera || null,
     failRecord: opts.failRecord || false,
@@ -115,6 +125,7 @@ function fakeCameraPreview(env, opts) {
 
     startCamera(o, ok, ko) {
       calls.startCamera += 1;
+      api.ops.push("startCamera");
       api.lastStartOptions = o;
       later(() => {
         if (api.failStartCamera) { if (ko) ko(String(api.failStartCamera)); return; }
@@ -123,19 +134,29 @@ function fakeCameraPreview(env, opts) {
     },
     stopCamera(ok, ko) {
       calls.stopCamera += 1;
+      api.ops.push("stopCamera");
       later(() => { if (ok) ok("Camera stopped"); }, 0);
     },
     startRecordVideo(o, ok, ko) {
       calls.startRecordVideo += 1;
+      api.ops.push("startRecordVideo");
       api.lastRecordOptions = o;
       later(() => {
         if (api.failRecord) { if (ko) ko("record_failed"); return; }
+        /* Le faux tient l'indicateur `recording` à jour : sans cela, un
+         * REDÉMARRAGE de segment laisserait le faux sur « arrêté » et le
+         * basculeur suivant croirait sortir de REC — donc ne pas segmenter. */
+        api.recording = true;
         if (ok) ok("OK");
       }, 0);
     },
     stopRecordVideo(ok, ko) {
       calls.stopRecordVideo += 1;
-      later(() => { if (ok) ok(api.videoPath); }, 0);
+      api.ops.push("stopRecordVideo");
+      later(() => {
+        api.recording = false;
+        if (ok) ok(api.videoPath);
+      }, 0);
     },
 
     /* ---------- PixelCopy (J09-03) ---------- */
@@ -146,6 +167,7 @@ function fakeCameraPreview(env, opts) {
      * `maxInFlight` est la métrique de non-concurrence du smoke. */
     capturePreviewSurface(o, ok, ko) {
       calls.capturePreviewSurface += 1;
+      api.ops.push("capturePreviewSurface");
       api.pixelCopy.calls += 1;
       const p = api.pixelCopy;
       p.inFlight += 1;
@@ -165,6 +187,64 @@ function fakeCameraPreview(env, opts) {
           if (p.failWith) job.settle("ko"); else job.settle("ok");
         }, p.latencyMs);
       }
+    },
+
+    /* ---------- J09-07 : bascule ciblée et état natif ----------
+     *
+     * Le faux reproduit le point qui compte : `switchCameraTo` ne change
+     * `activeFacing` qu'APRÈS avoir répondu, et `getCameraState` est une lecture
+     * INDÉPENDANTE. Un simple setter passerait alors même si le code annonçait un
+     * état optimiste — ce qu'interdit §35.2. */
+    getCameraCharacteristics(ok) {
+      calls.getCameraCharacteristics += 1;
+      later(() => ok(api.physicalCameras.map(function (facing) {
+        return { facing: facing, position: facing === "front" ? 1 : 0 };
+      })), 0);
+    },
+    getCaptureCapabilities(ok) {
+      calls.getCaptureCapabilities += 1;
+      later(() => ok({
+        cameras: api.physicalCameras.map(function (facing) {
+          return { facing: facing, widths: api.nativeResolutions.slice() };
+        })
+      }), 0);
+    },
+    getCameraState(ok, ko) {
+      calls.getCameraState += 1;
+      api.ops.push("getCameraState");
+      later(() => {
+        if (api.failState) { if (ko) ko(api.failState); return; }
+        ok({
+          hasCamera: true,
+          defaultCamera: api.nativeIndexOf(api.activeFacing),
+          /* Le patch natif expose des INT (CameraActivity.getDefaultCameraId()),
+           * et la couche JS refuse tout autre type : le donner en chaîne ferait
+           * lire `defaultCameraId: -1` et masquerait une incohérence. */
+          defaultCameraId: api.nativeIndexOf(api.activeFacing),
+          cameraCurrentlyLocked: api.nativeIndexOf(api.activeFacing),
+          numberOfCameras: api.physicalCameras.length,
+          recording: api.recording,
+          facing: api.activeFacing,
+          availableFacings: api.physicalCameras.slice()
+        });
+      }, api.stateLatencyMs);
+    },
+    switchCameraTo(facing, ok, ko) {
+      calls.switchCameraTo += 1;
+      api.ops.push("switchCameraTo");
+      api.switchTargets.push(facing);
+      later(() => {
+        if (api.failSwitch) { if (ko) ko(api.failSwitch); return; }
+        const already = facing === api.activeFacing;
+        api.activeFacing = facing;
+        api.switchCount += 1;
+        if (ok) ok({
+          facing: facing,
+          alreadyActive: already,
+          cameraCurrentlyLocked: api.nativeIndexOf(facing),
+          numberOfCameras: api.physicalCameras.length
+        });
+      }, api.switchLatencyMs);
     }
   };
 
@@ -188,6 +268,25 @@ function fakeCameraPreview(env, opts) {
       if (!job) throw new Error("settlePixelCopy : aucune capture en vol");
       job.settle(which, data);
     }
+  };
+
+  /* État physique simulé, indépendant de `activeFacing` : c'est
+   * `physicalCameras` qui décide de ce qui EXISTE, et `activeFacing` de ce qui
+   * FILME. Les séparer permet de tester « caméra annoncée mais absente » et
+   * « bascule refusée par le natif » sans bricoler le faux. */
+  api.physicalCameras = (opts.physicalCameras || ["back", "front"]).slice();
+  api.activeFacing = opts.activeFacing || "back";
+  api.nativeResolutions = opts.nativeResolutions || ["1920x1080", "1280x720"];
+  api.recording = !!opts.recording;
+  api.switchCount = 0;
+  api.switchTargets = [];
+  api.failSwitch = opts.failSwitch || null;
+  api.failState = opts.failState || null;
+  api.switchLatencyMs = opts.switchLatencyMs || 0;
+  api.stateLatencyMs = opts.stateLatencyMs || 0;
+  api.nativeIndexOf = function (facing) {
+    const i = api.physicalCameras.indexOf(facing);
+    return i < 0 ? 0 : i;
   };
   return api;
 }

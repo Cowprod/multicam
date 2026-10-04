@@ -370,6 +370,64 @@
     return "REC";
   }
 
+  /* ---------- J09-07 : état caméra d'une Capture ----------
+   *
+   * Deux sources, et l'ordre est significatif :
+   *
+   *   1. le service local, pour CE device — un Master+Capture qui affiche sa
+   *      propre caméra n'a pas à attendre un aller-retour réseau pour savoir dans
+   *      quelle direction il filme ;
+   *   2. la mémoire de supervision (`camera_state`), pour les autres Captures —
+   *      §35.3 veut que les Masters convergent vers l'état CONFIRMÉ.
+   *
+   * Si aucune des deux ne parle, on renvoie `null` et l'UI écrit « inconnu ».
+   * Jamais de valeur par défaut : « REAR » par défaut ferait croire à une caméra
+   * confirmée qui ne l'a jamais été.
+   */
+  function cameraOf(slot) {
+    if (!slot || !slot.deviceId) return null;
+    var isLocal = !!slot.isLocal;
+    var svc = global.MultiCamCameraSwitchService;
+    if (isLocal && svc && typeof svc.view === "function") {
+      try {
+        var v = svc.view();
+        if (v && (v.activeCamera || v.switchingCamera)) {
+          return {
+            activeCamera: v.activeCamera || "",
+            switchingCamera: v.switchingCamera || "",
+            requestedCamera: v.requestedCamera || "",
+            availableCameras: (v.availableCameras || []).slice(),
+            busy: v.busy === true,
+            segmentIndex: v.segmentIndex,
+            lastError: v.lastError || "",
+            lastErrorCode: v.lastErrorCode || "",
+            lastSwitchDurationMs: v.lastSwitchDurationMs,
+            source: "local"
+          };
+        }
+      } catch (e) { /* service indisponible : on retombe sur l'inbox */ }
+    }
+    var inbox = global.MultiCamCameraStateInbox;
+    if (inbox && typeof inbox.forDevice === "function") {
+      var r = inbox.forDevice(slot.deviceId, slot.sessionId);
+      if (r) {
+        return {
+          activeCamera: r.activeCamera || "",
+          switchingCamera: r.switchingCamera || "",
+          requestedCamera: r.requestedCamera || "",
+          availableCameras: (r.availableCameras || []).slice(),
+          busy: r.busy === true,
+          segmentIndex: r.segmentIndex,
+          lastError: r.lastError || "",
+          lastErrorCode: r.lastErrorCode || "",
+          lastSwitchDurationMs: r.lastSwitchDurationMs,
+          source: "supervision"
+        };
+      }
+    }
+    return null;
+  }
+
   function slotView(slot) {
     var out = {
       sessionId: slot.sessionId,
@@ -383,6 +441,8 @@
       lastFrameAt: slot.lastFrameAt,
       connected: slot.connected,
       displayState: displayStateOf(slot),
+      /* J09-07 : état caméra confirmé, ou null (inconnu). */
+      camera: cameraOf(slot),
       /* Dernier snapshot mesuré + son instant. L'UI en dérive l'âge ; le modèle
        * ne juge pas la fraîcheur (c'est une décision d'écran, avec les cadences
        * réelles). */

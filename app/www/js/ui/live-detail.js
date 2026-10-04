@@ -156,6 +156,53 @@
       if (net === null) notes.push("Type de réseau inconnu.");
     }
 
+    /* J09-07 : état caméra de cette Capture, tel que rapporté par son service
+     * (local) ou par le dernier `camera_state` reçu (supervision). Trois
+     * niveaux, et AUCUNE valeur par défaut : `null` signifie « on ne sait
+     * pas », ce qui est très différent de « REAR ». */
+    var cs = s.camera || null;
+    var m = global.MultiCamCameraSwitchModel;
+    var camActive = (cs && m) ? m.normalizeCamera(cs.activeCamera) : "";
+    var camSwitching = (cs && m) ? m.normalizeCamera(cs.switchingCamera) : "";
+    var camAvailable = [];
+    if (cs && m && Array.isArray(cs.availableCameras)) {
+      cs.availableCameras.forEach(function (x) {
+        var c = m.normalizeCamera(x);
+        if (c && m.CAMERAS.indexOf(c) >= 0 && camAvailable.indexOf(c) < 0) camAvailable.push(c);
+      });
+      camAvailable.sort(function (a, b) { return m.CAMERAS.indexOf(a) - m.CAMERAS.indexOf(b); });
+    }
+
+    var cameraActions = [];
+    if (camAvailable.length) {
+      camAvailable.forEach(function (c) {
+        cameraActions.push({
+          camera: c,
+          label: m.label(c),
+          /* Le bouton de la caméra DÉJÀ active est neutralisé : rejouer un
+           * switch identique créerait un segment pour rien et retrancherait un
+           * fichier du Take. L'idempotence existe côté service ; l'UI ne doit
+           * pas non plus proposer l'action. */
+          disabled: (!connected) || !!camSwitching || (c === camActive),
+          active: c === camActive
+        });
+      });
+    }
+
+    var cameraNote = "";
+    if (!connected) {
+      cameraNote = "Capture déconnectée : aucun ordre ne peut lui être transmis.";
+    } else if (!cs) {
+      cameraNote = "État caméra inconnu pour cette Capture : aucun ordre n'est proposé.";
+    } else if (!camAvailable.length) {
+      cameraNote = "Aucune caméra annoncée par cette Capture.";
+    } else if (camSwitching) {
+      cameraNote = "Bascule vers " + m.label(camSwitching) + " en cours. La confirmation "
+        + "vient de la Capture, pas de cet écran.";
+    } else if (camAvailable.length < 2) {
+      cameraNote = "Une seule caméra disponible : rien à basculer.";
+    }
+
     return {
       sessionId: s.sessionId || "",
       take: s.take || 0,
@@ -208,8 +255,30 @@
       telemetryStale: telemetryAgeMs !== null && telemetryAgeMs > TELEMETRY_STALE_MS,
       incidents: incidents,
       notes: notes,
-      /* Contractuel : vide en J09-06. Voir l'en-tête du module. */
-      actions: []
+      /* `actions` reste VIDE, et c'est délibéré : c'est le contrat générique de
+       * commande (arrêt distant, transfert, suppression) que J09-06 a posé à
+       * zéro et que J09-07 ne rouvre pas. Le seul contrôle ajouté porte une clé
+       * à lui, `cameraActions`, parce que son comportement est très différent :
+       * il produit une segmentation du Take, pas un ordre d'arrêt. Fusionner les
+       * deux dans `actions` ferait passer une bascule de caméra pour un ordre
+       * d'arrêt, et les tests J09-06 le vérifient explicitement. */
+      actions: [],
+      camera: {
+        known: !!cs,
+        active: camActive,
+        activeLabel: camActive ? m.label(camActive) : "—",
+        switching: camSwitching,
+        switchingLabel: camSwitching ? m.label(camSwitching) : "",
+        available: camAvailable,
+        busy: !!camSwitching,
+        segmentIndex: (cs && typeof cs.segmentIndex === "number") ? cs.segmentIndex : null,
+        lastSwitchDurationMs: (cs && typeof cs.lastSwitchDurationMs === "number") ? cs.lastSwitchDurationMs : null,
+        lastError: (cs && cs.lastError) ? cs.lastError : "",
+        lastErrorCode: (cs && cs.lastErrorCode) ? cs.lastErrorCode : "",
+        source: (cs && cs.source) || ""
+      },
+      cameraActions: cameraActions,
+      cameraNote: cameraNote
     };
   }
 
@@ -239,6 +308,84 @@
   /* Les icônes de la modal : vidéo / audio / GPS quand elles sont RÉELLEMENT
    * annoncées par la Capture. Pas d'icône « cochée » sur une capacité
    * inconnue : l'absence se dit dans `notes`. */
+  /* ---------- J09-07 : contrôle de caméra ---------- */
+
+  /* Le DOM est reconstruit à chaque peinture. C'est peu coûteux (deux boutons)
+   * et cela évite l'invariant COMPLEXE d'un cache d'état de boutons : le seul
+   * risque de désynchronisation possible ici est l'utilisateur qui appuie sur
+   * une cible devenue invalide entre deux peintures — et le service, lui,
+   * valide et refuse proprement ce cas. Le refus est donc VISIBLE. */
+  function paintCamera(d) {
+    var box = byId("ldCamBox");
+    if (!box || !d) return;
+    var c = d.camera || {};
+    var state = byId("ldCamState");
+    if (state) {
+      if (!c.known) {
+        state.textContent = "Caméra inconnue";
+      } else if (c.switching) {
+        state.textContent = "Caméra " + c.activeLabel + " → bascule vers " + c.switchingLabel + "…";
+      } else {
+        state.textContent = "Caméra " + c.activeLabel
+          + (typeof c.segmentIndex === "number" && c.segmentIndex > 0 ? " · segment " + c.segmentIndex : "");
+      }
+    }
+    box.classList.toggle("unknown", !c.known);
+    box.classList.toggle("busy", !!c.busy);
+
+    var host = byId("ldCamActions");
+    if (host) {
+      host.textContent = "";
+      if (d.cameraActions && d.cameraActions.length) {
+        d.cameraActions.forEach(function (a) {
+          var b = documentCreate("button",
+            "btn btn-sm " + (a.active ? "btn-secondary" : "btn-outline-light"));
+          b.type = "button";
+          b.disabled = !!a.disabled;
+          b.setAttribute("data-camera", a.camera);
+          b.appendChild(mkIcon(a.camera === "front" ? "fa-face-smile" : "fa-video"));
+          b.appendChild(textNode(" " + a.label));
+          if (a.active) b.title = "Caméra actuellement active";
+          host.appendChild(b);
+        });
+      }
+    }
+
+    var note = byId("ldCamNote");
+    if (note) {
+      /* L'erreur du dernier switch reste visible tant qu'elle n'est pas
+       * résolue : un échec silencieux ferait croire que l'ordre est passé. */
+      if (c.lastError) note.textContent = c.lastErrorCode + " — " + c.lastError;
+      else note.textContent = d.cameraNote || "";
+    }
+  }
+
+  /* Un clic n'est qu'une INTENTION. On ne modifie aucun affichage ici : ni
+   * bouton pressed, ni texte « bascule vers… ». La ligne d'état ne bougera que
+   * quand la Capture aura publié son `camera_state` réel. C'est ce qui distingue
+   * un ordre d'un fait. */
+  function onCameraClick(ev) {
+    var t = ev && ev.target;
+    if (!t || !t.getAttribute) return;
+    var cam = t.getAttribute("data-camera");
+    if (!cam) return;
+    var host = t.closest ? t.closest("#ldCamActions") : null;
+    if (!host) return;
+    var svc = global.MultiCamCameraSwitchService;
+    if (!svc || typeof svc.requestSwitchRemote !== "function") {
+      setText("ldCamNote", "Changement de caméra indisponible sur ce device.");
+      return;
+    }
+    var target = OPEN.deviceId;
+    if (!target) return;
+    Promise.resolve(svc.requestSwitchRemote({ targetDeviceId: target, camera: cam })).then(function (r) {
+      if (!r || r.ok) return;
+      setText("ldCamNote", (r.code || "REFUS") + " — " + (r.message || "ordre refusé"));
+    }, function () {
+      setText("ldCamNote", "Ordre de bascule non transmis.");
+    });
+  }
+
   function paintSkills(d) {
     [["ldSkillVideo", d.capabilities.video], ["ldSkillAudio", d.capabilities.audio], ["ldSkillGps", d.capabilities.gps]]
       .forEach(function (pair) {
@@ -289,6 +436,7 @@
     setText("ldTelemetryAge", d.telemetryAgeText + (d.telemetryStale ? " · anciennes" : ""));
     setText("ldPreviewAge", d.preview.ageText);
     paintSkills(d);
+    paintCamera(d);
 
     var img = byId("ldImage");
     var noimg = byId("ldNoImg");
@@ -352,6 +500,7 @@
     if (!slot) { close(); return null; }
     var view = detailOf(slot, { nowMs: Date.now() });
     bindClose();
+    bindCamera();
     var modal = byId("liveDetailModal");
     if (modal) {
       /* `aria-hidden` + la classe `.show` : même convention que les autres
@@ -392,6 +541,7 @@
    * Aucun autre bouton n'existe dans cette modal : il n'y a rien à câbler, et
    * c'est délibéré (J09-06 est de la supervision, pas du contrôle). */
   var BOUND = false;
+  var CAM_BOUND = false;
 
   function bindClose() {
     if (BOUND) return;
@@ -409,6 +559,17 @@
         if (ev.key === "Escape" || ev.key === "Esc") onClose();
       });
     }
+  }
+
+  /* Délégation sur le CONTENEUR d'actions, pas sur chaque bouton : les boutons
+   * sont recréés à chaque peinture (5 Hz), donc un listener posé bouton par
+   * bouton serait perdu immédiatement. */
+  function bindCamera() {
+    if (CAM_BOUND) return;
+    var host = byId("ldCamActions");
+    if (!host || !host.addEventListener) return;
+    CAM_BOUND = true;
+    host.addEventListener("click", onCameraClick);
   }
 
   global.MultiCamLiveDetail = {

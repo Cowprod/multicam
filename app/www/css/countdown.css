@@ -253,3 +253,53 @@
   border-radius: 50%;
   background: #dc3545;
 }
+
+/* ---------- Écran 08 : REC réel (J09-07) ----------
+ *
+ * La vue REC est une page, pas une vignette : le fond du vig est assombri et
+ * l'information tient en haut. Aucune mosaïque, aucune preview distante — ce
+ * que la maquette montrait ne doit pas ressusciter ici par esthétique. */
+.cd-rec-overlay {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  padding: 1.4rem 1.1rem;
+}
+.cd-rec-top {
+  align-items: baseline;
+}
+.cd-rec-cam {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .45rem .8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(0, 0, 0, .45);
+  color: #fff;
+  font-weight: 600;
+}
+/* Bascule en cours : ambre, jamais vert. La caméra cible n'est PAS écrite. */
+.cd-rec-cam.switching {
+  border-color: #ffc107;
+  color: #ffc107;
+}
+.cd-rec-cam.unknown {
+  border-style: dashed;
+  color: rgba(255, 255, 255, .65);
+}
+.cd-rec-seg,
+.cd-rec-local,
+.cd-rec-err {
+  color: rgba(255, 255, 255, .72);
+}
+.cd-rec-err {
+  color: #ffc107;
+  font-weight: 600;
+}
+.cd-rec .vig-cd {
+  opacity: .35;
+}
