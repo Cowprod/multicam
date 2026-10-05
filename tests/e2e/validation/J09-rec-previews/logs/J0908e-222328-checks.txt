@@ -1,0 +1,84 @@
+  PASS   B  segmentIndex == 1                                     1
+  PASS   B  segmentState == recording                             recording
+  PASS   B  recording == true                                     true
+  PASS   B  activeCamera confirme (non vide)                      [REAR]
+  FAIL   A  segmentIndex recu == 1                                attendu=[1] obtenu=[-]
+  FAIL   A  segmentState recu                                     attendu=[recording] obtenu=[]
+  FAIL   A  recording recu == true                                attendu=[true] obtenu=[?]
+  FAIL   A  meme activeCamera que B                               attendu=[REAR] obtenu=[-]
+  PASS   A  requestedCamera non promu en actif                    modal=[Caméra inconnue]
+  OBS    A  requestedCamera recu (derniere demande, jamais lue comme active) actif=- demande=-
+  PASS   UI locale B  camera reelle                               [Caméra Arrière]
+  PASS   UI locale B  segment 1                                   [Segment 1]
+  FAIL   modal A  camera reelle                                   fragment absent [-] dans [Caméra inconnue]
+  FAIL   modal A  segment 1                                       fragment absent [segment 1] dans [Caméra inconnue]
+  FAIL   modal A  enregistrement                                  fragment absent [enregistrement] dans [Caméra inconnue]
+  FAIL   modal A  2 boutons camera                                attendu=[2] obtenu=[0]
+  OBS    modal A  aucun bouton (camera inconnue : aucun ordre propose) ldBtn=0
+  FAIL   Master : segment 1 recu SANS attendre de bascule         aucun camera_state en 40 s (voir /Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J09-rec-previews/logs/J0908e-222328-arrivee-master.txt)
+  PASS   ligne locale A  camera reelle (celle de A)               [Caméra Arrière · segment 1 · enregistrement]
+  PASS   ligne locale A  segment 1 (le sien)                      [Caméra Arrière · segment 1 · enregistrement]
+  PASS   ligne locale A  enregistrement                           [Caméra Arrière · segment 1 · enregistrement]
+  PASS   c-switch1 transitoire : cible JAMAIS presentee comme active B=[Caméra Bascule vers Selfie…] A=[Caméra inconnue]
+  PASS   c-switch1 transitoire « bascule en cours » visible dans l'UI B.cdRecCam=[Caméra Bascule vers Selfie…] B.liveLocalCam=[] A.ldCamState=[Caméra inconnue]
+  PASS   c-switch1 confirmation native atteinte                   cam=FRONT seg=2 en 4461 ms
+  PASS   c-switch1 B  activeCamera == FRONT                       FRONT
+  PASS   c-switch1 B  segmentIndex == 2                           2
+  PASS   c-switch1 B  segmentState == recording                   recording
+  PASS   c-switch1 B  recording == true                           true
+  PASS   c-switch1 A  activeCamera recu == FRONT                  FRONT
+  PASS   c-switch1 A  segmentIndex recu == 2                      2
+  PASS   c-switch1 A  segmentState recu                           recording
+  PASS   c-switch1 A  recording recu == true                      true
+  OBS    c-switch1 A  requestedCamera recu (derniere demande)     actif=FRONT demande=FRONT
+  PASS   UI locale B  camera FRONT                                [Caméra Selfie]
+  PASS   UI locale B  segment 2                                   [Segment 2 · dernier switch 1573 ms]
+  PASS   modal A  camera FRONT                                    [Caméra Selfie · segment 2 · enregistrement]
+  PASS   modal A  segment 2                                       [Caméra Selfie · segment 2 · enregistrement]
+  PASS   modal A  enregistrement                                  [Caméra Selfie · segment 2 · enregistrement]
+  PASS   c-switch1 modal A  1 bouton desactive (la camera active) 1
+  PASS   c-switch1 ligne locale A  inchangee (B n'a pas vole le slot) Caméra Arrière · segment 1 · enregistrement
+  PASS   d-switch2 transitoire : cible JAMAIS presentee comme active B=[Caméra Bascule vers Arrière…] A=[Caméra Selfie · segment 2 · enregistrement]
+  PASS   d-switch2 transitoire « bascule en cours » visible dans l'UI B.cdRecCam=[Caméra Bascule vers Arrière…] B.liveLocalCam=[] A.ldCamState=[Caméra Selfie · segment 2 · enregistrement]
+  PASS   d-switch2 confirmation native atteinte                   cam=REAR seg=3 en 4410 ms
+  PASS   d-switch2 B  activeCamera == REAR                        REAR
+  PASS   d-switch2 B  segmentIndex == 3                           3
+  PASS   d-switch2 B  segmentState == recording                   recording
+  PASS   d-switch2 B  recording == true                           true
+  PASS   d-switch2 A  activeCamera recu == REAR                   REAR
+  PASS   d-switch2 A  segmentIndex recu == 3                      3
+  PASS   d-switch2 A  segmentState recu                           recording
+  PASS   d-switch2 A  recording recu == true                      true
+  OBS    d-switch2 A  requestedCamera recu (derniere demande)     actif=REAR demande=REAR
+  PASS   UI locale B  camera REAR                                 [Caméra Arrière]
+  PASS   UI locale B  segment 3                                   [Segment 3 · dernier switch 1384 ms]
+  PASS   modal A  camera REAR                                     [Caméra Arrière · segment 3 · enregistrement]
+  PASS   modal A  segment 3                                       [Caméra Arrière · segment 3 · enregistrement]
+  PASS   modal A  enregistrement                                  [Caméra Arrière · segment 3 · enregistrement]
+  PASS   d-switch2 modal A  1 bouton desactive (la camera active) 1
+  PASS   d-switch2 ligne locale A  inchangee (B n'a pas vole le slot) Caméra Arrière · segment 1 · enregistrement
+  PASS   mosaique : une vignette par Capture (2 : locale + basculee) 2
+  PASS   mosaique : aucune duplication de slot                    2
+  OBS    ordre de la mosaique                                     "tiles":["24e2b9e2-81d6-476d-a138-113851f8e6fc","c1e64ce0-59ac-4ffe-831b-34328945147e"]
+  PASS   STOP B  recording == false                               false
+  PASS   STOP B  segmentIndex == 0                                0
+  PASS   STOP B  segmentState vide                                
+  PASS   STOP A  segmentIndex recu == 0                           0
+  PASS   STOP A  recording recu == false                          false
+  PASS   STOP modal A  « aucun segment actif »                  [Caméra Arrière · aucun segment actif · n'enregistre pas]
+  PASS   STOP modal A  « n'enregistre pas »                     [Caméra Arrière · aucun segment actif · n'enregistre pas]
+  PASS   STOP modal A  camera courante conservee                  [Caméra Arrière · aucun segment actif · n'enregistre pas]
+  PASS   STOP modal A  pas de « segment 0 »                     [Caméra Arrière · aucun segment actif · n'enregistre pas]
+  OBS    STOP ligne locale B indisponible (B n'a pas d'écran live rendu) []
+  OBS    STOP flux JPEG Master : gele apres le STOP (sonde liee au REC, J09-03) jpeg 1791231958619 -> 1791231958619
+  PASS   F  B a produit exactement 3 segments (1/2/3)             3
+  PASS   F  les 3 segments sont distincts (1/2/3)                 3
+  PASS   F  segments distincts (aucun sha256 en double)           0 doublon(s)
+  PASS   F2 preview NATIVE conservee apres le STOP (previewKept=1) previewKept=1
+  PASS   F2 la Capture EMIT des camera_state (TX)                 4 emission(s) · 1re=activeCamera=REAR switchingCamera=— masters=0
+  OBS    F2 emissions camera_state de B (1re)                     activeCamera=REAR switchingCamera=— masters=0
+  PASS   F2 segment 1 ouvert par la Capture (CAMERA_SEGMENT_OPEN)  I/chromium(27534): [INFO:CONSOLE:58] "CAMERA_SEGMENT_OPEN segmentIndex=1 camera=REAR take=1
+  OBS    F2 le Master n'a journalise AUCUN rejet de camera_state  ni CAMERA_STATE_DROP ni CAMERA_TRANSPORT_DROP
+  OBS    c-switch1 reprise preview : plus grand intervalle entre 2 JPEG emis 1009 ms (8 image(s) sur la fenetre)
+  OBS    d-switch2 reprise preview : plus grand intervalle entre 2 JPEG emis 1460 ms (9 image(s) sur la fenetre)
+  OBS    restart_failed non injecte (hors perimetre : aucune modification produit) 

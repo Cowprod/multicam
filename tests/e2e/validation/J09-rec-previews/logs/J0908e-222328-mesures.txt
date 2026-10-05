@@ -1,0 +1,4 @@
+c-switch1 confMs=4461 swMs=1573 reprisePreviewMs=9190 repriseJpegMasterMs=9150
+d-switch2 confMs=4410 swMs=1384 reprisePreviewMs=8478 repriseJpegMasterMs=8484
+c-switch1 previewGapMaxMs=1009 framesTx=8
+d-switch2 previewGapMaxMs=1460 framesTx=9

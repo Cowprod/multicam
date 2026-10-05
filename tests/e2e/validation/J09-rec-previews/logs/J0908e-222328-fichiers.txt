@@ -1,0 +1,28 @@
+  segments B (etat) = 1 REAR videoTmp_3.mp4 closed|2 FRONT videoTmp_4.mp4 closed|3 REAR videoTmp_5.mp4 closed
+  == 61d54bba7d91 ==
+  segment 1 camera=REAR etat=closed
+  fichier  : videoTmp_3.mp4
+  chemin   : /Volumes/SSD1TO/testia/openCode/_J09-08e-media/61d54bba7d91-videoTmp_3.mp4
+  octets   : 185875678  (ls annonce 185875678)
+  sha256   : 14c38b85e7ebaa8e49d827592820809e3dfbdf323bd5e711c053f34b88fae48c
+  ffprobe  : codec_name=h264 codec_type=video width=1920 height=1080 codec_name=aac codec_type=audio sample_rate=48000 channels=1 format_name=mov,mp4,m4a,3gp,3g2,mj2 duration=74.048000 size=185875678 
+  segment 2 camera=FRONT etat=closed
+  fichier  : videoTmp_4.mp4
+  chemin   : /Volumes/SSD1TO/testia/openCode/_J09-08e-media/61d54bba7d91-videoTmp_4.mp4
+  octets   : 26452014  (ls annonce 26452014)
+  sha256   : 5cc036f4c1762acd3661d3e5febb3ec9fdaa4e959069b3673c2574d2df49cf5b
+  ffprobe  : codec_name=h264 codec_type=video width=1920 height=1080 codec_name=aac codec_type=audio sample_rate=48000 channels=1 format_name=mov,mp4,m4a,3gp,3g2,mj2 duration=10.517333 size=26452014 
+  segment 3 camera=REAR etat=closed
+  fichier  : videoTmp_5.mp4
+  chemin   : /Volumes/SSD1TO/testia/openCode/_J09-08e-media/61d54bba7d91-videoTmp_5.mp4
+  octets   : 31553080  (ls annonce 31553080)
+  sha256   : 586434ace2f8dcfec574aad07b0a7bfba9fe9ace6308cfc1e7dd57277982eae8
+  ffprobe  : codec_name=h264 codec_type=video width=1920 height=1080 codec_name=aac codec_type=audio sample_rate=48000 channels=1 format_name=mov,mp4,m4a,3gp,3g2,mj2 duration=12.608000 size=31553080 
+  == attribution segmentIndex <-> camera <-> fichier (logs B) ==
+CAMERA_SEGMENT_OPEN segmentIndex=1 camera=REAR take=1
+CAMERA_SEGMENT_FINAL segmentIndex=1 camera=REAR path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4 reason=camera_switch
+CAMERA_SEGMENT_FINAL segmentIndex=2 camera=FRONT path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_4.mp4 reason=camera_switch
+CAMERA_SEGMENT_FINAL segmentIndex=3 camera=REAR path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_5.mp4 state=closed reason=stop
+CAMERA_REC_STOP_OK atMs=1791231931747 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4 previewKept=1
+CAMERA_REC_STOP_OK atMs=1791231944424 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_4.mp4 previewKept=1
+CAMERA_REC_STOP_OK atMs=1791231959049 path=/data/user/0/fr.emmanuel.multicam/cache/videoTmp_5.mp4 previewKept=1
