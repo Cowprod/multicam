@@ -623,7 +623,61 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
 
   /* Un WS simulé : on ne teste pas la socket, on teste le CONTRAT d'envoi
    * (cible unique, kind, ACK) que le service doit respecter. Le routage réel
-   * reste couvert par session-ws-multiplex.test.js. */
+   * reste couvert par session-ws-multiplex.test.js — SAUF l'identité de session
+   * elle-même (J09-08f), que ce stub rejoue fidèlement sur demande. */
+
+  /* ---------- J09-08f : routage fidèle à `session-ws.js` ----------
+   *
+   * `broadcastCameraState(session, extra)` ne transporte pas la session : il s'en
+   * sert pour ROUTER. Un Master n'est atteint que s'il est dans `session.masters`
+   * ET marqué dans la session (`inSession`). On rejoue ces deux filtres, la
+   * dé-duplication et l'exclusion de soi, dans l'ordre du code réel : c'est le
+   * seul moyen de voir passer de `masters=0` à `masters=1`. */
+  function routeMasters(session, routePeers, selfDid) {
+    const peers = (routePeers && typeof routePeers === "object") ? routePeers : {};
+    const sid = (session && session.sessionId) || "";
+    const masters = (session && session.masters) || [];
+    const seen = {};
+    let sent = 0;
+    Object.keys(peers).forEach((did) => {
+      const entry = peers[did];
+      if (!entry || entry.connected === false) return;
+      if (!did || did === selfDid || seen[did]) return;
+      if (entry.sessions && !entry.sessions[sid]) return;          /* inSession */
+      if (!masters.some((m) => m && m.deviceId === did)) return;    /* isMasterDevice */
+      sent += 1;
+      seen[did] = true;
+    });
+    return sent;
+  }
+
+  /* Le journal EXACT de `CAMERA_STATE_TX` : c'est cette ligne qui a gelé le
+   * défaut (`masters=0`), donc c'est elle qu'on doit retrouver. */
+  function routedLog(rec) {
+    const extra = rec.env || {};
+    return "CAMERA_STATE_TX sessionId=" + ((rec.session && rec.session.sessionId) || "")
+      + " deviceId=" + (extra.deviceId || "—")
+      + " activeCamera=" + (extra.activeCamera || "—")
+      + " switchingCamera=" + (extra.switchingCamera || "—")
+      + " masters=" + rec.masters;
+  }
+
+  /* La session S2 existe pour l'ISOLATION : DEV-5 y est Master, et DEV-5 n'a
+   * rien à faire dans le trafic d'une Capture de S1. */
+  const SID2 = "SESS02";
+  const FOREIGN_MASTER = "DEV-5";
+
+  function session2() {
+    return {
+      sessionId: SID2,
+      name: "Autre tournage",
+      state: "open",
+      members: [{ deviceId: FOREIGN_MASTER }],
+      masters: [{ deviceId: FOREIGN_MASTER }],
+      takes: [{ takeNumber: 1, captures: [FOREIGN_MASTER] }]
+    };
+  }
+
   function bootService(opts) {
     opts = opts || {};
     const env = createEnv(Object.assign(
@@ -655,23 +709,34 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
         return true;
       },
       broadcastCameraState(session, extra) {
-        sent.push({ broadcast: true, kind: "camera_state", env: extra });
-        return true;
+        const rec = {
+          broadcast: true, kind: "camera_state", env: extra, session: session || null
+        };
+        if (!opts.routing) { sent.push(rec); return true; }
+        /* J09-08f : `opts.routing` rejoue le routage et le journal réels —
+         * un stub qui accepte N'IMPORTE QUELLE session ne peut pas compter de
+         * Master, donc ne peut pas voir le défaut. */
+        rec.masters = routeMasters(session, opts.routePeers, extra.deviceId);
+        env.logs.push(routedLog(rec));
+        sent.push(rec);
+        return rec.masters > 0;   /* session-ws : `return sent > 0` */
       }
     };
     env.MultiCamSessionWs = env.ws;
 
     /* Le store et le plan START sont les DEUX sources que le service relit à
      * chaque exécution : on les fournit donc comme sur le terrain, plutôt que
-     * d'écrire dans l'état interne du service. */
-    const ses = sessionWithTake();
+     * d'écrire dans l'état interne du service. J09-08f : le store peut contenir
+     * PLUSIEURS sessions (c'est le cas réel — S1 et S2 se suivent), et le plan
+     * START est l'autorité du `sessionId` local. */
+    const sessions = opts.sessions || { [SID]: sessionWithTake() };
     env.MultiCamSessionStore = {
-      get(sid) { return Promise.resolve(sid === SID ? ses : null); }
+      get(sid) { return Promise.resolve(sessions[sid] || null); }
     };
     env.MultiCamStartService = {
       view() {
         return {
-          active: true, phase: "REC", sid: SID, takeNumber: TAKE,
+          active: true, phase: "REC", sid: opts.planSid || SID, takeNumber: TAKE,
           isMaster: true, isCapture: opts.isCapture === true, rev: 1
         };
       }
@@ -693,6 +758,15 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
 
   function reqs(env, kind) {
     return env.ws.sent.filter((s) => s.kind === kind);
+  }
+
+  /* J09-08f : l'ATTACHEMENT au plan START — le seul moment où la Capture
+   * possède la session complète du Take AVANT d'enregistrer. Sur le terrain il
+   * se produit pendant le countdown, à des centaines de reprises ; ici on le
+   * joue une fois, puis on laisse l'amorçage de session se résoudre. */
+  async function attachTake(env) {
+    env.svc.onStartView(env.MultiCamStartService.view());
+    await flush();
   }
 
   /* Les sondes natives passent par les timers de l'env, donc par l'horloge
@@ -1767,6 +1841,11 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
      * On vérifie donc le dernier `camera_state` émis, pas l'écran : un Master's
      * ne peut afficher que ce qui a été publié. */
     async function top(env) {
+      /* J09-08f : sur le terrain, le plan START ATTACHE le Take (et amorce
+       * l'identité de session) bien avant le REC. On le reproduit ici, sinon le
+       * premier `camera_state` n'aurait pas de session à router — exactement le
+       * défaut gelé par `060fd88`. */
+      await attachTake(env);
       await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
       /* Le plan de START sonde l'inventaire avant d'enregistrer : ce que la
        * Capture publie doit déjà porter un inventaire PROBE, jamais une liste
@@ -2319,6 +2398,176 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
         "ni dans l'en-tête : " + r.header);
       eq(r.actions.map((a) => a.active).join(","), "true,false",
         "c'est l'active qui allume son bouton, pas la demandée");
+    });
+  });
+
+  /* ══════════════════ J09-08f · identité de session des publications ══════════════════ */
+
+  describe("J09-08f · le premier camera_state doit atteindre les Masters", () => {
+    /* Le défaut gelé par `060fd88` : au segment 1, la Capture publiait sous
+     * `{ sessionId }` — un objet sans `masters`. `isMasterDevice()` y répondait
+     * faux pour TOUT le monde, et le journal disait `masters=0`. Le Master ne
+     * recevait rien jusqu'à la première bascule, qui rechargeait la session par
+     * un autre chemin. Ces tests rejouent le ROUTAGE réel, pas un stub permissif. */
+
+    /* Le réseau de terrain : la Capture et le Master connectés et marqués dans
+     * la session du Take. DEV-1 (nous) et DEV-2 (Capture) ne sont pas Masters ;
+     * DEV-3 en est un. */
+    function netFor(sid, extra) {
+      return Object.assign({
+        [CAP]: { connected: true, sessions: { [sid]: {} } },
+        [OTHER]: { connected: true, sessions: { [sid]: {} } }
+      }, extra || {});
+    }
+
+    async function rec(env) {
+      await attachTake(env);
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      await flush();
+      return env;
+    }
+    function boot(sid, opts) {
+      const o = Object.assign({ routing: true }, opts || {});
+      if (!("routePeers" in o)) o.routePeers = netFor(sid || SID);
+      return bootService(o);
+    }
+    function lastPub(env, reason) {
+      const all = reqs(env, "camera_state");
+      const found = reason ? all.filter((p) => p.env.reason === reason) : all;
+      yes(found.length, "un camera_state a bien été publié" + (reason ? " (" + reason + ")" : ""));
+      return found[found.length - 1];
+    }
+
+    /* ---------- A et B · le segment 1 ---------- */
+
+    it("A. le segment 1 atteint les Masters de la session", async () => {
+      const env = await rec(boot(SID));
+
+      const p = lastPub(env, "rec_started");
+      eq(p.masters, 1, "le Master de la session reçoit l'ouverture du segment 1");
+      eq(p.session.sessionId, SID, "publié sous l'identité du Take, pas sous un objet vide");
+    });
+
+    it("B. le premier paquet porte le segment 1 RÉEL", async () => {
+      const env = await rec(boot(SID));
+
+      const p = lastPub(env, "rec_started");
+      eq(p.env.activeCamera, "REAR", "la caméra relue au natif");
+      eq(p.env.segmentIndex, 1, "le premier segment, né avec l'enregistrement");
+      eq(p.env.segmentState, "recording");
+      eq(p.env.recording, true);
+      eq(p.env.takeNumber, TAKE, "et il est rattaché à son Take");
+    });
+
+    /* ---------- C · aucune session à router ---------- */
+
+    it("C. une session sans Master donne masters=0, et RIEN n'est inventé", async () => {
+      const sansMaster = sessionWithTake();
+      sansMaster.masters = [];
+      const env = await rec(boot(SID, { sessions: { [SID]: sansMaster } }));
+
+      const p = lastPub(env, "rec_started");
+      eq(p.masters, 0, "personne n'est Master : personne n'est visé");
+      eq(p.session.sessionId, SID, "la session reste celle du Take");
+      eq((p.session.masters || []).length, 0,
+        "aucun Master n'a été AJOUTÉ à la session pour forcer un envoi");
+      eq(env.svc.broadcastState("sonde"), false,
+        "et une publication sans Master reste un échec assumé, pas un envoi");
+    });
+
+    /* ---------- D et E · la vie du Take ---------- */
+
+    it("D. la première bascule réutilise EXACTEMENT la même identité de session", async () => {
+      const env = await rec(boot(SID));
+      env.CameraPreview.videoPath = "file:///cache/videoTmp_70.mp4";
+      const ouverture = lastPub(env, "rec_started");
+
+      await adv(env, () => env.svc.requestSwitch("FRONT"));
+
+      const sw = lastPub(env, "switch_confirmed");
+      eq(sw.session, ouverture.session,
+        "même objet de session d'une publication à l'autre : aucune relecture divergente");
+      eq(sw.masters, 1, "et le routage reste entier");
+      eq(sw.env.segmentIndex, 2);
+    });
+
+    it("E. le STOP est routé comme l'ouverture", async () => {
+      const env = await rec(boot(SID));
+      env.CameraPreview.videoPath = "file:///cache/videoTmp_71.mp4";
+
+      await adv(env, () => env.MultiCamCameraRecord.stopRecording()
+        .then((res) => { env.svc.onRecordingStopped(res); }));
+
+      const p = lastPub(env, "stop");
+      eq(p.masters, 1, "la fin du Take atteint le Master");
+      eq(p.env.segmentIndex, 0, "plus aucun segment en cours");
+      eq(p.env.recording, false);
+      eq(p.session.sessionId, SID);
+    });
+
+    /* ---------- F · isolation ---------- */
+
+    it("F. une Capture de S1 ne route JAMAIS vers le Master de S2", async () => {
+      const env = await rec(boot(SID, {
+        sessions: { [SID]: sessionWithTake(), [SID2]: session2() },
+        /* DEV-5 est connecté et Master — mais de S2 seulement. */
+        routePeers: netFor(SID, {
+          [FOREIGN_MASTER]: { connected: true, sessions: { [SID2]: {} } }
+        })
+      }));
+
+      const p = lastPub(env, "rec_started");
+      eq(p.masters, 1, "seul le Master de S1 est visé, pas le Master de S2");
+      eq(p.session.sessionId, SID, "l'identité publiée est S1");
+      for (const q of reqs(env, "camera_state")) {
+        eq(q.session.sessionId, SID, "aucune publication sous une autre session");
+      }
+    });
+
+    it("F2. changer de session ne réutilise pas l'identité précédente", async () => {
+      const env = await rec(boot(SID2, {
+        planSid: SID2,
+        sessions: { [SID]: sessionWithTake(), [SID2]: session2() },
+        routePeers: netFor(SID, {
+          [FOREIGN_MASTER]: { connected: true, sessions: { [SID2]: {} } }
+        })
+      }));
+
+      const p = lastPub(env, "rec_started");
+      eq(p.session.sessionId, SID2, "l'identité suit le plan START courant, pas un cache d'avant");
+      eq(p.masters, 1, "DEV-5, Master de S2, reçoit le paquet ; le Master de S1 ne le peut pas");
+    });
+
+    /* ---------- G · le défaut lui-même ---------- */
+
+    it("G. `CAMERA_STATE_TX … masters=0` n'est plus produit au segment 1", async () => {
+      const env = await rec(boot(SID));
+
+      const lignes = env.logs.filter((l) => l.indexOf("CAMERA_STATE_TX") === 0);
+      yes(lignes.length, "le routage est journalisé");
+      eq(lignes[0].indexOf("sessionId=" + SID) > 0, true, lignes[0]);
+      eq(lignes[0].indexOf("activeCamera=REAR") > 0, true, lignes[0]);
+      eq(lignes[0].indexOf("masters=1") > 0, true,
+        "le segment 1 part chez un Master — c'est la ligne qui gelait le défaut : " + lignes[0]);
+      for (const l of lignes) {
+        no(l.indexOf("masters=0") > 0, "aucun Masters=0 alors qu'un Master existe : " + l);
+      }
+    });
+
+    /* ---------- H · pas de session, pas de fausse identité ---------- */
+
+    it("H. sans session lisible, l'état n'est PAS publié sous une session inventée", async () => {
+      const env = await rec(boot(SID, { sessions: {} }));
+
+      eq(reqs(env, "camera_state").length, 0,
+        "aucun paquet : une session sans `masters` ne route que vers personne");
+      const ligne = env.logs.filter((l) => l.indexOf("CAMERA_STATE_NOT_PUBLISHED") === 0);
+      yes(ligne.length, "et le refus est journalisé");
+      eq(ligne[0].indexOf("cause=session_identity_unknown") > 0, true, ligne[0]);
     });
   });
 

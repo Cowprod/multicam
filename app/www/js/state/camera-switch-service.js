@@ -132,6 +132,63 @@
       .catch(function () { return null; });
   }
 
+  /* ---------- J09-08f : identité de session des publications ----------
+   *
+   * `broadcastCameraState(session, …)` ROUTE : il ne lit les Masters que dans
+   * `session.masters`. Tant que la Capture publie avec une session sans cette
+   * liste, `isMasterDevice()` répond faux et le paquet part à PERSONNE : c'est
+   * exactement `CAMERA_STATE_TX … masters=0` à l'ouverture du segment 1, le
+   * défaut gelé par `060fd88`. On ne « complète » donc JAMAIS une session
+   * partielle au moment de publier — on relit la VRAIE session du Take, et on
+   * ne publie qu'une fois son identité connue. */
+
+  function cachedSessionFor(sid) {
+    return !!(sid && lastSession && lastSession.sessionId === sid) ? lastSession : null;
+  }
+
+  /* Session réelle du Take, lue du store. Le cache n'est réutilisé que si son
+   * `sessionId` est EXACTEMENT celui du Take courant : sans cette identité, un
+   * cache d'une autre session routerait vers les mauvais Masters. */
+  function sessionFor(sid) {
+    var hit = cachedSessionFor(sid);
+    if (hit) return Promise.resolve(hit);
+    return loadSession(sid).then(function (ses) {
+      if (ses && ses.sessionId === sid) {
+        lastSession = ses;
+        lastTake = lastTakeOf(ses);
+        return ses;
+      }
+      return null;
+    });
+  }
+
+  /* Amorce le cache à l'ATTACHEMENT du Take (voir `onStartView`), c'est-à-dire
+   * avant le premier `camera_state`. Sans coût quand le cache est déjà chaud.
+   * Volontairement NON rejoué à chaque vue START : le START publie des centaines
+   * de fois par minute, et un store relu à chaque tick n'est pas gratuit. Si
+   * l'amorçage échoue, `broadcastState` relit le store à la publication — la
+   * reprise est donc déjà prévue ailleurs. */
+  function primeSession(sid) {
+    if (!sid || cachedSessionFor(sid)) return;
+    sessionFor(sid).then(function (ses) {
+      if (!ses) {
+        log("CAMERA_STATE_SESSION_MISSING sid=" + sid
+          + " reason=no_publication_identity");
+      }
+    });
+  }
+
+  /* Session dont l'IDENTITÉ engage la publication. Même source que
+   * `resolveCurrent()` — le plan START courant, seule autorité sur le
+   * (sessionId, takeNumber) locaux — et, à défaut, l'état du modèle. Une
+   * session n'est jamais déduite d'un autre appareil : c'est ce `sid` qui sera
+   * comparé à `session.sessionId` avant toute publication. */
+  function identitySid(s) {
+    var plan = currentPlan();
+    if (plan && plan.sid) return plan.sid;
+    return (s && s.sessionId) || "";
+  }
+
   /* Le plan START courant est la seule source du (sessionId, takeNumber) locals :
    * on ne le devine pas depuis le store, qui peut contenir plusieurs Takes. */
   function currentPlan() {
@@ -883,18 +940,43 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
   /* §35.3 : les Masters se CONVERGENT vers l'état RÉELLEMENT confirmé. On
    * diffuse donc après chaque confirmation ET après chaque échec — un Master qui
    * garde un état périmé afficherait une caméra qui ne filme plus. Ce n'est pas
-   * une télémétrie périodique : c'est un ÉVÉNEMENT. */
+   * une télémétrie périodique : c'est un ÉVÉNEMENT.
+   *
+   * J09-08f : la session passée au transport est l'IDENTITÉ de routage. Si elle
+   * n'est pas celle du Take courant, on la relit AVANT de publier — on ne
+   * substitue jamais `{ sessionId }` à la session réelle, qui n'a pas de
+   * `masters` et donc ne route vers personne. Le cache étant amorcé à
+   * l'attachement, le cas synchrone reste le cas nominal et l'ordre des
+   * publications est préservé ; le cas asynchrone ne sert qu'à ne jamais publier
+   * sous une fausse identité. */
   function broadcastState(reason) {
     var w = ws();
     var m = model();
     var s = st();
     if (!w || typeof w.broadcastCameraState !== "function" || !m || !s) return false;
+    function publish(ses) {
+      if (!ses) {
+        log("CAMERA_STATE_NOT_PUBLISHED reason=" + (reason || "—")
+          + " cause=session_identity_unknown");
+        return false;
+      }
+      return w.broadcastCameraState(ses, buildStatePacket(s, m, reason));
+    }
+    var sid = identitySid(s);
+    var hot = cachedSessionFor(sid);
+    if (hot) return publish(hot);
+    return sessionFor(sid).then(function (ses) { return publish(ses); });
+  }
+
+  /* Le PAQUET est indépendant de la session : il ne décrit que l'état caméra et
+   * le segment RELUS. Seul le ROUTAGE a besoin de la session. */
+  function buildStatePacket(s, m, reason) {
     var v = m.view(s, { recording: recordingNow() });
     var ss = startService();
     /* La phase RELAYEE est celle du START, lue par l'acces.seur etroit : la
      * lire depuis `m.view()` enverrait l'etat de la CAMERA (cameraPhase). */
     var startPhase = (ss && typeof ss.phase === "function") ? (ss.phase() || "") : "";
-    return w.broadcastCameraState(lastSession || { sessionId: s.sessionId }, {
+    return {
       takeNumber: s.takeNumber,
       deviceId: selfDid(),
       availableCameras: v.availableCameras,
@@ -930,13 +1012,20 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
        * comparaison nul et le tri des paquets n'a aucun sens. */
       atMs: nowMs(),
       reason: reason || ""
-    });
+    };
   }
 
   /* ---------- cycle de vie ---------- */
 
   /* Rattachement au plan START courant : c'est ici que le compteur de segments
-   * est remis à zéro pour un nouveau Take (segmentIndex est propre au Take). */
+   * est remis à zéro pour un nouveau Take (segmentIndex est propre au Take).
+   *
+   * J09-08f : c'est aussi le point le plus propre pour POSSÉDER la session
+   * complète du Take. Le START publie ici des centaines de fois AVANT le
+   * premier `camera_state`, alors que la publication n'a, elle, aucune
+   * information de session à fournir : on amorce donc l'identité de routage
+   * (`masters`) dès l'attachement, et le segment 1 est publié sous une session
+   * réelle, sans latence ajoutée au REC. */
   function onStartView(v) {
     var m = model();
     if (!m || !st() || !v || !v.active) return;
@@ -947,6 +1036,7 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
     set(m.attachToTake(s, sid, tnum, nowMs()));
     log("CAMERA_SWITCH_ATTACH sessionId=" + (sid || "—")
       + " take=" + (tnum == null ? "—" : tnum) + " segmentIndex=0");
+    primeSession(sid);
   }
 
   function view() {
