@@ -70,6 +70,25 @@
 .lv-stop-dock{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:10px 12px max(10px,env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(8,12,20,.98),rgba(8,12,20,.88),rgba(8,12,20,0));pointer-events:none}
 .lv-stop-dock:empty{display:none}
 
+/* ---------- J09-09c : zone Storage sous la mosaïque ----------
+ *
+ * Compacte et LECTURE SEULE : une ligne par Storage sélectionné pour CE Take,
+ * dans l'ordre du plan. Pas de transfert, pas de réplication, pas d'action.
+ * La zone entière est masquée (`.d-none`, piloté par le JS) tant qu'aucun
+ * Storage n'est sélectionné : pas de placeholder trompeur. */
+.lv-stores{margin-top:.15rem}
+.lv-store-list{display:flex;flex-direction:column;gap:.3rem}
+.lv-store-row{display:flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border-radius:10px;background:rgba(255,255,255,.05);font-size:.74rem}
+.lv-store-name{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv-store-state{display:inline-flex;align-items:center;gap:.25rem;padding:.1rem .45rem;border-radius:999px;background:rgba(255,255,255,.12);font-size:.66rem;white-space:nowrap}
+.lv-store-state.st-connected{background:rgba(52,211,153,.16);color:#34d399}
+.lv-store-state.st-warning{background:rgba(255,193,7,.2);color:#ffc107}
+.lv-store-state.st-offline{background:rgba(138,143,152,.28);color:rgba(255,255,255,.7)}
+.lv-store-free{font-variant-numeric:tabular-nums;color:var(--m)}
+/* Espace libre non mesuré : neutre, jamais « 0 o » (le « — » vient du JS). */
+.lv-store-free[data-known="false"]{color:rgba(255,255,255,.45)}
+.lv-store-net{display:inline-flex;align-items:center;gap:.25rem;color:var(--m);white-space:nowrap}
+
 /* =====================================================================
  * J09-06 — SUPERVISION : valeurs mesurées dans la vignette + détail.
  *

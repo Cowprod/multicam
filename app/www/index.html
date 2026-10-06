@@ -464,6 +464,16 @@
     Aucune Capture ne participe à ce Take.
   </div>
 
+  <!-- J09-09c : zone Storage sous la mosaïque, LECTURE SEULE. Remplie par
+       js/ui/live.js à partir des Storage sélectionnés pour CE Take (ordre du
+       plan) ; masquée tant qu'il n'y en a aucun : pas de placeholder. -->
+  <div id="liveStores" class="lv-stores d-none">
+    <div class="lv-grid-label small text-uppercase muted px-1">
+      <span>Storage</span>
+    </div>
+    <div class="lv-store-list" id="liveStoreList"></div>
+  </div>
+
   <!-- Dock réservé au STOP global (§4 de la maquette) — volontairement VIDE en
        J09-05/J09-06 : aucun mock, aucun bouton qui ne fait rien. -->
   <div class="lv-stop-dock" id="liveStopDock" aria-hidden="true"></div>

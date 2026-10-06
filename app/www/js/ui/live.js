@@ -67,6 +67,33 @@
     ERROR: "st-error"
   };
 
+  /* ---------- J09-09c : zone Storage sous la mosaïque ----------
+   *
+   * Types réseau remontés dans la télémétrie (mêmes valeurs que la vue
+   * détaillée) : Wi-Fi et Ethernet tels que demandés par la maquette, les
+   * autres ne sont affichés que s'ils sont RÉELLEMENT remontés. Une valeur
+   * inconnue s'affiche « — », jamais « Aucun réseau » : « Aucun réseau »
+   * est une mesure, l'absence de mesure en est une autre. */
+  var NET_LABEL = {
+    wifi: "Wi-Fi",
+    ethernet: "Ethernet",
+    cellular: "Cellulaire",
+    vpn: "VPN",
+    other: "Autre",
+    none: "Aucun réseau"
+  };
+  var NET_ICON = {
+    wifi: "fa-wifi",
+    ethernet: "fa-ethernet",
+    cellular: "fa-signal",
+    vpn: "fa-shield-halved",
+    other: "fa-network-wired",
+    none: "fa-plug-circle-xmark"
+  };
+
+  var STORE_STATE_LABEL = { connected: "Connecté", warning: "Avertissement", deconnected: "Déconnecté" };
+  var STORE_STATE_CLASS = { connected: "st-connected", warning: "st-warning", deconnected: "st-offline" };
+
   /* Cartes de grille, PAR NOMBRE DE CAPTURES. La règle tient en une phrase :
    * une Capture occupe l'écran, deux se partagent la largeur, trois ou quatre
    * forment une grille 2×2, au-delà c'est une grille qui défile. Rien n'est
@@ -340,6 +367,75 @@
     return slots.map(function (s) { return tileOf(s, now); });
   }
 
+  /* ---------- J09-09c : STORAGES DE CE TAKE (lecture seule) ----------
+   *
+   * La maquette (`ui/08-live-recording` §3) demande SOUS la mosaïque, pendant
+   * REC, uniquement les Storage SÉLECTIONNÉS pour le Take courant : nom, état,
+   * espace libre, type réseau. Pas de transfert, pas d'anciens Takes, pas de
+   * réplication, pas d'action — une zone de SUPERVISION, rien de plus.
+   *
+   * Les données viennent des FAITS existants, jamais d'une seconde vérité :
+   *
+   *   `rec.take.storages`     → QUELS Storage et dans QUEL ordre (le plan) ;
+   *                             une déconnexion ne réordonne jamais la liste ;
+   *   `rec.telemetry`         → espace libre + type réseau mesurés (le store
+   *                             de supervision, même map que la mosaïque) ;
+   *   `rec.liveness`          → connectivité WS réelle (les mêmes faits que
+   *                             les vignettes) ;
+   *   `rec.names`             → nom du device (participants du plan).
+   *
+   * Comme pour les vignettes : ABSENCE DE DONNÉE ≠ ZÉRO. freeBytes absent →
+   * « — », jamais « 0 o ». Le device local, s'il est un Storage du Take, est
+   * joignable par construction (même règle que la mosaïque). Une Capture du
+   * Take ne N'APPARAÎT JAMAIS dans la liste Storage — l'ordre est celui du
+   * plan, pas celui de la connectivité. */
+  function netLabelOf(net) {
+    return net ? (NET_LABEL[net] || net) : "—";
+  }
+
+  function storageOf(did, rec) {
+    var r = rec || {};
+    var names = r.names || {};
+    var telemetry = r.telemetry || {};
+    var liveness = r.liveness || {};
+    var entry = telemetry[did];
+    var t = (entry && entry.telemetry && typeof entry.telemetry === "object") ? entry.telemetry : null;
+    var f = (t && typeof t.freeBytes === "number" && isFinite(t.freeBytes) && t.freeBytes >= 0) ? t.freeBytes : null;
+    var net = (t && typeof t.netType === "string" && t.netType) ? t.netType : null;
+    var connected = (r.localDid && r.localDid === did) ? true : !!liveness[did];
+    var freeLow = f !== null && f < FREE_WARN;
+    var state = !connected ? "deconnected" : (freeLow ? "warning" : "connected");
+    return {
+      deviceId: did,
+      deviceName: names[did] || did,
+      connected: connected,
+      state: state,
+      stateLabel: STORE_STATE_LABEL[state],
+      stateClass: STORE_STATE_CLASS[state],
+      /* Absence de donnée ≠ zéro : freeBytes null = « jamais mesuré ». */
+      freeKnown: f !== null,
+      freeBytes: f,
+      freeText: f === null ? "—" : (fmtBytes(f) || "—"),
+      freeLow: freeLow,
+      netKnown: net !== null,
+      netType: net,
+      netLabel: netLabelOf(net)
+    };
+  }
+
+  /* Les Storage affichés = UNIQUEMENT ceux sélectionnés pour CE Take, dans
+   * l'ordre du plan. Une Capture du Take n'apparaît jamais ici (J09-09c K). */
+  function storageDids(take) {
+    var caps = {};
+    ((take && Array.isArray(take.captures)) ? take.captures : []).forEach(function (d) { caps[d] = true; });
+    return ((take && Array.isArray(take.storages)) ? take.storages : [])
+      .filter(function (d) { return typeof d === "string" && d && !caps[d]; });
+  }
+
+  function storagesOf(rec) {
+    return storageDids((rec && rec.take) || null).map(function (did) { return storageOf(did, rec); });
+  }
+
   function gridClass(count) {
     return "live-grid cols-" + (COLS[count] || colsFor(count));
   }
@@ -348,6 +444,7 @@
     var v = modelView || {};
     var r = rec || {};
     var ts = tiles(v, r);
+    var stores = storagesOf(r);
     return {
       sessionId: v.sessionId || "",
       takeNumber: v.takeNumber || 0,
@@ -364,7 +461,10 @@
       tiles: ts,
       /* J09-08d : l'état caméra/segment de CE device, hors mosaïque. */
       localCamera: localCamera(v.slots),
-      empty: ts.length === 0
+      empty: ts.length === 0,
+      /* J09-09c : Storage sélectionnés pour CE Take, sous la mosaïque. */
+      storages: stores,
+      hasStorages: stores.length > 0
     };
   }
 
@@ -373,6 +473,7 @@
   function byId(id) { return global.document ? global.document.getElementById(id) : null; }
 
   var NODES = {};      /* key -> {root, media, img, name, state, badge} */
+  var STORE_NODES = {}; /* deviceId -> {root, name, state, free, net} */
 
   function el(tag, cls) {
     var e = global.document.createElement(tag);
@@ -487,6 +588,72 @@
     return node;
   }
 
+  /* ---------- J09-09c : ligne Storage ----------
+   *
+   * Lecture seule : aucune commande, aucun bouton, aucune progression de
+   * transfert — la zone n'expose que nom / état / espace libre / réseau. */
+  function makeStoreRow(store) {
+    var root = el("div", "lv-store-row");
+    root.dataset.deviceId = store.deviceId;
+    var name = el("div", "lv-store-name");
+    var state = el("span", "lv-store-state");
+    state.dataset.storeState = store.state;
+    var free = el("span", "lv-store-free");
+    free.dataset.known = String(store.freeKnown);
+    var net = el("span", "lv-store-net");
+    var netIcon = el("i", "fa-solid " + (NET_ICON[store.netType] || "fa-circle-question"));
+    netIcon.setAttribute("aria-hidden", "true");
+    var netLabel = el("span");
+    net.appendChild(netIcon);
+    net.appendChild(netLabel);
+    root.appendChild(name);
+    root.appendChild(state);
+    root.appendChild(free);
+    root.appendChild(net);
+    return { root: root, name: name, state: state, free: free, netLabel: netLabel, netIcon: netIcon };
+  }
+
+  function paintStoreRow(node, store) {
+    if (node.name.textContent !== store.deviceName) node.name.textContent = store.deviceName;
+    var cls = "lv-store-state " + store.stateClass;
+    if (node.state.className !== cls) node.state.className = cls;
+    if (node.state.dataset.storeState !== store.state) node.state.dataset.storeState = store.state;
+    if (node.state.textContent !== store.stateLabel) node.state.textContent = store.stateLabel;
+    var free = store.freeText;
+    if (node.free.textContent !== free) node.free.textContent = free;
+    if (node.free.dataset.known !== String(store.freeKnown)) node.free.dataset.known = String(store.freeKnown);
+    if (node.netLabel.textContent !== store.netLabel) node.netLabel.textContent = store.netLabel;
+    var nic = "fa-solid " + (NET_ICON[store.netType] || "fa-circle-question");
+    if (node.netIcon.className !== nic) node.netIcon.className = nic;
+  }
+
+  /* La liste suit l'ordre du modèle (l'ordre du plan), comme la grille : pas
+   * de tri, pas de recomposition — une déconnexion ne bouge pas la liste. */
+  function paintStores(list, stores) {
+    var want = {};
+    stores.forEach(function (s) { want[s.deviceId] = s; });
+    Object.keys(STORE_NODES).forEach(function (k) {
+      if (!want[k]) {
+        var n = STORE_NODES[k];
+        if (n.root.parentNode) n.root.parentNode.removeChild(n.root);
+        delete STORE_NODES[k];
+      }
+    });
+    stores.forEach(function (store, i) {
+      var node = STORE_NODES[store.deviceId];
+      if (!node) {
+        node = makeStoreRow(store);
+        STORE_NODES[store.deviceId] = node;
+      }
+      if (node.root.parentNode !== list) list.appendChild(node.root);
+      paintStoreRow(node, store);
+      var kids = Array.prototype.slice.call(list.children);
+      if (kids.indexOf(node.root) !== i) {
+        list.insertBefore(node.root, kids[i] || null);
+      }
+    });
+  }
+
   /* Le détail est un MODULE séparé : s'il n'est pas chargé (test, ancien
    * `index.html`), l'appui ne fait RIEN — pas d'erreur, et surtout pas un bouton
    * affiché ailleurs qui ne mènerait nulle part. */
@@ -587,6 +754,12 @@
     if (localCam) localCam.textContent = v.localCamera.text;
     var empty = byId("liveEmpty");
     if (empty) empty.classList.toggle("d-none", !v.empty);
+    /* J09-09c : zone Storage sous la mosaïque. Masquée tant qu'aucun Storage
+     * n'est sélectionné pour CE Take : pas de placeholder trompeur. */
+    var storesEl = byId("liveStores");
+    if (storesEl) storesEl.classList.toggle("d-none", !v.hasStorages);
+    var storeList = byId("liveStoreList");
+    if (storeList && v.hasStorages) paintStores(storeList, v.storages);
     /* La modal ouverte suit le MÊME rendu (pas de second timer) : ses valeurs
      * ne peuvent pas diverger de celles des vignettes qu'elles décrivent. */
     if (global.MultiCamLiveDetail && typeof global.MultiCamLiveDetail.refresh === "function") {
@@ -601,6 +774,11 @@
       if (n.root.parentNode) n.root.parentNode.removeChild(n.root);
       delete NODES[k];
     });
+    Object.keys(STORE_NODES).forEach(function (k) {
+      var n = STORE_NODES[k];
+      if (n.root.parentNode) n.root.parentNode.removeChild(n.root);
+      delete STORE_NODES[k];
+    });
   }
 
   global.MultiCamLiveScreen = {
@@ -608,6 +786,8 @@
     view: view,
     tiles: tiles,
     tileOf: tileOf,
+    storagesOf: storagesOf,
+    storageOf: storageOf,
     clear: clear,
     _nodes: NODES
   };

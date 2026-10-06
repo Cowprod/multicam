@@ -123,6 +123,52 @@
 
   var liveBound = false;
 
+  /* Le Take courant n'est pas dans la vue du modèle START : il vit dans la
+   * session (store) avec ses `storages`. Lu UNE fois par session puis mis en
+   * cache — un Take ne change qu'en revenant à l'écran 05, jamais pendant la
+   * REC. Même source que l'écran 05, l'ARM et la vue détaillée : aucune
+   * seconde vérité sur le Storage sélectionné. */
+  var LIVE_TAKE = { sid: "", take: null };
+  var LIVE_TAKE_LOADING = false;
+
+  function liveTakeFor(sid, takeNumber) {
+    if (LIVE_TAKE.sid === sid) return LIVE_TAKE.take;
+    if (LIVE_TAKE_LOADING || !sid) return null;
+    var store = global.MultiCamSessionStore;
+    if (!store || typeof store.get !== "function") return null;
+    LIVE_TAKE_LOADING = true;
+    Promise.resolve(store.get(sid)).then(function (s) {
+      var take = null;
+      if (s && Array.isArray(s.takes) && s.takes.length) {
+        var tm = global.MultiCamTakeModel;
+        take = (tm && typeof tm.takeAt === "function")
+          ? (tm.takeAt(s.takes, takeNumber) || s.takes[s.takes.length - 1])
+          : s.takes[s.takes.length - 1];
+      }
+      LIVE_TAKE = { sid: sid, take: take };
+      LIVE_TAKE_LOADING = false;
+      if (current === "live" && global.MultiCamStartService) {
+        var v = global.MultiCamStartService.view();
+        if (v && v.active) syncLive(v);
+      }
+    }).catch(function () {
+      LIVE_TAKE_LOADING = false;
+    });
+    return null;
+  }
+
+  /* Noms des devices du plan : le libellé vient des participants du plan de
+   * START, jamais inventé ailleurs. */
+  function liveNames(sid) {
+    var out = {};
+    liveParticipants(sid).forEach(function (p) {
+      if (p && typeof p.deviceId === "string" && p.deviceId) {
+        out[p.deviceId] = p.deviceName || p.deviceId;
+      }
+    });
+    return out;
+  }
+
   /* Participants du Take, dans l'ordre du plan. Le modèle START est la seule
    * vérité ; `machine().state.plan` est déjà lue par l'écran 07, donc aucune
    * donnée n'est inventée ici. */
@@ -203,8 +249,10 @@
      * pour le liveness. `syncTelemetry` ignore (et compte) tout device absent du
      * plan du Take — la mosaïque ne peut pas afficher la batterie d'un device
      * qui n'en est pas. */
-    if (global.MultiCamTelemetryStore) {
-      model.syncTelemetry(global.MultiCamTelemetryStore.all(v.sid));
+    var telemetryStore = global.MultiCamTelemetryStore;
+    var telemetry = telemetryStore ? telemetryStore.all(v.sid) : {};
+    if (telemetryStore) {
+      model.syncTelemetry(telemetry);
     }
 
     /* Une seule lecture de la session et des états pairs par révision : ces
@@ -227,7 +275,15 @@
       sessionName: v.sessionName,
       phase: v.phase,
       recStartedAtMs: v.recStartedAtMs,
-      nowMs: Date.now()
+      nowMs: Date.now(),
+      /* J09-09c : supervision des Storage sélectionnés pour CE Take. Les trois
+       * sources sont les FAITS existants : le plan (Take), la télémétrie et la
+       * connectivité — la même map que les vignettes, pas une copie. */
+      take: liveTakeFor(v.sid, v.takeNumber),
+      telemetry: telemetry,
+      liveness: live,
+      names: liveNames(v.sid),
+      localDid: (appCfg && appCfg.deviceId) || ""
     });
   }
 
