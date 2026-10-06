@@ -13,6 +13,32 @@
  * superviser sans ouvrir plusieurs écrans » — donc la collecte sort de l'UI et
  * devient un service, activé tant qu'une session ouverte existe.
  *
+ * ---------- J09-D2 : QUI APPORTE LE CYCLE DE VIE ----------
+ *
+ * Sortir le code du service ne suffisait pas : ses appels `bind()`/`start()`
+ * restaient dans `ui/take.js`, donc il ne DÉMARRAIT toujours qu'à l'ouverture
+ * de l'écran 05 (défaut D2 de la campagne physique J09 — la télémétrie était
+ * absente de la mosaïque tant que personne n'avait ouvert cet écran).
+ *
+ * Le propriétaire est maintenant la SESSION, branchée au BOOT :
+ *
+ *   - `main.js:bootSession()` appelle `bind(cfg)` au démarrage, au même rang
+ *     que `arm-service`, `start-service` et `camera-switch-service` ;
+ *   - `bind()` s'abonne UNE FOIS à `MultiCamSessionWs.onChanged`, le signal
+ *     global de mutation de session (création, join, membres, fermeture —
+ *     décision 30.7 : le cycle de vie ne dépend pas de l'écran affiché) ;
+ *   - chaque signal déclenche `reconcile()` : une session ouverte dont ce
+ *     device est membre → collecteur actif ; plus rien → collecteur arrêté.
+ *
+ * `reconcile()` et `start()` sont idempotents : réconcilier une session déjà
+ * active ne recrée ni timer ni publication initiale. C'est ce qui interdit les
+ * doubles timers / doubles comptages — les publications du service produisent
+ * elles-mêmes un `onChanged`, la réconciliation tourne donc en boucle
+ * permanente sans jamais doubler quoi que ce soit.
+ *
+ * L'écran 05 est redevenu un simple consommateur : il affiche, il rafraîchit
+ * (`collectNow`), il ne démarre ni n'arrête rien.
+ *
  * ---------- CADENCE (choix explicite) ----------
  *
  * La télémétrie NE SUIT PAS la cadence des previews. Une image par seconde, par
@@ -51,6 +77,7 @@
 
   var S = {
     bound: false,
+    hooked: false,            /* J09-D2 : abonnement session posé UNE fois */
     deviceId: "",
     deviceName: "",
     running: false,
@@ -315,8 +342,82 @@
    * rien — c'est lui qui décide QUAND publier, pas quel chiffre afficher. */
   var BATTERY_WARN = (global.MultiCamSessionModel && global.MultiCamSessionModel.BATTERY_WARN_PCT) || 25;
 
+  /* ---------- CYCLE DE VIE (J09-D2) : la session est la propriétaire ---------- */
+
+  /* La session sur laquelle CE device doit publier : la plus récemment mise à
+   * jour parmi les sessions ouvertes dont il est MEMBRE (même critère que la
+   * publication elle-même, cf. `isMemberOf`). Une seule session à la fois : le
+   * service n'a qu'un seul timer et qu'un seul `sessionId`.
+   *
+   * `{ ok:false }` = le store est illisible (module absent, lecture en échec) :
+   * on ne SAIT pas, donc on ne touche surtout pas à l'état en cours. `null` =
+   * aucune session active, c'est un arrêt légitime. */
+  function activeSession() {
+    var store = global.MultiCamSessionStore;
+    if (!store || typeof store.list !== "function") return Promise.resolve({ ok: false });
+    return Promise.resolve(store.list()).then(function (all) {
+      var best = null;
+      (all || []).forEach(function (s) {
+        if (!isMemberOf(s)) return;
+        if (!best || (s.updatedAtMs || 0) > (best.updatedAtMs || 0)) best = s;
+      });
+      return { ok: true, session: best };
+    }).catch(function () { return { ok: false }; });
+  }
+
+  /* Réconciliation : la seule porte d'entrée du démarrage et de l'arrêt.
+   * Idempotente par conception — voir `start()`. */
+  function reconcile(reason) {
+    if (!S.bound) return Promise.resolve(false);
+    var why = reason || "change";
+    return activeSession().then(function (res) {
+      if (!res.ok) {
+        log("TELEMETRY_RECONCILE_SKIPPED reason=" + why + " cause=session_store_unreadable");
+        return false;
+      }
+      if (res.session) {
+        if (S.running && S.sessionId === res.session.sessionId) {
+          /* Déjà actif sur CETTE session : copie fraîche, aucun redémarrage. */
+          S.session = res.session;
+          return true;
+        }
+        log("TELEMETRY_RECONCILE reason=" + why + " action=start sessionId=" + res.session.sessionId);
+        return start(res.session);
+      }
+      if (S.running) {
+        log("TELEMETRY_RECONCILE reason=" + why + " action=stop sessionId=" + S.sessionId);
+        stop();
+      }
+      return false;
+    });
+  }
+
+  /* UN abonnement au signal global de session, posé au premier `bind()` :
+   * c'est lui qui rend le service sensible à la vie de la session sans qu'aucun
+   * écran n'ait à s'en préoccuper (30.7). */
+  function hookSession() {
+    if (S.hooked) return;
+    var ws = global.MultiCamSessionWs;
+    if (!ws || typeof ws.onChanged !== "function") return;
+    S.hooked = true;
+    ws.onChanged(function () {
+      reconcile("session_changed").catch(function (err) {
+        log("TELEMETRY_RECONCILE_FAIL reason=session_changed err=" + String((err && err.message) || err));
+      });
+    });
+    log("TELEMETRY_LIFECYCLE_HOOK source=ws.onChanged");
+  }
+
   function start(session) {
     if (!session || !session.sessionId) return false;
+    /* J09-D2 : démarrage IDEMPOTENT. Déjà actif sur cette session → ni timer
+     * recréé, ni publication « open » dupliquée. C'est la garantie qu'un
+     * enchaînement de signaux (ou plusieurs réouvertures d'écran) ne produit
+     * jamais deux collecteurs. */
+    if (S.running && S.sessionId === session.sessionId) {
+      S.session = session;
+      return true;
+    }
     stop();
     S.session = session;
     S.sessionId = session.sessionId;
@@ -346,11 +447,26 @@
     var c = cfg || {};
     if (c.deviceId) S.deviceId = c.deviceId;
     if (c.deviceName) S.deviceName = c.deviceName;
+    if (!S.deviceId) {
+      /* Identité du device : celle du transport (`state.localDid`), source
+       * identique à celle de `isMemberOf`/`updateMemberTelemetry`. */
+      var ws = global.MultiCamSessionWs;
+      var st = ws && typeof ws.status === "function" ? ws.status() : null;
+      if (st && st.localDid) S.deviceId = st.localDid;
+    }
     S.bound = !!S.deviceId;
     bindBattery();
+    hookSession();
     log("TELEMETRY_COLLECTOR_READY did=" + (S.deviceId || "—")
       + " cadenceMs=" + CADENCE_MS + " measureTtlMs=" + MEASURE_TTL_MS
       + " batteryWarn=" + BATTERY_WARN);
+    if (S.bound) {
+      /* Premier rattachement (boot) : une session ouverte déjà présente doit
+       * démarrer tout de suite, sans attendre une mutation ultérieure. */
+      reconcile("bind").catch(function (err) {
+        log("TELEMETRY_RECONCILE_FAIL reason=bind err=" + String((err && err.message) || err));
+      });
+    }
     return S.bound;
   }
 

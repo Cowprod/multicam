@@ -409,6 +409,17 @@
         console.log("CAMERA_SWITCH_BOOT_ERROR " + String((err && err.message) || err));
       });
     }
+    /* J09-D2 : la télémétrie appartient à la SESSION, pas à l'écran 05. Elle
+     * est BRANCHÉE ici, au boot, comme les ponts ci-dessus : `bind()` pose l'un
+     * (et l'un seul) abonnement aux changements de session, puis réconcilie —
+     * démarrage dès qu'une session ouverte dont ce device est membre existe,
+     * arrêt quand elle disparaît. Sans cet appel, la télémétrie ne dépendrait
+     * toujours que de l'ouverture de l'écran 05 (défaut D2 de J09). */
+    if (global.MultiCamTelemetryService) {
+      global.MultiCamTelemetryService.bind(cfg);
+    } else {
+      console.log("TELEMETRY_BOOT_UNAVAILABLE reason=module_absent");
+    }
     return global.MultiCamSessionStore.list().then(function (sessions) {
       console.log("SESSION_BOOT stored=" + sessions.length
         + " open=" + sessions.filter(function (s) { return s.state === "open"; }).length

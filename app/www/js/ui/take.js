@@ -139,15 +139,15 @@
 
     /* J09-06 : la mesure ET la publication appartiennent au service (cadence
      * 5 s, immédiat sur changement important, latest-wins, sans file). Deux
-     * publier en parallèle donneraient deux « derniers états » concurrents, et
-     * l'opérateur verrait取决于 l'ordre d'arrivée. */
-    var cfg = global.MultiCamConfig ? global.MultiCamConfig.get() : null;
-    svc.bind({ deviceId: did, deviceName: (cfg && cfg.deviceName) || "" });
-    if (!svc.view().running) {
-      svc.start(s);          /* démarre + première publication immédiate */
-    } else if (force) {
-      svc.collectNow();      /* réouverture d'écran : on veut voir nos valeurs */
-    }
+     * sources publier en parallèle donneraient deux « derniers états »
+     * concurrents, et l'opérateur verrait dépendre de l'ordre d'arrivée.
+     *
+     * J09-D2 : cet écran n'est plus le propriétaire du cycle de vie. Il ne
+     * DÉMARRE ni n'ARRÊTE plus le service — c'est `main.js:bootSession()` qui
+     * le branche et `state/telemetry-service.js` qui suit la session. Il ne
+     * lui reste qu'à DEMANDER une publication fraîche à l'ouverture : la
+     * cadence, l'arrêt et l'unicité du timer sont ceux du service. */
+    if (force) svc.collectNow();
     state.lastPublish = Date.now();
   }
 
@@ -702,20 +702,17 @@
           global.MultiCamSessionWs.advertiseOpenSessions();
           global.MultiCamSessionWs.reSyncSession(s);
         }
-        /* J09-06 : le service de collecte ne démarre qu'une fois la Capture
-         * MEMBRE d'une session ouverte — information qu'elle n'a qu'après un
-         * resync. Sans cette réconciliation ici, la première publication
-         * attendrait le tick de 8 s ci-dessous, et le Master afficherait des
-         * valeurs absentes pendant plusieurs secondes après le début du REC.
-         * L'appel est sans effet quand le service tourne déjà. */
+        /* J09-D2 : le service suit la session lui-même (abonnement posé au
+         * boot) ; cet écran ne fait plus que rafraîchir son AFFICHAGE. Les
+         * capacités restent un besoin d'écran (sonde native mise en cache). */
         publishSelfTelemetry(false);
       });
     });
     /* Rafraîchissement d'ÉCRAN (présence, convergence de la session). Le rendu
      * est periodic ici, la CADENCE de télémétrie est celle du service (5 s) :
-     * ce n'est plus le rôle de cet écran, et deux cadences se doubleraient. L'appel
-     * restant sert de RÉCONCILIATION : si le service n'a jamais démarré (écran
-     * rouvert, session changée), il repart ici sans publications en double. */
+     * ce n'est plus le rôle de cet écran, et deux cadences se doubleraient.
+     * J09-D2 : cet appel ne pilote PLUS le démarrage du service — il se borne
+     * à rafraîchir la vue, et le service, de toute façon, continue derrière. */
     setInterval(function () {
       if (state.session && state.session.state === "open") {
         render();
