@@ -1,0 +1,395 @@
+
+[1mJ09-07 · modèle — validation et inventaire[0m
+  [32m✓[0m M1. une caméra hors modèle est refusée, jamais devinée
+  [32m✓[0m M2. l'inventaire BRUT donne les caméras PHYSIQUES, pas les résolutions
+  [32m✓[0m M3. l'inventaire est FAIL-CLOSED : forme J06, erreur, absence
+  [32m✓[0m M4. un émetteur non-Master est refusé
+  [32m✓[0m M5. une cible qui n'est pas Capture du Take est refusée
+  [32m✓[0m M6. session, cible et joignabilité sont recoupées AVANT la caméra
+  [32m✓[0m M7. caméra indisponible → refus, et un inventaire INCONNU aussi
+  [32m✓[0m M8. idempotence : la caméra DÉJÀ active est un SUCCÈS sans action matérielle
+  [32m✓[0m M9. une preview fermée rend la bascule impossible
+  [32m✓[0m M10. `attachToTake` repart de zéro pour un NOUVEAU Take
+  [32m✓[0m M11. un segment NE FABRIQUE PAS sa caméra de départ
+  [32m✓[0m M11b. une caméra de départ RELUE est conservée telle quelle
+
+[1mJ09-08b1 · identité des segments — index attribué à l'ouverture[0m
+  [32m✓[0m P1. le premier segment d'un Take est le segment 1
+  [32m✓[0m P2. une bascule clôture le 1 et ouvre le 2
+  [32m✓[0m P3. une seconde bascule clôture le 2 et ouvre le 3
+  [32m✓[0m P4. le STOP clôture le dernier : historique [1,2,3], plus rien en cours
+  [32m✓[0m P5. chaque segment porte la caméra qui a réellement enregistré
+  [32m✓[0m P6. aucun index n'est réutilisé dans un même Take
+  [32m✓[0m P7. un nouveau Take recommence à 1
+  [32m✓[0m P8. un STOP sans switch donne un historique [1]
+  [32m✓[0m P9. un segment déjà ouvert n'en ouvre pas un second
+  [32m✓[0m P10. un segment porte tous les champs exigés, même inconnus
+  [32m✓[0m P11. la vue publie l'index du segment EN COURS, pas un compteur de fermés
+
+[1mJ09-07 · frontière native — ordre et confirmations[0m
+  [32m✓[0m N1. switchSegmented : stop → switch → RELECTURE → restart, dans cet ordre
+  [32m✓[0m N2. hors REC : aucun fichier produit, et la preview seule est reconfigurée
+  [32m✓[0m N3. activeFacing ne bouge que sur un FAIT natif, jamais sur une promesse
+  [32m✓[0m N4. getCameraState est une RELECTURE, et son échec est distinct d'un état
+  [32m✓[0m N5. sans le patch natif, la bascule échoue au lieu de le prétendre
+  [32m✓[0m N6. les réglages du segment sont conservés, seule la caméra change
+  [32m✓[0m N7. un segment N ne s'ouvre jamais avant la fermeture du segment N-1
+  [32m✓[0m N8. un facing hors modèle est refusé AVANT de fermer le segment
+  [32m✓[0m N9. le compteur de segments suit les bascules RÉUSSIES
+
+[1mJ09-07 · service — autorité, segmentation, ACK[0m
+  [32m✓[0m S1. un Master ordonne à une Capture du Take : l'ordre PART, adressé
+  [32m✓[0m S2. une cible qui n'est pas Capture du Take est refusée SANS émission
+  [32m✓[0m S3. une cible inconnue de la session est refusée SANS émission
+  [32m✓[0m S4. une cible DÉCONNECTÉE est refusée avant l'envoi
+  [32m✓[0m S5. un WS qui n'aboutit pas est signalé, pas avalé
+  [32m✓[0m S5b. sans ACK, le Master NE RÉPOND PAS « fait » : il expire en « indécidable »
+  [32m✓[0m S5c. un ACK en ÉCHEC est transmis tel quel, code compris
+  [32m✓[0m S6. l'inventaire vient de la SONDE BRUTE, jamais de la forme J06
+  [32m✓[0m S7. un device SANS caméra front n'annonce que ce qu'il a
+  [32m✓[0m S8. l'inventaire relu au bridge est celui de l'état NATIF
+  [32m✓[0m S8b. une bascule ADOPTE le facing natif avant de partir
+  [32m✓[0m S9. la vue du service expose exactement ce dont l'écran a besoin
+  [32m✓[0m S10. `onStartView` attache le service au Take, sans le deviner
+  [32m✓[0m S11. reset() efface l'état et ne laisse aucune bascule en vol
+
+[1mJ09-08b1 · service — indexation d'un Take complet[0m
+  [32m✓[0m S12. START → switch → switch → STOP : segments 1, 2, 3, tous clôturés
+  [32m✓[0m S13. un STOP sans switch donne un unique segment 1
+  [32m✓[0m S14. un double top n'ouvre pas un second segment
+  [32m✓[0m S15. un nouveau plan repart de 1
+
+[1mJ09-08b2 · échecs de segmentation — identité du segment et index[0m
+  [32m✓[0m A1. un arrêt NON CONFIRMÉ ne clôture aucun segment et ne consomme aucun index
+  [32m✓[0m A2. la reprise referme LE MÊME segment : pas de saut, pas de doublon
+  [32m✓[0m A3. le wrapper ne rend JAMAIS un chemin périmé après un arrêt raté
+  [32m✓[0m A4. un arrêt raté dont le recorder a DISPARU ne rend pas non plus de chemin
+  [32m✓[0m B1. un redémarrage refusé AVANT création ne fabrique aucun segment
+  [32m✓[0m B2. après un redémarrage refusé, le segment suivant est bien N+1
+  [32m✓[0m B3. un échec de bascule APRÈS la clôture referme N, sans créer de N+1
+  [32m✓[0m C1. un N+1 RÉELLEMENT créé reste le segment en cours, marqué en échec
+  [32m✓[0m C2. après un N+1 en échec, le fichier suivant est N+2
+  [32m✓[0m D1. un STOP après un échec referme le Take sans doublon d'index
+  [32m✓[0m D2. un STOP après un redémarrage refusé n'ajoute RIEN à l'historique
+  [32m✓[0m D3. le STOP du start-service signale l'échec au modèle ET remonte l'erreur
+  [32m✓[0m E1. le cycle nominal donne `recording` puis `closed`, sans autre état
+  [32m✓[0m E2. le modèle : un échec conserve l'index, l'historique, et n'ouvre rien
+  [32m✓[0m E3. le modèle : deux échecs successifs ne créent toujours qu'un index
+  [32m✓[0m F1. un refus SANS effet physique ne touche à aucun segment
+  [32m✓[0m F2. une erreur SANS FAITS n'inscrit rien : l'absence de preuve n'est pas une preuve
+  [32m✓[0m F3. un refus avant toute opération ne porte AUCUN fait de segmentation
+
+[1mJ09-08b3 · cohérence de `activeCamera` après une bascule[0m
+  [32m✓[0m A. switch natif OK + restart OK : activeCamera = cible et recording = true
+  [32m✓[0m B. switch OK + restart KO AVANT création : la cible est publiée, rien n'est ouvert
+  [32m✓[0m B'. switch OK + restart KO APRÈS création : segment failed, et le REC reste le fait relu
+  [32m✓[0m C. switch natif KO : activeCamera reste l'ancienne caméra RÉELLEMENT active
+  [32m✓[0m D. callback et relecture CONTRADICTOIRES : c'est la relecture qui fait foi
+  [32m✓[0m E. requestedCamera != confirmedCamera : activeCamera = confirmedCamera, jamais la cible
+  [32m✓[0m F. l'adoption de la caméra ne consomme AUCUN index
+
+[1mJ09-08b4 · la caméra d'un segment ne peut pas venir d'une demande[0m
+  [32m✓[0m A. facing natif connu : le segment 1 porte la caméra RELUE
+  [32m✓[0m B. facing natif INCONNU + demande REAR : le segment ne peut pas valoir REAR
+  [32m✓[0m C. facing natif INCONNU + demande FRONT : le segment ne peut pas valoir FRONT
+  [32m✓[0m D. relecture native disponible au démarrage : c'est sa valeur qui prevails
+  [32m✓[0m E. le switch normal et les index sont intacts
+
+[1mJ09-08c · publication réseau — le segment et la caméra RÉELS[0m
+  [32m✓[0m A. REC démarre : activeCamera confirmée, segmentIndex 1, segmentState recording
+  [32m✓[0m B. bascule réussie : nouvelle activeCamera, segmentIndex 2, recording
+  [32m✓[0m C. seconde bascule : segmentIndex 3, l'historique n'est pas transmis
+  [32m✓[0m D. STOP : segmentIndex 0 et segmentState vide, sans inventer de segment
+  [32m✓[0m D2. STOP en échec : le segment reste en failed, il n'est ni effacé ni maquillé
+  [32m✓[0m E. restart_failed après bascule native confirmée : la NOUVELLE caméra est publiée
+  [32m✓[0m E2. restart_failed APRÈS création : segment failed, segmentIndex 2
+  [32m✓[0m F. bascule native KO : la caméra DEMANDÉE n'est jamais publiée comme active
+  [32m✓[0m G. le Master's conserve EXACTEMENT ce qui a été publié
+  [32m✓[0m G2. l'inbox refuse un segmentState inconnu et garde le précédent
+
+[1mJ09-08d · UI — l'état caméra/segment réellement affiché[0m
+  [32m✓[0m A. REC initial : caméra confirmée, segment 1, enregistrement
+  [32m✓[0m A2. la mosaïque garde son ordre et sa structure
+  [32m✓[0m B. après bascule : nouvelle caméra, segment 2, enregistrement
+  [32m✓[0m C. restart_failed après création : segment failed, et la NOUVELLE caméra reste visible
+  [32m✓[0m C'. failed + recording=false : l'écran montre la caméra ET dit l'échec
+  [32m✓[0m D. STOP : « aucun segment actif », jamais « segment 0 »
+  [32m✓[0m E. activeCamera inconnue : état neutre, jamais REAR ni FRONT
+  [32m✓[0m F. pendant une bascule : « Changement… », et l'actif reste lisible
+  [32m✓[0m G. requestedCamera n'est jamais présentée comme la caméra réelle
+
+[1mJ09-08f · le premier camera_state doit atteindre les Masters[0m
+  [32m✓[0m A. le segment 1 atteint les Masters de la session
+  [32m✓[0m B. le premier paquet porte le segment 1 RÉEL
+  [32m✓[0m C. une session sans Master donne masters=0, et RIEN n'est inventé
+  [32m✓[0m D. la première bascule réutilise EXACTEMENT la même identité de session
+  [32m✓[0m E. le STOP est routé comme l'ouverture
+  [32m✓[0m F. une Capture de S1 ne route JAMAIS vers le Master de S2
+  [32m✓[0m F2. changer de session ne réutilise pas l'identité précédente
+  [32m✓[0m G. `CAMERA_STATE_TX … masters=0` n'est plus produit au segment 1
+  [32m✓[0m H. sans session lisible, l'état n'est PAS publié sous une session inventée
+
+[1mJ09-09a · l'inventaire est connu AVANT le premier switch[0m
+  [32m✓[0m A. REAR+FRONT : inventaire COMPLET avant toute bascule
+  [32m✓[0m B. un device SANS front n'annonce que REAR
+  [32m✓[0m C. sonde en échec : availableCameras reste VIDE, aucune invention
+  [32m✓[0m D. le PREMIER camera_state porte l'inventaire avec segmentIndex=1 / recording=true
+  [32m✓[0m E. le Master reçoit EXACTEMENT cet inventaire (reçus au segment 1)
+  [32m✓[0m F. AUCUN switch n'est nécessaire pour obtenir l'inventaire
+  [32m✓[0m G. la sonde ne repart PAS à chaque tick START/REC (une seule pour la prise)
+  [32m✓[0m H. la première bascule garde SON comportement (re-validation de l'inventaire)
+
+[1mJ09-07 · mémoire de supervision — convergence des Masters[0m
+  [32m✓[0m B1. l'état reçu est celui du device, la phase REC RELAYÉE
+  [32m✓[0m B1b. `phase` ne peut plus valoir un facing
+  [32m✓[0m B1c. sans phase relayee, la phase reste INCONNUE (jamais devinee)
+  [32m✓[0m B2. pendant une bascule, la phase l'annonce sans fixer l'actif
+  [32m✓[0m B3. un paquet qui encode l'état d'un AUTRE device est refusé
+  [32m✓[0m B4. un état d'une AUTRE session n'est jamais présenté comme le courant
+  [32m✓[0m B5. un paquet RETARDÉ n'écrase pas un fait plus frais
+  [32m✓[0m B7. les deux vues se répondent SANS se rappeler elles-mêmes
+  [32m✓[0m B6. un device sans état reste INCONNU, pas « REAR »
+
+[1mJ09-06 télémétrie — transport (telemetry_update)[0m
+  [32m✓[0m T1. Capture S1 publie -> le Master S1 reçoit la télémétrie
+  [32m✓[0m T2. la même télémétrie annoncée sous S2 ne touche PAS S1
+  [32m✓[0m T2b. une Capture ne peut pas publier la télémétrie d'un autre device
+
+[1mJ09-06 télémétrie — modèle mémoire de la mosaïque[0m
+  [32m✓[0m T3. télémétrie d'un device HORS TAKE -> mosaïque intacte + comptée
+  [32m✓[0m T4. deux snapshots successifs -> le 2e remplace, AUCUN historique
+  [32m✓[0m T4b. snapshot plus ancien que le précédent -> ignoré (pas de recul)
+  [32m✓[0m T11. deux Captures -> valeurs indépendantes, aucun mélange
+
+[1mJ09-06 télémétrie — affichage honnête des unknowns[0m
+  [32m✓[0m T5. batterie inconnue -> état NEUTRE, jamais 0 %
+  [32m✓[0m T6. stockage inconnu -> état NEUTRE, jamais 0 octet
+  [32m✓[0m T6b. batterie et stockage connus -> valeur ET état de vigilance
+  [32m✓[0m T9. télémétrie périmée -> stale SIGNALÉ mais PAS de DECONNECTED
+
+[1mJ09-06 télémétrie — déconnexion / reconnexion / arrêt[0m
+  [32m✓[0m T7. Capture déconnectée -> télémétrie conservée, vignette DÉCONNECTÉE
+  [32m✓[0m T8. reconnexion -> MÊME slot, télémétrie fraîche qui remplace
+  [32m✓[0m T12. REC -> STOPPED -> état de vignette cohérent avec le modèle START
+  [32m✓[0m T12b. STOPPED + lien perdu -> DÉCONNECTÉ prime, l'enregistreur est mémorisé
+
+[1mJ09-06 télémétrie — device local[0m
+  [32m✓[0m T10. Master+Capture local -> télémétrie locale visible sans loopback
+
+[1mJ09-06 télémétrie — service de collecte (côté Capture)[0m
+  [32m✓[0m T13. cadence 5 s -> un snapshot par période, latest-wins, SANS file
+  [32m✓[0m T13b. un publish en échec ne bloque pas la cadence suivante
+  [32m✓[0m T14. seuil de batterie franchi -> publication IMMÉDIATE
+  [32m✓[0m T14c. un simple pas de 1 % n'AJOUTE PAS de message (anti-bruit)
+  [32m✓[0m T14b. mise en charge / arrêt du REC -> publication immédiate
+  [32m✓[0m T18. contrat : les champs inconnus/bidons sont ASSAINIS, jamais transmis
+  [32m✓[0m T19. batterie en FRACTION ou en POURCENTAGE -> la même valeur, jamais rejetée
+  [32m✓[0m T18b. le modèle refuse une télémétrie d'un device qui n'est pas membre
+
+[1mJ09-06 télémétrie — vue détaillée d'une Capture[0m
+  [32m✓[0m T15. le détail est cohérent avec la vignette
+  [32m✓[0m T16. détail d'une Capture DÉCONNECTÉE -> dernière image + dernière télémétrie
+  [32m✓[0m T17. le détail n'expose AUCUNE commande (pas de J10)
+
+[1mJ09-09b · la modal montre les fonctions ACTIVES du Take[0m
+  [32m✓[0m A. GPS présent mais Take GPS=off → GPS non actif (capable, non demandé)
+  [32m✓[0m B. GPS présent et Take GPS=on → GPS actif
+  [32m✓[0m C. micro présent mais audio=off → Audio non actif
+  [32m✓[0m D. micro présent et audio=on → Audio actif
+  [32m✓[0m E. fonction demandée mais capability absente → incident explicite
+  [32m✓[0m E2. vidéo demandée mais device sans aucune caméra → incident
+  [32m✓[0m F. vidéo toujours cohérente avec le rôle/plan du Take
+  [32m✓[0m G. aucune régression caméra/segment dans la modal
+  [32m✓[0m H. capacités inconnues + fonction demandée → unknown (jamais inventée)
+  [32m✓[0m K. les overrides de device sont la source par Capture
+  [32m✓[0m J. sans plan de Take → rien d'actif, tout est unknown (pas de mensonge)
+  [32m✓[0m DOM. peinture : état d'icône par statut (on / off / missing)
+
+[1mJ09-05 mosaïque — slots = Captures du Take[0m
+  [32m✓[0m M1. Take avec 1 Capture -> exactement 1 slot
+  [32m✓[0m M2. Take avec 2 Captures -> 2 slots DANS L'ORDRE DU TAKE
+
+[1mJ09-05 mosaïque — placeholder et remplacement[0m
+  [32m✓[0m M3. aucune frame reçue -> le slot existe avec placeholder
+  [32m✓[0m M4. frame reçue pour B -> SEULE la vignette B change
+  [32m✓[0m M5. frame suivante pour B -> image REMPLACÉE, pas de vignette ajoutée
+
+[1mJ09-05 mosaïque — déconnexion / reconnexion[0m
+  [32m✓[0m M6. B se déconnecte -> index inchangé, image conservée, état Déconnecté
+  [32m✓[0m M7. B se reconnecte -> MÊME slot, nouvelle image, sans action opérateur
+  [32m✓[0m M8. frames A et B dans n'importe quel ordre -> ordre visuel INCHANGÉ
+  [32m✓[0m M15. une Capture retirée du plan en cours de Take garde sa vignette
+  [32m✓[0m M14. un participant découvert plus tard est AJOUTÉ en fin, sans décaler
+
+[1mJ09-05 mosaïque — cloisonnement session / Take[0m
+  [32m✓[0m M9. frame d'une Capture HORS TAKE -> ignorée et comptée
+  [32m✓[0m M10. frame d'une AUTRE session ou d'un AUTRE Take -> ignorée
+  [32m✓[0m M13. Take suivant -> slots reconstruits, aucun reliquat du Take précédent
+
+[1mJ09-05 mosaïque — STOPPED et Master local[0m
+  [32m✓[0m M11. Capture STOPPED localement -> slot conservé, image FIGÉE, état STOPPED
+  [32m✓[0m M12. Master local aussi Capture -> slot marqué local, AUCUN badge « ce device »
+
+[1mJ09-05 mosaïque — l'ordre ne bouge jamais[0m
+  [32m✓[0m M16. rafales + pannes + noms différents -> ordre strictement stable
+
+[1mJ09-08c mosaïque — l'état du segment publié traverse jusqu'à l'écran[0m
+  [32m✓[0m C1. la supervision Master's lit le segment, son état et l'enregistrement
+  [32m✓[0m C2. apres le STOP : segmentIndex 0 et plus d'enregistrement suppose
+
+[1mJ09-05 mosaïque — rendu DOM (projection du modèle)[0m
+  [32m✓[0m M17. 2 Captures -> DEUX vignettes rendues, dans l'ordre, en-tête écrit
+  [32m✓[0m M18. re-rendu idempotent : memes vignettes, meme ordre, src non reassigne
+  [32m✓[0m M19. vignette locale rendue SANS src et avec le contour .local
+  [32m✓[0m M20. changement de Take -> aucune vignette du Take precedent dans le DOM
+
+[1mJ09-09c · Storages sélectionnés pour CE Take (zone Master)[0m
+  [32m✓[0m A. aucun Storage sélectionné → aucune ligne Storage
+  [32m✓[0m B. un Storage sélectionné → une ligne avec le bon nom
+  [32m✓[0m C. deux Storage → ordre conforme au plan (déconnexion ne réordonne pas)
+  [32m✓[0m D. freeBytes connu → valeur affichée (formatée)
+  [32m✓[0m E. freeBytes inconnu → « — », jamais 0
+  [32m✓[0m F. netType wifi → Wi-Fi
+  [32m✓[0m G. netType ethernet → Ethernet
+  [32m✓[0m H. Storage déconnecté → reste dans la liste avec état déconnecté
+  [32m✓[0m I. device non sélectionné comme Storage → absent
+  [32m✓[0m J. une Capture ne doit jamais apparaître dans la liste Storage
+  [32m✓[0m K. aucune régression mosaïque Capture
+  [32m✓[0m DOM. la zone se masque sans Storage et se remplit avec
+
+[1mJ09-02 · état J08 livré (rouge attendu)[0m
+  [32m✓[0m R1. J08 arrête la preview en même temps que l'enregistreur (violation §35.1)
+  [32m✓[0m R2. J08 n'expose aucun point d'entrée de preview permanente
+  [32m✓[0m R3. J08 n'a aucune transparence conditionnelle (body toujours opaque)
+
+[1mJ09-02 · preview locale permanente (décision §35.1)[0m
+  [32m✓[0m A. Capture actif + app au premier plan → preview demandée au boot
+  [32m✓[0m A2. options natives : caméra arrière, toBack, pas de capture photo
+  [32m✓[0m B. device sans skill Capture → la caméra n'est jamais ouverte
+  [32m✓[0m C. Capture actif + passage en arrière-plan → preview libérée
+  [32m✓[0m D. retour au premier plan → preview relancée automatiquement
+  [32m✓[0m D2. pause/resume répétés en rafale → jamais de double ouverture
+  [32m✓[0m E. désactivation de la skill Capture → preview arrêtée
+  [32m✓[0m F. démarrage REC alors que la preview est déjà active → pas de 2e startCamera
+  [32m✓[0m F2. startRecording sans préparation préalable réutilise la preview permanente
+  [32m✓[0m G. STOP REC → l'enregistrement s'arrête MAIS la preview reste active
+  [32m✓[0m H. échec d'ouverture de la caméra → pas de faux état actif, fond sombre
+  [32m✓[0m H2. permission caméra refusée → preview jamais demandée
+  [32m✓[0m H3. après un échec, un retour au premier plan peut retenter
+  [32m✓[0m I. transparence conditionnelle : fond opaque hors preview active
+  [32m✓[0m I2. la transparence est portée par une règle d'état explicite dans app.css
+  [32m✓[0m I3. la classe est posée sur <html> ET <body> (propagation des fonds CSS)
+  [32m✓[0m J. logs parsables CAMERA_PREVIEW_START / STOP
+
+[1mJ09-02 · intégration start-service (fin de plan ≠ fermeture)[0m
+  [32m✓[0m K. cancel() du plan → la preview permanente reste ouverte
+  [32m✓[0m L. stopLocal() → l'enregistrement s'arrête, la preview reste
+  [32m✓[0m M. un REC pendant un ordre de fermeture (background) ne tue pas le REC
+  [32m✓[0m N. l'état journalisé reflète l'état RÉEL (pas une constante)
+
+[1mJ09-03 · périmètre de responsabilité[0m
+  [32m✓[0m R1. preview permanente + REC n'appellent JAMAIS capturePreviewSurface seuls
+  [32m✓[0m R2. un sampler actif est le SEUL à déclencher des captures
+
+[1mJ09-03 · démarrage en REC[0m
+  [32m✓[0m S1. start() en REC déclenche immédiatement la première capture
+  [32m✓[0m S1b. start() HORS REC est refusé (la preview permanente ne suffit pas)
+
+[1mJ09-03 · cadence nominale[0m
+  [32m✓[0m S2. ~1 capture par seconde, rythme stable sur 10 s
+  [32m✓[0m S2b. la cadence ne dérive pas malgré une capture lente
+
+[1mJ09-03 · aucune capture concurrente[0m
+  [32m✓[0m S3. capture encore en vol au tick suivant → SKIP, pas de 2e capture
+  [32m✓[0m S3b. le chien de garde libère le verrou si le natif ne rappelle jamais
+
+[1mJ09-03 · arrêt[0m
+  [32m✓[0m S4. stop() → plus aucune capture, et idempotent
+  [32m✓[0m S4b. le compte rendu de stop() porte les compteurs du run
+
+[1mJ09-03 · démarrage unique[0m
+  [32m✓[0m S5. double start() sur la même cible → une seule boucle
+
+[1mJ09-03 · robustesse aux erreurs[0m
+  [32m✓[0m S6. erreur PixelCopy → compteur incrémenté, boucle intacte
+  [32m✓[0m S6b. payload vide → erreur tracée, pas de faux succès
+  [32m✓[0m S6c. les mesures d'une image réussie sont exploitables
+
+[1mJ09-03 · sortie de REC[0m
+  [32m✓[0m S7. sortie de REC → sampler arrêté (sync)
+  [32m✓[0m S7b. le REC venu à échéance arrête le sampler via la réconciliation
+
+[1mJ09-03 · arrière-plan et preview inactive[0m
+  [32m✓[0m S8. preview libérée → sampler arrêté
+  [32m✓[0m S8b. arrière-plan AVEC caméra encore vivante → le sampler continue (J10)
+
+[1mJ09-03 · nouveau REC[0m
+  [32m✓[0m S9. retour REC → sampler neuf, sans timer résiduel, compteurs remis à zéro
+  [32m✓[0m S9b. changer de Take relance un sampler propre
+
+[1mJ09-03 · intégration sur le cycle START/REC réel[0m
+  [32m✓[0m S10. le sampler ne démarre PAS avant l'entrée effective en REC
+  [32m✓[0m S11. le STOP local arrête le sampler et le REC
+  [32m✓[0m S12. un device NON-Capture ne déclenche pas de capture
+
+[1mJ09-03 · périmètre[0m
+  [32m✓[0m P1. le sampler ne touche à aucun transport réseau
+  [32m✓[0m P2. peek() n'expose qu'UNE image locale, jamais une archive
+
+[1mJ09-04 · transport des previews JPEG (Capture → Masters)[0m
+  [32m✓[0m T1. une Capture envoie preview_frame, le Master de S1 le recoit
+  [32m✓[0m T2. deux Masters de S1 recoivent tous les deux
+  [32m✓[0m T3. un peer Capture ou Storage-only de S1 ne recoit RIEN
+  [32m✓[0m T4. un Master de S2 ne recoit rien pour une frame de S1
+  [32m✓[0m T5. source Master+Capture : aucune boucle reseau vers self
+  [32m✓[0m T6. WS ferme : la frame est DROPpee, aucune exception
+  [32m✓[0m T7. deux frames rapides : aucune accumulation (1 slot, latest wins)
+  [32m✓[0m T8. message recu → l'inbox Master garde metadata + base64 intacts
+  [32m✓[0m T9. frame invalide ou de mauvaise session : rejet propre et compte
+  [32m✓[0m T10. une panne du transport ne remonte JAMAIS dans le callback du sampler
+  [32m✓[0m T11. le transport n'emet que si la session existe et est ouverte
+  [32m✓[0m T13. le meme Master sur 2 sockets : UNE seule frame envoyee
+  [32m✓[0m T12. session-ws reste un transport pur (aucune mosaique, aucun buffer d'image)
+
+[1msession-ws · throttle reSync — MÊME session[0m
+  [32m✓[0m T1. reSyncSession deux fois très vite sur la même session → 1 seul envoi
+
+[1msession-ws · throttle reSync — sessions DIFFÉRENTES[0m
+  [32m✓[0m T2. deux sessions différentes appelées très vite → les deux reSync partent
+  [32m✓[0m T3. trois sessions dans une boucle synchrone (cas du boot) → les trois partent
+
+[1msession-ws · fenêtre de 1500 ms[0m
+  [32m✓[0m T4. même session après >1500 ms → reSync de nouveau autorisé
+  [32m✓[0m T4b. le délai n'est pas raccourci : à 1499 ms toujours throttlé
+
+[1msession-ws · sessionId invalide[0m
+  [32m✓[0m T5. session sans sessionId → pas de pollution du throttle des sessions réelles
+  [32m✓[0m T5b. masters vide → aucun dial, aucun envoi, aucun crash
+
+[1msession-ws · présence par session sur connexion multiplexée[0m
+  [32m✓[0m M1. une connexion, une session → comportement inchangé
+  [32m✓[0m M2. une connexion, deux sessions → B présent dans connectedPeers(S1) ET S2
+  [32m✓[0m M3. activité sur S1 seulement → n'invente pas de présence sur S2
+  [32m✓[0m M4. rejoin de S2 → B devient présent sur S2 sans perdre S1
+  [32m✓[0m M5. fermeture physique → B disparaît de S1 ET S2
+  [32m✓[0m M6. reconnexion → les associations sont reconstruites par le reSync
+  [32m✓[0m M7. deux peers distincts → aucune contamination croisée
+  [32m✓[0m M8. broadcast(S1) doit atteindre la connexion qui a aussi transporté S2
+  [32m✓[0m N1. 2 sessions en rafale vers le meme endpoint : les 2 sync_please partent
+  [32m✓[0m N2. jamais plus de SYNC_PLEASE_SENT que d'envois réels (course)
+
+[1msession-ws · reconnexion automatique après coupure[0m
+  [32m✓[0m R1. socket coupé → le peer disparaît de connectedPeers
+  [32m✓[0m R2. endpoint connu + coupure → tentative de reconnexion SANS reSyncSession manuel
+  [32m✓[0m R3. reconnexion réussie → reSync S1 et présence reconstruite
+  [32m✓[0m R4. S1+S2 sur le même socket → UNE reconnexion physique, reSync des deux
+  [32m✓[0m R5. socket déjà OPEN → aucune tentative supplémentaire
+  [32m✓[0m R6. socket CONNECTING → aucune duplication
+  [32m✓[0m R7. endpoint injoignable → backoff croissant et borné, pas de boucle serrée
+  [32m✓[0m R8. retour réseau après plusieurs échecs → la reconnexion reprend
+  [32m✓[0m R9. session fermée → ni reconnexion, ni reSync
+  [32m✓[0m R11. dial explicite → ne jamais hériter de l'échec d'un socket de retry
+  [32m✓[0m R10. background → pas de retry agressif, reprise propre au foreground
+
+------------------------------------------------------------
+288 passed, 0 failed

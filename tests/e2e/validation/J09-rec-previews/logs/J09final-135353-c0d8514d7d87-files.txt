@@ -1,0 +1,4 @@
+total 568174
+drwx--S--- 3 u0_a277 u0_a277_cache      3452 2026-10-06 13:11 Crash Reports
+drwx--S--- 6 u0_a277 u0_a277_cache      3452 2026-10-06 13:11 WebView
+-rw------- 1 u0_a277 u0_a277_cache 581227225 2026-10-06 13:59 videoTmp.mp4

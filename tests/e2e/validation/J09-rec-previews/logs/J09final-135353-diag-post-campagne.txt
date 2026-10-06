@@ -1,0 +1,124 @@
+# DIAGNOSTIC POST-CAMPAGNE — J09-FINAL (tag J09final-135353)
+#
+# Date des relevés : 2026-10-06, 14:14 → 14:23 (CEST), donc APRÈS la campagne
+# (13:53:53 → 14:02). Ces fichiers ne font que RASSEMBLER des diagnostics
+# d'interprétation : aucune preuve du run n'est modifiée, aucun code produit
+# n'est modifié, aucune campagne n'est relancée.
+#
+# Source primaire (déjà archivée, inchangée) : logs/J09final-135353-*.log
+
+===============================================================================
+D1 — preview figée ~44 s après la bascule caméra (séquence reçue par le Master)
+===============================================================================
+
+Extraction faite sur logs/J09final-135353-61cc29567d91-msr-reconnect.log
+(recv = Master A, device émetteur = B afd69dd6-1409-4d00-b4bc-01318afc22e3) :
+
+  10-06 13:56:10  seq=43
+  10-06 13:56:11  seq=44   <-- dernière valeur appliquée avant la bascule
+  10-06 13:56:13  seq=1    <-- bascule REAR->FRONT : seq du sampler remis à 0
+  10-06 13:56:14  seq=2    (jeté par live-model : 2 <= 44)
+  ...                       (jetés jusqu'à seq > 44)
+  10-06 13:56:57  seq=45   <-- première image réappliquée (reprise)
+  10-06 13:57:12  seq=60
+
+Fenêtre dure : 13:56:13 → 13:56:57 = 44 s.
+Le Master a POURTANT reçu 1 image/s sans interruption (227 frames B sur le
+run ; "PREVIEW_FRAME_RECEIVED ... afd69dd6" présent à chaque seconde).
+
+Evenement de reset, meme horodatage, cote emetteur B
+(logs/J09final-135353-61d54bba7d91-cap-switch.log) :
+
+  13:56:13.202 CAMERA_SEGMENT_FINAL segmentIndex=1 ... reason=camera_switch
+  13:56:13.204 PREVIEW_FRAME_RUN_START sessionId=9Y6FM3R9 take=1
+               startPlanId=9Y6FM3R9#1#1#1      <-- relance du run d'echantillonnage
+  13:56:13.260 PREVIEW_FRAME_TX ... seq=1       <-- seq reparti de 1
+
+startPlanId IDENTIQUE avant et apres (9Y6FM3R9#1#1#1) : le Master n'a aucun
+repere pour distinguer une remise a zero d'un replay.
+
+Reproduction de l'extraction :
+  grep "PREVIEW_FRAME_RECEIVED" logs/J09final-135353-61cc29567d91-msr-reconnect.log \
+    | grep afd69dd6 | sed 's/^\(..-.. ..:..:..\).*seq=\([0-9]*\).*/\1 \2/'
+
+===============================================================================
+D2 — MultiCamTelemetryService jamais demarre sur la Capture B
+===============================================================================
+
+Releve CDP (cdp.js) sur B (61d54bba7d91) le 2026-10-06 a 14:16, apres le run :
+
+  MultiCamTelemetryService.view() =
+  {"bound":false,"running":false,"deviceId":"","sessionId":"",
+   "cadenceMs":5000,"measureTtlMs":15000,"inFlight":0,"pending":false,
+   "lastPublishAtMs":0,"lastErrorAtMs":0,"battery":null,"space":null,
+   "net":null,"recording":null,"errors":0,
+   "stats":{"collects":0,"publishes":0,"errors":0,
+            "coalesced":0,"immediate":0}}
+
+  -> bound=false, collects=0, publishes=0 : le service n'a JAMAIS tourne.
+
+Cote Master A, dumps/J09final-135353-18-A-telemetry.json = "{}" et aucun
+"TELEMETRY_*" / "MEMBER_TELEMETRY" dans logs/J09final-135353-61cc29567d91-*.log.
+
+Seul point d'appel de bind()/start() dans tout le depot :
+  app/www/js/ui/take.js:147-149  (fonction publishSelfTelemetry, ecran 05)
+Tandis que l'en-tete de app/www/js/state/telemetry-service.js explique que la
+collecte doit sortir de l'UI ("un ecran masque ... la supervision s'arretait").
+Les Captures sont restees sur l'ecran 08 pendant toute la campagne.
+
+===============================================================================
+D3 — aucune reconnexion automatique apres coupure reseau
+===============================================================================
+
+Preuve primaire, capture pendant la campagne
+(logs/J09final-135353-61cc29567d91-msr-reconnect.log) :
+
+  ligne 301  13:56:28.800 WS_CLIENT_TIMEOUT endpoint=192.168.92.158:45102
+                          did=94a4939e-d09e-4504-86e8-e79751920134
+  ligne 376  13:56:50.696 WS_CLIENT_CLOSE endpoint=192.168.92.158:45102
+                          code=1006 did=94a4939e-d09e-4504-86e8-e79751920134
+  ligne 381  13:56:50.715 WS_RETRY_SKIP endpoint=192.168.92.158:45102
+                          reason=no_open_session
+
+Releve d'etat juste apres la fenetre d'attente de reconnexion (120 s, t=14:16) :
+
+  A (61cc29567d91) MultiCamSessionWs.connectedPeers(null) =
+    {"afd69dd6...":{"via":"client",...},"23c5cf6e...":{"via":"client",...}}
+    -> C (94a4939e) ABSENT
+  C (c0d8514d7d87) MultiCamSessionWs.status() =
+    {"serverConns":0,"clientConns":0,...}   -> aucun WS actif
+
+Cote C, pendant toute la fenetre (logs/J09final-135353-c0d8514d7d87-cap-reconnect.log) :
+  1x START_MASTER_LOST, 175x PREVIEW_FRAME_DROP reason=no_master_connected
+  0x WS_RETRY_*  (C n'a JAMAIS ete le client de A : c'est A qui l'a dialle
+  lors de l'invitation, donc C n'a aucune connexion client a retenter).
+
+Cause code (lecture seule, aucun patch) :
+  - session-ws.js:465-468  scheduleRetry() -> openSessionsFor(key) vide
+                           -> emit WS_RETRY_SKIP reason=no_open_session
+  - session-ws.js:403-418  openSessionsFor() matche s.masters[].endpoint OU
+                           s.members[].endpoint
+  - session-model.js:180   cleanMember() ne conserve AUCUN endpoint
+                           (deviceId, deviceName, enabledSkills, sessionRoles,
+                           addedAtMs, addedByDeviceId, roleUpdatedMs,
+                           roleByDeviceId, telemetry)
+  - session-model.js:87    cleanMaster() conserve bien l'endpoint -> la voie
+                           Capture->Master reste valide
+  - aucun ecouteur de changement de reseau : seuls "pause"/"resume"
+    (session-ws.js:2372-2373) declenchent une reprise, et uniquement pour des
+    endpoints deja presents dans state.clientRetry.
+
+Releve complementaire (hors campagne, 14:17:50) : redemarrage complet de
+l'application sur C (force-stop + relance) -> C redialle A seul
+(clientConns=1, A le revoit via server). La reconnexion "au boot" fonctionne ;
+la reconnexion SUR PLACE, sans action operateur, non.
+
+Comportement deja livre et valide : commit a6a5151
+"J09 : reconnexion automatique du WS Capture apres coupure reseau"
+(smoke tests/e2e/validation/J09-rec-previews/ws-reconnect-smoke.js,
+logs/60-ws-reconnect/reconnect-smoke.json, 2026-10-01, 34/34 OK :
+"la Capture a rouvre son WS toute seule (WS_CLIENT_OPEN)", reprise 7 854 ms
+apres le retour du reseau). Dans ce smoke la Capture ETAIT le client du
+Master (openSessionsFor(masterEndpoint) matche via masters[]) ; dans la
+campagne J09-FINAL les roles sont inverses (le Master dialle la Capture
+invitee) et la voie correspondante est morte.

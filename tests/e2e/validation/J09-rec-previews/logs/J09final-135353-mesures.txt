@@ -1,0 +1,6 @@
+  MESURE previews Master : stats t0={"received":38,"dropped":0,"droppedBy":{},"lastReceivedAtMs":1791287747423,"lastSeq":19,"stored":2} t1={"received":66,"dropped":0,"droppedBy":{},"lastReceivedAtMs":1791287761414,"lastSeq":33,"stored":2}
+  MESURE previews emises/recues : B=41 A=80 (fenêtre ~16 s)
+  MESURE fichier B/videoTmp.mp4 : 106537823 octets, 42.773333 s, sha256=a1959ac6ea0d1edff5382ae21618eaaed3992cc8537c22cf72c22b49a83e392c
+  MESURE fichier B/videoTmp_1.mp4 : 461805788 octets, 184.350937 s, sha256=37bbc5ea23b4907b75d156977dec4fc7bad2940f758826b0a1211865ea7bffe1
+  MESURE fichier C/videoTmp.mp4 : 529670777 octets, ? s, sha256=8ecc88cab38bc5ec8ee663a2cc7694ff7dd3d8958079720a3c23716c1a1ef733
+  MESURE fichiers MP4 valides : 3 au total

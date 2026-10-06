@@ -1,0 +1,21 @@
+10-06 13:54:41.822 I/chromium(12348): [INFO:CONSOLE:70] "INVITE_PIN_ADOPTED sessionId=9Y6FM3R9 from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:41.890 I/chromium(12348): [INFO:CONSOLE:70] "INVITE_ACCEPTED sessionId=9Y6FM3R9 did=afd69dd6-1409-4d00-b4bc-01318afc22e3 by=91e0d5e6-a086-4c4b-820e-0435b7d97b22 roles=[capture]", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:41.891 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_ROLES_CHANGED sessionId=9Y6FM3R9 did=afd69dd6-1409-4d00-b4bc-01318afc22e3 roles=[capture] learned_from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:48.405 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_ADDED sessionId=9Y6FM3R9 did=94a4939e-d09e-4504-86e8-e79751920134 learned_from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:48.406 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_RECEIVED kind=member_add sessionId=9Y6FM3R9 did=94a4939e-d09e-4504-86e8-e79751920134 roles=[capture] from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:48.460 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_ROLES_CHANGED sessionId=9Y6FM3R9 did=afd69dd6-1409-4d00-b4bc-01318afc22e3 roles=[capture] learned_from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:48.461 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_ADDED sessionId=9Y6FM3R9 did=94a4939e-d09e-4504-86e8-e79751920134 learned_from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:54.807 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_DISCOVERY_STOP serviceType=_multicam._tcp. reason=app_stop", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:54.905 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_ADDED sessionId=9Y6FM3R9 did=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 learned_from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:54.906 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_RECEIVED kind=member_add sessionId=9Y6FM3R9 did=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 roles=[storage] from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:54.962 I/chromium(12348): [INFO:CONSOLE:70] "MEMBER_ADDED sessionId=9Y6FM3R9 did=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 learned_from=91e0d5e6-a086-4c4b-820e-0435b7d97b22", source: http://localhost/js/net/session-ws.js (70)
+10-06 13:54:55.190 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_DISCOVERY_START serviceType=_multicam._tcp. nsdPath=modern", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:55.191 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_SERVICE_FOUND service=Cam D4 type=_multicam._tcp.", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:55.194 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_SERVICE_FOUND service=Cam 05 type=_multicam._tcp.", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:55.196 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_SERVICE_FOUND service=Cam 09 type=_multicam._tcp.", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:55.200 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 result=OK host=192.168.92.130 port=45101 wsep=192.168.92.130:45102 service=Cam D4", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:55.207 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=91e0d5e6-a086-4c4b-820e-0435b7d97b22 result=OK host=192.168.92.147 port=45101 wsep=192.168.92.147:45102 service=Cam 05", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:55.207 I/chromium(12348): [INFO:CONSOLE:90] "MDNS_RESOLVE deviceId=94a4939e-d09e-4504-86e8-e79751920134 result=OK host=192.168.92.158 port=45101 wsep=192.168.92.158:45102 service=Cam 09", source: http://localhost/js/net/discovery.js (90)
+10-06 13:54:55.627 D/MiuiFastConnectService_Plugin( 2867): handleMessage: MSG_START_BLE_SCAN mode: 0
+10-06 13:54:55.650 I/BtGatt.ScanManager( 2064): msg.what = MSG_START_BLE_SCAN, msg.arg1 = None
+10-06 13:54:55.667 I/BtGatt.ScanManager( 2064): msg.what = MSG_START_BLE_SCAN, msg.arg1 = None
