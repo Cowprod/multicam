@@ -173,6 +173,7 @@ function register(h) {
     loadAll(e, [
       "state/session-model.js",
       "state/telemetry-store.js",
+      "state/take-model.js",
       "state/live-model.js",
       "ui/live.js",
       "ui/live-detail.js"
@@ -757,7 +758,18 @@ function register(h) {
       const v = env.model.view();
       const now = 1500;
       const tile = env.screen.tiles(v, { nowMs: now })[0];
-      const d = env.detail.detailOf(v.slots[0], { nowMs: now });
+      /* J09-09b : le plan du Take pour A (audio demandé, GPS off) — la même
+       * source que l'écran 05 et l'ARM. */
+      const takeOfA = {
+        takeNumber: 7, captures: [A], storages: [],
+        settings: {
+          video: { resolution: "HD", quality: "HIGH", camera: "REAR", orientation: "AUTO" },
+          audio: true, gpsProfile: "OFF",
+          countdownSeconds: 0, transferAuto: false, deleteLocalAfterVerifiedReplication: false
+        },
+        captureOverrides: {}
+      };
+      const d = env.detail.detailOf(v.slots[0], { nowMs: now, take: takeOfA });
       eq(d.deviceId, A);
       eq(d.deviceName, tile.deviceName, "le détail et la vignette nomment la même Capture");
       eq(d.state, tile.state, "même état de connexion");
@@ -770,9 +782,13 @@ function register(h) {
       eq(d.storage.value, 820000000);
       eq(d.network.label, "Ethernet");
       eq(d.telemetryAgeMs, 500, "l'âge du snapshot est calculé, pas supposé");
-      ok(d.capabilities.video, "la vidéo doit être annoncée quand les capacités le disent");
-      eq(d.capabilities.audio, true);
-      eq(d.capabilities.gps, false, "GPS absent = false, pas true");
+      ok(d.functions.video.active, "la vidéo doit être active quand le plan du Take le dit");
+      eq(d.functions.video.status, "active");
+      ok(d.functions.audio.active, "audio demandé ET micro présent → actif");
+      eq(d.functions.audio.status, "active");
+      eq(d.functions.gps.active, false, "GPS absent = non actif");
+      eq(d.functions.gps.status, "off", "la forme OFF du plan rend le GPS 'off', pas actif");
+      ok(d.capMeta.known, "l'identité des capacités reste mesurée");
       eq(d.actions.length, 0, "AUCUNE action de commande en J09-06");
     });
 

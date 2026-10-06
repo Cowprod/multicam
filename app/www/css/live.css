@@ -125,6 +125,9 @@
  * une icône active sur une capacité inconnue serait une invention. */
 .modal-icon.on{color:#34d399;background:rgba(52,211,153,.16)}
 .modal-icon.off{color:rgba(255,255,255,.35)}
+/* J09-09b : fonction DEMANDÉE pour le Take mais INDISPONIBLE sur le device
+ * (capability absente). Jamais verte : c'est un incident, pas une réussite. */
+.modal-icon.missing{color:#f59e0b;background:rgba(245,158,11,.16)}
 /* ---------- J09-07 : contrôle de caméra d'une Capture ----------
  *
  * Un bloc sobre, dans la modal : deux boutons, une ligne d'état, une note.

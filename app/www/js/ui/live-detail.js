@@ -29,9 +29,35 @@
  *   - `preview.ageMs`        → âge de la dernière image REÇUE par le Master ;
  *   - `recorder`             → état de l'enregistreur, celui du modèle START/REC.
  *
- * Exemple qui compte : WS vivant + preview vieille de 4 s + télémétrie de 20 s
- * affiche REC, une image un peu datée et une donnée marquée ancienne — jamais
- * « Déconnecté », et jamais une image prétendument fraîche.
+*  Exemple qui compte : WS vivant + preview vieille de 4 s + télémétrie de 20 s
+ *  affiche REC, une image un peu datée et une donnée marquée ancienne — jamais
+ *  « Déconnecté », et jamais une image prétendument fraîche.
+ *
+ * ---------- J09-09b : les fonctions du Take, pas les capacités du device ----------
+ *
+ *  La ligne d'icônes (vidéo / audio / GPS) ne montre PAS ce que le téléphone
+ *  PEUT faire, mais ce qui est DEMANDÉ ET EFFECTIF pour CE Take (maquette J09).
+ *  Deux notions distinctes, exposées séparément (`functions` décrit avec
+ *  `requested` / `active` / `capable`) :
+ *
+ *    - capability  = le device PEUT (télémétrie auto-déclarée) ;
+ *    - requested   = le plan du Take demande cette fonction pour CE device
+ *                    (take.settings + captureOverrides, source de vérité §32) ;
+ *    - active      = effective : demandée ET capability confirmée.
+ *
+ *  Statuts d'affichage :
+ *    - active   : demandée et effective ;
+ *    - off      : non demandée pour CE Take (même si l'appareil le peut : un
+ *                 GPS présent mais Take GPS off n'est jamais affiché actif) ;
+ *    - incident : demandée mais capability ABSENTE (audioMic=false,
+ *                 gpsFeature=false, aucune caméra) — indisponibilité, JAMAIS
+ *                 une fonction active réussie ;
+ *    - unknown  : demandée mais capacités non mesurées — on ne l'invente pas.
+ *
+ *  Rien n'est déduit de telemetry.capabilities SEULE : le « demandé » vient du
+ *  plan (take-model.requestedForCapture), le « possible » de la télémétrie, et
+ *  la résolution des deux est VÉRIFIÉE par take-model.effectiveForCapture — la
+ *  MÊME fonction qu'utilisent l'écran 05 et l'ARM (aucune seconde vérité).
  */
 
 "use strict";
@@ -99,22 +125,91 @@
 
   /* Les capacités viennent de la SONDE NATIVE de la Capture (J06), transportées
    * dans sa télémétrie. Elles disent ce qui EXISTE, pas ce qui a produit : un GPS
-   * présent sur l'appareil mais non activé pour ce Take reste « non actif ». */
-  function capabilitiesOf(t) {
-    var c = (t && t.capabilities && typeof t.capabilities === "object") ? t.capabilities : null;
-    if (!c || c.unknown) {
-      return { known: false, video: false, audio: false, gps: false, model: "", manufacturer: "" };
+   * présent sur l'appareil mais non activé pour ce Take reste « non actif ».
+   * `capMetaOf` ne garde que l'IDENTITÉ du device ; les fonctions du Take sont
+   * décrites par `functionsOf` (J09-09b), jamais par cette carte seule. */
+  function normalizedCapsOf(t) {
+    var raw = (t && t.capabilities && typeof t.capabilities === "object") ? t.capabilities : null;
+    var tm = global.MultiCamTakeModel;
+    if (tm && typeof tm.normalizeCapabilities === "function") return tm.normalizeCapabilities(raw);
+    return raw || { unknown: true };
+  }
+
+  function capMetaOf(t) {
+    var c = normalizedCapsOf(t);
+    return { known: !c.unknown, model: c.model || "", manufacturer: c.manufacturer || "" };
+  }
+
+  /* Une caméra est « présente » si le device annonce AU MOINS une résolution
+   * sur une face (REAR ou FRONT). L'absence de télémétrie → null (inconnu). */
+  function camCapable(cap) {
+    if (!cap) return null;
+    var c = cap.cameras;
+    var has = !!(c && ((c.rear && c.rear.length) || (c.front && c.front.length)));
+    return has;
+  }
+
+  /* Descripteur d'UNE fonction demandée : requested (plan) vs capable
+   * (télémétrie) vs active (les deux confirmées). Une capability ABSENTE mais
+   * demandée n'est jamais « active » : elle est INCIDENT. Une capability non
+   * mesurée (null) et demandée est UNKNOWN — on ne l'invente pas. */
+  function fnOf(requested, capable) {
+    if (!requested) return { requested: false, capable: capable === null ? null : !!capable, active: false, status: "off" };
+    if (capable === null) return { requested: true, capable: null, active: false, status: "unknown" };
+    if (capable === false) return { requested: true, capable: false, active: false, status: "incident" };
+    return { requested: true, capable: true, active: true, status: "active" };
+  }
+
+  /* Est-ce que le plan du Take demande la fonction pour CE device ? Le
+   * « demandé » vient exclusivement du Take (settings + overrides), jamais de
+   * la télémétrie. `requestedForCapture` est la SOURCE — la même fonction que
+   * l'écran 05 et l'ARM utilisent, donc aucune seconde vérité n'est créée. */
+  function requestedAudio(tm, take, caps, did) {
+    if (!tm) return false;
+    var req = tm.requestedForCapture(take, caps || { unknown: true }, did);
+    return req && req.audio === true;
+  }
+  function requestedGps(tm, take, caps, did) {
+    if (!tm) return false;
+    var req = tm.requestedForCapture(take, caps || { unknown: true }, did);
+    return !!req && typeof req.gpsProfile === "string" && req.gpsProfile !== "OFF";
+  }
+
+  /* J09-09b — fonctions DU TAKE pour CE device. Sans plan (take absent) ou sans
+   * modèle, RIEN n'est déclaré actif, et « off » mentirait (« non demandé »
+   * suppose un plan connu) : tout est donc « unknown ». */
+  function functionsOf(take, caps, did) {
+    var tm = global.MultiCamTakeModel;
+    if (!tm || !take || !take.settings) {
+      return {
+        video: { requested: false, capable: null, active: false, status: "unknown" },
+        audio: { requested: false, capable: null, active: false, status: "unknown" },
+        gps: { requested: false, capable: null, active: false, status: "unknown" }
+      };
     }
-    var rear = (c.cameras && Array.isArray(c.cameras.rear)) ? c.cameras.rear : [];
+    var cap = (!caps || caps.unknown) ? null : caps;
+    /* vidéo : cohérente avec le RÔLE/PLAN du Take. Un slot EST une Capture
+     * qui filme ; une seule et même vérité plan (take.captures), jamais la
+     * télémétrie. Une Capture dont le device n'annonce AUCUNE caméra devient
+     * un INCIDENT (demandé mais indisponible). */
+    var isCap = !!(did && (take.captures || []).indexOf(did) >= 0);
+    var video = { requested: isCap, capable: camCapable(cap), active: false, status: "off" };
+    if (isCap) {
+      if (camCapable(cap) === false) { video.status = "incident"; }
+      else { video.active = true; video.status = "active"; }
+    }
     return {
-      known: true,
-      video: rear.length > 0,
-      audio: c.audioMic === true,
-      gps: c.gpsFeature === true,
-      model: c.model || "",
-      manufacturer: c.manufacturer || ""
+      video: video,
+      audio: fnOf(requestedAudio(tm, take, caps, did), cap ? cap.audioMic : null),
+      gps: fnOf(requestedGps(tm, take, caps, did), cap ? cap.gpsFeature : null)
     };
   }
+
+  var F_NAME = { video: "Vidéo", audio: "Audio", gps: "GPS" };
+  var F_NOTE = {
+    incident: "demandé pour ce Take mais indisponible sur ce device.",
+    unknown: "demandé pour ce Take ; capacités du device non mesurées."
+  };
 
   /* ---------- COUCHÉ PURE ---------- */
 
@@ -126,6 +221,14 @@
     var state = s.displayState || "UNKNOWN";
     var telemetryAt = s.telemetryAt || 0;
     var telemetryAgeMs = t ? Math.max(0, now - telemetryAt) : null;
+
+    /* ---------- J09-09b : le plan du Take pour CE device ----------
+     * Le Take vient du slot (injecté à l'ouverture / via `rec.take`) et les
+     * capacités de la télémétrie. `functionsOf` ne fait qu'exprimer le plan :
+     * RIEN n'est affiché actif sans que le Take ne le demande. */
+    var caps = normalizedCapsOf(t);
+    var take = (rec && rec.take) || currentTake(s.sessionId) || null;
+    var functions = functionsOf(take, caps, s.deviceId);
 
     var b = (t && typeof t.batteryLevel === "number" && isFinite(t.batteryLevel)) ? t.batteryLevel : null;
     var f = (t && typeof t.freeBytes === "number" && isFinite(t.freeBytes) && t.freeBytes >= 0) ? t.freeBytes : null;
@@ -154,6 +257,17 @@
       if (b === null) notes.push("Batterie non mesurée par le device.");
       if (f === null) notes.push("Espace libre non mesuré (stockage SAF ?).");
       if (net === null) notes.push("Type de réseau inconnu.");
+    }
+
+    /* J09-09b : une fonction DEMANDÉE mais indisponible ou non vérifiable est
+     * explicitement dite (notes), jamais présentée comme une réussite. Une
+     * note n'apparaît que pour les fonctions DEMANDÉES : une capacité présente
+     * mais non demandée reste silencieuse (off). */
+    if (take && take.settings) {
+      ["video", "audio", "gps"].forEach(function (k) {
+        var st = functions[k].status;
+        if (st === "incident" || st === "unknown") notes.push(F_NAME[k] + " " + F_NOTE[st]);
+      });
     }
 
     /* J09-07 : état caméra de cette Capture, tel que rapporté par son service
@@ -287,7 +401,12 @@
         label: net === null ? "—" : (NET_LABEL[net] || net),
         icon: NET_ICON[net] || "fa-circle-question"
       },
-      capabilities: capabilitiesOf(t),
+      /* J09-09b : `capMeta` = identité du device (modèle), `functions` = ce
+       * que le Take demande et confirme réellement pour CE device. Distinguer
+       * les deux est le cœur de la mission : un GPS présent mais Take GPS off
+       * rend `gps.active=false` alors que `gps.capable=true`. */
+      capMeta: capMetaOf(t),
+      functions: functions,
       preview: {
         /* L'image est celle REÇUE par le Master (J09-04) : pour une Capture
          * déconnectée elle reste affichée, figée, en niveaux de gris. */
@@ -330,11 +449,52 @@
     return slots.filter(function (s) { return s.deviceId === deviceId; })[0] || null;
   }
 
+  /* ---------- J09-09b : le plan du Take, lu à la SOURCE ----------
+   *
+   * La modal a besoin du Take courant (settings + captureOverrides) pour dire
+   * ce qui est DEMANDÉ. Il est lu dans le store de session (comme le fait le
+   * service caméra), puis MIS EN CACHE à l'ouverture : un Take ne change qu'en
+   * revenant à l'écran 05, jamais pendant la REC — le cache ne peut pas être
+   * périmé, et la peinture à 5 Hz reste synchrone. `setTakeProvider` permet à
+   * l'hôte (ou au test) d'injecter une source synchrone sans secouer le
+   * contrat de `detailOf`, qui reste pur (le Take arrive par `rec.take`). */
+  var TAKE_SOURCE = null;
+  var TAKE_CACHE = { sid: "", take: null };
+
+  function currentTake(sid) {
+    if (typeof TAKE_SOURCE === "function") return TAKE_SOURCE(sid || "") || null;
+    if (sid && TAKE_CACHE.sid === sid) return TAKE_CACHE.take;
+    return null;
+  }
+
+  function setTakeProvider(fn) { TAKE_SOURCE = (typeof fn === "function") ? fn : null; }
+
+  function cacheTake(sid, take) {
+    TAKE_CACHE = { sid: sid || "", take: take || null };
+  }
+
+  function loadTake(sid) {
+    if (!sid) return;
+    if (currentTake(sid) && TAKE_CACHE.sid === sid) return;
+    var store = global.MultiCamSessionStore;
+    if (!store || typeof store.get !== "function") return;
+    Promise.resolve(store.get(sid)).then(function (s) {
+      if (!s || !Array.isArray(s.takes) || !s.takes.length) return;
+      cacheTake(sid, s.takes[s.takes.length - 1]);
+      if (isOpen()) refresh();
+    }).catch(function () {});
+  }
+
+  function describeNow(slot) {
+    var sid = (slot && typeof slot.sessionId === "string") ? slot.sessionId : "";
+    return { nowMs: Date.now(), take: currentTake(sid) };
+  }
+
   function current() {
     if (!OPEN.deviceId) return null;
     var slot = slotOf(OPEN.deviceId);
     if (!slot) return null;
-    return detailOf(slot, { nowMs: Date.now() });
+    return detailOf(slot, describeNow(slot));
   }
 
   function setText(id, text) {
@@ -383,9 +543,6 @@
     return parts.join(" · ");
   }
 
-  /* Les icônes de la modal : vidéo / audio / GPS quand elles sont RÉELLEMENT
-   * annoncées par la Capture. Pas d'icône « cochée » sur une capacité
-   * inconnue : l'absence se dit dans `notes`. */
   /* ---------- J09-07 : contrôle de caméra ---------- */
 
   /* Le DOM est reconstruit à chaque peinture. C'est peu coûteux (deux boutons)
@@ -465,15 +622,29 @@
     });
   }
 
+  /* J09-09b : les icônes montrent les fonctions du TAKE, pas les capacités du
+   * device. Quatre états, et un seul est « vert » : `active` (demandée ET
+   * effective). `incident` = demandée mais capability absente — jamais verte. */
+  var F_LABEL = {
+    active: "Actif pour ce Take",
+    off: "Non demandé pour ce Take",
+    unknown: "Demandé pour ce Take · capacités non mesurées",
+    incident: "Demandé pour ce Take mais indisponible"
+  };
+
   function paintSkills(d) {
-    [["ldSkillVideo", d.capabilities.video], ["ldSkillAudio", d.capabilities.audio], ["ldSkillGps", d.capabilities.gps]]
+    [["ldSkillVideo", "video"], ["ldSkillAudio", "audio"], ["ldSkillGps", "gps"]]
       .forEach(function (pair) {
         var n = byId(pair[0]);
         if (!n) return;
-        var on = !!pair[1];
-        n.className = "modal-icon " + (on ? "on" : "off");
-        n.title = !d.capabilities.known ? "Capacités non mesurées"
-          : (on ? "Actif" : "Non actif pour ce Take");
+        var fn = ((d.functions || {})[pair[1]]) || { status: "off" };
+        var cls = "modal-icon "
+          + (fn.status === "active" ? "on"
+            : (fn.status === "incident" ? "off missing"
+              : "off"));
+        if (n.className !== cls) n.className = cls;
+        var label = F_LABEL[fn.status] || F_LABEL.off;
+        if (n.title !== label) n.title = label;
       });
   }
 
@@ -577,7 +748,10 @@
     OPEN.deviceId = deviceId;
     var slot = slotOf(deviceId);
     if (!slot) { close(); return null; }
-    var view = detailOf(slot, { nowMs: Date.now() });
+    var view = detailOf(slot, describeNow(slot));
+    /* Le plan du Take est lu une fois (store) et mis en cache : la modal est
+     * peinte avec le Take dès qu'il est résolu, sans second timer. */
+    loadTake(slot.sessionId);
     bindClose();
     bindCamera();
     var modal = byId("liveDetailModal");
@@ -609,7 +783,7 @@
     if (!isOpen()) return null;
     var slot = slotOf(OPEN.deviceId);
     if (!slot) { close(); return null; }
-    return paint(detailOf(slot, { nowMs: Date.now() }));
+    return paint(detailOf(slot, describeNow(slot)));
   }
 
   /* Fermeture : backdrop, croix, Échap. Même convention que les autres modales
@@ -654,6 +828,9 @@
   global.MultiCamLiveDetail = {
     bindClose: bindClose,
     detailOf: detailOf,
+    functionsOf: functionsOf,
+    setTakeProvider: setTakeProvider,
+    currentTake: currentTake,
     open: open,
     close: close,
     isOpen: isOpen,
