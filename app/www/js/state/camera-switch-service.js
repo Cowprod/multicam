@@ -35,6 +35,16 @@
  * et porte toujours son index. Le champ `segmentIndex` publié dans les ACK et
  * dans `camera_state` désigne le segment EN COURS : il ne compte plus les
  * segments fermés.
+ *
+ * ---------- J09-09a : l'inventaire vit AVANT la première bascule ----------
+ *
+ * La découverte des caméras ne passe plus par la demande de bascule : elle est
+ * amorcée au premier moment sûr (l'attachement du Take, preview ouverte,
+ * pendant le compte à rebours) et re-tentée, bornée, à l'ouverture du segment
+ * 1. Le premier `camera_state` d'un Take porte donc `availableCameras` sans
+ * qu'aucun switch n'ait jamais été demandé. La sonde reste la seule source
+ * (`probeRaw`), reste fail-closed (une erreur ne fabrique aucune caméra) et
+ * n'est ni doublée ni relancée à chaque tick START.
  */
 
 (function (global) {
@@ -237,12 +247,69 @@
         return st().availableCameras.slice();
       }
       set(m.applyAvailability(st(), probe));
+      availabilityKnown = true;
       log("CAMERA_AVAILABILITY_OK deviceId=" + selfDid()
         + " cameras=" + probe.cameras.join(","));
       return probe.cameras;
     }).catch(function (err) {
       log("CAMERA_AVAILABILITY_ERROR reason=" + String((err && err.message) || err));
       return st().availableCameras.slice();
+    });
+  }
+
+  /* ---------- J09-09a : PRIMING de l'inventaire, sans polling ----------
+   *
+   * `refreshAvailability()` reste ce qu'elle est : la force probe, utilisée par
+   * `prepareForSwitch()`. Elle marque aussi `availabilityKnown` quand elle a lu
+   * un inventaire CONNU, ce qui permet à `ensureAvailability()` de ne jamais
+   * re-sonder ce qui est déjà établi. */
+  var availabilityProbe = null;   /* Promesse de la sonde EN VOL (jamais deux) */
+  var availabilityKnown = false;  /* un inventaire a déjà été LU (fût-il vide) */
+  /* Sécurité de BORNE : un natif muet ne doit jamais supprimer une publication.
+   * Au pire, le segment 1 part avec ce qui était connu ([]) — l'inventaire ne
+   * bloque jamais l'ouverture. */
+  var AVAILABILITY_WAIT_MS = 1000;
+
+  /* Renvoie null quand il n'y a rien à attendre (inventaire déjà connu, aucune
+   * sonde possible), ou la PROMESSE de la sonde en vol/démarrée. En échec,
+   * aucune caméra n'est inventée et une nouvelle tentative n'aura lieu qu'au
+   * prochain moment sûr (attachement d'un nouveau Take, ouverture d'un
+   * segment). */
+  function ensureAvailability(reason) {
+    if (availabilityKnown) return null;
+    if (availabilityProbe) return availabilityProbe;
+    var c = caps();
+    if (!c || typeof c.probeRaw !== "function") {
+      /* Aucune sonde possible sur ce device : rien à retenter en boucle. */
+      availabilityKnown = true;
+      return null;
+    }
+    availabilityProbe = refreshAvailability().then(function () {
+      availabilityProbe = null;
+      log("CAMERA_AVAILABILITY_PRIMED reason=" + (reason || "—")
+        + " cameras=" + (st() ? st().availableCameras.join(",") : "—"));
+    }, function () {
+      /* `refreshAvailability` ne rejette pas ; garde la mémoire qu'aucune sonde
+       * n'est en vol pour laisser une nouvelle tentative se produire. */
+      availabilityProbe = null;
+    });
+    return availabilityProbe;
+  }
+
+  /* Publie un `camera_state` AVEC l'inventaire : synchrone si l'inventaire est
+   * déjà connu (cas nominal — l'attachement a sondé pendant le compte à
+   * rebours), sinon attend la sonde, bornée par `AVAILABILITY_WAIT_MS`. Quelle
+   * que soit l'issue du délai, la publication part : c'est la hiérarchie
+   * priorisée — le segment 1 doit exister même si l'inventaire est inconnu. */
+  function publishWithAvailability(reason) {
+    if (availabilityKnown) { broadcastState(reason); return; }
+    var wait = ensureAvailability(reason);
+    if (!wait) { broadcastState(reason); return; }
+    var timer = new Promise(function (resolve) { setTimeout(resolve, AVAILABILITY_WAIT_MS); });
+    Promise.race([wait, timer]).then(function () {
+      broadcastState(reason);
+    }, function () {
+      broadcastState(reason);
     });
   }
 
@@ -556,8 +623,10 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
       + " take=" + (s.takeNumber == null ? "—" : s.takeNumber));
     /* J09-08c : le segment vient d'OUVRIR. Sans cet événement, le Master's
      * n'apprendrait l'existence du segment 1 qu'à la première bascule — donc
-     * des minutes entières, voire tout un plan. */
-    broadcastState("rec_started");
+     * des minutes entières, voire tout un plan. J09-09a : cette première
+     * publication doit porter l'inventaire, même si aucune bascule n'arrivera
+     * jamais — c'est le cœur de la mission. */
+    publishWithAvailability("rec_started");
     return m.currentIndex(next);
   }
 
@@ -1037,6 +1106,11 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
     log("CAMERA_SWITCH_ATTACH sessionId=" + (sid || "—")
       + " take=" + (tnum == null ? "—" : tnum) + " segmentIndex=0");
     primeSession(sid);
+    /* J09-09a : PREMIER moment sûr de la découverte — la Capture vient de
+     * s'attacher à une session, la preview est ouverte, le REC n'a pas encore
+     * commencé. L'attachement est gardé par la ligne ci-dessus (une seule fois
+     * par Take), donc ce n'est PAS un sondage à chaque tick START. */
+    ensureAvailability("take_attach");
   }
 
   function view() {
@@ -1074,6 +1148,8 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
     S.state = freshState();
     lastSession = null;
     lastTake = null;
+    availabilityProbe = null;
+    availabilityKnown = false;
     Object.keys(PENDING).forEach(function (k) { delete PENDING[k]; });
     return true;
   }

@@ -229,13 +229,16 @@ function fakeCameraPreview(env, opts) {
         return { facing: facing, position: facing === "front" ? 1 : 0 };
       })), 0);
     },
-    getCaptureCapabilities(ok) {
+    getCaptureCapabilities(ok, ko) {
       calls.getCaptureCapabilities += 1;
-      later(() => ok({
-        cameras: api.physicalCameras.map(function (facing) {
-          return { facing: facing, widths: api.nativeResolutions.slice() };
-        })
-      }), 0);
+      later(() => {
+        if (api.failCapabilities) { if (ko) ko(String(api.failCapabilities)); return; }
+        ok({
+          cameras: api.physicalCameras.map(function (facing) {
+            return { facing: facing, widths: api.nativeResolutions.slice() };
+          })
+        });
+      }, 0);
     },
     getCameraState(ok, ko) {
       calls.getCameraState += 1;
@@ -325,6 +328,7 @@ function fakeCameraPreview(env, opts) {
   api.switchTargets = [];
   api.failSwitch = opts.failSwitch || null;
   api.failState = opts.failState || null;
+  api.failCapabilities = opts.failCapabilities || null;
   api.switchLatencyMs = opts.switchLatencyMs || 0;
   api.stateLatencyMs = opts.stateLatencyMs || 0;
   api.nativeIndexOf = function (facing) {

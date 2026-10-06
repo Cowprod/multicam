@@ -2571,6 +2571,137 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
     });
   });
 
+  /* ══════════════════ J09-09a · inventaire publié avant toute bascule ══════════════════ */
+
+  describe("J09-09a · l'inventaire est connu AVANT le premier switch", () => {
+    /* J09-08g a constaté physiquement : au segment 1, `availableCameras: []` et
+     * « Aucune caméra annoncée par cette Capture. » — la sonde n'était lancée
+     * que par `prepareForSwitch()`, donc uniquement quand une bascule était DÉJÀ
+     * demandée. Le service doit maintenant amorcer cette sonde au moment sûr
+     * (l'attachement du Take, pendant le comptage) et la rejouer, si besoin,
+     * à l'ouverture du segment 1 : l'inventaire voyage dans le PREMIER
+     * `camera_state`, sans qu'aucune bascule ne soit nécessaire. */
+
+    /* Démarre un Take SANS toucher à `refreshAvailability` : c'est le service
+     * lui-même qui doit découvrir les caméras. */
+    async function rec(env) {
+      await attachTake(env);
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      await flush();
+      return env;
+    }
+
+    function recStarted(env) {
+      const e = reqs(env, "camera_state").filter((p) => p.env.reason === "rec_started").pop();
+      yes(e, "l'ouverture du segment 1 est publiée");
+      return e;
+    }
+
+    it("A. REAR+FRONT : inventaire COMPLET avant toute bascule", async () => {
+      const env = bootService({ physicalCameras: ["back", "front"] });
+      no(env.svc.view().availableCameras.length,
+        "au boot, rien n'est annoncé : l'inventaire n'est pas deviné");
+      await attachTake(env);
+      await adv(env, () => Promise.resolve());
+      eq(env.svc.view().availableCameras.join(","), "REAR,FRONT");
+      yes(env.CameraPreview.calls.getCaptureCapabilities >= 1,
+        "la sonde native a été appelée — c'est la seule source possible");
+    });
+
+    it("B. un device SANS front n'annonce que REAR", async () => {
+      const env = bootService({ physicalCameras: ["back"] });
+      await attachTake(env);
+      await adv(env, () => Promise.resolve());
+      eq(env.svc.view().availableCameras.join(","), "REAR");
+      no(env.svc.view().availableCameras.indexOf("FRONT") >= 0,
+        "une caméra absente ne doit jamais être proposée");
+    });
+
+    it("C. sonde en échec : availableCameras reste VIDE, aucune invention", async () => {
+      const env = bootService({ physicalCameras: ["back", "front"], failCapabilities: "ERR_PROBE" });
+      await attachTake(env);
+      await adv(env, () => Promise.resolve());
+      eq(env.svc.view().availableCameras.length, 0,
+        "une sonde en erreur ne fabrique ni REAR ni FRONT");
+      const lignes = env.logs.filter((l) => l.indexOf("CAMERA_AVAILABILITY_UNKNOWN") === 0);
+      yes(lignes.length, "l'échec est journalisé, pas avalé");
+    });
+
+    it("D. le PREMIER camera_state porte l'inventaire avec segmentIndex=1 / recording=true", async () => {
+      const env = await rec(bootService({ physicalCameras: ["back", "front"] }));
+      const e = recStarted(env).env;
+      eq(e.availableCameras.join(","), "REAR,FRONT");
+      eq(e.activeCamera, "REAR", "la caméra confirmée ET l'inventaire voyagent ensemble");
+      eq(e.segmentIndex, 1);
+      eq(e.segmentState, "recording");
+      eq(e.recording, true);
+    });
+
+    it("E. le Master reçoit EXACTEMENT cet inventaire (reçus au segment 1)", async () => {
+      /* Routage RÉEL (comme dans J09-08f) : le Master de la session reçoit le
+       * paquet, et son contenu est exactement l'inventaire sondé. */
+      const env = await rec(bootService({
+        routing: true,
+        routePeers: {
+          [CAP]: { connected: true, sessions: { [SID]: {} } },
+          [OTHER]: { connected: true, sessions: { [SID]: {} } }
+        }
+      }));
+      const p = recStarted(env);
+      eq(p.masters, 1, "le message atteint le Master de la session");
+      eq(p.env.availableCameras.join(","), "REAR,FRONT");
+      eq(p.env.segmentIndex, 1);
+      eq(p.env.recording, true);
+    });
+
+    it("F. AUCUN switch n'est nécessaire pour obtenir l'inventaire", async () => {
+      const env = await rec(bootService({ physicalCameras: ["back", "front"] }));
+      eq(env.svc.view().switchCount, 0, "aucune bascule n'a eu lieu");
+      const e = recStarted(env).env;
+      eq(e.availableCameras.join(","), "REAR,FRONT",
+        "l'inventaire est dans le paquet du segment 1, sans aucun switch");
+    });
+
+    it("G. la sonde ne repart PAS à chaque tick START/REC (une seule pour la prise)", async () => {
+      const env = bootService({ physicalCameras: ["back", "front"] });
+      await attachTake(env);
+      /* Des dizaines de ticks START au même Take, comme sur le terrain : aucun
+       * ne doit relancer de sonde après l'attachement. */
+      for (let i = 0; i < 25; i++) {
+        env.svc.onStartView({ active: true, sid: SID, takeNumber: TAKE });
+      }
+      await adv(env, () => Promise.resolve());
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      env.svc.onRecordingStarted();
+      await flush();
+      eq(env.svc.view().availableCameras.join(","), "REAR,FRONT");
+      eq(env.CameraPreview.calls.getCaptureCapabilities, 1,
+        "attach + ticks + REC n'ont pas relancé la sonde après son succès");
+    });
+
+    it("H. la première bascule garde SON comportement (re-validation de l'inventaire)", async () => {
+      const env = await rec(bootService({ physicalCameras: ["back", "front"] }));
+      env.CameraPreview.videoPath = "file:///cache/videoTmp_80.mp4";
+      const probedAtAttach = env.CameraPreview.calls.getCaptureCapabilities;
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      yes(r.ok, "la bascule aboutit");
+      eq(r.segmentIndex, 2, "le switch segmente toujours (N+1)");
+      eq(env.svc.view().activeCamera, "FRONT");
+      eq(env.svc.view().switchCount, 1);
+      yes(env.CameraPreview.calls.getCaptureCapabilities > probedAtAttach,
+        "prepareForSwitch re-valide l'inventaire : son comportement est inchangé");
+      eq(env.svc.view().availableCameras.join(","), "REAR,FRONT",
+        "l'inventaire n'est pas affecté par la bascule");
+    });
+  });
+
   /* ══════════════════ B · mémoire de supervision ══════════════════ */
 
   describe("J09-07 · mémoire de supervision — convergence des Masters", () => {
