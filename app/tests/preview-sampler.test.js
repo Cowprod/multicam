@@ -408,12 +408,17 @@ function register(h) {
       await leaveRec(env);
       env.sampler.stop("rec_end");
       eq(env.clock.pending(), 0, "aucun timer résiduel après le 1er REC");
+      const seqRun1 = env.sampler.view().seq;
 
       /* Nouveau REC. */
       await native(env, () => env.MultiCamCameraRecord.startRecording({ startPlanId: "P2" }));
       startSampler(env);
       eq(env.sampler.view().stats.requested, 1, "les compteurs du nouveau run repartent de zéro");
-      eq(env.sampler.view().seq, 1, "seq repart de 1");
+      /* J09-D1 : MÊME session → la séquence NE repart pas de 1. C'est le
+       * compteur que le Master compare à son `lastFrameSeq` (anti-replay) :
+       * une remise à zéro gèle la vignette le temps du rattrapage. */
+      eq(env.sampler.view().seq, seqRun1 + 1,
+        "J09-D1 : la séquence du run 2 CONTINUE celle du run 1 (jamais de retour en arrière)");
       eq(env.sampler.view().runs, 2, "deux runs comptabilisés");
       eq(env.CameraPreview.pixelCopy.maxInFlight, 1, "aucune concurrence entre les deux runs");
 
@@ -605,6 +610,76 @@ function register(h) {
       eq(env.CameraPreview.calls.startRecordVideo, 0, "un device non-Capture n'enregistre pas");
       eq(env.CameraPreview.calls.capturePreviewSurface, 0,
         "et donc ne produit aucune image de preview");
+    });
+  });
+
+  /* ══════════════ J09-D1 · monotonie de la séquence ══════════════ */
+  describe("J09-D1 · la séquence ne repart jamais à 0 dans une session", () => {
+    /* L'ordre des `ok` EST l'ordre des `seq` que le Master reçoit et compare à
+     * son `lastFrameSeq` (anti-replay, live-model). */
+    function record(env) {
+      const seqs = [];
+      env.sampler.onEvent(function (type, ev) { if (type === "ok") seqs.push(ev.seq); });
+      return seqs;
+    }
+
+    function monotone(list, msg) {
+      for (let i = 1; i < list.length; i++) {
+        if (!(list[i] > list[i - 1])) {
+          throw new Error(msg + " — seq[" + (i - 1) + "]=" + list[i - 1]
+            + " puis seq[" + i + "]=" + list[i]);
+        }
+      }
+    }
+
+    it("D1.1 une bascule (suspend → reprise) ne remet PAS la séquence à 0", async () => {
+      const env = boot({ pixelCopyMode: "auto", pixelCopyLatencyMs: 0 });
+      await enterRec(env);
+      const seqs = record(env);
+      startSampler(env);
+      await env.clock.advance(3000);
+      ok(seqs.length >= 3, "previews produites avant la bascule — " + seqs.length);
+      const avant = seqs[seqs.length - 1];
+
+      /* EXACTEMENT ce que fait camera-switch-service : `suspendSampling()` →
+       * `stop()` avant toute opération physique, puis `resumeSampling()` →
+       * `start()` après la confirmation native, avec les MÊMES identifiants. */
+      env.sampler.stop("camera_switch:before_switch");
+      eq(env.sampler.start({
+        sessionId: SID, takeNumber: TAKE, startPlanId: "P1",
+        reason: "camera_switch:after"
+      }), true, "la reprise de l'échantillonnage doit démarrer");
+
+      eq(env.sampler.view().runs, 2, "la bascule a bien relancé le sampler");
+      eq(env.sampler.view().stats.requested, 1,
+        "les compteurs de RUN restent remis à zéro (ce n'est PAS la séquence)");
+      ok(env.sampler.view().seq > avant,
+        "la séquence doit CONTINUER après la bascule (avant=" + avant
+        + ", après=" + env.sampler.view().seq + ")");
+
+      const avantCount = seqs.length;
+      await env.clock.advance(3000);
+      ok(seqs.length >= avantCount + 2, "previews produites après la bascule — "
+        + (seqs.length - avantCount));
+      monotone(seqs, "J09-D1 : la séquence doit être strictement croissante de bout en bout");
+      ok(env.sampler.view().seq >= seqs[seqs.length - 1],
+        "view().seq suit la dernière image demandée");
+    });
+
+    it("D1.2 une NOUVELLE session repart bien de l'état initial", async () => {
+      const env = boot({ pixelCopyMode: "auto", pixelCopyLatencyMs: 0 });
+      await enterRec(env);
+      startSampler(env);
+      await env.clock.advance(3000);
+      ok(env.sampler.view().seq > 1, "la première session a bien avancé — seq="
+        + env.sampler.view().seq);
+
+      env.sampler.stop("session_end");
+      eq(env.sampler.start({ sessionId: "SESS02", takeNumber: 1, startPlanId: "Q1" }),
+        true, "une session nouvelle démarre normalement");
+      eq(env.sampler.view().seq, 1,
+        "une session nouvelle repart de l'état initial (c'est le Master qui "
+        + "reconstruit ses slots, live-model.setTake)");
     });
   });
 

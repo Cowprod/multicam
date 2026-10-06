@@ -357,12 +357,27 @@
       return false;
     }
 
+    /* J09-D1 : la séquence est MONOTONE dans une session.
+     *
+     * `start()` est aussi le chemin de REPRISE d'une bascule caméra
+     * (camera-switch-service : `suspendSampling()` → stop(), puis
+     * `resumeSampling()` → start(), mêmes sessionId/takeNumber/startPlanId).
+     * Remettre `seq` à 0 à chaque redémarrage faisait rejeter les images par le
+     * Master : `live-model.onPreviewFrame` n'accepte qu'une séquence
+     * STRICTEMENT supérieure au `lastFrameSeq` du slot (anti-replay), donc
+     * toutes les frames 1 → N étaient jetées jusqu'au rattrapage — vignette
+     * gelée 44 s en J09-FINAL (D1).
+     *
+     * Seul un CHANGEMENT DE SESSION repart de l'état initial : c'est le seul
+     * cas où le Master reconstruit ses slots (`live-model.setTake`), donc le
+     * seul cas où une remise à zéro est sans effet. Les compteurs de RUN
+     * (`stats`, `samples`) restent, eux, remis à zéro à chaque start(). */
+    if (S.sessionId !== sid) S.seq = 0;
     S.sessionId = sid;
     S.takeNumber = take;
     S.startPlanId = opts.startPlanId || "";
     S.intervalMs = (typeof opts.intervalMs === "number" && opts.intervalMs > 0) ? opts.intervalMs : INTERVAL_MS;
     S.quality = (typeof opts.quality === "number") ? opts.quality : QUALITY;
-    S.seq = 0;
     S.runs += 1;
     S.stats = freshStats();
     S.samples = [];

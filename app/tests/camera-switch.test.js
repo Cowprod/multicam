@@ -2864,6 +2864,84 @@ it("M10. `attachToTake` repart de zéro pour un NOUVEAU Take", () => {
         "aucune entrée sans fait : l'UI écrit « inconnu », elle n'invente pas");
     });
   });
+
+  /* ══════════════ J09-D1 · la séquence de preview traverse une bascule ══════════════ */
+
+  describe("J09-D1 · la bascule ne remet pas la séquence de preview à 0", () => {
+    async function topRec(env) {
+      await adv(env, () => env.MultiCamCameraRecord.prepare({ startPlanId: "P1" }));
+      await adv(env, () => env.MultiCamCameraRecord.startRecording({
+        startPlanId: "P1", takeNumber: TAKE
+      }));
+      /* Comme le start-service, sur l'accusé natif du top. */
+      env.svc.onRecordingStarted();
+      return env;
+    }
+
+    it("D1.3 previews avant bascule → bascule → previews après : séquence monotone", async () => {
+      const env = await topRec(bootService());
+      loadAll(env, ["state/preview-sampler.js", "state/live-model.js"]);
+
+      /* Côté MASTER : le slot de CAP et son anti-replay (`lastFrameSeq`). */
+      const model = env.MultiCamLiveModel;
+      model.bind({
+        localDid: ME,
+        getParticipants: function () {
+          return [{ deviceId: CAP, deviceName: "Cam 09", role: "capture" }];
+        }
+      });
+      model.setTake(SID, TAKE);
+      model.syncParticipants();
+
+      const smp = env.MultiCamPreviewSampler;
+      const produced = [];
+      smp.onEvent(function (type, ev) { if (type === "ok") produced.push(ev.seq); });
+
+      eq(smp.start({ sessionId: SID, takeNumber: TAKE, startPlanId: "P1" }), true,
+        "l'échantillonnage tourne avant la bascule");
+      await env.clock.advance(3000);
+      yes(produced.length >= 3, "previews avant la bascule — " + produced.length);
+      const avantCount = produced.length;
+
+      /* La VRAIE bascule : le service suspend l'échantillonnage, ordonne la
+       * segmentation au natif, puis le reprend après confirmation (J09-07). */
+      const r = await adv(env, () => env.svc.requestSwitch("FRONT"));
+      yes(r.ok, "la bascule doit aboutir");
+      yes(/CAMERA_SAMPLER_SUSPEND/.test(env.logText()),
+        "l'échantillonnage est suspendu AVANT l'opération physique (§35.3)");
+      yes(/CAMERA_SAMPLER_RESUME /.test(env.logText()),
+        "et repris APRÈS la confirmation native");
+      eq(smp.view().runs, 2, "la bascule a bien relancé le sampler (suspend → reprise)");
+
+      await env.clock.advance(3000);
+      yes(produced.length - avantCount >= 2,
+        "previews après la bascule — " + (produced.length - avantCount));
+      yes(produced[avantCount] > produced[avantCount - 1],
+        "la première séquence APRÈS la bascule doit dépasser la dernière d'avant — avant="
+        + produced[avantCount - 1] + ", après=" + produced[avantCount]);
+      for (let i = 1; i < produced.length; i++) {
+        yes(produced[i] > produced[i - 1],
+          "séquence non monotone — " + produced[i - 1] + " → " + produced[i]);
+      }
+
+      /* Le symptôme de J09-FINAL (D1) : le Master rejette les frames dont la
+       * séquence n'est pas STRICTEMENT supérieure à son `lastFrameSeq`, donc
+       * une remise à 0 gelait la vignette le temps du rattrapage. */
+      produced.forEach(function (seq) {
+        model.onPreviewFrame({
+          sessionId: SID, takeNumber: TAKE, deviceId: CAP, startPlanId: "P1",
+          seq: seq, capturedAt: 1000 + seq, receivedAt: 1000 + seq,
+          mime: "image/jpeg", bytes: 1000 + seq, jpegBase64: "SEVMTA"
+        });
+      });
+      const slot = model.view().slots[0];
+      eq(model.view().stats.framesIgnored, 0,
+        "aucune preview rejetée par l'anti-replay (vignette gelée en J09-FINAL)");
+      eq(slot.lastFrameSeq, produced[produced.length - 1],
+        "la vignette suit la DERNIÈRE image produite");
+      yes(slot.lastFrame, "la vignette n'est jamais restée sur une image figée");
+    });
+  });
 }
 
 module.exports = { register };
