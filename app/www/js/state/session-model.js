@@ -188,6 +188,13 @@
     return {
       deviceId: typeof m.deviceId === "string" && m.deviceId ? m.deviceId : null,
       deviceName: typeof m.deviceName === "string" ? m.deviceName : "",
+      /* J09-D3 : l'endpoint de transport (TXT wsEndpoint, découverte) appartient
+       * à l'IDENTITÉ RÉSEAU connue du membre. Il est la seule cible exploitable
+       * par `openSessionsFor()/scheduleRetry()` pour re-dialer un pair après la
+       * chute de son transport courant : le modèle ne doit jamais le perdre au
+       * fil des sanitize/merges — sinon la reconnexion Master→Capture est
+       * impossible (campagne J09-FINAL : `WS_RETRY_SKIP … no_open_session`). */
+      endpoint: typeof m.endpoint === "string" ? m.endpoint : "",
       enabledSkills: enabled,
       sessionRoles: roles,
       addedAtMs: typeof m.addedAtMs === "number" && m.addedAtMs > 0 ? m.addedAtMs : nowMs(),
@@ -482,6 +489,11 @@
         var cur = mById[id];
         var win = memberWinner(cur, rmClean);
         if (win === rmClean && !memberEqual(cur, rmClean)) {
+          /* J09-D3 : un snapshot distant ne porte souvent pas l'endpoint du
+           * membre (le sharedView l'oublie). S'il gagne sur les rôles, il ne
+           * doit PAS détruire la cible de reconnexion locale connue — même
+           * règle que la fusion des Masters ci-dessus (l'endpoint persiste). */
+          if (!rmClean.endpoint && cur.endpoint) rmClean.endpoint = cur.endpoint;
           mById[id] = rmClean;
           events.push({ type: "memberRolesChanged", deviceId: id, to: rmClean.sessionRoles.slice() });
         } else if (win === cur && !memberEqual(cur, rmClean)) {
@@ -710,6 +722,13 @@
     var rec = cleanMember({
       deviceId: id,
       deviceName: member.deviceName || "",
+      /* J09-D3 : un endpoint fraîchement découvert actualise la cible sinon
+       * ré-apparition, et un endpoint absent laisse la cible déjà connue en
+       * place (l'upsert par deviceId ne doit jamais réinitialiser l'identité
+       * réseau à vide lors d'une simple mise à jour de rôles). */
+      endpoint: (typeof member.endpoint === "string" && member.endpoint)
+        ? member.endpoint
+        : (existing ? (existing.endpoint || "") : ""),
       enabledSkills: member.enabledSkills || [],
       sessionRoles: v.roles,
       addedAtMs: existing ? existing.addedAtMs : now,
@@ -763,6 +782,9 @@
     var updated = cleanMember({
       deviceId: member.deviceId,
       deviceName: member.deviceName,
+      /* J09-D3 : une édition de rôles ne touche jamais à l'identité réseau du
+       * membre — l'endpoint de reconnexion déjà connu est conservé tel quel. */
+      endpoint: member.endpoint,
       enabledSkills: member.enabledSkills,
       sessionRoles: v.roles,
       addedAtMs: member.addedAtMs,
