@@ -975,6 +975,37 @@ return Promise.resolve(cam.switchSegmented(opts)).then(function (res) {
          * module ne le SUIT pas — il ne fait que le publier. */
         var inbox = global.MultiCamCameraStateInbox;
         if (inbox && typeof inbox.record === "function") inbox.record(env);
+      },
+      onPeerIdentified: function (env) {
+        /* D4 : après reconnexion, un pair vient de s'identifier sur une connexion
+         * serveur (côté Capture, c'est le Master). On relit la session du STORE —
+         * JAMAIS du cache : `cachedSessionFor`/`sessionFor` gardent le dernier
+         * Take qui a marché, alors que le store peut déjà être passé `closed`
+         * pendant la coupure. Une session fermée GAGNE (closed wins, D4.7) : on
+         * ne republie rien et on le dit explicitement. Sinon on republie un
+         * SNAPSHOT d'état idempotent (`broadcastState("resync_peer")`) : le
+         * Master abonné reconverge sans geste UI ni replay de commande. */
+        var esid = (env && env.sessionId) || "";
+        if (!esid) return;
+        if (identitySid(st()) !== esid) {
+          log("CAMERA_STATE_RESYNC_SKIP sessionId=" + esid + " reason=not_current_take");
+          return;
+        }
+        loadSession(esid).then(function (ses) {
+          if (!ses || ses.sessionId !== esid) {
+            log("CAMERA_STATE_RESYNC_SKIP sessionId=" + esid + " reason=no_session");
+            return;
+          }
+          if (ses.state === "closed") {
+            lastSession = ses;
+            lastTake = lastTakeOf(ses);
+            log("CAMERA_STATE_RESYNC_SKIP sessionId=" + esid + " reason=session_closed");
+            return;
+          }
+          if (lastSession !== ses) { lastSession = ses; lastTake = lastTakeOf(ses); }
+          log("CAMERA_STATE_RESYNC sessionId=" + esid + " reason=peer_identified");
+          broadcastState("resync_peer");
+        });
       }
     });
   }

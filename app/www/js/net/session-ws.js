@@ -436,6 +436,23 @@
         reSyncSession(s);
         n++;
       });
+      /* Direction Master→Capture (D4) : le resync ci-dessus ne s'adresse qu'aux
+       * MASTERS (auto-dial + primage). Si cet endpoint porte un MEMBRE — par ex.
+       * une Capture rejointe par invitation — le socket restauré resterait
+       * anonyme côté serveur (peerDid jamais renseigné, aucun camera_state ne
+       * repartirait). On lui envoie donc un sync_please DIRIGÉ : le pair répond
+       * par son état, ce qui identifie la connexion et republie les états
+       * captifs. Primitive existante, SNAPSHOT idempotent — aucun compteur ni
+       * commande rejoué, anti-replay conservé. */
+      list.forEach(function (s) {
+        var peerDid = peerDidOfEndpoint(s, key);
+        if (peerDid && peerDid !== state.localDid && !isMasterDevice(s, peerDid)) {
+          var sent = sendClient(key, envelope("sync_please", s.sessionId, {}));
+          emit(sent
+            ? "SYNC_PLEASE_SENT sessionId=" + s.sessionId + " to=" + peerDid + " endpoint=" + key + " note=redialed_member"
+            : "SYNC_PLEASE_DROP sessionId=" + s.sessionId + " endpoint=" + key + " reason=socket_not_open");
+        }
+      });
       emit("WS_RESYNC_SESSIONS endpoint=" + key + " sessions=" + n
         + " ids=" + JSON.stringify(list.map(function (s) { return s.sessionId; })));
       return n;
@@ -748,15 +765,34 @@
     }
     var entry = state.serverConns[conn.uuid];
     if (entry) entry.lastRxMs = nowMs();
-    if (entry && env.from) entry.peerDid = env.from;
     if (entry) markSession(entry, env.sessionId, nowMs());
-    /* Lie le conn au deviceId/peer en amont du traitement (broadcast + PEER_CONNECTED). */
-    if (entry && env.from) {
+    /* Lie le conn au deviceId/peer en amont du traitement (broadcast + PEER_CONNECTED).
+     * Le test d'inconnu est effectué AVANT mutation : l'ancien code affectait
+     * entry.peerDid puis testait !entry.peerDid, qui valait donc TOUJOURS faux —
+     * PEER_CONNECTED n'était jamais émis sur la voie serveur, précisément la voie
+     * empruntée par la reconnexion (D3 restauré le transport, D4 remonte les états). */
+    if (entry && env.from && entry.peerDid !== env.from) {
       var wasUnknown = !entry.peerDid;
       entry.peerDid = env.from;
-      if (wasUnknown) emit("PEER_CONNECTED did=" + env.from + " via=ws_server uuid=" + conn.uuid.substr(0, 8) + "…");
+      if (wasUnknown) {
+        emit("PEER_CONNECTED did=" + env.from + " via=ws_server uuid=" + conn.uuid.substr(0, 8) + "…");
+        /* D4 : le pair s'est (re)annoncé sur une connexion restaurée — prévenir
+         * le pont caméra pour qu'il republie un SNAPSHOT d'état idempotent. */
+        resyncCameraState(env, entry);
+      }
     }
     handleIncoming(env, entry, conn);
+  }
+
+  function resyncCameraState(env, entry) {
+    if (!env || !env.sessionId || !env.from) return;
+    var bridge = state.cameraBridge;
+    if (!bridge || typeof bridge.onPeerIdentified !== "function") return;
+    try {
+      bridge.onPeerIdentified(env, entry);
+    } catch (e) {
+      emit("CAMERA_RESYNC_ERROR from=" + (env.from || "?") + " err=" + String((e && e.message) || e));
+    }
   }
 
   function handleIncoming(env, entry, serverConn) {
@@ -887,6 +923,29 @@
       if (masters[i] && masters[i].deviceId === deviceId) return true;
     }
     return false;
+  }
+
+  /* D4 : pour un endpoint donné (par ex. l'endpoint transport d'un membre
+   * re-dialé), retrouve le deviceId qui le porte dans la session — Masters et
+   * Membres confondus. Si cet endpoint est inconnu de la session, retourne null. */
+  function peerDidOfEndpoint(session, endpoint) {
+    if (!session || !endpoint) return null;
+    var i;
+    if (session.masters) {
+      for (i = 0; i < session.masters.length; i++) {
+        if (session.masters[i] && session.masters[i].endpoint === endpoint) {
+          return session.masters[i].deviceId;
+        }
+      }
+    }
+    if (session.members) {
+      for (i = 0; i < session.members.length; i++) {
+        if (session.members[i] && session.members[i].endpoint === endpoint) {
+          return session.members[i].deviceId;
+        }
+      }
+    }
+    return null;
   }
 
   function sendPreviewFrame(session, frame) {
