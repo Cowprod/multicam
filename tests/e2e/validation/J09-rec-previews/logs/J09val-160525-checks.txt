@@ -1,0 +1,31 @@
+  FAIL   preflight[c0d8514d7d87] annonce mDNS + endpoint WS local     {"a":true,"e":""}
+  PASS   preflight[61cc29567d91] CAMERA+RECORD_AUDIO accordees        accordees=2/2
+  PASS   preflight[61cc29567d91] app au premier plan                  focus=MultiCam
+  PASS   preflight[61cc29567d91] premier plan                         {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61cc29567d91] preview camera ouverte               {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61cc29567d91] aucun Take residuel                  IDLE
+  PASS   preflight[61cc29567d91] IPv4 wifi                            192.168.92.57
+  PASS   preflight[61cc29567d91] annonce mDNS                         {"running":true,"advertising":true,"registeredName":"Cam 05","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.57","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[61d54bba7d91] CAMERA+RECORD_AUDIO accordees        accordees=2/2
+  PASS   preflight[61d54bba7d91] app au premier plan                  focus=MultiCam
+  PASS   preflight[61d54bba7d91] premier plan                         {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61d54bba7d91] preview camera ouverte               {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61d54bba7d91] aucun Take residuel                  IDLE
+  PASS   preflight[61d54bba7d91] IPv4 wifi                            192.168.92.76
+  PASS   preflight[61d54bba7d91] annonce mDNS                         {"running":true,"advertising":true,"registeredName":"Cam 07","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.76","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[c0d8514d7d87] CAMERA+RECORD_AUDIO accordees        accordees=2/2
+  PASS   preflight[c0d8514d7d87] app au premier plan                  focus=MultiCam
+  PASS   preflight[c0d8514d7d87] premier plan                         {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[c0d8514d7d87] preview camera ouverte               {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[c0d8514d7d87] aucun Take residuel                  IDLE
+  PASS   preflight[c0d8514d7d87] IPv4 wifi                            192.168.92.192
+  PASS   preflight[c0d8514d7d87] annonce mDNS                         {"running":true,"advertising":true,"registeredName":"Cam 09","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.192","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[R83Y106V1HF] CAMERA+RECORD_AUDIO accordees         accordees=2/2
+  PASS   preflight[R83Y106V1HF] app au premier plan                   focus=MultiCam
+  PASS   preflight[R83Y106V1HF] premier plan                          {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[R83Y106V1HF] preview camera ouverte                {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[R83Y106V1HF] aucun Take residuel                   IDLE
+  PASS   preflight[R83Y106V1HF] IPv4 wifi                             192.168.92.103
+  PASS   preflight[R83Y106V1HF] annonce mDNS                          {"running":true,"advertising":true,"registeredName":"Cam D4","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.103","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[61d54bba7d91] >= 3 Go libres (MP4 possibles)       /dev/block/dm-57 48G 10G 37G 22% /data/user/0
+  PASS   preflight[c0d8514d7d87] >= 3 Go libres (MP4 possibles)       /dev/block/dm-81 48G 10G 38G 21% /data/user/0

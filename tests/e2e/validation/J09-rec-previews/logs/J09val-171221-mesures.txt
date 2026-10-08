@@ -1,0 +1,11 @@
+  MESURE D1/$SWLBL: max_before=24 first_after=28 first_after_ms=1374 resets=0 max_after=104
+  MESURE D1/$SWLBL: max_before=115 first_after=120 first_after_ms=1608 resets=0 max_after=195
+  MESURE D2: telemetry B=52 C=48 publiees
+  MESURE D4: coupure->convergence = 59 s ; mRec=false mSeg=0
+  MESURE F: 2 cycles coupe/reco sur B, pas de duplication membre, previews+tele repris
+  MESURE G: cloture OK, 0 evenement de resurrection sur A et C
+  MESURE fichier B/videoTmp.mp4 : 66192372 octets, 26.581333 s, sha256=92fcf71707bc9dc3a68ffa08c313ac96cf9e1cf7087ba482478bfbcfb19535ea
+  MESURE fichier B/videoTmp_1.mp4 : 223785805 octets, 89.557333 s, sha256=930fb489bb34a5bba440f06234046f944cf32039c08af2c598266876074fd792
+  MESURE fichier B/videoTmp_2.mp4 : 578347605 octets, 232.085333 s, sha256=7da13b808aa747e380ed98da0163219becf0ee92b5bc009cbf5f337127040fce
+  MESURE fichier C/videoTmp.mp4 : 659767361 octets, 262.741333 s, sha256=3a572c30019796aac7b6d513e463598df896704a3535f5a3d19a6b72726eac00
+  MESURE fichiers MP4 valides : 4 au total

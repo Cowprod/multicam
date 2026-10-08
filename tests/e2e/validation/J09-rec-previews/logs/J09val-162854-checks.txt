@@ -1,0 +1,173 @@
+  PASS   preflight[61cc29567d91] CAMERA+RECORD_AUDIO accordees        accordees=2/2
+  PASS   preflight[61cc29567d91] app au premier plan                  focus=MultiCam
+  PASS   preflight[61cc29567d91] premier plan                         {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61cc29567d91] preview camera ouverte               {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61cc29567d91] aucun Take residuel                  IDLE
+  PASS   preflight[61cc29567d91] IPv4 wifi                            192.168.92.57
+  PASS   preflight[61cc29567d91] annonce mDNS                         {"running":true,"advertising":true,"registeredName":"Cam 05","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.57","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[61d54bba7d91] CAMERA+RECORD_AUDIO accordees        accordees=2/2
+  PASS   preflight[61d54bba7d91] app au premier plan                  focus=MultiCam
+  PASS   preflight[61d54bba7d91] premier plan                         {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61d54bba7d91] preview camera ouverte               {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[61d54bba7d91] aucun Take residuel                  IDLE
+  PASS   preflight[61d54bba7d91] IPv4 wifi                            192.168.92.76
+  PASS   preflight[61d54bba7d91] annonce mDNS                         {"running":true,"advertising":true,"registeredName":"Cam 07","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.76","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[c0d8514d7d87] CAMERA+RECORD_AUDIO accordees        accordees=2/2
+  PASS   preflight[c0d8514d7d87] app au premier plan                  focus=MultiCam
+  PASS   preflight[c0d8514d7d87] premier plan                         {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[c0d8514d7d87] preview camera ouverte               {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[c0d8514d7d87] aucun Take residuel                  IDLE
+  PASS   preflight[c0d8514d7d87] IPv4 wifi                            192.168.92.192
+  PASS   preflight[c0d8514d7d87] annonce mDNS                         {"running":true,"advertising":true,"registeredName":"Cam 09","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.192","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[R83Y106V1HF] CAMERA+RECORD_AUDIO accordees         accordees=2/2
+  PASS   preflight[R83Y106V1HF] app au premier plan                   focus=MultiCam
+  PASS   preflight[R83Y106V1HF] premier plan                          {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[R83Y106V1HF] preview camera ouverte                {"fg":true,"act":true,"phase":"IDLE"}
+  PASS   preflight[R83Y106V1HF] aucun Take residuel                   IDLE
+  PASS   preflight[R83Y106V1HF] IPv4 wifi                             192.168.92.103
+  PASS   preflight[R83Y106V1HF] annonce mDNS                          {"running":true,"advertising":true,"registeredName":"Cam D4","nsdPath":"modern","sdk":36,"networkType":"wifi","ipv4":"192.168.92.103","healthPort":45101,"serviceType":"_multicam._tcp.","peers":3}
+  PASS   preflight[61d54bba7d91] >= 3 Go libres (MP4 possibles)       /dev/block/dm-57 48G 10G 37G 22% /data/user/0
+  PASS   preflight[c0d8514d7d87] >= 3 Go libres (MP4 possibles)       /dev/block/dm-81 48G 10G 38G 21% /data/user/0
+  PASS   discovery A→afd69dd6 endpoint WS publie                    [{"d":"afd69dd6","ep":"192.168.92.76:45102"},{"d":"94a4939e","ep":"192.168.92.192:45102"},{"d":"23c5cf6e","ep":"192.168.92.103:45102"}]
+  PASS   discovery A→94a4939e endpoint WS publie                    [{"d":"afd69dd6","ep":"192.168.92.76:45102"},{"d":"94a4939e","ep":"192.168.92.192:45102"},{"d":"23c5cf6e","ep":"192.168.92.103:45102"}]
+  PASS   discovery A→23c5cf6e endpoint WS publie                    [{"d":"afd69dd6","ep":"192.168.92.76:45102"},{"d":"94a4939e","ep":"192.168.92.192:45102"},{"d":"23c5cf6e","ep":"192.168.92.103:45102"}]
+  PASS   A. session creee et OUVERTE                                  open
+  PASS   invite[B] devenu membre avec role capture                    roles=[capture]
+  PASS   invite[B] INVITE_ACCEPTED recu par le device                 INVITE_ACCEPTED sessionId=QSFXH9JP did=afd69dd6-1409-4d00-b4bc-01318afc22e3 by=91e0d5e6-a086-4c4b-820e-0435b7d97b22 roles=[capture]
+  PASS   invite[C] devenu membre avec role capture                    roles=[capture]
+  PASS   invite[C] INVITE_ACCEPTED recu par le device                 INVITE_ACCEPTED sessionId=QSFXH9JP did=94a4939e-d09e-4504-86e8-e79751920134 by=91e0d5e6-a086-4c4b-820e-0435b7d97b22 roles=[capture]
+  PASS   invite[D] devenu membre avec role storage                    roles=[storage]
+  PASS   invite[D] INVITE_ACCEPTED recu par le device                 INVITE_ACCEPTED sessionId=QSFXH9JP did=23c5cf6e-beab-4e40-b3ab-6dc6dfed0437 by=91e0d5e6-a086-4c4b-820e-0435b7d97b22 roles=[storage]
+  PASS   Topologie : 3 membres admis (B, C, D)                        {"members":3,"memberRoles":["23c5cf6e=storage","94a4939e=capture","afd69dd6=capture"],"captures":2,"captureDids":["94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"storages":1,"storageDids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437"],"aIsMember":false,"masterRoster":["91e0d5e6-a086-4c4b-820e-0435b7d97b22"]}
+  PASS   Topologie : 2 Captures (B et C)                              {"members":3,"memberRoles":["23c5cf6e=storage","94a4939e=capture","afd69dd6=capture"],"captures":2,"captureDids":["94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"storages":1,"storageDids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437"],"aIsMember":false,"masterRoster":["91e0d5e6-a086-4c4b-820e-0435b7d97b22"]}
+  PASS   Topologie : 1 Storage (D)                                    {"members":3,"memberRoles":["23c5cf6e=storage","94a4939e=capture","afd69dd6=capture"],"captures":2,"captureDids":["94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"storages":1,"storageDids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437"],"aIsMember":false,"masterRoster":["91e0d5e6-a086-4c4b-820e-0435b7d97b22"]}
+  PASS   Topologie : A = Master pur                                   A hors members
+  PASS   Topologie : session.masters = [A] seulement                  {"members":3,"memberRoles":["23c5cf6e=storage","94a4939e=capture","afd69dd6=capture"],"captures":2,"captureDids":["94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"storages":1,"storageDids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437"],"aIsMember":false,"masterRoster":["91e0d5e6-a086-4c4b-820e-0435b7d97b22"]}
+  PASS   Take : 2 Captures selectionnees                              {"capturesChecked":2,"captureDids":["94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"storagesChecked":1,"storageDids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437"]}
+  PASS   Take : 1 Storage selectionne                                 {"capturesChecked":2,"captureDids":["94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"storagesChecked":1,"storageDids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437"]}
+  PASS   Take : bouton ARM active apres selection                     ENABLED
+  PASS   ARM : 2 Captures pretes                                      {"armCaptures":2,"armStorages":1,"recEligible":true,"incidents":2}
+  PASS   ARM : REC eligible                                           recEligible=true
+  PASS   Armement : bouton REC active                                 ENABLED
+  PASS   Capture B segmentIndex == 1                                  1
+  PASS   Capture B segmentState recording                             recording
+  PASS   Capture B recording == true                                  true
+  PASS   Capture C segmentIndex == 1                                  1
+  PASS   Capture C segmentState recording                             recording
+  PASS   Capture C recording == true                                  true
+  PASS   MasterB inbox alimentee                                      1
+  PASS   MasterB segmentIndex recu 1                                  1
+  PASS   MasterB recording recu true                                  true
+  PASS   MasterC inbox alimentee                                      1
+  PASS   MasterC segmentIndex recu 1                                  1
+  PASS   MasterC recording recu true                                  true
+  PASS   D1[SW1 REAR→FRONT] first_seq_after_switch > last_seq_before_switch 25 → 30
+  PASS   D1[SW1 REAR→FRONT] reprise rapide (pas de gel ~44 s)       1re frame ut = 1912 ms apres la bascule
+  PASS   D1[SW1 REAR→FRONT] aucune reinitialisation de sequence pendant la fenetre 0
+  PASS   D1[SW1 REAR→FRONT] la sequence progresse (fenetre vivante) 25 → 107 (>= +8)
+  PASS   D1[SW1 REAR→FRONT] segment == 2 + camera FRONT (B)         FRONT|2
+  PASS   D1[SW1 REAR→FRONT] Master recoit segment 2                 2
+  PASS   D1[SW1 REAR→FRONT] Master recoit camera FRONT              FRONT
+  PASS   D1[SW2 FRONT→REAR] first_seq_after_switch > last_seq_before_switch 120 → 124
+  PASS   D1[SW2 FRONT→REAR] reprise rapide (pas de gel ~44 s)       1re frame ut = 1778 ms apres la bascule
+  PASS   D1[SW2 FRONT→REAR] aucune reinitialisation de sequence pendant la fenetre 0
+  PASS   D1[SW2 FRONT→REAR] la sequence progresse (fenetre vivante) 120 → 201 (>= +8)
+  PASS   D1[SW2 FRONT→REAR] segment == 3 + camera REAR (B)          REAR|3
+  PASS   D1[SW2 FRONT→REAR] Master recoit segment 3                 3
+  PASS   D1[SW2 FRONT→REAR] Master recoit camera REAR               REAR
+  PASS   D2 B : collecteur rattache a la session (sans ecran 05)      QSFXH9JP
+  PASS   D2 C : collecteur rattache a la session (sans ecran 05)      QSFXH9JP
+  PASS   D2 B : collecteur en marche (sans ecran 05)                  1
+  PASS   D2 C : collecteur en marche (sans ecran 05)                  1
+  PASS   D2 B : des collections ont eu lieu                           collections=59
+  PASS   D2 B : des publications sont parties                         publications=59
+  PASS   D2 C : des collections ont eu lieu                           collections=59
+  PASS   D2 C : des publications sont parties                         publications=59
+  PASS   D2 : Master voit la telemetrie sans ecran 05 (>= 2 devices)  3 entree(s) [afd69dd6=b:100,f:39589,at:1791470028672|94a4939e=b:100,f:39829,at:1791470030118|23c5cf6e=b:94,f:41699,at:1791470031448]
+  FAIL   D2 : niveau de batterie present                              afd69dd6=b:100,f:39589,at:1791470028672|94a4939e=b:100,f:39829,at:1791470030118|23c5cf6e=b:94,f:41699,at:1791470031448
+  FAIL   D2 : espace libre presente (Mo)                              afd69dd6=b:100,f:39589,at:1791470028672|94a4939e=b:100,f:39829,at:1791470030118|23c5cf6e=b:94,f:41699,at:1791470031448
+  FAIL   D2 B : ecran 05 reelement ouvert                             attendu=[take] obtenu=[countdown]
+  PASS   D2 B : aucun 2nd collecteur a l'ouverture de 05              avant=0 apres=0
+  PASS   D2 B : telemetrie continue pendant la vue 05                 pub 59 → 63
+  PASS   D2 B : retour sur la vue REC (pas d'arret)                   countdown
+  PASS   D2 B : toujours en REC apres l'aller-retour                  true
+  PASS   D3 : Master detecte la deconnexion de C                      slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=0|frame=1|seq=230|disp=DECONNECTED|status=REC|ui=DECONNECTED
+  PASS   D3 : le slot de C PERSISTE (grille stable)                   slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=0|frame=1|seq=230|disp=DECONNECTED|status=REC|ui=DECONNECTED
+  PASS   D3 : derniere image de C figee sur la vignette               slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=0|frame=1|seq=230|disp=DECONNECTED|status=REC|ui=DECONNECTED
+  PASS   D3 : nombre de vignettes inchange                            2
+  PASS   D3 : ordre des vignettes inchange                            94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3
+  PASS   D3 : C reste membre pendant la coupure (pas de purge)        {"n":3,"dids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"masters":["91e0d5e6-a086-4c4b-820e-0435b7d97b22"],"state":"open"}
+  PASS   D3 : session toujours OUVERTE sur A                          {"n":3,"dids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"masters":["91e0d5e6-a086-4c4b-820e-0435b7d97b22"],"state":"open"}
+  PASS   D3 : boucle de retry ARMEE par le Master (schÉdule/attempt) [WS_RETRY_ATTEMPT endpoint=192.168.92.162:45102
+WS_RETRY_SCHEDULE endpoint=192.168.92.162:45102]
+  PASS   D3 : C toujours en REC locale pendant la coupure             true
+  PASS   D3 : showEmergencyStop passe a true sur C (aucun Master)     cam=REAR|seg=1|segState=recording|rec=true|sid=QSFXH9JP|take=1|phase=REC|emg=1
+  PASS   D3 : C arrete localement (recording false)                   false
+  PASS   D3 : C arrete localement (segment 0)                         0
+  PASS   D3 : Master garde l'etat PRE-coupure de C (rec true)         true
+  PASS   D4 : C reconnectee (detection Master)                        slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=1|frame=1|seq=230|disp=REC|status=REC|ui=REC
+  FAIL   D4 : A a envoye un sync_please dirigé au membre (note=redialed_member) ABSENT
+  FAIL   D4 : redial au membre (note=redialed_member)                 fragment absent [note=redialed_member] dans []
+  FAIL   D4 : C a vu le Master s'identifier (PEER_CONNECTED)          ABSENT
+  FAIL   D4 : C a re-publie un SNAPSHOT (CAMERA_STATE_RESYNC)         ABSENT
+  PASS   D4 : Master converge à segment 0 pour C                     0
+  PASS   D4 : Master converge à recording false pour C               false
+  PASS   D4 : l'etat recemment publie (updatedAtMs rafraichi)         1791470106393 > tCUT
+  FAIL   D4 : aucune commande START/switch rejouee sur C apres la coupure 10-08 16:34:27.897 I/chromium(17240): [INFO:CONSOLE:57] "START_PLAN_ABORTED deviceId=94a4939e-d09e-4504-86e8-e79751920134 startPlanId=QSFXH9JP#1#1#1 take=1 reason=local_stop", source: http://localhost/js/state/start-service.js (57)
+  PASS   D4 : C reste STOPPED (pas de re-START)                       false
+  FAIL   D4 : STOP local d'urgence masque                             emg=0 dom=VISIBLE
+  PASS   D4 : aucun membre duplique apres redial                      {"n":3,"dids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"masters":["91e0d5e6-a086-4c4b-820e-0435b7d97b22"]}
+  PASS   F.cycle1 : Master detecte la coupure de B                    slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=0|frame=1|seq=285|disp=DECONNECTED|status=REC|ui=DECONNECTED
+  PASS   F.cycle1 : urgence visible pendant la coupure sur B          cam=REAR|seg=3|segState=recording|rec=true|sid=QSFXH9JP|take=1|phase=REC|emg=1
+  PASS   F.cycle1 : B reconnectee automatiquement                     slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=1|frame=1|seq=303|disp=REC|status=REC|ui=REC
+  PASS   F.cycle1 : redial dirige au membre (B)                       [SYNC_PLEASE_SENT sessionId=QSFXH9JP to=afd69dd6-1409-4d00-b4bc-01318afc22e3 endpoint=192.168.92.76:45102 note=redialed_member]
+  FAIL   F.cycle1 : B a re-publie un snapshot (CAMERA_STATE_RESYNC)   ABSENT
+  PASS   convergence Master→B(cycle1) : inbox mSeg=3 mRec=true      mCam=REAR|mSeg=3|mSegState=recording|mRec=true|mTake=1|mUpdatedAt=1791469950836|mSeen=1
+  PASS   F.cycle1 : previews de B repris automatiquement              seq 304 → 314
+  PASS   F.cycle1 : aucun membre duplique                             {"n":3,"dids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"]}
+  PASS   F.cycle2 : Master detecte la coupure de B                    slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=0|frame=1|seq=316|disp=DECONNECTED|status=REC|ui=DECONNECTED
+  PASS   F.cycle2 : urgence visible pendant la coupure sur B          cam=REAR|seg=3|segState=recording|rec=true|sid=QSFXH9JP|take=1|phase=REC|emg=1
+  PASS   F.cycle2 : B reconnectee automatiquement                     slots=2|order=94a4939e-d09e-4504-86e8-e79751920134,afd69dd6-1409-4d00-b4bc-01318afc22e3|grid=2|present=1|conn=1|frame=1|seq=334|disp=REC|status=REC|ui=REC
+  PASS   F.cycle2 : redial dirige au membre (B)                       [SYNC_PLEASE_SENT sessionId=QSFXH9JP to=afd69dd6-1409-4d00-b4bc-01318afc22e3 endpoint=192.168.92.76:45102 note=redialed_member]
+  FAIL   F.cycle2 : B a re-publie un snapshot (CAMERA_STATE_RESYNC)   ABSENT
+  PASS   convergence Master→B(cycle2) : inbox mSeg=3 mRec=true      mCam=REAR|mSeg=3|mSegState=recording|mRec=true|mTake=1|mUpdatedAt=1791469950836|mSeen=1
+  PASS   F.cycle2 : previews de B repris automatiquement              seq 335 → 345
+  PASS   F.cycle2 : aucun membre duplique                             {"n":3,"dids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"]}
+  PASS   F : B toujours en REC apres les 2 cycles                     true
+  PASS   F : telemetrie continue apres les 2 cycles                   pub 91 → 92
+  PASS   Arret B execute par le service                               STOPPED
+  PASS   STOP MasterB segmentIndex recu == 0                          0
+  PASS   STOP MasterB recording recu == false                         false
+  PASS   STOP MasterC segmentIndex recu == 0                          0
+  PASS   STOP MasterC recording recu == false                         false
+  PASS   STOP Capture B recording == false                            false
+  PASS   STOP Capture B segmentIndex == 0                             0
+  PASS   Capture 61d54bba7d91 : CAMERA_REC_STOP_OK (fichier finalise) 1 occurrence(s)
+  PASS   Capture c0d8514d7d87 : CAMERA_REC_STOP_OK (fichier finalise) 1 occurrence(s)
+  FAIL   G : session fermee sur A                                     closed
+  PASS   G : cloture via l'UI reel (SCREEN03_CLOSE_OK)                SCREEN03_CLOSE_OK sessionId=QSFXH9JP state=closed
+  FAIL   G : session fermee vue par 61d54bba7d91                      closed
+  FAIL   G : session fermee vue par c0d8514d7d87                      closed
+  FAIL   G : aucune session encore OUVERTE sur C (rien a redialer)    {"n":4,"open":["Y49D34JD","4FPDWWFY","9Y6FM3R9"],"closed":["QSFXH9JP"]}
+  FAIL   G : A n'emvoie NI sync dirige NI rejoin NI commande apres la cloture 1 evenement(s)
+  FAIL   G : C ne ressuscite rien (ni repub, ni rejoin, ni start)     10 evenement(s)
+  FAIL   G : session reste fermee, 3 membres, rien re-admis           {"n":3,"dids":["23c5cf6e-beab-4e40-b3ab-6dc6dfed0437","94a4939e-d09e-4504-86e8-e79751920134","afd69dd6-1409-4d00-b4bc-01318afc22e3"],"state":"closed"}
+  OBS    G : phase device 61cc29567d91                                REC
+  OBS    G : phase device 61d54bba7d91                                STOPPED
+  OBS    G : phase device c0d8514d7d87                                STOPPED
+  OBS    G : phase device R83Y106V1HF                                 REC
+  PASS   G : aucun Take/START actif sur les 4 devices (rien n'a repris) 
+  PASS   Fichier B/videoTmp.mp4 : flux video h264 present             size=68919856
+  PASS   Fichier B/videoTmp.mp4 : duree >= 5 s                        duree=27.669333 s
+  PASS   Fichier B/videoTmp_1.mp4 : flux video h264 present           size=232506380
+  PASS   Fichier B/videoTmp_1.mp4 : duree >= 5 s                      duree=93.013333 s
+  PASS   Fichier B/videoTmp_2.mp4 : flux video h264 present           size=575569920
+  PASS   Fichier B/videoTmp_2.mp4 : duree >= 5 s                      duree=230.997333 s
+  PASS   Fichiers video reels sur la Capture B                        3 fichier(s) >= 1 Mo
+  PASS   Fichier C/videoTmp.mp4 : flux video h264 present             size=598267024
+  PASS   Fichier C/videoTmp.mp4 : duree >= 5 s                        duree=240.085333 s
+  PASS   Fichiers video reels sur la Capture C                        1 fichier(s) >= 1 Mo
+  FAIL   aucun fichier hors preuves modifie                           Mtests/e2e/validation/J09-rec-previews/adb-devices.txt
+Mtests/e2e/validation/J09-rec-previews/apk-sha256.txt
+  PASS   aucun MP4 ajoute au dépôt                                  statut git sans .mp4
+  PASS   Tests automatisés app : 0 échec                            308 passed, 0 failed

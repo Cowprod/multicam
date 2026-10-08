@@ -1,0 +1,6 @@
+total 857302
+drwx--S--- 3 u0_a163 u0_a163_cache      3452 2026-10-06 08:28 Crash Reports
+drwx--S--- 6 u0_a163 u0_a163_cache      3452 2026-10-06 08:28 WebView
+-rw------- 1 u0_a163 u0_a163_cache  68919856 2026-10-08 16:30 videoTmp.mp4
+-rw------- 1 u0_a163 u0_a163_cache 232506380 2026-10-08 16:32 videoTmp_1.mp4
+-rw------- 1 u0_a163 u0_a163_cache 575569920 2026-10-08 16:36 videoTmp_2.mp4
