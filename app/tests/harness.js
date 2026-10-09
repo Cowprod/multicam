@@ -503,9 +503,11 @@ function loadAll(env, relPaths) {
         className: "",
         textContent: "",
         dataset: {},
+        style: {},
         parentNode: null,
         _kids: [],
         _attrs: {},
+        _listeners: {},
         _set: set,
         classList: {
           add(c) { set.add(c); },
@@ -533,6 +535,18 @@ function loadAll(env, relPaths) {
         setAttribute(k, v) { node._attrs[k] = String(v); },
         getAttribute(k) { return Object.prototype.hasOwnProperty.call(node._attrs, k) ? node._attrs[k] : null; },
         removeAttribute(k) { delete node._attrs[k]; },
+        addEventListener(type, fn) { (node._listeners[type] = node._listeners[type] || []).push(fn); },
+        removeEventListener(type, fn) {
+          const a = node._listeners[type] || [];
+          const i = a.indexOf(fn);
+          if (i >= 0) a.splice(i, 1);
+        },
+        dispatchEvent(ev) {
+          const type = typeof ev === "string" ? ev : (ev && ev.type) || "click";
+          (node._listeners[type] || []).slice().forEach((fn) => fn(ev || { type, target: node }));
+          if (type === "click" && typeof node.onclick === "function") node.onclick(ev || { type, target: node });
+          return true;
+        },
         querySelector(sel) {
           /* Recherche dans TOUTE la descendance, comme querySelector : les
            * sélecteurs de l'écran (`.tile-media`, `.tile-name`, `.tile-state`,

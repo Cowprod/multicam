@@ -61,6 +61,7 @@
     var ctx = { sid: "", takeNumber: 0, take: null, loading: false };
     var announced = {};   /* "sid|take" -> true */
     var pausedOffers = {}; /* sourceDeviceId -> offre en attente (garde REC) */
+    var listeners = [];    /* fn() appelés à chaque changement de l'état transfert */
 
     function sendOnWs(kind, extra) {
       var w = ws();
@@ -219,6 +220,14 @@
       return service;
     }
 
+    /* ---------- notification UI ---------- */
+
+    function notify() {
+      listeners.slice().forEach(function (fn) {
+        try { fn(); } catch (e) { log("TRANSFER_NOTIFY_ERROR " + String((e && e.message) || e)); }
+      });
+    }
+
     /* ---------- déclencheurs ---------- */
 
     function maybeCaptureAnnounce(v) {
@@ -232,7 +241,7 @@
         announced[key] = false;
         log("TRANSFER_ANNOUNCE_ERROR " + String((e && e.message) || e));
         return null;
-      });
+      }).then(function (r) { notify(); return r; });
     }
 
     function onStartView(v) {
@@ -250,6 +259,7 @@
         delete pausedOffers[src];
         ensure().storageRun(offer);
       });
+      notify();
     }
 
     /* ---------- entrée transport ---------- */
@@ -270,6 +280,9 @@
       }
       return loadCtx(env.sessionId, env.takeNumber).then(function () {
         return ensure().handle(env);
+      }).then(function (ok) {
+        notify();
+        return ok;
       });
     }
 
@@ -311,6 +324,8 @@
       view: view,
       retry: retry,
       role: function () { return role; },
+      onChange: function (fn) { if (typeof fn === "function" && listeners.indexOf(fn) < 0) listeners.push(fn); },
+      offChange: function (fn) { var i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); },
       _ctx: ctx,
       _loadCtx: loadCtx,
       _onStartView: onStartView,

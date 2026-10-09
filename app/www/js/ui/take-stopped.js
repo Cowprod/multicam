@@ -48,6 +48,73 @@
     return i >= 0 ? s.slice(i + 1) : s;
   }
 
+  /* J11 — formatage volume lisible (Go/Mo/ko), jamais de jargon (SHA-256…). */
+  function fmtBytes(n) {
+    n = Math.max(0, Number(n) || 0);
+    if (n >= 1073741824) return (n / 1073741824).toFixed(1).replace(".", ",") + " Go";
+    if (n >= 1048576) return (n / 1048576).toFixed(0) + " Mo";
+    if (n >= 1024) return (n / 1024).toFixed(0) + " ko";
+    return n + " o";
+  }
+
+  /* Vue du service de transfert (J11), ou null si absent/pas de Take. */
+  function transferView() {
+    var boot = global.MultiCamTransferBootInstance;
+    return (boot && typeof boot.view === "function") ? boot.view() : null;
+  }
+
+  /* Noms des Storage du plan courant : did -> deviceName. */
+  function storageNames() {
+    var svc = global.MultiCamStartService;
+    var machine = (svc && typeof svc.machine === "function") ? svc.machine() : null;
+    var plan = (machine && machine.state) ? machine.state.plan : null;
+    var parts = (plan && Array.isArray(plan.participants)) ? plan.participants : [];
+    var map = {};
+    parts.forEach(function (p) {
+      if (p && p.role === "storage") map[p.deviceId] = p.deviceName || p.deviceId;
+    });
+    return map;
+  }
+
+  /* État d'une destination → libellé simple + classe. */
+  function barState(state) {
+    switch (state) {
+      case "done": return { text: "Terminé", cls: "bg-success" };
+      case "error": return { text: "Erreur", cls: "bg-danger" };
+      case "verifying": return { text: "Vérification", cls: "" };
+      case "transferring": return { text: "Transfert", cls: "" };
+      default: return { text: "En attente", cls: "" };
+    }
+  }
+
+  /* J11 — barres PURES d'une Capture : une par Storage attendu. La progression
+   * vient des FAITS remontés par les Storage (modèle de transfert), jamais d'un
+   * timer local. Une réplication terminée reste visible à 100 %. */
+  function barsOf(v, tv, names) {
+    var out = [];
+    tv = tv || transferView();
+    if (!v || !tv || !tv.transfers) return out;
+    names = names || storageNames();
+    Object.keys(tv.transfers).sort().forEach(function (k) {
+      var t = tv.transfers[k];
+      if (!t || t.sourceDeviceId !== v.deviceId) return;
+      var st = barState(t.state);
+      var meta;
+      if (t.state === "done") meta = fmtBytes(t.total) + " / " + fmtBytes(t.total) + " · Terminé";
+      else if (t.state === "error") meta = fmtBytes(t.bytes) + " / " + fmtBytes(t.total) + " · interrompu à " + t.percent + " %";
+      else if (t.state === "pending") meta = "0 / " + fmtBytes(t.total);
+      else meta = fmtBytes(t.bytes) + " / " + fmtBytes(t.total) + " · " + t.percent + " %";
+      out.push({
+        storageDeviceId: t.storageDeviceId,
+        name: names[t.storageDeviceId] || t.storageDeviceId,
+        state: t.state, stateText: st.text, barClass: st.cls,
+        percent: t.state === "done" ? 100 : t.percent,
+        meta: meta, retry: t.state === "error"
+      });
+    });
+    return out;
+  }
+
   var state = { sid: null, bound: false };
 
   /* Lignes PURES : une ligne = { deviceId, name, state, stateClass, deltaText,
@@ -81,6 +148,9 @@
   function view(v) {
     v = v || {};
     var rows = rowsOf(v);
+    var tv = transferView();
+    var names = storageNames();
+    rows.forEach(function (r) { r.bars = barsOf(r, tv, names); });
     return {
       sessionName: v.sessionName || "",
       takeLabel: v.takeNumber ? "Take " + String(v.takeNumber).padStart(3, "0") : "Take —",
@@ -92,7 +162,7 @@
 
   /* ---------- couche DOM ---------- */
 
-  var NODES = {};   /* deviceId -> {root, name, state, delta, path} */
+  var NODES = {};   /* deviceId -> {root, name, state, delta, path, bars, barsMap} */
 
   function makeRow(row) {
     var root = el("div", "ts-row");
@@ -108,7 +178,64 @@
     root.appendChild(name);
     root.appendChild(meta);
     root.appendChild(path);
-    return { root: root, name: name, state: stateEl, delta: delta, path: path };
+    var bars = el("div", "ts-bars");
+    root.appendChild(bars);
+    return { root: root, name: name, state: stateEl, delta: delta, path: path, bars: bars, barsMap: {} };
+  }
+
+  function makeBar(srcDid, bar) {
+    var root = el("div", "ts-bar");
+    root.dataset.storageId = bar.storageDeviceId;
+    var head = el("div", "ts-bar-head");
+    var bname = el("span", "ts-bar-name");
+    var bstate = el("span", "ts-bar-state small");
+    var retry = el("button", "ts-bar-retry btn btn-sm btn-outline-light");
+    retry.type = "button";
+    retry.textContent = "Réessayer";
+    retry.addEventListener("click", function () {
+      console.log("SCREEN09_RETRY source=" + srcDid + " storage=" + bar.storageDeviceId);
+      var boot = global.MultiCamTransferBootInstance;
+      if (boot && typeof boot.retry === "function") boot.retry(srcDid);
+    });
+    head.appendChild(bname);
+    head.appendChild(bstate);
+    head.appendChild(retry);
+    var prog = el("div", "ts-bar-progress progress");
+    var fill = el("div", "ts-bar-fill progress-bar");
+    prog.appendChild(fill);
+    var meta = el("div", "ts-bar-meta tiny muted");
+    root.appendChild(head);
+    root.appendChild(prog);
+    root.appendChild(meta);
+    return { root: root, name: bname, state: bstate, retry: retry, fill: fill, meta: meta };
+  }
+
+  function paintBars(node, row) {
+    var want = {};
+    (row.bars || []).forEach(function (b) { want[b.storageDeviceId] = b; });
+    Object.keys(node.barsMap).forEach(function (sid) {
+      if (!want[sid]) {
+        var bn = node.barsMap[sid];
+        if (bn.root.parentNode) bn.root.parentNode.removeChild(bn.root);
+        delete node.barsMap[sid];
+      }
+    });
+    (row.bars || []).forEach(function (bar) {
+      var bn = node.barsMap[bar.storageDeviceId];
+      if (!bn) { bn = makeBar(row.deviceId, bar); node.barsMap[bar.storageDeviceId] = bn; }
+      if (bn.root.parentNode !== node.bars) node.bars.appendChild(bn.root);
+      if (bn.name.textContent !== bar.name) bn.name.textContent = bar.name;
+      bn.state.textContent = bar.stateText;
+      bn.state.classList.toggle("text-success", bar.state === "done");
+      bn.state.classList.toggle("text-danger", bar.state === "error");
+      var w = bar.percent + "%";
+      if (bn.fill.style.width !== w) bn.fill.style.width = w;
+      var fcls = "ts-bar-fill progress-bar " + (bar.barClass || "");
+      if (bn.fill.className !== fcls) bn.fill.className = fcls;
+      if (bn.meta.textContent !== bar.meta) bn.meta.textContent = bar.meta;
+      bn.retry.classList.toggle("d-none", !bar.retry);
+    });
+    node.bars.classList.toggle("d-none", !(row.bars && row.bars.length));
   }
 
   function paint(node, row) {
@@ -121,6 +248,7 @@
     if (node.delta.textContent !== delta) node.delta.textContent = delta;
     if (node.path.textContent !== row.path) node.path.textContent = row.path;
     node.path.classList.toggle("d-none", !row.path);
+    paintBars(node, row);
   }
 
   function render(v) {

@@ -23,7 +23,7 @@
 .ts-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-areas: "name meta" "path path";
+  grid-template-areas: "name meta" "path path" "bars bars";
   align-items: center;
   gap: .15rem .5rem;
 }
@@ -62,4 +62,46 @@
 .ts-row-delta {
   font-size: .72rem;
   opacity: .75;
+}
+
+/* J11 — une barre par Storage attendu sous chaque Capture. */
+.ts-bars {
+  grid-area: bars;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  margin-top: .35rem;
+}
+
+.ts-bar {
+  padding: .5rem .6rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .055);
+  border: 1px solid rgba(255, 255, 255, .10);
+}
+
+.ts-bar-head {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.ts-bar-name {
+  flex: 1 1 auto;
+  font-weight: 600;
+  font-size: .86rem;
+}
+
+.ts-bar-retry {
+  min-width: 90px;
+}
+
+.ts-bar-progress {
+  height: 8px;
+  background: rgba(255, 255, 255, .12);
+  margin: .4rem 0 .2rem;
+}
+
+.ts-bar-meta {
+  font-size: .74rem;
 }

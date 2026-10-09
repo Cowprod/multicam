@@ -431,6 +431,13 @@
       var tboot = global.MultiCamTransferBoot.createTransferBoot({ cfg: cfg });
       global.MultiCamTransferBootInstance = tboot;
       tboot.bind();
+      /* J11 : la progression vient du WS (pas du flux START à 200 ms) ; on
+       * rafraîchit l'écran 09 dès qu'un message de transfert change l'état. */
+      tboot.onChange(function () {
+        if (current === "take-stopped" && global.MultiCamTakeStoppedScreen && global.MultiCamStartService) {
+          global.MultiCamTakeStoppedScreen.render(global.MultiCamStartService.view());
+        }
+      });
     } else {
       console.log("TRANSFER_BOOT_UNAVAILABLE reason=module_absent");
     }
