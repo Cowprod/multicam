@@ -1,0 +1,22 @@
+{
+  "name": "cordova-plugin-multicam-httpd",
+  "version": "1.1.0",
+  "description": "MultiCam vendored HTTP server (Range/206), Android-only fork of cordova-httpd 0.9.2",
+  "license": "MIT",
+  "files": [
+    "src",
+    "www",
+    "plugin.xml"
+  ],
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova",
+    "http",
+    "server",
+    "range"
+  ],
+  "platforms": [
+    "android"
+  ]
+}

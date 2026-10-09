@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-plugin-multicam-httpd"
+    version="1.1.0">
+
+    <name>MultiCam HTTPD</name>
+    <description>Serveur HTTP embarqué reprenable (Range/206) pour les médias d'un Take.</description>
+    <author>MultiCam (fork de cordova-httpd de Liming Xie, MIT)</author>
+    <license>MIT</license>
+    <keywords>cordova,http,server,httpd,range</keywords>
+
+    <!-- MultiCam: Android-only. Les blocs iOS et OSX de l'amont sont retirés
+         (iOS hors périmètre). Le Java NanoHTTPD est conservé et PATCHÉ :
+         token d'accès obligatoire + listing de dossier désactivé. Voir
+         UPSTREAM-README.md et README.md pour la provenance. -->
+    <platform name="android">
+        <js-module src="www/CorHttpd.js" name="CorHttpd">
+            <clobbers target="cordova.plugins.CorHttpd" />
+        </js-module>
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="CorHttpd">
+                <param name="android-package" value="com.rjfun.cordova.httpd.CorHttpd" />
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+        </config-file>
+
+        <source-file src="src/android/CorHttpd.java" target-dir="src/com/rjfun/cordova/httpd" />
+        <source-file src="src/android/AndroidFile.java" target-dir="src/com/rjfun/cordova/httpd" />
+        <source-file src="src/android/NanoHTTPD.java" target-dir="src/com/rjfun/cordova/httpd" />
+        <source-file src="src/android/WebServer.java" target-dir="src/com/rjfun/cordova/httpd" />
+    </platform>
+
+</plugin>

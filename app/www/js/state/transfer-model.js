@@ -170,6 +170,7 @@
         deviceId: msg.deviceId,
         host: isStr(msg.host) ? msg.host : "",
         port: isNum(msg.port) ? msg.port : 0,
+        token: isStr(msg.token) ? msg.token : "",
         totalBytes: isNum(msg.totalBytes) ? msg.totalBytes : totalBytes(files),
         files: files,
         readyAtMs: now()
@@ -194,6 +195,7 @@
         sourceDeviceId: msg.sourceDeviceId,
         host: isStr(msg.host) ? msg.host : "",
         port: isNum(msg.port) ? msg.port : 0,
+        token: isStr(msg.token) ? msg.token : "",
         files: files,
         takeNumber: state.takeNumber,
         receivedAtMs: now()
@@ -335,6 +337,7 @@
       var msg = {
         sessionId: state.sid, takeNumber: state.takeNumber, deviceId: self(),
         host: (manifest && manifest.host) || "", port: (manifest && manifest.port) || 0,
+        token: (manifest && manifest.token) || "",
         totalBytes: totalBytes(files),
         files: Object.keys(files).map(function (rel) { return files[rel]; })
       };
@@ -355,7 +358,7 @@
         var msg = {
           sessionId: state.sid, takeNumber: state.takeNumber,
           sourceDeviceId: sourceDeviceId, storageDeviceId: storageDid,
-          host: src.host, port: src.port,
+          host: src.host, port: src.port, token: src.token,
           totalBytes: src.totalBytes, files: files
         };
         sendTo(storageDid, K_TRANSFER_OFFER, msg);
@@ -497,6 +500,17 @@
 
     return {
       state: state,
+      PH_PENDING: PH_PENDING,
+      PH_TRANSFERRING: PH_TRANSFERRING,
+      PH_VERIFYING: PH_VERIFYING,
+      PH_DONE: PH_DONE,
+      PH_ERROR: PH_ERROR,
+      K_MEDIA_READY: K_MEDIA_READY,
+      K_TRANSFER_OFFER: K_TRANSFER_OFFER,
+      K_TRANSFER_PROGRESS: K_TRANSFER_PROGRESS,
+      K_TRANSFER_RESULT: K_TRANSFER_RESULT,
+      K_TRANSFER_DELETE: K_TRANSFER_DELETE,
+      K_TRANSFER_DELETE_ACK: K_TRANSFER_DELETE_ACK,
       onIncoming: onIncoming,
       announceMedia: announceMedia,
       offerTransfers: offerTransfers,

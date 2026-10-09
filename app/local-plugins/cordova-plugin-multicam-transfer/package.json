@@ -1,0 +1,22 @@
+{
+  "name": "cordova-plugin-multicam-transfer",
+  "version": "1.0.0",
+  "description": "SHA-256 streaming + reprenable HTTP download (native, off JS bridge)",
+  "license": "MIT",
+  "files": [
+    "src",
+    "www",
+    "plugin.xml"
+  ],
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova",
+    "transfer",
+    "sha256",
+    "range"
+  ],
+  "platforms": [
+    "android"
+  ]
+}
