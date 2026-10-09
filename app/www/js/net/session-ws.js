@@ -144,7 +144,8 @@
     armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
     startBridge: null,     /* J08 : pont START (start-service) — idem, zéro logique ici */
     previewBridge: null,  /* J09 : pont PREVIEW (preview-inbox) — idem, zéro logique ici */
-    cameraBridge: null   /* J09-07 : pont CAMERA (camera-switch-service) — idem */
+    cameraBridge: null,  /* J09-07 : pont CAMERA (camera-switch-service) — idem */
+    transferBridge: null /* J11 : pont TRANSFERT (transfer-service) — idem */
   };
 
   var _ipCache = "";       /* IPv4 synchrone (warm-up asynchrone via MultiCamNative) */
@@ -872,6 +873,16 @@
         break;
       case "camera_state":
         handleCameraState(env);
+        break;
+      /* J11 : transfert média (media_ready / transfer_offer / progress /
+       * result / delete / delete_ack) — routés au pont transfer-service. */
+      case "media_ready":
+      case "transfer_offer":
+      case "transfer_progress":
+      case "transfer_result":
+      case "transfer_delete":
+      case "transfer_delete_ack":
+        handleTransferMessage(env, entry, serverConn);
         break;
       default:
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
@@ -1865,6 +1876,19 @@ store().get(env.sessionId).then(function (local) {
     });
   }
 
+  /* J11 : routage du transfert média. Le WS ne valide aucune progression, ne
+   * recompose aucun fichier, ne garde aucun média : il remet l'enveloppe au pont
+   * transfer-service, exactement comme `take_update` ou `start_state`. */
+  function handleTransferMessage(env, entry, serverConn) {
+    if (!state.transferBridge || typeof state.transferBridge.onTransferMessage !== "function") {
+      emit("TRANSFER_TRANSPORT_DROP kind=" + env.kind + " reason=no_bridge sessionId=" + (env.sessionId || "—"));
+      return;
+    }
+    state.transferBridge.onTransferMessage(env, function (kind, extra) {
+      sendReply(entry, serverConn, kind, env.sessionId, extra);
+    });
+  }
+
   /* ---------- broadcast ---------- */
 
   /* Envoie le sharedView (sans PIN) à tous les Masters connectés (serveur + client)
@@ -2492,6 +2516,10 @@ store().get(env.sessionId).then(function (local) {
     broadcastCameraState: broadcastCameraState,
     setCameraSwitchBridge: function (bridge) {
       state.cameraBridge = bridge || null;
+    },
+    /* J11 */
+    setTransferBridge: function (bridge) {
+      state.transferBridge = bridge || null;
     },
     onChanged: function (fn) {
       if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);
