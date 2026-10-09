@@ -12,6 +12,7 @@
 <link href="css/countdown.css" rel="stylesheet">
 <link href="css/live.css" rel="stylesheet">
 <link href="css/take-stopped.css" rel="stylesheet">
+<link href="css/storage-view.css" rel="stylesheet">
 </head>
 <body>
 <!-- Fond permanent = preview caméra locale (décision §35.1). Sur un device
@@ -564,7 +565,7 @@
     <div class="card-body p-3">
       <div class="small muted" id="tsSession">…</div>
       <div class="fw-semibold fs-4" id="tsTake">Take 001</div>
-      <div class="small muted"><i class="fa-solid fa-circle-check me-1"></i>Enregistrement clôturé</div>
+      <div class="small text-warning" id="tsState">Transferts en cours</div>
     </div>
   </header>
 
@@ -584,10 +585,30 @@
   <div class="ts-list card glass strong rounded-4" id="tsList"></div>
 
   <div class="d-grid gap-2 mt-3">
-    <button id="tsDone" class="btn btn-outline-light mainbtn" type="button">
-      <i class="fa-solid fa-arrow-rotate-left me-2"></i>Retour à la régie
+    <button id="tsDone" class="btn btn-primary mainbtn" type="button">
+      <i class="fa-solid fa-forward me-2"></i>Préparer le Take suivant
     </button>
   </div>
+</section>
+
+<!-- ============ Vue Storage 07 (J11) — supervision multi-session / multi-Take ============
+     Rôle Storage : suivi de la réplication de PLUSIEURS sessions et Takes,
+     groupés par session (activité récente en tête), Takes repliables. Aucun
+     contrôle ; l'état vient des FAITS remontés par le service de transfert et
+     du flux START. -->
+<section id="panel-storage" class="screen st-screen">
+  <header class="card glass strong rounded-4 mb-2">
+    <div class="card-body p-3">
+      <div class="small text-uppercase muted">Storage</div>
+      <div class="fw-semibold fs-3" id="stDeviceName">—</div>
+      <div class="small muted mt-1">
+        <i class="fa-solid fa-hard-drive me-1"></i><span id="stFree"></span>
+        <i class="fa-solid fa-network-wired ms-2 me-1"></i><span id="stNetwork"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="st-sessions accordion" id="stSessions"></div>
 </section>
 
 <section id="panel-countdown" class="screen cd-screen">
@@ -812,6 +833,9 @@
 <script src="js/ui/countdown.js"></script>
 <!-- Écran 09 minimal (J10) : panneau « Take arrêté » après un STOP global. -->
 <script src="js/ui/take-stopped.js"></script>
+<!-- Vue Storage 07 (J11) : projection pure puis rendu DOM multi-session/Take. -->
+<script src="js/ui/storage-view-model.js"></script>
+<script src="js/ui/storage-view.js"></script>
 <script src="js/ui/settings.js"></script>
 <script src="js/main.js"></script>
 </body>

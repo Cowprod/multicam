@@ -1,0 +1,92 @@
+/* MultiCam — vue Storage 07 (J11) : supervision multi-session / multi-Take.
+ * Mise en page seule (couleurs/cartes via css/app.css). Opaque par-dessus la
+ * preview native (fond permanent §35.1), comme l'écran 09. */
+
+.st-screen {
+  background: var(--bs-body-bg, #0b1020);
+}
+
+.st-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.st-session-head {
+  padding: .6rem .85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.st-session-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+}
+
+.st-session-body {
+  padding: 0 .5rem .5rem;
+}
+
+.st-take {
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.st-take:first-child {
+  border-top: 0;
+}
+
+.st-take-head {
+  padding: .6rem .35rem;
+}
+
+.st-take-toggle {
+  background: transparent;
+  color: inherit;
+}
+
+.st-take-body {
+  padding: 0 .35rem .5rem 1.6rem;
+}
+
+.st-expected {
+  margin-bottom: .35rem;
+}
+
+.status-badge {
+  min-width: 92px;
+  text-align: center;
+}
+
+.st-device {
+  padding: .35rem 0;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.st-device:first-child {
+  border-top: 0;
+}
+
+.st-device-name {
+  font-weight: 500;
+}
+
+.st-device-progress {
+  height: 7px;
+  margin-top: .25rem;
+  background: rgba(255, 255, 255, .12);
+}
+
+.st-segs {
+  margin-top: .25rem;
+  padding-left: .75rem;
+}
+
+.st-seg {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .1rem 0;
+}

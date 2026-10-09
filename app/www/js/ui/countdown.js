@@ -290,7 +290,12 @@
   function route(v) {
     if (!v || !v.active) return "";
     var isFull = v.isMaster || v.isCapture;         /* le Storage garde son écran */
-    if (!isFull) return "";
+    if (!isFull) {
+      /* J11 : un Storage garde son interface de supervision multi-Take (vue 07),
+       * JAMAIS de countdown plein écran (README 07 — « Vue Storage »). */
+      if (v.isStorage && !v.isCapture && !v.isMaster) return "storage";
+      return "";
+    }
     if (v.phase === "COUNTDOWN") {
       if (v.countdownSeconds > 0 && !v.excluded) return "countdown";
       /* countdown 0 s : écran 07 ENTIÈREMENT sauté (UI 07) */

@@ -1,12 +1,27 @@
 /* MultiCam J11 — bootstrap du transfert média.
  *
  * Assemble les pièces (modèle pur + service + briques natives) et les câble au
- * monde réel : rôles du device, session/take courants (Storage sélectionnés,
+ * monde réel : rôles du device, sessions/takes suivis (Storage sélectionnés,
  * réglages), transport WS, et déclenchement après STOP.
  *
  * Rôle du device (v1, priorité) : controller → master, capture → capture,
  * sinon storage. Un device multi-rôle (Master ET Storage) n'est pas géré par ce
  * bootstrap — un log explicite le signale.
+ *
+ * ---------- J11-UI-CONFORMANCE : registre multi-(session, take) ----------
+ *
+ * Une vue Storage validée (`ui/07-countdown/storage.html`) suit PLUSIEURS
+ * sessions et plusieurs Takes SIMULTANÉMENT. Le premier assemblage ne tenait
+ * qu'UNE machine : la réception d'un take N+1 écrasait le take N (perte de
+ * progression, offre écrasée). On tient donc désormais un REGISTRE indexé par
+ * « sid|take », et chaque entrée possède sa PROPRE machine/service — le
+ * modèle fige l'en-tête de session à sa création, une machine ne peut donc pas
+ * servir deux Takes. Aucune donnée partagée n'est dupliquée : les entrées
+ * lisent les MÊMES dépendances injectées (WS, store, natif).
+ *
+ * `viewFor(sid, take)` / `views()` exposent le registre à la vue Storage ;
+ * `view()`/`_machine()` restent le Take PRIMAIRE (dernier assemblé) pour
+ * l'écran 09 et le retry, qui restent mono-Take par nature.
  *
  * Déclenchement Capture : à chaque révision de la vue START, dès que le Take
  * local est STOPPED (le service START publie `localStoppedTake`), la Capture
@@ -38,6 +53,8 @@
     return i >= 0 ? s.slice(i + 1) : s;
   }
 
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
+
   function createTransferBoot(deps) {
     deps = deps || {};
     var cfg = deps.cfg || {};
@@ -52,27 +69,32 @@
     var log = deps.log || function (l) { if (root.console) console.log(l); };
 
     var role = roleFor(cfg);
-    var machine = null;
-    var service = null;
+    var entries = {};      /* "sid|take" -> { sid, takeNumber, take, machine, service, loading } */
+    var primary = null;    /* entrée du Take le plus récemment assemblé */
     var bound = false;
-    var builtFor = ""; /* "sid|take" de la machine courante */
-
-    /* Contexte courant (session + take) : source unique des Storage/réglages. */
-    var ctx = { sid: "", takeNumber: 0, take: null, loading: false };
-    var announced = {};   /* "sid|take" -> true */
-    var pausedOffers = {}; /* sourceDeviceId -> offre en attente (garde REC) */
+    var announced = {};    /* "sid|take" -> true */
+    var pausedOffers = {}; /* "sid|take|src" -> offre en attente (garde REC) */
     var listeners = [];    /* fn() appelés à chaque changement de l'état transfert */
+
+    function keyOf(sid, take) { return String(sid) + "|" + String(take); }
+
+    function selfDid() {
+      var svc = startService();
+      return (svc && svc.selfDid && svc.selfDid()) || cfg.deviceId || "";
+    }
+
+    /* ---------- transport ---------- */
 
     function sendOnWs(kind, extra) {
       var w = ws();
-      var sid = (extra && extra.sessionId) || ctx.sid;
+      var sid = (extra && extra.sessionId) || (primary && primary.sid) || "";
       if (!w || typeof w.broadcastTargeted !== "function" || !sid) return;
       w.broadcastTargeted(kind, { sessionId: sid }, extra);
     }
 
     function sendToWs(did, kind, extra) {
       var w = ws();
-      var sid = (extra && extra.sessionId) || ctx.sid;
+      var sid = (extra && extra.sessionId) || (primary && primary.sid) || "";
       if (!w || typeof w.sendToDevice !== "function" || !sid) return;
       w.sendToDevice(did, { sessionId: sid }, kind, extra);
     }
@@ -128,65 +150,63 @@
       });
     }
 
-    /* ---------- contexte session/take ---------- */
+    /* ---------- registre session/take ---------- */
 
-    function takeOfSession(s) {
-      if (!s || !Array.isArray(s.takes) || !s.takes.length) return null;
-      var tm = takeModel();
-      if (tm && typeof tm.takeAt === "function") {
-        return tm.takeAt(s.takes, ctx.takeNumber) || s.takes[s.takes.length - 1];
+    function entryOf(sid, takeNumber) {
+      var k = keyOf(sid, takeNumber);
+      if (!entries[k]) {
+        entries[k] = { sid: sid, takeNumber: takeNumber, take: null, machine: null, service: null, loading: null };
       }
-      return s.takes[s.takes.length - 1];
+      return entries[k];
     }
 
-    function loadCtx(sid, takeNumber) {
+    /* Charge (une fois) le Take d'une session depuis le store, sans écraser les
+     * autres entrées — c'est ce qui permet de suivre plusieurs Takes. */
+    function loadEntry(sid, takeNumber) {
       if (!sid) return Promise.resolve(null);
-      if (ctx.sid === sid && ctx.takeNumber === takeNumber && ctx.take) return Promise.resolve(ctx.take);
-      if (ctx.loading) return Promise.resolve(ctx.take);
+      var e = entryOf(sid, takeNumber);
+      if (e.take) return Promise.resolve(e.take);
+      if (e.loading) return e.loading;
       var store = sessionStore();
       if (!store || typeof store.get !== "function") return Promise.resolve(null);
-      ctx.loading = true;
-      ctx.sid = sid;
-      ctx.takeNumber = takeNumber || ctx.takeNumber;
-      return Promise.resolve(store.get(sid)).then(function (s) {
-        ctx.take = takeOfSession(s);
-        ctx.loading = false;
-        return ctx.take;
-      }).catch(function () { ctx.loading = false; return null; });
+      e.loading = Promise.resolve(store.get(sid)).then(function (s) {
+        var takes = (s && s.takes) || [];
+        var tm = takeModel();
+        e.take = (tm && typeof tm.takeAt === "function")
+          ? (tm.takeAt(takes, takeNumber) || takes[takes.length - 1] || null)
+          : (takes[takes.length - 1] || null);
+        e.loading = null;
+        return e.take;
+      }).catch(function () { e.loading = null; return null; });
+      return e.loading;
     }
 
-    /* ---------- deps modèle/service ---------- */
+    /* ---------- assemblage par entrée ---------- */
 
-    function buildMachine() {
+    function buildMachine(e) {
       return modelMod().createMachine({
-        role: role, sid: ctx.sid, self: function () {
-          var svc = startService();
-          return svc && svc.selfDid ? svc.selfDid() : (cfg.deviceId || "");
-        },
-        takeNumber: ctx.takeNumber,
+        role: role, sid: e.sid, self: selfDid,
+        takeNumber: e.takeNumber,
         log: log, send: sendOnWs, sendTo: sendToWs
       });
     }
 
-    function buildService() {
+    function buildService(e) {
       return serviceMod().createTransferService({
-        model: machine,
+        model: e.machine,
         native: nativeApi(),
         role: role,
-        self: function () {
-          var svc = startService();
-          return svc && svc.selfDid ? svc.selfDid() : (cfg.deviceId || "");
-        },
+        self: selfDid,
         log: log,
         take: function () {
           return {
-            sessionId: ctx.sid,
-            takeNumber: ctx.takeNumber,
-            storages: (ctx.take && ctx.take.storages) || []
+            sessionId: e.sid,
+            takeNumber: e.takeNumber,
+            storages: (e.take && e.take.storages) || []
           };
         },
         settings: function () {
-          var st = (ctx.take && ctx.take.settings) || {};
+          var st = (e.take && e.take.settings) || {};
           return {
             transferAuto: st.transferAuto !== false,
             deleteLocalAfterVerifiedReplication: st.deleteLocalAfterVerifiedReplication !== false
@@ -199,25 +219,22 @@
         },
         deleteLocal: deleteLocalFiles,
         generateToken: function () {
-          var did = (startService() && startService().selfDid && startService().selfDid()) || cfg.deviceId || "mc";
-          return did + "-" + Date.now().toString(36);
+          return selfDid() ? (selfDid() + "-" + Date.now().toString(36)) : ("mc-" + Date.now().toString(36));
         }
       });
     }
 
-    /* ---------- assemblage paresseux ---------- */
-
-    /* Construit (ou reconstruit) machine+service pour le Take courant. Le
-     * modèle fige sid/takeNumber à sa création : toute bascule de session/take
-     * impose de réassembler pour que les messages portent le bon en-tête. */
-    function ensure() {
-      var k = ctx.sid + "|" + ctx.takeNumber;
-      if (machine && service && builtFor === k) return service;
-      machine = buildMachine();
-      service = buildService();
-      builtFor = k;
-      log("TRANSFER_BOOT_READY role=" + role + " sid=" + ctx.sid + " take=" + ctx.takeNumber);
-      return service;
+    /* Assemble (ou rend) la machine+service d'un Take. Le registre évite tout
+     * doublon : une même entrée n'est assemblée qu'une fois. */
+    function ensureFor(sid, takeNumber) {
+      var e = entryOf(sid, takeNumber);
+      if (!e.machine || !e.service) {
+        e.machine = buildMachine(e);
+        e.service = buildService(e);
+        log("TRANSFER_BOOT_READY role=" + role + " sid=" + sid + " take=" + takeNumber);
+      }
+      primary = e;
+      return e.service;
     }
 
     /* ---------- notification UI ---------- */
@@ -233,11 +250,11 @@
     function maybeCaptureAnnounce(v) {
       if (role !== "capture") return Promise.resolve(null);
       if (!v || !v.localStoppedTake) return Promise.resolve(null);
-      var key = ctx.sid + "|" + ctx.takeNumber;
+      var key = keyOf(v.sid, v.takeNumber);
       if (announced[key]) return Promise.resolve(null);
       announced[key] = true;
-      log("TRANSFER_ANNOUNCE_TRIGGER sessionId=" + ctx.sid + " take=" + ctx.takeNumber);
-      return Promise.resolve(ensure().captureAnnounce()).catch(function (e) {
+      log("TRANSFER_ANNOUNCE_TRIGGER sessionId=" + v.sid + " take=" + v.takeNumber);
+      return Promise.resolve(ensureFor(v.sid, v.takeNumber).captureAnnounce()).catch(function (e) {
         announced[key] = false;
         log("TRANSFER_ANNOUNCE_ERROR " + String((e && e.message) || e));
         return null;
@@ -246,18 +263,23 @@
 
     function onStartView(v) {
       if (!v || !v.sid) return Promise.resolve(null);
-      return loadCtx(v.sid, v.takeNumber).then(function () {
-        ensure();
+      var take = v.takeNumber || 0;
+      return loadEntry(v.sid, take).then(function () {
+        ensureFor(v.sid, take);
         return maybeCaptureAnnounce(v);
       });
     }
 
-    /* Rejoue les téléchargements mis en pause par la garde RECORDING. */
+    /* Rejoue les téléchargements mis en pause par la garde RECORDING. Chaque
+     * offre est routée vers SON Take (registre), jamais vers le Take primaire. */
     function resumePaused() {
-      Object.keys(pausedOffers).forEach(function (src) {
-        var offer = pausedOffers[src];
-        delete pausedOffers[src];
-        ensure().storageRun(offer);
+      Object.keys(pausedOffers).forEach(function (pk) {
+        var offer = pausedOffers[pk];
+        delete pausedOffers[pk];
+        var take = isNum(offer.takeNumber) ? offer.takeNumber : 0;
+        Promise.resolve(loadEntry(offer.sessionId, take)).then(function () {
+          ensureFor(offer.sessionId, take).storageRun(offer);
+        });
       });
       notify();
     }
@@ -266,20 +288,21 @@
 
     function onTransferMessage(env) {
       if (!env || !env.sessionId) return Promise.resolve(false);
+      var take = isNum(env.takeNumber) ? env.takeNumber
+        : ((primary && primary.sid === env.sessionId) ? primary.takeNumber : 0);
       /* Garde RECORDING : une offre reçue pendant un Take est mise en attente et
        * rejouée à la fin du Take (voir resumePaused) — on n'engage même pas le
        * téléchargement. */
       if (role === "storage" && env.kind === "transfer_offer") {
         var svc = startService();
-        var rec = !!(svc && svc.isRecording && svc.isRecording());
-        if (rec) {
-          pausedOffers[env.sourceDeviceId] = env;
+        if (svc && svc.isRecording && svc.isRecording()) {
+          pausedOffers[keyOf(env.sessionId, take) + "|" + env.sourceDeviceId] = env;
           log("TRANSFER_PAUSE source=" + env.sourceDeviceId + " reason=recording");
           return Promise.resolve(false);
         }
       }
-      return loadCtx(env.sessionId, env.takeNumber).then(function () {
-        return ensure().handle(env);
+      return loadEntry(env.sessionId, take).then(function () {
+        return ensureFor(env.sessionId, take).handle(env);
       }).then(function (ok) {
         notify();
         return ok;
@@ -307,33 +330,55 @@
 
     /* ---------- API UI ---------- */
 
-    /* Vue agrégée pour l'écran 09 / la vue Storage : sources + transferts. */
+    function emptyView(sid, takeNumber) {
+      return { sid: sid || "", takeNumber: takeNumber || 0, transfers: {}, sources: {} };
+    }
+
+    /* Vue du Take PRIMAIRE (écran 09, mono-Take). */
     function view() {
-      if (!machine) return { sid: ctx.sid, takeNumber: ctx.takeNumber, transfers: {}, sources: {} };
-      return machine.view();
+      if (!primary || !primary.machine) return emptyView();
+      return primary.machine.view();
+    }
+
+    /* Vue d'un Take précis (vue Storage multi-Take), ou null si inconnu. */
+    function viewFor(sid, takeNumber) {
+      var e = entries[keyOf(sid, takeNumber)];
+      return (e && e.machine) ? e.machine.view() : null;
+    }
+
+    /* Toutes les entrées connues (pour la vue Storage). Lecture seule. */
+    function views() {
+      return Object.keys(entries).map(function (k) {
+        var e = entries[k];
+        return { sid: e.sid, takeNumber: e.takeNumber, view: e.machine ? e.machine.view() : emptyView(e.sid, e.takeNumber) };
+      });
     }
 
     /* Réessai manuel : ré-émet l'offre du Master pour une source donnée. */
     function retry(sourceDeviceId) {
-      if (role !== "master") return [];
-      return service.masterOffer(sourceDeviceId);
+      if (role !== "master" || !primary || !primary.service) return [];
+      return primary.service.masterOffer(sourceDeviceId);
     }
 
     return {
       bind: bind,
       view: view,
+      viewFor: viewFor,
+      views: views,
       retry: retry,
       role: function () { return role; },
       onChange: function (fn) { if (typeof fn === "function" && listeners.indexOf(fn) < 0) listeners.push(fn); },
       offChange: function (fn) { var i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); },
-      _ctx: ctx,
-      _loadCtx: loadCtx,
+      _entries: function () { return entries; },
+      _primary: function () { return primary; },
+      _loadEntry: loadEntry,
+      _ensureFor: ensureFor,
       _onStartView: onStartView,
       _onTransferMessage: onTransferMessage,
       _resumePaused: resumePaused,
       _maybeCaptureAnnounce: maybeCaptureAnnounce,
-      _machine: function () { return machine; },
-      _service: function () { return service; }
+      _machine: function () { return primary ? primary.machine : null; },
+      _service: function () { return primary ? primary.service : null; }
     };
   }
 

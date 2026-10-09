@@ -65,15 +65,24 @@
 
   /* Noms des Storage du plan courant : did -> deviceName. */
   function storageNames() {
-    var svc = global.MultiCamStartService;
-    var machine = (svc && typeof svc.machine === "function") ? svc.machine() : null;
-    var plan = (machine && machine.state) ? machine.state.plan : null;
-    var parts = (plan && Array.isArray(plan.participants)) ? plan.participants : [];
+    var parts = planParticipants();
     var map = {};
     parts.forEach(function (p) {
       if (p && p.role === "storage") map[p.deviceId] = p.deviceName || p.deviceId;
     });
     return map;
+  }
+
+  function planParticipants() {
+    var svc = global.MultiCamStartService;
+    var machine = (svc && typeof svc.machine === "function") ? svc.machine() : null;
+    var plan = (machine && machine.state) ? machine.state.plan : null;
+    return (plan && Array.isArray(plan.participants)) ? plan.participants : [];
+  }
+
+  /* Storage attendus du plan, dans l'ordre du plan (jamais celui des transferts). */
+  function planStorages() {
+    return planParticipants().filter(function (p) { return p && p.role === "storage"; });
   }
 
   /* État d'une destination → libellé simple + classe. */
@@ -89,27 +98,39 @@
 
   /* J11 — barres PURES d'une Capture : une par Storage attendu. La progression
    * vient des FAITS remontés par les Storage (modèle de transfert), jamais d'un
-   * timer local. Une réplication terminée reste visible à 100 %. */
-  function barsOf(v, tv, names) {
+   * timer local. Une réplication terminée reste visible à 100 %. Si la Capture
+   * est HORS LIGNE avant d'avoir commencé (aucun transfert connu), on affiche
+   * quand même les Storage attendus, en attente (README 09 §4). */
+  function barsOf(v, tv, names, offline) {
     var out = [];
     tv = tv || transferView();
-    if (!v || !tv || !tv.transfers) return out;
     names = names || storageNames();
-    Object.keys(tv.transfers).sort().forEach(function (k) {
-      var t = tv.transfers[k];
-      if (!t || t.sourceDeviceId !== v.deviceId) return;
-      var st = barState(t.state);
-      var meta;
-      if (t.state === "done") meta = fmtBytes(t.total) + " / " + fmtBytes(t.total) + " · Terminé";
-      else if (t.state === "error") meta = fmtBytes(t.bytes) + " / " + fmtBytes(t.total) + " · interrompu à " + t.percent + " %";
-      else if (t.state === "pending") meta = "0 / " + fmtBytes(t.total);
-      else meta = fmtBytes(t.bytes) + " / " + fmtBytes(t.total) + " · " + t.percent + " %";
+    if (v && tv && tv.transfers) {
+      Object.keys(tv.transfers).sort().forEach(function (k) {
+        var t = tv.transfers[k];
+        if (!t || t.sourceDeviceId !== v.deviceId) return;
+        var st = barState(t.state);
+        var meta;
+        if (t.state === "done") meta = fmtBytes(t.total) + " / " + fmtBytes(t.total) + " · Terminé";
+        else if (t.state === "error") meta = fmtBytes(t.bytes) + " / " + fmtBytes(t.total) + " · interrompu à " + t.percent + " %";
+        else if (t.state === "pending") meta = "0 / " + fmtBytes(t.total);
+        else meta = fmtBytes(t.bytes) + " / " + fmtBytes(t.total) + " · " + t.percent + " %";
+        out.push({
+          storageDeviceId: t.storageDeviceId,
+          name: names[t.storageDeviceId] || t.storageDeviceId,
+          state: t.state, stateText: st.text, barClass: st.cls,
+          percent: t.state === "done" ? 100 : t.percent,
+          meta: meta, retry: t.state === "error"
+        });
+      });
+    }
+    if (out.length || !offline) return out;
+    planStorages().forEach(function (p) {
       out.push({
-        storageDeviceId: t.storageDeviceId,
-        name: names[t.storageDeviceId] || t.storageDeviceId,
-        state: t.state, stateText: st.text, barClass: st.cls,
-        percent: t.state === "done" ? 100 : t.percent,
-        meta: meta, retry: t.state === "error"
+        storageDeviceId: p.deviceId,
+        name: p.deviceName || p.deviceId,
+        state: "pending", stateText: "En attente", barClass: "",
+        percent: 0, meta: "En attente", retry: false
       });
     });
     return out;
@@ -117,44 +138,77 @@
 
   var state = { sid: null, bound: false };
 
-  /* Lignes PURES : une ligne = { deviceId, name, state, stateClass, deltaText,
-   * path, incident }. Ordre = ordre du plan (jamais celui de la connectivité). */
+  /* Lignes PURES : une ligne = { deviceId, name, state, stateText, stateClass,
+   * deltaText, path, offline, bars }. L'état est DÉRIVÉ des réplications (README
+   * 09 §2) : Erreur > Terminé > Transfert > En attente (dont Capture hors ligne,
+   * §4) > Préparation. Ordre = ordre du plan, jamais celui de la connectivité. */
   function rowsOf(v) {
     var out = [];
     if (!v || !v.active) return out;
-    var svc = global.MultiCamStartService;
-    var machine = (svc && typeof svc.machine === "function") ? svc.machine() : null;
-    var plan = (machine && machine.state) ? machine.state.plan : null;
-    var participants = (plan && Array.isArray(plan.participants)) ? plan.participants : [];
+    var participants = planParticipants();
     var states = v.stopStates || {};
     var incidents = v.stopIncidents || {};
+    var tv = transferView();
+    var names = storageNames();
     participants.forEach(function (p) {
       if (!p || p.role !== "capture") return;
       var st = states[p.deviceId];
       var incident = !st && !!incidents[p.deviceId];
+      var offline = !st;   /* aucune finalisation reçue : indisponible/attente */
+      var bars = barsOf({ deviceId: p.deviceId }, tv, names, offline);
+      var anyError = bars.some(function (b) { return b.state === "error"; });
+      var allDone = bars.length > 0 && bars.every(function (b) { return b.state === "done"; });
+      var anyRun = bars.some(function (b) { return b.state === "transferring" || b.state === "verifying"; });
+      var anyPending = bars.some(function (b) { return b.state === "pending"; });
+      var simple;
+      if (anyError) simple = { state: "ERROR", text: "Erreur", cls: "st-error" };
+      else if (allDone) simple = { state: "DONE", text: "Terminé", cls: "st-stopped" };
+      else if (anyRun) simple = { state: "TRANSFER", text: "Transfert", cls: "st-warning" };
+      else if (offline || anyPending) simple = { state: "WAITING", text: "En attente", cls: "st-warning" };
+      else simple = { state: "PREPARING", text: "Préparation", cls: "st-warning" };
       out.push({
         deviceId: p.deviceId,
         name: p.deviceName || p.deviceId,
-        state: st ? "STOPPED" : (incident ? "INCIDENT" : "WAITING"),
-        stateClass: st ? "st-stopped" : (incident ? "st-error" : "st-warning"),
+        state: simple.state,
+        stateText: simple.text,
+        stateClass: simple.cls,
         deltaText: st ? fmtDelta(st.deltaMs) : "—",
         path: st ? baseName(st.path) : "",
-        incident: incident
+        incident: incident,
+        offline: offline,
+        offlineText: offline ? ("En attente de " + (p.deviceName || p.deviceId)) : "",
+        bars: bars
       });
     });
     return out;
   }
 
+  /* État global du Take (README 09 §1) : Erreur si une réplication est en
+   * erreur ; Terminé quand toutes les réplications sont terminées/vérifiées (ou,
+   * sans Storage, quand toutes les Captures ont finalisé) ; sinon Transferts en
+   * cours. Aucune progression globale (§1). */
+  function takeStateOf(rows) {
+    if (!rows.length) return { text: "Transferts en cours", cls: "text-warning" };
+    var anyError = rows.some(function (r) { return r.state === "ERROR"; });
+    if (anyError) return { text: "Erreur", cls: "text-danger" };
+    var allDone = rows.every(function (r) { return r.state === "DONE"; });
+    if (allDone) return { text: "Terminé", cls: "text-success" };
+    var noStorages = planStorages().length === 0;
+    var allFinalized = rows.every(function (r) { return !r.offline; });
+    if (noStorages && allFinalized) return { text: "Terminé", cls: "text-success" };
+    return { text: "Transferts en cours", cls: "text-warning" };
+  }
+
   function view(v) {
     v = v || {};
     var rows = rowsOf(v);
-    var tv = transferView();
-    var names = storageNames();
-    rows.forEach(function (r) { r.bars = barsOf(r, tv, names); });
+    var ts = takeStateOf(rows);
     return {
       sessionName: v.sessionName || "",
       takeLabel: v.takeNumber ? "Take " + String(v.takeNumber).padStart(3, "0") : "Take —",
       durationText: hms(v.stopDurationMs || v.recElapsedMs || 0),
+      takeStateText: ts.text,
+      takeStateClass: ts.cls,
       rows: rows,
       empty: rows.length === 0
     };
@@ -173,14 +227,17 @@
     stateEl.dataset.state = row.state;
     var delta = el("span", "ts-row-delta");
     var path = el("span", "ts-row-path small muted");
+    var offline = el("div", "ts-row-offline alert alert-secondary py-2 px-3 small");
+    offline.classList.add("d-none");
     meta.appendChild(stateEl);
     meta.appendChild(delta);
     root.appendChild(name);
     root.appendChild(meta);
     root.appendChild(path);
+    root.appendChild(offline);
     var bars = el("div", "ts-bars");
     root.appendChild(bars);
-    return { root: root, name: name, state: stateEl, delta: delta, path: path, bars: bars, barsMap: {} };
+    return { root: root, name: name, state: stateEl, delta: delta, path: path, offline: offline, bars: bars, barsMap: {} };
   }
 
   function makeBar(srcDid, bar) {
@@ -243,11 +300,14 @@
     var cls = "ts-row-state " + row.stateClass;
     if (node.state.className !== cls) node.state.className = cls;
     if (node.state.dataset.state !== row.state) node.state.dataset.state = row.state;
-    if (node.state.textContent !== row.state) node.state.textContent = row.state;
+    if (node.state.textContent !== row.stateText) node.state.textContent = row.stateText;
     var delta = "écart " + row.deltaText;
     if (node.delta.textContent !== delta) node.delta.textContent = delta;
     if (node.path.textContent !== row.path) node.path.textContent = row.path;
     node.path.classList.toggle("d-none", !row.path);
+    /* Capture hors ligne (§4) : bandeau explicite, la carte reste visible. */
+    if (node.offline.textContent !== row.offlineText) node.offline.textContent = row.offlineText;
+    node.offline.classList.toggle("d-none", !row.offlineText);
     paintBars(node, row);
   }
 
@@ -257,6 +317,11 @@
     if (sX) sX.textContent = pv.sessionName || "—";
     var tX = byId("tsTake");
     if (tX) tX.textContent = pv.takeLabel;
+    var stX = byId("tsState");
+    if (stX) {
+      stX.textContent = pv.takeStateText;
+      stX.className = "small " + pv.takeStateClass;
+    }
     var dX = byId("tsDuration");
     if (dX) dX.textContent = pv.durationText;
     var list = byId("tsList");
@@ -290,9 +355,12 @@
     state.bound = true;
     var done = byId("tsDone");
     if (done) done.addEventListener("click", function () {
-      console.log("SCREEN09_DONE sessionId=" + (state.sid || "—"));
+      /* README 09 §7 : « Préparer le Take suivant » renvoie TOUJOURS vers la
+       * préparation (écran 05), même transferts en cours / Capture hors ligne /
+       * réplication en erreur — jamais bloqué par la finalisation. */
+      console.log("SCREEN09_NEXT_TAKE sessionId=" + (state.sid || "—"));
       if (global.MultiCamNav && typeof global.MultiCamNav.show === "function") {
-        global.MultiCamNav.show("arm", { sid: state.sid });
+        global.MultiCamNav.show("take", { sid: state.sid });
       }
     });
   }

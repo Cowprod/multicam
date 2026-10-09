@@ -41,7 +41,7 @@
 
   /* ---------- routeur panneaux (index.html monodocument) ---------- */
 
-  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown", "live", "take-stopped"];
+  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown", "live", "take-stopped", "storage"];
   var current = "home";
 
   function panelEl(name) { return document.getElementById("panel-" + name); }
@@ -93,6 +93,13 @@
          * prochain tick, quand son `stop_state` tardif arrive. */
         if (global.MultiCamTakeStoppedScreen) {
           global.MultiCamTakeStoppedScreen.show(appCfg, params || {});
+        }
+        break;
+      case "storage":
+        /* J11 : vue Storage (écran 07). Supervise PLUSIEURS sessions/Takes ;
+         * elle recharge les sessions du store puis re-rend. */
+        if (global.MultiCamStorageView) {
+          global.MultiCamStorageView.show(appCfg, params || {});
         }
         break;
       case "settings":
@@ -381,6 +388,12 @@
     if (current === "take-stopped" && global.MultiCamTakeStoppedScreen) {
       global.MultiCamTakeStoppedScreen.render(v);
     }
+    /* J11 : la vue Storage (écran 07) est re-rendue à chaque révision START
+     * tant qu'elle est ouverte — c'est ce qui fait vivre les badges
+     * countdown/REC des Takes, sans timer d'interface. */
+    if (current === "storage" && global.MultiCamStorageView) {
+      global.MultiCamStorageView.render();
+    }
     /* J09-05 : la mosaïque est alimentée par ce MÊME flux (200 ms), jamais par
      * un setInterval concurrent — c'est ce qui garantit que l'image, la
      * connectivité et le timer sont lus au même instant. */
@@ -436,6 +449,9 @@
       tboot.onChange(function () {
         if (current === "take-stopped" && global.MultiCamTakeStoppedScreen && global.MultiCamStartService) {
           global.MultiCamTakeStoppedScreen.render(global.MultiCamStartService.view());
+        }
+        if (current === "storage" && global.MultiCamStorageView) {
+          global.MultiCamStorageView.render();
         }
       });
     } else {
