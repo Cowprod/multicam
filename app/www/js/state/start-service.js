@@ -366,6 +366,18 @@
       sendStartState: function (sid, msg) { sendTargeted(sid, "start_state", msg); },
       sendStartCancel: function (sid, msg) { sendTargeted(sid, "start_cancel", msg); },
       sendStartProbe: function (sid, msg) { sendTargeted(sid, "start_probe", msg); },
+      /* J10 : STOP coordonné — mêmes canaux ciblés que le protocole START. */
+      sendStopRequest: function (sid, msg) { sendTargeted(sid, "stop_request", msg); },
+      sendStopState: function (sid, msg) { sendTargeted(sid, "stop_state", msg); },
+      /* Vivacité réelle d'un pair dans CETTE session : sert à lever un incident
+       * STOP à sa reconnexion (maquette ui/08 §6). Ne confond jamais liveness
+       * et état : un pair connecté sans stop_state reste en incident s'il ne
+       * répond pas (le levé n'a lieu qu'à la reconnexion constatée). */
+      peerConnected: function (did) {
+        if (!did || !ws() || typeof ws().connectedPeers !== "function") return false;
+        var peers = ws().connectedPeers(lastSession ? lastSession.sessionId : null) || {};
+        return !!peers[did];
+      },
       /* J09-03 : le sampler de preview démarre UNIQUEMENT après l'accusé natif
        * du REC (donc en phase REC effective) et s'arrête dès que le
        * `stopRecording` est appelé. Il ne touche pas au protocole WS et sa vie
@@ -566,6 +578,15 @@
     return Promise.resolve(m.stopLocal(reason || "emergency"));
   }
 
+  /* STOP global coordonné J10 : déclenché par le Master (bouton STOP de
+   * l'écran 08). Le modèle verrouille targetStopMs, diffuse le stop_request et
+   * exécute le top d'arrêt local. La preview (fond permanent §35.1) reste. */
+  function requestStop(reason) {
+    var m = machine();
+    if (!m) return Promise.reject(new Error("no_machine"));
+    return Promise.resolve(m.requestStop(reason || "master_stop"));
+  }
+
   /* Réévalue l'éligibilité locale (exclusion / réintégration). L'UI l'appelle
    * périodiquement pendant le countdown ; le modèle ne fait rien si la phase
    * ne l'exige pas (aucun effet de bord inutile). */
@@ -630,6 +651,7 @@
     requestStart: requestStart,
     cancel: cancel,
     stopLocal: stopLocal,
+    requestStop: requestStop,
     refreshReadiness: refreshReadiness,
     releaseIfIdle: releaseIfIdle,
     view: view,

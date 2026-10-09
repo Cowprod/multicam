@@ -41,7 +41,7 @@
 
   /* ---------- routeur panneaux (index.html monodocument) ---------- */
 
-  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown", "live"];
+  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown", "live", "take-stopped"];
   var current = "home";
 
   function panelEl(name) { return document.getElementById("panel-" + name); }
@@ -86,6 +86,14 @@
          * l'appelle quand même pour que l'ouverture soit immédiate et ne
          * dépende pas du prochain tick du modèle START. */
         syncLive(global.MultiCamStartService ? global.MultiCamStartService.view() : null);
+        break;
+      case "take-stopped":
+        /* J10 : panneau 09 minimal après un STOP global (régie). Il rend la vue
+         * du service START ; l'incident d'une Capture se lève tout seul au
+         * prochain tick, quand son `stop_state` tardif arrive. */
+        if (global.MultiCamTakeStoppedScreen) {
+          global.MultiCamTakeStoppedScreen.show(appCfg, params || {});
+        }
         break;
       case "settings":
         global.MultiCamSettings.show(appCfg);
@@ -307,6 +315,15 @@
       showPanel("arm", { sid: (v && v.sid) || null });
       return;
     }
+    /* J10 : plan réellement terminé (abort / nouvelle session) alors qu'on est
+     * sur le panneau 09 → retour ARM. Un simple STOP laisse `active=true`, donc
+     * c'est bien une fin de plan, jamais un arrêt, qui déclenche ce cas. */
+    if (current === "take-stopped") {
+      console.log("NAV_AUTO reason=plan_ended target=arm from=take-stopped"
+        + " sessionId=" + ((v && v.sid) || ""));
+      showPanel("arm", { sid: (v && v.sid) || null });
+      return;
+    }
     if (current !== "countdown") return;
     console.log("NAV_AUTO reason=plan_ended target=arm from=countdown"
       + " sessionId=" + ((v && v.sid) || (appCfg ? "?" : "?")));
@@ -358,6 +375,12 @@
     if (!v || !v.active) { onStartEnded(v); return; }
     /* Le rendu est toujours à jour, même quand on ne change pas de panneau. */
     if (current === "countdown") screen.render(v);
+    /* J10 : le panneau 09 est re-rendu à chaque révision tant qu'il est ouvert —
+     * c'est ce qui lève l'incident d'une Capture dès réception de son stop_state
+     * tardif, sans second timer ni polling. */
+    if (current === "take-stopped" && global.MultiCamTakeStoppedScreen) {
+      global.MultiCamTakeStoppedScreen.render(v);
+    }
     /* J09-05 : la mosaïque est alimentée par ce MÊME flux (200 ms), jamais par
      * un setInterval concurrent — c'est ce qui garantit que l'image, la
      * connectivité et le timer sont lus au même instant. */

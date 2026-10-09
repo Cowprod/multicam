@@ -43,6 +43,17 @@
  *  - STOP local d'urgence (post-top, aucun Master connecté) : confirmation
  *    obligatoire, n'arrête QUE la Capture locale, place la Capture en STOPPED
  *    local et interdit tout redémarrage dans le MÊME Take.
+ *  - STOP global coordonné (J10) : réservé aux Masters (tous égaux, §30.9).
+ *    Le Master verrouille un instant cible ABSOLU targetStopMs dans SON horloge
+ *    (now + STOP_LEAD_MS), le diffuse avec les MÊMES offsets J07 que le plan
+ *    (stop_request), chaque Capture l'exécute à SON top local
+ *    (localTargetStop = targetStop + offset) et publie un stop_state
+ *    (STOPPED, deltaMs, path). Idempotence par stopId (un seul STOP par plan),
+ *    AUCUN compte à rebours visible, session OUVERTE après STOP. Sans stop_state
+ *    avant targetStop + STOP_ACK_TIMEOUT_MS, le Master marque la Capture en
+ *    INCIDENT (levé par un stop_state tardif ou par la reconnexion du device).
+ *    Un device déjà STOPPED qui reçoit un stop_request pour ce Take répond par
+ *    un stop_state idempotent (late ack) — jamais un redémarrage.
  *  - UN SEUL START local par Take et par device : un plan concurrent pour un
  *    Take déjà démarré localement est REFUSÉ (START_PLAN_DROP
  *    reason=local_already_started) — c'est la barrière anti-double-REC.
@@ -60,7 +71,11 @@
  *   CAPTURE_REINTEGRATED, START_LOCAL, START_LOCAL_ERROR, START_NATIVE_ACK,
  *   START_CANCEL, START_CANCEL_REJECT, START_CANCEL_IGNORE, START_STOP_LOCAL,
  *   START_CLOCK_FRESHNESS, START_MASTER_LOST, START_PROBE, START_PROBE_IGNORE,
- *   START_PROBE_UNKNOWN.
+ *   START_PROBE_UNKNOWN,
+ *  et J10 (STOP coordonné) : STOP_REQUEST (format exigé par le plan :
+ *  sessionId / take), STOP_REQUEST_IGNORE, STOP_REQUEST_ACCEPTED, STOP_STATE,
+ *  STOP_LOCAL (format exigé par le plan : sessionId / take / actual), STOP_ACK,
+ *  STOP_INCIDENT, STOP_RECONNECTED, STOP_STATE_REPUBLISH, STOP_LOCAL_ERROR.
  *
  * Frontière de responsabilité : la PRÉPARATION caméra (démarrage du preview
  * natif exigé par CameraPreview.startRecordVideo) et l'arrêt de cette préparation
@@ -84,6 +99,8 @@
   var PROBE_TIMEOUT_MS = 600;        /* résolution d'offset d'un Master non participant */
   var CLOCK_FRESH_MAX_AGE_MS = 12000;/* fraîcheur J07 exigée pour verrouiller targetStart */
   var EARLY_TOLERANCE_MS = 2;        /* ré-armement si le timer JS sonne trop tôt */
+  var STOP_LEAD_MS = 500;            /* J10 : délai STRUCTUREL entre stop_request et targetStopMs */
+  var STOP_ACK_TIMEOUT_MS = 3000;    /* J10 : incident si pas de stop_state avant target + ce délai */
   var STARTABLE = { READY: true, WARNING: true };
   var PHASE_IDLE = "IDLE";
   var PHASE_COUNTDOWN = "COUNTDOWN";
@@ -198,9 +215,11 @@
    *   startRecording(req): Promise<{atMs, detail}>,
    *   stopRecording(): Promise<{atMs, detail}>,
    *   connectedMasters(sid): [deviceId],
-   *   sendStartPlan(session, plan), sendStartCancel(session, msg),
-   *   sendStartState(session, msg), sendStartProbe(session, msg),
-   *   log(line): void, onChange?(): void
+*   sendStartPlan(session, plan), sendStartCancel(session, msg),
+ *   sendStartState(session, msg), sendStartProbe(session, msg),
+ *   sendStopRequest(session, txn), sendStopState(session, stop_state),
+ *   peerConnected(did): bool,       // J10 : vivacité (incident levé à la reconnexion)
+ *   log(line): void, onChange?(): void
    * } */
   function createMachine(deps) {
     var now = deps.nowMs || function () { return 0; };
@@ -241,6 +260,18 @@
       noMasterSinceMs: 0,
       masterLostLogged: false,
       showEmergencyStop: false,
+      /* ---------- J10 : STOP coordonné ---------- */
+      stop: null,                 /* transaction STOP active : stopId, targetStopMs, offsets… */
+      stopLocalTargetMs: null,    /* top local d'arrêt (targetStopMs + offset local) */
+      stopError: "",
+      stopStates: {},             /* did -> stop_state reçu (STOPPED, deltaMs, path, actualMs) */
+      seenStopStates: {},         /* "did|stopId" -> true (idempotence des stop_state) */
+      seenStops: {},              /* stopId -> true (idempotence des stop_request) */
+      stopIncidents: {},          /* did -> true (pas de stop_state avant le timeout d'ack) */
+      stopExecuted: false,
+      stopTimer: null,
+      stopAckTimer: null,
+      localStopInfo: null,        /* résultat du STOP local / coordonné (républ. idempotente) */
       tickTimer: null,
       topTimer: null,
       probeTimer: null,
@@ -285,6 +316,8 @@
       if (state.tickTimer) { clearSched(state.tickTimer); state.tickTimer = null; }
       if (state.topTimer) { clearSched(state.topTimer); state.topTimer = null; }
       if (state.probeTimer) { clearSched(state.probeTimer); state.probeTimer = null; }
+      if (state.stopTimer) { clearSched(state.stopTimer); state.stopTimer = null; }
+      if (state.stopAckTimer) { clearSched(state.stopAckTimer); state.stopAckTimer = null; }
     };
 
     var peerCountMsg = function () {
@@ -364,6 +397,10 @@
         state.recElapsedMs = now() - state.recStartedAtMs;
         if (state.recElapsedMs !== elapsedBefore) notify = true;
         state.showEmergencyStop = state.isCapture && connectedMasters().length === 0;
+      } else if (state.phase === PHASE_STOPPED && state.stop) {
+        /* fenêtre ack encore couverte : un pair reconnecté sort de l'incident
+         * sans que son stop_state ne soit nécessairement re-spédié. */
+        if (clearReconnectedIncidents()) notify = true;
       }
       /* perte de TOUS les Masters : journalisée une fois, le plan local survit
        * (J08 : le départ est déjà programmé, rien ne l'annule implicitement). */
@@ -376,7 +413,8 @@
           + " countdownContinues=1");
       }
       if (notify) bump();
-      if (state.phase === PHASE_COUNTDOWN || state.phase === PHASE_REC) scheduleTick();
+      if (state.phase === PHASE_COUNTDOWN || state.phase === PHASE_REC
+        || (state.phase === PHASE_STOPPED && stopAckWindowOpen())) scheduleTick();
     };
 
     function connectedMasters() {
@@ -384,6 +422,44 @@
       var arr = deps.connectedMasters(state.sid) || [];
       return arr.filter(function (d) { return d !== self(); });
     }
+
+    /* ---------- J10 : fenêtre d'acquittement du STOP ----------
+     *
+     * `stopAckWindowOpen()` borne la surveillance après un STOP coordonné : la
+     * Capture est toujours en train d'exécuter son top d'arrêt. Tant qu'elle
+     * dure, le tick reste programmé même en phase STOPPED (c'est sa seule
+     * exception au « plus de tick après le top »).
+     * `clearReconnectedIncidents()` honore la règle de la maquette (§6) : une
+     * Capture qui ne confirme pas son STOP reste marquée « incident » jusqu'à
+     * son STOP tardif OU sa reconnexion. Une reconnexion constatée lève
+     * l'incident sans jamais tenter un redémarrage. */
+    function stopAckWindowOpen() {
+      var t = state.stop;
+      if (!t) return false;
+      /* La fenêtre reste ouverte tant qu'un incident n'est pas résolu : c'est
+       * le seul tick qui « veille » sur le retour d'une Capture. Sinon, un
+       * incident né à l'échéance exacte (`now >= targetStop + timeout`) ne
+       * pourrait JAMAIS être levé par reconnexion — aucun tick ne
+       * s'exécuterait après. La surveillance s'arrête donc d'elle-même dès
+       * que plus aucun incident ne subsiste (ou à la fin du plan). */
+      if (Object.keys(state.stopIncidents).length > 0) return true;
+      return now() < t.targetStopMs + STOP_ACK_TIMEOUT_MS;
+    }
+
+    var clearReconnectedIncidents = function () {
+      var changed = false;
+      Object.keys(state.stopIncidents).forEach(function (did) {
+        if (state.stopStates[did]) { delete state.stopIncidents[did]; changed = true; return; }
+        if (deps.peerConnected && deps.peerConnected(did)) {
+          delete state.stopIncidents[did];
+          changed = true;
+          log("STOP_RECONNECTED deviceId=" + self()
+            + " stopId=" + String(state.stop && state.stop.stopId)
+            + " peer=" + did + " note=incident_leve");
+        }
+      });
+      return changed;
+    };
 
     var autoCancelIfNone = function () {
       if (!state.plan || state.topFired) return;
@@ -482,6 +558,17 @@
       state.seenStates = {};
       state.planCompleteLogged = false;
       state.masterLostLogged = false;
+      /* J10 : tout plan (futur) part sans STOP résiduel. Un nouveau Take peut
+       * ainsi remplacer un plan STOPPED et repartir de zéro. */
+      state.stop = null;
+      state.stopLocalTargetMs = null;
+      state.stopError = "";
+      state.stopStates = {};
+      state.seenStopStates = {};
+      state.seenStops = {};
+      state.stopIncidents = {};
+      state.stopExecuted = false;
+      state.localStopInfo = null;
       log("START_PLAN_ACCEPTED deviceId=" + self() + " startPlanId=" + plan.startPlanId
         + " sessionId=" + plan.sessionId + " take=" + plan.takeNumber
         + " leader=" + (state.leader ? 1 : 0) + " countdown=" + plan.countdownSeconds
@@ -725,7 +812,346 @@
       state.topFired = false;
       state.planCompleteLogged = false;
       state.showEmergencyStop = false;
+      /* J10 : un plan abandonné (annulation, remplacement) n'emporte aucun STOP
+       * résiduel ; pour un arrêt propre, la phase reste STOPPED (keepPhase). */
+      state.stop = null;
+      state.stopLocalTargetMs = null;
+      state.stopError = "";
+      state.stopStates = {};
+      state.seenStopStates = {};
+      state.seenStops = {};
+      state.stopIncidents = {};
+      state.stopExecuted = false;
+      state.localStopInfo = null;
       bump();
+    };
+
+    /* ---------- J10 : STOP coordonné ----------
+     *
+     * Un STOP global (maquette ui/08 §4) est un MESSAGE, comme le cancel : il
+     * ne dépend d'aucun état local, donc un device qui ne l'a pas reçu n'est
+     * jamais bloqué dans son enregistrement par un Master absent. Tous les
+     * Masters sont égaux (§30.9 : n'importe lequel peut déclencher).
+     *
+     *  - stopId = startPlanId + "#stop" : UN SEUL STOP par plan, quel que soit
+     *    le Master qui l'émet (l'arbitrage est le même partout).
+     *  - targetStopMs est un instant ABSOLU dans l'horloge du CRÉATEUR, comme
+     *    targetStart en J08 ; chaque device exécute stopRecording à
+     *    localTargetStop = targetStopMs + offset(soi) (mêmes offsets J07 que
+     *    le plan : une seule source d'horloge).
+     *  - Chaque device participant publie un stop_state (STOPPED, actualMs,
+     *    deltaMs, path). Le Master qui a créé le STOP marque en INCIDENT toute
+     *    Capture sans stop_state avant targetStopMs + STOP_ACK_TIMEOUT_MS ;
+     *    l'incident est levé par un stop_state tardif ou par la reconnexion.
+     *  - Un device déjà STOPPED (urgence locale ou STOP reçu deux fois) répond à
+     *    un stop_request par un stop_state idempotent : jamais un redémarrage.
+     */
+
+    function stopFromPlan(reason) {
+      var plan = state.plan;
+      return {
+        stopId: String(plan.startPlanId) + "#stop",
+        startPlanId: plan.startPlanId,
+        takeNumber: plan.takeNumber,
+        targetStopMs: now() + STOP_LEAD_MS,
+        createdByDeviceId: self(),
+        clockOffsets: (plan && plan.clockOffsets) || {},
+        dispatchLeadMs: STOP_LEAD_MS,
+        reason: reason || "master_stop"
+      };
+    }
+
+    /* Offset de CE device dans une map { did: offsetMs } de convention
+     * C_local − C_createur ; le créateur vaut 0 par construction. */
+    function localOffsetIn(offsets) {
+      if (!offsets) return 0;
+      if (isNum(offsets[self()])) return offsets[self()];
+      return 0;
+    }
+
+    function localStopTargetMs(txn) {
+      if (!txn || !isNum(txn.targetStopMs)) return null;
+      return txn.targetStopMs + localOffsetIn(txn.clockOffsets);
+    }
+
+    var clearStopTimers = function () {
+      if (state.stopTimer) { clearSched(state.stopTimer); state.stopTimer = null; }
+      if (state.stopAckTimer) { clearSched(state.stopAckTimer); state.stopAckTimer = null; }
+    };
+
+    var publishStopState = function (txn, info) {
+      if (!state.plan || !deps.sendStopState) return;
+      if (txn && txn.startPlanId !== state.planId) return;
+      deps.sendStopState(state.sid, {
+        stopId: (txn && txn.stopId) || "",
+        startPlanId: state.planId,
+        takeNumber: state.plan.takeNumber,
+        deviceId: self(),
+        state: STATE_STOPPED,
+        actualMs: info.actualMs,
+        localTargetMs: info.localTargetMs,
+        deltaMs: info.deltaMs,
+        path: info.path || "",
+        reason: (txn && txn.reason) || info.reason || ""
+      });
+    };
+
+    var logStopLocal = function (takeNumber, info, txn, plan) {
+      var reason = String((txn && txn.reason) || info.reason || "user");
+      /* Ligne J08 conservée (parité de télémétrie avec la suite existante). */
+      log("START_STOP_LOCAL deviceId=" + self()
+        + " startPlanId=" + String((plan && plan.startPlanId) || "—")
+        + " take=" + takeNumber + " reason=" + reason
+        + " at=" + fmtClock(info.actualMs));
+      /* Ligne J10 exigée par le plan : sessionId / take / actual. */
+      var line = "STOP_LOCAL sessionId=" + state.sid + " take=" + takeNumber
+        + " actual=" + fmtClock(info.actualMs)
+        + " startPlanId=" + String((plan && plan.startPlanId) || "—")
+        + " stopId=" + String((txn && txn.stopId) || "—");
+      if (isNum(info.localTargetMs)) {
+        line += " localTarget=" + fmtClock(info.localTargetMs)
+          + " deltaMs=" + Math.round(info.deltaMs);
+      }
+      line += " path=" + (info.path || "—") + " reason=" + reason;
+      log(line);
+    };
+
+    /* Arrivée commune du STOP (coordonné ou urgence locale) : verrouille le
+     * Take en local, bascule en STOPPED EN CONSERVANT le plan (l'écran d'arrêt
+     * reste affichable, et le nouveau Take remplacera ensuite le plan) et
+     * publie le stop_state. `txn` est null pour une urgence locale. */
+    var enterStopped = function (info, txn) {
+      var plan = state.plan;
+      var takeNumber = plan ? plan.takeNumber : state.stoppedTakeNumber;
+      state.localStoppedTakes[takeNumber] = true;
+      state.stoppedTakeNumber = takeNumber;
+      state.phase = PHASE_STOPPED;
+      state.showEmergencyStop = false;
+      state.stopExecuted = true;
+      state.stopError = "";
+      state.localStopInfo = {
+        stopId: (txn && txn.stopId) || "",
+        actualMs: info.actualMs,
+        localTargetMs: info.localTargetMs,
+        deltaMs: info.deltaMs,
+        path: info.path || ""
+      };
+      state.stopStates[self()] = {
+        deviceId: self(),
+        state: STATE_STOPPED,
+        stopId: state.localStopInfo.stopId,
+        actualMs: info.actualMs,
+        localTargetMs: info.localTargetMs,
+        deltaMs: info.deltaMs,
+        path: info.path || "",
+        reason: (txn && txn.reason) || info.reason || ""
+      };
+      logStopLocal(takeNumber, info, txn, plan);
+      if (txn) publishStopState(txn, info);
+    };
+
+    /* Exécution de l'arrêt local à l'instant cible (top d'arrêt). */
+    var executeStop = function (txn) {
+      if (state.stopTimer) { clearSched(state.stopTimer); state.stopTimer = null; }
+      if (!state.plan || txn.startPlanId !== state.planId) return;
+      if (state.stopExecuted || state.phase === PHASE_STOPPED) return;
+      if (state.phase !== PHASE_REC) {
+        log("STOP_LOCAL deviceId=" + self() + " startPlanId=" + state.planId
+          + " take=" + txn.takeNumber + " at=" + fmtClock(now())
+          + " status=SKIPPED phase=" + state.phase);
+        return;
+      }
+      if (!state.isCapture) {
+        /* Master non participant : aucun media à finaliser. Son STOP_LOCAL est
+         * un OBSERVER (comme au START) — jamais un faux arrêt physique. */
+        enterStopped({ actualMs: now(), localTargetMs: null, deltaMs: null, path: "", reason: txn.reason }, txn);
+        bump();
+        return;
+      }
+      var txnId = txn.stopId;
+      var startPlanIdAtCall = state.planId;
+      var localTargetMs = state.stopLocalTargetMs;
+      if (!deps.stopRecording) {
+        log("STOP_LOCAL_ERROR deviceId=" + self() + " startPlanId=" + state.planId
+          + " stopId=" + txn.stopId + " reason=no_recorder");
+        state.stopError = "no_recorder";
+        bump();
+        return;
+      }
+      Promise.resolve(deps.stopRecording()).then(function (res) {
+        if (state.planId !== startPlanIdAtCall || !state.plan) {
+          log("STOP_NATIVE_ACK deviceId=" + self() + " stopId=" + txnId + " planAbandoned=1");
+          return;
+        }
+        var actualMs = (res && isNum(res.atMs)) ? res.atMs : now();
+        var deltaMs = isNum(localTargetMs) ? (actualMs - localTargetMs) : null;
+        enterStopped({
+          actualMs: actualMs,
+          localTargetMs: localTargetMs,
+          deltaMs: deltaMs,
+          path: (res && res.path) || "",
+          reason: txn.reason
+        }, txn);
+        bump();
+      }).catch(function (err) {
+        if (state.planId !== startPlanIdAtCall || !state.plan) return;
+        state.stopError = String((err && err.message) || err);
+        log("STOP_LOCAL_ERROR deviceId=" + self() + " startPlanId=" + state.planId
+          + " stopId=" + txn.stopId + " err=" + state.stopError);
+        bump();
+      });
+    };
+
+    /* Acquisition d'une transaction STOP (locale ou reçue). Idempotente par
+     * stopId : deux Masters concurrents convergent vers LE MÊME arrêt. */
+    var adoptStop = function (txn) {
+      if (!txn || !txn.stopId || !txn.startPlanId || !isNum(txn.targetStopMs)) {
+        log("STOP_REQUEST_IGNORE deviceId=" + self() + " reason=malformed");
+        return false;
+      }
+      if (state.seenStops[txn.stopId]) return false;
+      if (!state.plan || txn.startPlanId !== state.planId) {
+        log("STOP_REQUEST_IGNORE deviceId=" + self() + " stopId=" + txn.stopId
+          + " startPlanId=" + txn.startPlanId + " active=" + (state.planId || "none")
+          + " reason=plan_mismatch");
+        return false;
+      }
+      if (state.phase !== PHASE_REC) {
+        log("STOP_REQUEST_IGNORE deviceId=" + self() + " stopId=" + txn.stopId
+          + " startPlanId=" + txn.startPlanId + " take=" + txn.takeNumber
+          + " reason=phase phase=" + state.phase);
+        return false;
+      }
+      state.seenStops[txn.stopId] = true;
+      state.stop = {
+        stopId: txn.stopId,
+        startPlanId: txn.startPlanId,
+        takeNumber: txn.takeNumber,
+        targetStopMs: txn.targetStopMs,
+        createdByDeviceId: txn.createdByDeviceId || "",
+        clockOffsets: txn.clockOffsets || {},
+        dispatchLeadMs: txn.dispatchLeadMs,
+        reason: txn.reason || "master_stop"
+      };
+      state.stopLocalTargetMs = localStopTargetMs(state.stop);
+      state.stopError = "";
+      clearStopTimers();
+      state.stopTimer = sched(function () {
+        state.stopTimer = null;
+        executeStop(state.stop);
+      }, Math.max(0, state.stopLocalTargetMs - now()));
+      if (state.stop.createdByDeviceId === self()) {
+        /* La détection d'incident tourne sur l'horloge du CRÉATEUR : c'est lui
+         * qui connaît targetStopMs sans conversion. */
+        state.stopAckTimer = sched(onStopAckTimeout,
+          Math.max(0, (state.stop.targetStopMs + STOP_ACK_TIMEOUT_MS) - now()));
+      }
+      log("STOP_REQUEST_ACCEPTED deviceId=" + self() + " stopId=" + txn.stopId
+        + " startPlanId=" + txn.startPlanId + " take=" + txn.takeNumber
+        + " by=" + state.stop.createdByDeviceId
+        + " target=" + fmtClock(state.stop.targetStopMs)
+        + " localTarget=" + fmtClock(state.stopLocalTargetMs)
+        + " dispatchLeadMs=" + state.stop.dispatchLeadMs
+        + " reason=" + state.stop.reason);
+      bump();
+      return true;
+    };
+
+    /* Timeout d'acquittement (UNIQUEMENT le Master créateur) : toute Capture
+     * participant au plan sans stop_state à échéance est marquée INCIDENT. */
+    var onStopAckTimeout = function () {
+      state.stopAckTimer = null;
+      var txn = state.stop;
+      if (!txn) return;
+      if (now() < txn.targetStopMs + STOP_ACK_TIMEOUT_MS) {
+        state.stopAckTimer = sched(onStopAckTimeout, (txn.targetStopMs + STOP_ACK_TIMEOUT_MS) - now());
+        return;
+      }
+      flagStopIncidents(txn);
+      bump();
+      /* Un incident vient de naître À L'ÉCHÉANCE : la fenêtre de tick pouvait
+       * s'être refermée au même instant. On relance explicitement la boucle
+       * (stopAckWindowOpen reste vrai tant qu'un incident subsiste) pour qu'une
+       * reconnexion de la Capture puisse le lever. */
+      if (Object.keys(state.stopIncidents).length > 0) scheduleTick();
+    };
+
+    var flagStopIncidents = function (txn) {
+      if (!state.plan || txn.startPlanId !== state.planId) return;
+      var flagged = false;
+      state.plan.participants.forEach(function (p) {
+        if (!p || p.role !== "capture") return;
+        if (p.deviceId === self()) return;
+        if (state.stopStates[p.deviceId]) return;
+        if (state.stopIncidents[p.deviceId]) return;
+        var off = (txn.clockOffsets && isNum(txn.clockOffsets[p.deviceId])) ? txn.clockOffsets[p.deviceId] : 0;
+        state.stopIncidents[p.deviceId] = true;
+        flagged = true;
+        log("STOP_INCIDENT deviceId=" + self() + " stopId=" + txn.stopId
+          + " take=" + txn.takeNumber + " peer=" + p.deviceId
+          + " reason=no_stop_state at=" + fmtClock(now())
+          + " expectedLocal=" + fmtClock(txn.targetStopMs + off));
+      });
+      return flagged;
+    };
+
+    /* Ack STOP idempotent d'un device déjà STOPPED (late ack J10 : un
+     * stop_request re-tombé sur un Take déjà arrêté ne redémarre JAMAIS ; il
+     * répond avec son dernier stop_state). */
+    var republishStopState = function (env) {
+      var info = state.localStopInfo;
+      if (!info || !info.actualMs) {
+        log("STOP_STATE_REPUBLISH_SKIP deviceId=" + self() + " stopId=" + env.stopId
+          + " reason=no_local_stop_info take=" + env.takeNumber);
+        return;
+      }
+      if (!deps.sendStopState) return;
+      deps.sendStopState(state.sid, {
+        stopId: env.stopId || (state.stop && state.stop.stopId) || "",
+        startPlanId: env.startPlanId,
+        takeNumber: env.takeNumber,
+        deviceId: self(),
+        state: STATE_STOPPED,
+        actualMs: info.actualMs,
+        localTargetMs: info.localTargetMs,
+        deltaMs: info.deltaMs,
+        path: info.path || "",
+        reason: "late_ack"
+      });
+      log("STOP_STATE_REPUBLISH deviceId=" + self() + " stopId=" + (env.stopId || "?")
+        + " take=" + env.takeNumber + " reason=idempotent_late_ack");
+    };
+
+    var applyStopState = function (msg) {
+      if (!state.plan || msg.startPlanId !== state.planId) {
+        log("STOP_STATE_IGNORE deviceId=" + self() + " stopId=" + (msg.stopId || "?")
+          + " startPlanId=" + (msg.startPlanId || "?") + " active=" + (state.planId || "none"));
+        return false;
+      }
+      if (!msg.deviceId) return false;
+      var key = msg.deviceId + "|" + String(msg.stopId || "");
+      if (state.seenStopStates[key]) return false;
+      state.seenStopStates[key] = true;
+      state.stopStates[msg.deviceId] = {
+        deviceId: msg.deviceId,
+        state: msg.state || STATE_STOPPED,
+        stopId: msg.stopId || "",
+        actualMs: isNum(msg.actualMs) ? msg.actualMs : null,
+        localTargetMs: isNum(msg.localTargetMs) ? msg.localTargetMs : null,
+        deltaMs: isNum(msg.deltaMs) ? msg.deltaMs : null,
+        path: msg.path || "",
+        reason: msg.reason || "",
+        receivedAtMs: now()
+      };
+      if (state.stopIncidents[msg.deviceId]) {
+        delete state.stopIncidents[msg.deviceId];
+      }
+      log("STOP_STATE deviceId=" + self() + " stopId=" + (msg.stopId || "?")
+        + " take=" + (state.plan.takeNumber) + " peer=" + msg.deviceId
+        + " state=" + (msg.state || STATE_STOPPED)
+        + (isNum(msg.deltaMs) ? " deltaMs=" + Math.round(msg.deltaMs) : ""));
+      bump();
+      return true;
     };
 
     /* ---------- API publique ---------- */
@@ -737,7 +1163,9 @@
       opts = opts || {};
       var sid = opts.sid || state.sid;
       if (!sid) return Promise.reject(new Error("no_session"));
-      if (state.plan && state.phase !== PHASE_IDLE) {
+      /* J10 : un plan STOPPED peut être remplacé par le plan d'un NOUVEAU Take
+       * (le Take courant est verrouillé par localStoppedTakes, jamais ici). */
+      if (state.plan && state.phase !== PHASE_IDLE && state.phase !== PHASE_STOPPED) {
         log("START_REJECTED sessionId=" + sid + " reason=plan_active startPlanId=" + state.planId);
         return Promise.reject(new Error("plan_active"));
       }
@@ -903,25 +1331,75 @@
       });
     }
 
-    /* STOP local : urgence (aucun Master connecté) ou arrêt du placeholder. */
+    /* STOP local : urgence (aucun Master connecté) ou arrêt du placeholder.
+     * N'arrête QUE la Capture locale et verrouille le Take (pas de
+     * redémarrage). Depuis J10, le plan est CONSERVÉ en phase STOPPED pour que
+     * l'écran d'arrêt reste affichable — un nouveau Take le remplacera. */
     function stopLocal(reason) {
       if (state.phase !== PHASE_REC) {
         log("START_STOP_LOCAL deviceId=" + self() + " startPlanId=" + (state.planId || "—")
           + " reason=" + (reason || "user") + " status=ignored phase=" + state.phase);
         return Promise.resolve(view());
       }
+      var txn = state.stop || null;
+      var localTargetMs = state.stopLocalTargetMs;
+      return Promise.resolve(deps.stopRecording ? deps.stopRecording() : null).then(function (res) {
+        var actualMs = (res && isNum(res.atMs)) ? res.atMs : now();
+        var deltaMs = isNum(localTargetMs) ? (actualMs - localTargetMs) : null;
+        enterStopped({
+          actualMs: actualMs,
+          localTargetMs: localTargetMs,
+          deltaMs: deltaMs,
+          path: (res && res.path) || "",
+          reason: reason || "emergency"
+        }, txn);
+        bump();
+        return view();
+      });
+    }
+
+    /* STOP global coordonné (J10) : déclenché par UN Master (tous égaux).
+     * Verrouille targetStopMs, diffuse le stop_request, l'adopte localement.
+     * Un Master qui reçoit déjà un STOP actif pour ce plan converge (idempotent). */
+    function requestStop(reason) {
+      if (!state.plan) {
+        log("STOP_REJECTED deviceId=" + self() + " reason=no_plan");
+        return Promise.reject(new Error("no_plan"));
+      }
+      if (state.phase === PHASE_STOPPED) {
+        log("STOP_REQUEST_IGNORE deviceId=" + self() + " stopId=" + (state.stop && state.stop.stopId)
+          + " take=" + state.plan.takeNumber + " reason=already_stopped phase=" + state.phase);
+        return Promise.resolve(view());
+      }
+      if (!state.topFired || state.phase !== PHASE_REC) {
+        log("STOP_REJECTED deviceId=" + self() + " startPlanId=" + state.planId
+          + " take=" + (state.plan ? state.plan.takeNumber : 0)
+          + " reason=not_recording phase=" + state.phase);
+        return Promise.reject(new Error("not_recording"));
+      }
+      var sid = state.sid;
       var planIdAtCall = state.planId;
       var takeNumber = state.plan ? state.plan.takeNumber : 0;
-      return Promise.resolve(deps.stopRecording ? deps.stopRecording() : null).then(function (res) {
-        state.localStoppedTakes[takeNumber] = true;
-        state.stoppedTakeNumber = takeNumber;
-        state.phase = PHASE_STOPPED;
-        state.showEmergencyStop = false;
-        log("START_STOP_LOCAL deviceId=" + self() + " startPlanId=" + planIdAtCall
-          + " take=" + takeNumber + " reason=" + (reason || "user")
-          + " at=" + fmtClock((res && res.atMs) || now()));
-        publishState(STATE_STOPPED, reason || "user");
-        abortPlan("local_stop", false, true);
+      var already = state.stop && state.stop.stopId === String(planIdAtCall) + "#stop";
+      if (already) {
+        log("STOP_REQUEST_IGNORE deviceId=" + self() + " stopId=" + state.stop.stopId
+          + " take=" + takeNumber + " reason=stop_active");
+        return Promise.resolve(view());
+      }
+      return Promise.resolve(deps.loadSession(sid)).then(function (ses) {
+        var master = deps.isMasterRole ? deps.isMasterRole(self(), ses) : true;
+        if (!master) {
+          log("STOP_REJECTED sessionId=" + sid + " startPlanId=" + planIdAtCall
+            + " take=" + takeNumber + " reason=not_master");
+          throw new Error("not_master");
+        }
+        var txn = stopFromPlan(reason);
+        log("STOP_REQUEST sessionId=" + sid + " take=" + takeNumber + " stopId=" + txn.stopId
+          + " startPlanId=" + txn.startPlanId + " by=" + self()
+          + " target=" + fmtClock(txn.targetStopMs) + " dispatchLeadMs=" + txn.dispatchLeadMs
+          + " reason=" + txn.reason);
+        if (deps.sendStopRequest) deps.sendStopRequest(sid, txn);
+        adoptStop(txn);
         return view();
       });
     }
@@ -980,6 +1458,28 @@
 
       if (env.kind === "start_state") {
         applyPeerState(env);
+        return;
+      }
+
+      if (env.kind === "stop_request") {
+        if (!state.plan || env.startPlanId !== state.planId) {
+          log("STOP_REQUEST_IGNORE deviceId=" + self()
+            + " stopId=" + (env.stopId || "?") + " startPlanId=" + (env.startPlanId || "?")
+            + " active=" + (state.planId || "none") + " reason=plan_mismatch");
+          return;
+        }
+        if (state.phase === PHASE_STOPPED && state.localStoppedTakes[env.takeNumber] === true) {
+          /* Take déjà arrêté localement : late ack idempotent, JAMAIS de
+           * redémarrage (exigence J10 : reconnect/double-STOP sans reprise). */
+          republishStopState(env);
+          return;
+        }
+        adoptStop(env);
+        return;
+      }
+
+      if (env.kind === "stop_state") {
+        applyStopState(env);
         return;
       }
 
@@ -1057,6 +1557,18 @@
         localStoppedTake: !!state.localStoppedTakes[state.plan ? state.plan.takeNumber : state.stoppedTakeNumber],
         localStartedTake: !!state.localStartedTakes[state.plan ? state.plan.takeNumber : state.stoppedTakeNumber],
         stoppedTakeNumber: state.stoppedTakeNumber,
+        /* ---------- J10 : STOP coordonné ---------- */
+        stop: state.stop,
+        stopId: state.stop ? state.stop.stopId : "",
+        stopActive: !!state.stop,
+        stopExecuted: state.stopExecuted,
+        stopError: state.stopError,
+        stopStates: state.stopStates,
+        stopIncidents: state.stopIncidents,
+        stopIncidentDids: Object.keys(state.stopIncidents),
+        localStopInfo: state.localStopInfo,
+        stopDurationMs: (state.localStopInfo && isNum(state.localStopInfo.actualMs) && isNum(state.recStartedAtMs))
+          ? Math.max(0, state.localStopInfo.actualMs - state.recStartedAtMs) : 0,
         selfDid: self(),
         rev: state.rev
       };
@@ -1066,6 +1578,7 @@
       requestStart: requestStart,
       cancel: cancel,
       stopLocal: stopLocal,
+      requestStop: requestStop,
       refreshLocalReadiness: refreshLocalReadiness,
       onIncoming: onIncoming,
       view: view,
@@ -1096,6 +1609,8 @@
     STATE_STARTED: STATE_STARTED,
     STATE_FAILED: STATE_FAILED,
     STATE_STOPPED: STATE_STOPPED,
+    STOP_LEAD_MS: STOP_LEAD_MS,
+    STOP_ACK_TIMEOUT_MS: STOP_ACK_TIMEOUT_MS,
     planId: planId,
     isPlanFmt: isPlanFmt,
     choosePlanId: choosePlanId,

@@ -16,7 +16,8 @@
  *     ping/pong (heartbeat/liveness §30.4/30.8), et depuis J05 :
  *     member_add, member_update, member_remove (gestion des members/sessionRoles) ;
  *   - routage (et rien d'autre) des messages J08 start_plan, start_cancel,
- *     start_state, start_probe, start_probe_reply vers le pont start-service ;
+ *     start_state, start_probe, start_probe_reply et J10 stop_request,
+ *     stop_state vers le pont start-service ;
  *   - broadcast du sharedView (jamais le PIN) aux Masters connectés ;
  *   - convergence par fusion §30.9 + §31 (closed>open, LMW nom, PIN immuable,
  *     masters par deviceId, members par deviceId avec sessionRoles validés).
@@ -856,6 +857,8 @@
       case "start_state":
       case "start_probe":
       case "start_probe_reply":
+      case "stop_request":
+      case "stop_state":
         handleStartMessage(env, entry, serverConn);
         break;
       case "preview_frame":
@@ -1814,6 +1817,10 @@ store().get(env.sessionId).then(function (local) {
    * connexion que la demande (comme clock_sync en J07) : c'est la mesure NTP
    * courte qui permet à une Capture de connaître son décalage même si le
    * créateur du plan n'est pas dans clockOffsets.
+   *
+   * J10 : `stop_request` et `stop_state` suivent le MÊME pont. Le transport ne
+   * décide rien (ni rôle, ni phase, ni idempotence) : la structure de
+   * l'enveloppe est validée ici, le métier est au modèle (start-model).
    */
 
   var START_REPLY_KINDS = { start_probe_reply: true };
@@ -1831,6 +1838,10 @@ store().get(env.sessionId).then(function (local) {
       case "start_probe_reply":
         return !env.startPlanId || typeof env.requestId === "undefined"
           || typeof env.t1 !== "number" || typeof env.t2 !== "number";
+      case "stop_request":
+        return !env.stopId || !env.startPlanId || !env.targetStopMs;
+      case "stop_state":
+        return !env.stopId || !env.startPlanId || !env.deviceId || !env.state;
       default:
         return true;
     }

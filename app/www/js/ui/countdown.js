@@ -108,13 +108,19 @@
 
   /* La Capture n'affiche QUE son propre état. Aucune donnée d'un autre device
    * n'est lue ici — c'est l'invariant UI 07/08 : une Capture ne supervise
-   * personne, elle se surveille elle-même. */
-  function renderRec(v) {
+   * personne, elle se surveille elle-même. `stopped` bascule la vue REC sur
+   * l'état clos (J10) : libellé STOPPED, durée finale, plus aucun contrôle. */
+  function renderRec(v, stopped) {
     byId("cdRecSession").textContent = v.sessionName || "—";
     byId("cdRecTake").textContent = v.takeNumber ? "Take " + pad3(v.takeNumber) : "—";
     var cfg = (global.MultiCamNav && global.MultiCamNav.cfg) ? global.MultiCamNav.cfg() : null;
     byId("cdRecDevice").textContent = (cfg && cfg.deviceName) || "—";
-    byId("cdRecTimer").textContent = mmss(v.recElapsedMs);
+    var lbl = byId("cdRecLabel");
+    if (lbl) {
+      lbl.textContent = stopped ? "STOPPED" : "REC";
+      lbl.classList.toggle("stopped", !!stopped);
+    }
+    byId("cdRecTimer").textContent = mmss(stopped ? (v.stopDurationMs || v.recElapsedMs || 0) : v.recElapsedMs);
 
     var d = v.lastStart;
     if (d && typeof d.deltaMs === "number") {
@@ -169,7 +175,7 @@
 
     byId("cdRecLocal").innerHTML = localStates(v);
     var emg = byId("cdEmergency");
-    if (emg) emg.classList.toggle("d-none", !v.showEmergencyStop);
+    if (emg) emg.classList.toggle("d-none", !!stopped || !v.showEmergencyStop);
     showView("cdRec");
   }
 
@@ -246,8 +252,12 @@
     var isFull = v.isMaster || v.isCapture;      /* le Storage garde son écran */
     if (!isFull) { showView(null); return; }     /* AUCUNE vue de plein écran */
     if (v.phase === "EXCLUDED" && v.isCapture) { renderExcluded(v); return; }
-    if (v.phase === "REC") { renderRec(v); return; }
-    if (v.phase !== "COUNTDOWN") { showView(null); return; }  /* IDLE / STOPPED */
+    if (v.phase === "REC") { renderRec(v, false); return; }
+    /* J10 : Take clôturé. La Capture reste sur le placeholder 08 qui bascule en
+     * vue STOPPED (aucun contrôle). La régie, elle, part sur le panneau 09
+     * minimal — choisi par `route()`, pas ici. */
+    if (v.phase === "STOPPED") { renderRec(v, true); return; }
+    if (v.phase !== "COUNTDOWN") { showView(null); return; }  /* IDLE */
     if (v.isCapture && !v.isMaster) { renderCapture(v); return; }
     renderMaster(v);
   }
@@ -307,6 +317,10 @@
       }
       return "countdown";
     }
+    /* J10 : le Master clôturé rejoint le panneau 09 minimal (Take arrêté) —
+     * pas la mosaïque REC, pas le countdown. Les Captures restent sur le
+     * placeholder 08 en vue STOPPED (rendu géré par `render()`, pas ici). */
+    if (v.phase === "STOPPED") return isRegie(v) ? "take-stopped" : "";
     return "";
   }
 

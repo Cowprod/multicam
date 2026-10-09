@@ -468,6 +468,93 @@
     };
   }
 
+  /* ---------- J10 : STOP global (dock + confirmation, maquette ui/08 §4) ----------
+   *
+   * RÈGLE D'AFFICHAGE (purement pure : `stopVisible(v)`), même critère de
+   * « régie » que le routeur de l'écran 07 (isMaster ET skill controller LE
+   * device utilisateur — un device qui ne « régit » pas n'a rien à arrêter).
+   *
+   * Le bouton STOP n'apparaît QUE pendant la REC, sur la mosaïque (panel
+   * `panel-live`). Il ne porte AUCUN état : cliquer ouvre la confirmation, et
+   * la confirmation appelle le service (le modèle reste le seul décideur — le
+   * bouton n'exécute rien tout seul). */
+  function isRegie(v) {
+    if (!v || !v.isMaster) return false;
+    var cfgm = global.MultiCamConfig;
+    if (cfgm && typeof cfgm.isControllerEnabled === "function") {
+      return cfgm.isControllerEnabled() === true;
+    }
+    return true;
+  }
+
+  function stopVisible(v) {
+    if (!v || !v.active) return false;
+    if (v.phase !== "REC") return false;
+    return isRegie(v);
+  }
+
+  var stopModal = { bound: false, open: false };
+
+  function openStopModal() {
+    var m = byId("liveStopModal");
+    if (!m) return;
+    stopModal.open = true;
+    m.classList.add("show");
+    m.setAttribute("aria-hidden", "false");
+    if (global.MultiCamStartService) {
+      var v = global.MultiCamStartService.view();
+      console.log("SCREEN08_STOP_CONFIRM_OPEN sessionId=" + ((v && v.sid) || "—")
+        + " take=" + (v && v.takeNumber));
+    }
+  }
+
+  function closeStopModal() {
+    var m = byId("liveStopModal");
+    if (!m) return;
+    stopModal.open = false;
+    m.classList.remove("show");
+    m.setAttribute("aria-hidden", "true");
+  }
+
+  /* Le bouton est créé DANS le dock (qui se masque seul quand il est vide), et
+   * la modale est statique dans le panneau ; on ne fait que brancher les
+   * écouteurs une seule fois. Aucun écouteur ne survit à render() : si le dock
+   * est vidé, la prochaine création recrée le même comportement via flag. */
+  function bindStopControls() {
+    if (stopModal.bound) return;
+    stopModal.bound = true;
+    var btn = byId("liveStopBtn");
+    if (btn) btn.addEventListener("click", openStopModal);
+    var confirm = byId("liveStopConfirm");
+    if (confirm) confirm.addEventListener("click", function () {
+      var v = global.MultiCamStartService ? global.MultiCamStartService.view() : null;
+      console.log("SCREEN08_STOP_CONFIRMED sessionId=" + ((v && v.sid) || "—")
+        + " take=" + (v && v.takeNumber));
+      closeStopModal();
+      if (!global.MultiCamStartService) {
+        console.log("SCREEN08_STOP_KO err=service_absent");
+        return;
+      }
+      Promise.resolve(global.MultiCamStartService.requestStop("master_stop")).catch(function (err) {
+        console.log("SCREEN08_STOP_KO err=" + String((err && err.message) || err));
+      });
+    });
+    var cancel = byId("liveStopCancel");
+    if (cancel) cancel.addEventListener("click", function () {
+      console.log("SCREEN08_STOP_CANCELLED");
+      closeStopModal();
+    });
+    var backdrop = document.querySelector("#liveStopModal .modal-backdrop");
+    if (backdrop) backdrop.addEventListener("click", closeStopModal);
+  }
+
+  function renderStopControls(v) {
+    var btn = byId("liveStopBtn");
+    var visible = stopVisible(v);
+    if (btn) btn.classList.toggle("d-none", !visible);
+    if (!visible && stopModal.open) closeStopModal();
+  }
+
   /* ---------- COUCHÉ DOM ---------- */
 
   function byId(id) { return global.document ? global.document.getElementById(id) : null; }
@@ -760,6 +847,9 @@
     if (storesEl) storesEl.classList.toggle("d-none", !v.hasStorages);
     var storeList = byId("liveStoreList");
     if (storeList && v.hasStorages) paintStores(storeList, v.storages);
+    /* J10 : dock STOP global + confirmation, visibles sur la mosaïque en REC. */
+    bindStopControls();
+    renderStopControls(v);
     /* La modal ouverte suit le MÊME rendu (pas de second timer) : ses valeurs
      * ne peuvent pas diverger de celles des vignettes qu'elles décrivent. */
     if (global.MultiCamLiveDetail && typeof global.MultiCamLiveDetail.refresh === "function") {
@@ -788,6 +878,7 @@
     tileOf: tileOf,
     storagesOf: storagesOf,
     storageOf: storageOf,
+    stopVisible: stopVisible,
     clear: clear,
     _nodes: NODES
   };

@@ -1,0 +1,65 @@
+/* MultiCam — écran 09 minimal (J10) : panneau « Take arrêté ».
+ *
+ * Mise en page seule (les couleurs/cartes viennent de css/app.css). Aucune
+ * animation, aucun keyframe : la preview native est un fond permanent (§35.1)
+ * et ce panneau opaque de régie la recouvre entièrement — c'est voulu pour le
+ * Master qui a quitté la mosaïque. */
+
+.ts-screen {
+  background: var(--bs-body-bg, #0b1020);
+}
+
+.ts-screen .ts-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .75rem;
+}
+
+.ts-screen .ts-grid-label {
+  margin: .25rem 0;
+}
+
+.ts-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "name meta" "path path";
+  align-items: center;
+  gap: .15rem .5rem;
+}
+
+.ts-row-name {
+  grid-area: name;
+  font-weight: 600;
+}
+
+.ts-row-meta {
+  grid-area: meta;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.ts-row-path {
+  grid-area: path;
+  word-break: break-all;
+}
+
+.ts-row-state {
+  display: inline-flex;
+  align-items: center;
+  font-size: .68rem;
+  padding: .12rem .4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .12);
+  white-space: nowrap;
+}
+
+.ts-row-state.st-stopped { background: rgba(25, 135, 84, .28); }
+.ts-row-state.st-warning { background: rgba(255, 193, 7, .2); }
+.ts-row-state.st-error { background: rgba(232, 73, 96, .3); }
+
+.ts-row-delta {
+  font-size: .72rem;
+  opacity: .75;
+}
