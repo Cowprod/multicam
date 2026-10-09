@@ -423,6 +423,17 @@
     /* J08 : idem pour le plan de START (pont START branché sur le WS) — un plan
      * reçu sans écran ouvert doit être adopté, caméra préparée comprise. */
     if (global.MultiCamStartService) global.MultiCamStartService.bind();
+    /* J11 : le transfert média est branché au BOOT — un device peut recevoir une
+     * offre même si l'opérateur n'a pas l'écran 09/Storage ouvert. Le service est
+     * assemblé PARESSEUSEMENT, par Take, dès que la session/take est connue (le
+     * modèle fige l'en-tête de session à sa création). */
+    if (global.MultiCamTransferBoot) {
+      var tboot = global.MultiCamTransferBoot.createTransferBoot({ cfg: cfg });
+      global.MultiCamTransferBootInstance = tboot;
+      tboot.bind();
+    } else {
+      console.log("TRANSFER_BOOT_UNAVAILABLE reason=module_absent");
+    }
     /* J09-07 : même raison pour une commande de caméra reçue sans écran ouvert.
      * Une Capture pilotée à distance doit exécuter l'ordre même si l'opérateur
      * regarde un autre écran : le pont est branché ici, au BOOT, pas à
