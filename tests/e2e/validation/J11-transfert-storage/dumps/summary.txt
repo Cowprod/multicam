@@ -1,0 +1,5 @@
+SID=6KYFXZQ4
+TAKE=1
+captures=1
+storages=1
+has_d=0
