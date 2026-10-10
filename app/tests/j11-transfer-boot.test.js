@@ -36,12 +36,14 @@ function makeWs() {
 
 function makeNative(cfg) {
   cfg = cfg || {};
-  const calls = { serveStart: [], serveStop: 0, sha256: [], download: [] };
+  const calls = { serveStart: [], serveStop: 0, sha256: [], download: [], stage: [], remove: [] };
   return {
     calls,
     serveStart(o) { calls.serveStart.push(o); return Promise.resolve(cfg.serveUrl || "http://10.0.0.5:8080"); },
     serveStop() { calls.serveStop += 1; return Promise.resolve(); },
     sha256(p) { calls.sha256.push(p); return Promise.resolve((cfg.sha256Map && cfg.sha256Map[p]) || { bytes: 1000, sha256: "aaaa" }); },
+    stage(src, dest) { calls.stage.push({ src, dest }); return Promise.resolve({ dest: dest, bytes: 1000 }); },
+    remove(p) { calls.remove.push(p); return Promise.resolve({ removed: true, path: p }); },
     download(o) { calls.download.push(o); return Promise.resolve({ done: true, received: o.expectedBytes || 1000, sha256: "aaaa" }); }
   };
 }
@@ -55,6 +57,7 @@ function makeStart(initial) {
     viewers,
     _svc: {
       onView(fn) { viewers.push(fn); },
+      view() { return st.view; },
       machine() { return { view: () => st.view }; },
       selfDid() { return st.self; },
       isRecording() { return st.recording; }
@@ -124,9 +127,13 @@ module.exports.register = function (h) {
 
       await boot._onStartView({ sid: SID, takeNumber: 1, localStoppedTake: true, stopStates: { [CAP]: { path: "file:///data/app/seg00.mp4" } } });
       const ready = ws.out.broadcast.filter((m) => m.kind === "media_ready");
+      assert.strictEqual(native.calls.stage.length, 1, "segment stagé vers le dossier média");
+      assert.strictEqual(native.calls.stage[0].src, "file:///data/app/seg00.mp4");
+      assert.strictEqual(native.calls.stage[0].dest, "/data/app/MultiCam/" + SID + "/1/seg00.mp4");
       assert.strictEqual(native.calls.serveStart.length, 1, "serveur média démarré");
       assert.strictEqual(native.calls.serveStart[0].root, "/data/app/MultiCam/" + SID + "/1");
       assert.strictEqual(native.calls.serveStart[0].token.length > 0, true, "token d'accès généré");
+      assert.strictEqual(native.calls.sha256[0], "/data/app/MultiCam/" + SID + "/1/seg00.mp4", "hash sur le fichier stagé");
       assert.strictEqual(ready.length, 1, "media_ready émis une fois");
       assert.strictEqual(ready[0].extra.files.length, 1);
       assert.strictEqual(ready[0].extra.files[0].sha256, "aaaa");
@@ -134,6 +141,41 @@ module.exports.register = function (h) {
 
       await boot._onStartView({ sid: SID, takeNumber: 1, localStoppedTake: true, stopStates: { [CAP]: { path: "file:///data/app/seg00.mp4" } } });
       assert.strictEqual(native.calls.serveStart.length, 1, "pas de seconde annonce pour le même Take");
+    });
+
+    it("B2c. capture : suppression locale NATIVE du segment stagé", async () => {
+      const view = { sid: SID, takeNumber: 1, localStoppedTake: true, stopStates: { [CAP]: { path: "file:///data/app/seg00.mp4" } } };
+      const takes = { [SID]: [{ takeNumber: 1, storages: [], settings: { transferAuto: true } }] };
+      const { boot, native, logs } = makeBoot({
+        cfg: { enabledSkills: ["capture"] }, takes, start: { view }
+      });
+      boot.bind();
+      await boot._onStartView(view);
+      assert.strictEqual(native.calls.stage.length, 1, "segment stagé");
+
+      await boot._onTransferMessage({
+        kind: "transfer_delete", sessionId: SID, takeNumber: 1, sourceDeviceId: CAP
+      });
+      assert.strictEqual(native.calls.remove.length, 1, "suppression native appelée");
+      assert.strictEqual(native.calls.remove[0], "/data/app/MultiCam/" + SID + "/1/seg00.mp4", "cible = fichier stagé");
+      assert.ok(logs.some((l) => l.indexOf("TRANSFER_LOCAL_DELETE_NATIVE") >= 0 && l.indexOf("removed=1") >= 0));
+    });
+
+    it("B2b. capture : le listener START (appelé SANS argument) déclenche l'annonce", async () => {
+      const view = { sid: SID, takeNumber: 1, localStoppedTake: true, stopStates: { [CAP]: { path: "file:///data/app/seg00.mp4" } } };
+      const takes = { [SID]: [{ takeNumber: 1, storages: [], settings: { transferAuto: true } }] };
+      const { boot, ws, start, native } = makeBoot({
+        cfg: { enabledSkills: ["capture"] }, takes, start: { view }
+      });
+      boot.bind();
+      assert.strictEqual(start.viewers.length, 1, "le boot s'abonne à la vue START");
+
+      /* Le service START notifie ses écouteurs SANS argument : c'est le boot
+       * qui doit relire la vue courante, sinon aucune annonce ne part (régression). */
+      start.viewers[0]();
+      await flush();
+      assert.strictEqual(native.calls.serveStart.length, 1, "annonce déclenchée par le listener");
+      assert.strictEqual(ws.out.broadcast.filter((m) => m.kind === "media_ready").length, 1);
     });
 
     it("B3. master : media_ready reçu ⇒ offre aux Storage sélectionnés", async () => {

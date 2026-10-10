@@ -136,10 +136,57 @@
       return [{ rel: baseName(path), segmentIndex: 0, path: path }];
     }
 
+    /* STAGING : la Capture écrit dans le cache interne
+     * (`cache/videoTmp_N.mp4`, cf. CameraPreview.java) alors que le serveur
+     * média sert `MultiCam/<sid>/<take>/`. On déplace donc chaque segment vers
+     * son emplacement définitif AVANT le calcul SHA-256 et le démarrage du
+     * serveur — sinon le serveur répond 500 (dossier inexistant). Le map
+     * `stagedMap` rend l'opération idempotente : un même (sid,take,rel) n'est
+     * déplacé qu'une fois, et la suppression locale ultérieure retrouve la
+     * cible même si la source a disparu. */
+    var stagedMap = {}; /* "sid|take|rel" -> chemin stagé */
+
+    function stageSegments(sid, take) {
+      var segs = listSegments();
+      if (!segs.length) return Promise.resolve([]);
+      var root = mediaRoot(sid, take);
+      if (!root) return Promise.resolve(segs);
+      var nat = nativeApi();
+      return Promise.all(segs.map(function (s) {
+        var key = keyOf(sid, take) + "|" + s.rel;
+        var target = root.replace(/\/$/, "") + "/" + s.rel;
+        if (stagedMap[key]) {
+          return { rel: s.rel, segmentIndex: s.segmentIndex, path: stagedMap[key] };
+        }
+        if (s.path === target) {
+          stagedMap[key] = target;
+          return { rel: s.rel, segmentIndex: s.segmentIndex, path: target };
+        }
+        if (!nat || typeof nat.stage !== "function") return s;
+        return nat.stage(s.path, target).then(function (r) {
+          var finalPath = (r && r.dest) || target;
+          stagedMap[key] = finalPath;
+          log("TRANSFER_STAGE_OK rel=" + s.rel + " dest=" + finalPath);
+          return { rel: s.rel, segmentIndex: s.segmentIndex, path: finalPath };
+        }, function (e) {
+          log("TRANSFER_STAGE_ERROR rel=" + s.rel + " error=" + String((e && e.message) || e));
+          return s;
+        });
+      }));
+    }
+
+    /* Suppression locale des segments. Le NATIF d'abord (verdict réel, et il
+     * accepte un chemin absolu nu) ; sinon repli sur l'API File HTML5 (résout
+     * mal les chemins nus du stockage externe : `removed=0` observé). */
     function deleteLocalFiles(paths) {
       if (!paths || !paths.length) return Promise.resolve();
-      if (typeof root.resolveLocalFileSystemURL !== "function") return Promise.resolve();
+      var nat = nativeApi();
+      var useNative = nat && typeof nat.remove === "function";
       return Promise.all(paths.map(function (p) {
+        if (useNative) {
+          return nat.remove(p).then(function (r) { return !!(r && r.removed); }, function () { return false; });
+        }
+        if (typeof root.resolveLocalFileSystemURL !== "function") return Promise.resolve(false);
         return new Promise(function (resolve) {
           root.resolveLocalFileSystemURL(p, function (entry) {
             entry.remove(function () { resolve(true); }, function () { resolve(false); });
@@ -212,7 +259,7 @@
             deleteLocalAfterVerifiedReplication: st.deleteLocalAfterVerifiedReplication !== false
           };
         },
-        paths: { mediaRoot: mediaRoot, destFor: destFor, listSegments: listSegments },
+        paths: { mediaRoot: mediaRoot, destFor: destFor, listSegments: listSegments, stageSegments: stageSegments },
         isRecording: function () {
           var svc = startService();
           return !!(svc && svc.isRecording && svc.isRecording());
@@ -320,7 +367,12 @@
 
       var svc = startService();
       if (svc && typeof svc.onView === "function") {
-        svc.onView(function (v) {
+        /* Le service START notifie ses écouteurs SANS argument
+         * (`listeners.slice().forEach(fn => fn())`) : on relit donc la vue
+         * courante nous-mêmes, sinon `v` serait toujours `undefined` et
+         * l'annonce Capture ne se déclencherait jamais au STOP. */
+        svc.onView(function () {
+          var v = (svc.view && svc.view()) || null;
           onStartView(v);
           if (!(svc.isRecording && svc.isRecording())) resumePaused();
         });

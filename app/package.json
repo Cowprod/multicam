@@ -44,13 +44,13 @@
       "cordova-plugin-multicam-saf": {},
       "cordova-plugin-multicam-platform": {},
       "cordova-plugin-multicam-httpd": {},
-      "cordova-plugin-multicam-transfer": {},
       "cordova-plugin-multicam-nsd": {
         "MDNS_SERVICE_TYPE": "_multicam._tcp.",
         "MDNS_DEFAULT_PORT": "45101",
         "MDNS_USE_MULTICAST_LOCK": "false"
       },
-      "cordova-websocket-server": {}
+      "cordova-websocket-server": {},
+      "cordova-plugin-multicam-transfer": {}
     }
   }
 }

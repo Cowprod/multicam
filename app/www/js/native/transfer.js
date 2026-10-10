@@ -55,6 +55,25 @@
       });
     },
 
+    /* Déplace un segment enregistré (cache) vers l'arborescence média servie.
+     * Rend `{dest, bytes}` ; `dest` est le chemin réellement écrit. */
+    stage: function (src, dest) {
+      return new Promise(function (resolve, reject) {
+        var t = transfer();
+        if (!t) { reject(new Error("MultiCamTransfer_unavailable")); return; }
+        t.stage(src, dest, resolve, function (err) { reject(new Error("stage_failed: " + err)); });
+      });
+    },
+
+    /* Suppression locale d'un fichier. Rend `{removed, path}`. */
+    remove: function (path) {
+      return new Promise(function (resolve, reject) {
+        var t = transfer();
+        if (!t) { reject(new Error("MultiCamTransfer_unavailable")); return; }
+        t.remove(path, resolve, function (err) { reject(new Error("remove_failed: " + err)); });
+      });
+    },
+
     /* GET reprenable. `onProgress({received,total})`. */
     download: function (opts, onProgress) {
       return new Promise(function (resolve, reject) {

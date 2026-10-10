@@ -52,7 +52,75 @@ public class MultiCamTransfer extends CordovaPlugin {
             cordova.getThreadPool().execute(() -> doDownload(opts, callbackContext));
             return true;
         }
+        if ("stage".equals(action)) {
+            final String src = args.getString(0);
+            final String dest = args.getString(1);
+            cordova.getThreadPool().execute(() -> doStage(src, dest, callbackContext));
+            return true;
+        }
+        if ("remove".equals(action)) {
+            final String path = args.getString(0);
+            cordova.getThreadPool().execute(() -> doRemove(path, callbackContext));
+            return true;
+        }
         return false;
+    }
+
+    /* ------------------------------------------------------------------ remove */
+
+    /* Suppression d'un fichier local (segment stagé). Sert à la suppression
+     * locale APRES réplication vérifiée : contrairement au HTML5 File API
+     * (`resolveLocalFileSystemURL`), le natif accepte un chemin absolu nu et
+     * rend un verdict réel. */
+    private void doRemove(String path, CallbackContext cb) {
+        try {
+            File f = new File(stripScheme(path));
+            boolean removed = f.exists() && f.delete();
+            JSONObject res = new JSONObject();
+            res.put("removed", removed);
+            res.put("path", f.getAbsolutePath());
+            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE remove path=" + f.getAbsolutePath() + " removed=" + removed);
+            cb.success(res);
+        } catch (Exception e) {
+            android.util.Log.e(LOGTAG, "TRANSFER_NATIVE remove error " + e);
+            cb.error("remove_failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    /* ------------------------------------------------------------------- stage */
+
+    /* Déplace (ou copie) un fichier local vers une destination absolue, en
+     * créant les dossiers parents. Utilisé par la Capture pour STAGER le
+     * segment enregistré dans le cache interne vers l'arborescence média
+     * `MultiCam/<sid>/<take>/` servie en HTTP. Idempotent : une destination
+     * existante est remplacée. `renameTo` échoue à travers les systèmes de
+     * fichiers (cache interne → stockage externe) : repli copie+suppression. */
+    private void doStage(String src, String dest, CallbackContext cb) {
+        try {
+            File s = new File(stripScheme(src));
+            File d = new File(stripScheme(dest));
+            if (!s.exists()) { cb.error("stage_missing_src"); return; }
+            File parent = d.getParentFile();
+            if (parent != null && !parent.exists()) parent.mkdirs();
+            if (d.exists() && !d.delete()) { cb.error("stage_delete_dest_failed"); return; }
+            if (!s.renameTo(d)) {
+                try (InputStream in = new FileInputStream(s); OutputStream out = new FileOutputStream(d)) {
+                    byte[] buf = new byte[BUF];
+                    int n;
+                    while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+                }
+                s.delete();
+            }
+            JSONObject res = new JSONObject();
+            res.put("dest", d.getAbsolutePath());
+            res.put("bytes", d.length());
+            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE stage src=" + s.getAbsolutePath()
+                    + " dest=" + d.getAbsolutePath() + " bytes=" + d.length());
+            cb.success(res);
+        } catch (Exception e) {
+            android.util.Log.e(LOGTAG, "TRANSFER_NATIVE stage error " + e);
+            cb.error("stage_failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
     }
 
     /* ------------------------------------------------------------------ sha256 */

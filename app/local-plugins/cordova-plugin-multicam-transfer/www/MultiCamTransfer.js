@@ -12,6 +12,17 @@ var MultiCamTransfer = {
     exec(success, error, 'MultiCamTransfer', 'sha256', [path]);
   },
 
+  /* Déplace un fichier local vers une destination absolue (dossiers créés,
+   * destination remplacée). `success({dest, bytes})`. */
+  stage: function (src, dest, success, error) {
+    exec(success, error, 'MultiCamTransfer', 'stage', [src, dest]);
+  },
+
+  /* Supprime un fichier local. `success({removed, path})`. */
+  remove: function (path, success, error) {
+    exec(success, error, 'MultiCamTransfer', 'remove', [path]);
+  },
+
   /* GET HTTP reprenable vers un fichier ou une arborescence SAF.
    * opts = { url, token, dest?, treeUri?, relPath?, offset?, expectedBytes? }
    * onProgress({received,total}) appelé périodiquement ;

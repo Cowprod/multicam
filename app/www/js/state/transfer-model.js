@@ -162,11 +162,27 @@
     /* media_ready : une Capture annonce les segments d'un Take (chemin relatif,
      * taille, SHA-256 source). C'est la source de vérité de la liste des
      * fichiers ; le manifeste HTTP sert de secours. */
+    /* Deux annonces sont équivalentes si elles décrivent le MÊME manifeste
+     * (mêmes segments, mêmes tailles, mêmes SHA-256, même endpoint). Sert à
+     * écarter la LIVRAISON EN DOUBLE d'une même annonce par le transport. */
+    var sameManifest = function (a, b) {
+      if (!a || !b) return false;
+      if (a.host !== b.host || a.port !== b.port || a.token !== b.token) return false;
+      if (a.totalBytes !== b.totalBytes) return false;
+      var ka = Object.keys(a.files), kb = Object.keys(b.files);
+      if (ka.length !== kb.length) return false;
+      for (var i = 0; i < ka.length; i++) {
+        var f = a.files[ka[i]], g = b.files[ka[i]];
+        if (!g || f.bytes !== g.bytes || (f.sha256 || "") !== (g.sha256 || "")) return false;
+      }
+      return true;
+    };
+
     var applyMediaReady = function (msg) {
       if (!msg || !isStr(msg.deviceId)) return false;
       if (!sameTake(msg)) { log("MEDIA_READY_IGNORE take=" + (msg && msg.takeNumber) + " active=" + state.takeNumber); return false; }
       var files = normFiles(msg.files);
-      state.sources[msg.deviceId] = {
+      var info = {
         deviceId: msg.deviceId,
         host: isStr(msg.host) ? msg.host : "",
         port: isNum(msg.port) ? msg.port : 0,
@@ -175,6 +191,16 @@
         files: files,
         readyAtMs: now()
       };
+      /* `broadcastTargeted` atteint un pair par CHACUN de ses sockets (deux
+       * liens par pair sur le maillage) : une même annonce arrive donc deux
+       * fois. Une annonce identique n'est PAS un nouvel état — on ne la rejoue
+       * pas, sinon le Master ré-offre (deux `transfer_offer`) et le Storage
+       * lance un SECOND téléchargement concurrent vers la même destination. */
+      if (state.sources[msg.deviceId] && sameManifest(state.sources[msg.deviceId], info)) {
+        log("MEDIA_READY_NOOP take=" + state.takeNumber + " source=" + msg.deviceId);
+        return false;
+      }
+      state.sources[msg.deviceId] = info;
       log("MEDIA_READY take=" + state.takeNumber + " source=" + msg.deviceId
         + " files=" + Object.keys(files).length + " total=" + state.sources[msg.deviceId].totalBytes);
       bump();
@@ -269,6 +295,18 @@
       if (isStr(msg.rel)) {
         var f = t.files[msg.rel] || (t.files[msg.rel] = normFile({ rel: msg.rel, bytes: msg.total, sha256: msg.sha256 }));
         if (!f) return false;
+
+        /* Double livraison transport d'un résultat TERMINAL déjà appliqué :
+         * même issue, même hash destination, mêmes octets reçus → no-op.
+         * Sinon le Master ré-ordonne la suppression locale d'un Take déjà
+         * traité (deux `transfer_delete` pour un même fichier). La comparaison
+         * est PAR FICHIER (un transfert multi-segments reste "transférant"
+         * tant que les autres segments ne sont pas reçus). */
+        if (f.state === (done ? PH_DONE : PH_ERROR)
+            && (done ? (f.received === f.bytes && (!destHash || destHash === String(f.sha256Destination || "").toLowerCase()))
+                     : (String(msg.error || "transfer_error") === String(f.error || "transfer_error")))) {
+          return false;
+        }
         /* Le hash source fait FOI : un `done` annoncé avec un SHA-256
          * destination différent est un ÉCHEC, pas un succès (le Storage peut se
          * tromper ou être corrompu — c'est la vérification pure du modèle). */

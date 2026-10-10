@@ -130,6 +130,42 @@ module.exports.register = function (h) {
       assert.ok(hasLog(mst.logs, "MEDIA_READY take=1 source=" + CAP + " files=2 total=3000"));
     });
 
+    it("J11.1b media_ready livré EN DOUBLE (deux sockets par pair) : la 2e annonce identique est un no-op", function () {
+      const bus = makeBus();
+      const cap = bus.make("capture", CAP, TAKE);
+      const mst = bus.make("master", MST, TAKE);
+      cap.machine.announceMedia(manifest());
+      const n1 = Object.keys(mst.machine.state.sources).length;
+      assert.strictEqual(n1, 1);
+
+      const applied = mst.machine.onIncoming({ kind: "media_ready", sessionId: SID, takeNumber: TAKE, deviceId: CAP, host: "10.0.0.5", port: 8080, files: manifest().files });
+      assert.strictEqual(applied, false, "annonce identique rejetée (no-op)");
+      assert.strictEqual(Object.keys(mst.machine.state.sources).length, 1, "aucune ré-application");
+      assert.ok(hasLog(mst.logs, "MEDIA_READY_NOOP take=1 source=" + CAP));
+    });
+
+    it("J11.1c transfer_result TERMINAL livré EN DOUBLE : la 2e application identique est un no-op", function () {
+      const bus = makeBus();
+      const cap = bus.make("capture", CAP, TAKE);
+      const mst = bus.make("master", MST, TAKE);
+      const s1 = bus.make("storage", STO1, TAKE);
+      cap.machine.announceMedia(manifest());
+      mst.machine.offerTransfers(CAP, [STO1]);
+
+      const apply = function () {
+        return mst.machine.onIncoming({
+          kind: "transfer_result", sessionId: SID, takeNumber: TAKE,
+          sourceDeviceId: CAP, storageDeviceId: STO1,
+          rel: "cam-1-seg00.mp4", state: M.PH_DONE,
+          received: 1000, sha256Destination: "aaaa"
+        });
+      };
+      assert.strictEqual(apply(), true, "1re application = un vrai événement");
+      assert.strictEqual(apply(), false, "2e application identique = no-op (transport double)");
+      const f = mst.machine.transferFor(CAP, STO1).files[0];
+      assert.strictEqual(f.state, M.PH_DONE);
+    });
+
     it("J11.2 transfer_offer : le Master offre à chacun, indépendamment", function () {
       const bus = makeBus();
       const cap = bus.make("capture", CAP, TAKE);

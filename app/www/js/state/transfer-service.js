@@ -50,27 +50,40 @@
 
     /* À appeler quand le Take local est STOPPED : calcule les empreintes
      * (streaming natif), démarre le serveur média et annonce les segments. */
+    /* Segments locaux, STAGÉS si le staging est disponible (le fichier
+     * enregistré vit dans le cache interne, mais le serveur sert le dossier
+     * média définitif). `stageSegments` rend une promesse de liste ; à défaut
+     * on retombe sur `listSegments` (synchrone) pour rester testable. */
+    function segmentList() {
+      var tk = take();
+      var p = (paths.stageSegments
+        ? paths.stageSegments(tk.sessionId, tk.takeNumber)
+        : Promise.resolve(paths.listSegments ? paths.listSegments(tk.sessionId, tk.takeNumber) : []));
+      return Promise.resolve(p).then(function (segs) { return segs || []; });
+    }
+
     var captureAnnounce = function () {
       if (role !== "capture") return Promise.resolve(null);
       var tk = take();
-      var segs = (paths.listSegments ? paths.listSegments(tk.sessionId, tk.takeNumber) : []) || [];
-      if (!segs.length) { log("TRANSFER_ANNOUNCE_SKIP reason=no_segments"); return Promise.resolve(null); }
-      server.token = generateToken();
-      return Promise.all(segs.map(function (s) {
-        return native.sha256(s.path).then(function (r) {
-          return { rel: s.rel, segmentIndex: s.segmentIndex || 0, bytes: r.bytes, sha256: r.sha256 };
-        });
-      })).then(function (files) {
-        return native.serveStart({ root: paths.mediaRoot(tk.sessionId, tk.takeNumber), port: port, token: server.token })
-          .then(function (url) {
-            server.url = url;
-            server.running = true;
-            var m = /^https?:\/\/([^:\/]+):(\d+)/.exec(url || "");
-            var host = m ? m[1] : "";
-            var prt = m ? parseInt(m[2], 10) : port;
-            log("TRANSFER_SERVE url=" + url + " files=" + files.length);
-            return model.announceMedia({ host: host, port: prt, token: server.token, files: files });
+      return segmentList().then(function (segs) {
+        if (!segs.length) { log("TRANSFER_ANNOUNCE_SKIP reason=no_segments"); return null; }
+        server.token = generateToken();
+        return Promise.all(segs.map(function (s) {
+          return native.sha256(s.path).then(function (r) {
+            return { rel: s.rel, segmentIndex: s.segmentIndex || 0, bytes: r.bytes, sha256: r.sha256 };
           });
+        })).then(function (files) {
+          return native.serveStart({ root: paths.mediaRoot(tk.sessionId, tk.takeNumber), port: port, token: server.token })
+            .then(function (url) {
+              server.url = url;
+              server.running = true;
+              var m = /^https?:\/\/([^:\/]+):(\d+)/.exec(url || "");
+              var host = m ? m[1] : "";
+              var prt = m ? parseInt(m[2], 10) : port;
+              log("TRANSFER_SERVE url=" + url + " files=" + files.length);
+              return model.announceMedia({ host: host, port: prt, token: server.token, files: files });
+            });
+        });
       }).catch(function (e) {
         log("TRANSFER_ANNOUNCE_ERROR error=" + (e && e.message ? e.message : e));
         return null;
@@ -88,11 +101,12 @@
      * laisse le modèle accuser réception (ack). */
     var captureHandleDelete = function (env) {
       var tk = take();
-      var segs = (paths.listSegments ? paths.listSegments(tk.sessionId, tk.takeNumber) : []) || [];
-      var list = segs.map(function (s) { return s.path; });
-      return deleteLocal(list).then(function () {
-        log("TRANSFER_LOCAL_DELETED take=" + tk.takeNumber + " files=" + list.length);
-        return model.onIncoming(env);
+      return segmentList().then(function (segs) {
+        var list = segs.map(function (s) { return s.path; });
+        return deleteLocal(list).then(function () {
+          log("TRANSFER_LOCAL_DELETED take=" + tk.takeNumber + " files=" + list.length);
+          return model.onIncoming(env);
+        });
       });
     };
 
@@ -117,24 +131,44 @@
 
     /* ----------------------------------------------------------------- storage */
 
+    /* Garde anti-double : un Storage ne relance jamais DEUX téléchargements
+     * concurremment vers la même source. Le transport peut livrer une offre en
+     * double (deux sockets par pair) ; sans cette garde, deux `download` natifs
+     * écriraient dans le MÊME fichier destination en parallèle. L'état se
+     * purge à la fin de la chaîne (succès OU échec), donc le retry manuel
+     * (Réessayer, écran 09) peut relancer un transfert terminé en erreur. */
+    var runningRuns = {}; /* sourceDeviceId -> true pendant la chaîne */
+
     /* Exécute les téléchargements d'une offre, séquentiellement, avec reprise. */
     var storageRun = function (offer) {
-      var tk = take();
-      var files = (offer.files || []).slice().sort(function (a, b) {
-        return (a.segmentIndex || 0) - (b.segmentIndex || 0);
-      });
-      var tkTake = tk.takeNumber;
-      var chain = Promise.resolve();
-      files.forEach(function (f) {
-        chain = chain.then(function () {
-          if (isRecording()) {
-            log("TRANSFER_PAUSE take=" + tkTake + " reason=recording file=" + f.rel);
-            return null; /* le service sera relancé après le Take */
-          }
-          return downloadWithRetry(offer, f, tkTake);
+      var rk = (offer && offer.sourceDeviceId) || "";
+      if (runningRuns[rk]) {
+        log("TRANSFER_RUN_SKIP take=" + take().takeNumber + " source=" + rk + " reason=in_progress");
+        return Promise.resolve();
+      }
+      runningRuns[rk] = true;
+      var run = function () {
+        var tk = take();
+        var files = (offer.files || []).slice().sort(function (a, b) {
+          return (a.segmentIndex || 0) - (b.segmentIndex || 0);
         });
-      });
-      return chain;
+        var tkTake = tk.takeNumber;
+        var chain = Promise.resolve();
+        files.forEach(function (f) {
+          chain = chain.then(function () {
+            if (isRecording()) {
+              log("TRANSFER_PAUSE take=" + tkTake + " reason=recording file=" + f.rel);
+              return null; /* le service sera relancé après le Take */
+            }
+            return downloadWithRetry(offer, f, tkTake);
+          });
+        });
+        return chain;
+      };
+      return run().then(
+        function (r) { delete runningRuns[rk]; return r; },
+        function (e) { delete runningRuns[rk]; throw e; }
+      );
     };
 
     var downloadWithRetry = function (offer, f, tkTake) {

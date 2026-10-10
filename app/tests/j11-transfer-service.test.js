@@ -112,6 +112,37 @@ module.exports.register = function (h) {
       assert.ok(model.logs.some((l) => l.indexOf("TRANSFER_SERVE") >= 0));
     });
 
+    it("S1b. captureAnnounce : segments stagés avant SHA-256 et serveur", async () => {
+      const raw = [{ rel: "seg00.mp4", segmentIndex: 0, path: "/cache/videoTmp_3.mp4" }];
+      const staged = [{ rel: "seg00.mp4", segmentIndex: 0, path: "/media/" + SID + "/" + TAKE + "/seg00.mp4" }];
+      let stagedCalled = 0;
+      const native = fakeNative({
+        sha256Map: { ["/media/" + SID + "/" + TAKE + "/seg00.mp4"]: { bytes: 244308329, sha256: "42fb" } }
+      });
+      const model = makeModel("capture", CAP, TAKE);
+      const svc = S.createTransferService({
+        model: model.machine, native, role: "capture", self: () => CAP,
+        log: (l) => model.logs.push(l), take: () => ({ sessionId: SID, takeNumber: TAKE, storages: [] }),
+        paths: {
+          mediaRoot: (sid, take) => `/media/${sid}/${take}`,
+          listSegments: () => raw,
+          stageSegments: (sid, take) => {
+            stagedCalled += 1;
+            assert.strictEqual(sid, SID);
+            assert.strictEqual(take, TAKE);
+            return Promise.resolve(staged);
+          },
+          destFor: (sid, take, rel) => ({ dest: `/dest/${sid}/${take}/${rel}` })
+        }
+      });
+      const msg = await svc.captureAnnounce();
+      assert.strictEqual(stagedCalled, 1, "staging demandé");
+      assert.strictEqual(native.calls.sha256[0], "/media/" + SID + "/" + TAKE + "/seg00.mp4", "hash sur le fichier stagé");
+      assert.strictEqual(native.calls.serveStart[0].root, `/media/${SID}/${TAKE}`);
+      assert.strictEqual(msg.files[0].bytes, 244308329);
+      assert.strictEqual(msg.files[0].sha256, "42fb");
+    });
+
     it("S2. master : offre automatique aux Storage si transferAuto", async () => {
       const native = fakeNative();
       const model = makeModel("master", MST, TAKE);
@@ -130,6 +161,78 @@ module.exports.register = function (h) {
       const offers = model.targeted.filter((m) => m.kind === "transfer_offer");
       assert.strictEqual(offers.length, 2, "une offre par Storage");
       assert.ok(offers.every((o) => o.msg.token === "tok"), "token transmis");
+    });
+
+    it("S2c. master : media_ready livré EN DOUBLE (maillage) → UNE seule offre", async () => {
+      const native = fakeNative();
+      const model = makeModel("master", MST, TAKE);
+      const tk = { sessionId: SID, takeNumber: TAKE, storages: [STO1] };
+      const svc = S.createTransferService({
+        model: model.machine, native, role: "master", self: () => MST,
+        log: (l) => model.logs.push(l), take: () => tk,
+        settings: () => ({ transferAuto: true }),
+        paths: fakePaths([])
+      });
+      const ann = {
+        kind: "media_ready", sessionId: SID, takeNumber: TAKE, deviceId: CAP,
+        host: "10.0.0.5", port: 8080, token: "tok",
+        files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
+      };
+      await svc.handle(ann);
+      await svc.handle(ann); /* deuxième livraison du même message */
+      const offers = model.targeted.filter((m) => m.kind === "transfer_offer");
+      assert.strictEqual(offers.length, 1, "une seule offre malgré la double livraison");
+      assert.ok(model.logs.some((l) => l.indexOf("MEDIA_READY_NOOP") >= 0));
+    });
+
+    it("S2d. master : transfer_result done livré EN DOUBLE → UNE seule suppression locale", async () => {
+      const native = fakeNative();
+      const model = makeModel("master", MST, TAKE);
+      const tk = { sessionId: SID, takeNumber: TAKE, storages: [STO1] };
+      const svc = S.createTransferService({
+        model: model.machine, native, role: "master", self: () => MST,
+        log: (l) => model.logs.push(l), take: () => tk,
+        settings: () => ({ transferAuto: true, deleteLocalAfterVerifiedReplication: true }),
+        paths: fakePaths([])
+      });
+      await svc.handle({
+        kind: "media_ready", sessionId: SID, takeNumber: TAKE, deviceId: CAP,
+        host: "10.0.0.5", port: 8080, token: "tok",
+        files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
+      });
+      const res = {
+        kind: "transfer_result", sessionId: SID, takeNumber: TAKE,
+        sourceDeviceId: CAP, storageDeviceId: STO1, rel: "seg00.mp4",
+        state: M.PH_DONE, received: 1000, sha256Destination: "aaaa"
+      };
+      await svc.handle(res);
+      await svc.handle(res); /* doublon maillage du même résultat */
+      const del = model.targeted.filter((m) => m.kind === "transfer_delete");
+      assert.strictEqual(del.length, 1, "une seule suppression ordonnée");
+    });
+
+    it("S3b. storage : offre en double reçue pendant un run → pas de second téléchargement", async () => {
+      let downloads = 0;
+      const native = fakeNative({
+        downloadPlan: () => { downloads += 1; return { ok: true, result: { done: true, received: 1000, total: 1000, sha256: "aaaa" } }; }
+      });
+      const model = makeModel("storage", STO1, TAKE);
+      const svc = S.createTransferService({
+        model: model.machine, native, role: "storage", self: () => STO1,
+        log: (l) => model.logs.push(l),
+        take: () => ({ sessionId: SID, takeNumber: TAKE, storages: [] }),
+        paths: fakePaths([], (rel) => ({ dest: `/dest/${rel}` }))
+      });
+      const offer = {
+        kind: "transfer_offer", sessionId: SID, takeNumber: TAKE,
+        sourceDeviceId: CAP, storageDeviceId: STO1, host: "h", port: 1, token: "t",
+        files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
+      };
+      const p1 = svc.handle(offer);
+      const p2 = svc.handle(offer); /* doublon maillage arrivé pendant le premier run */
+      await Promise.all([p1, p2]);
+      assert.strictEqual(downloads, 1, "un seul téléchargement natif pour une source");
+      assert.ok(model.logs.some((l) => l.indexOf("TRANSFER_RUN_SKIP") >= 0));
     });
 
     it("S2b. master : PAS d'offre si transferAuto désactivé (manuel)", async () => {
