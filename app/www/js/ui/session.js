@@ -81,6 +81,7 @@
     byId("sessionPin").textContent = "PIN " + s.pin;
     byId("sessionMeta").textContent = "Créée le " + (new Date(s.createdAtMs || Date.now())).toLocaleString("fr-FR")
       + (s.updatedAtMs ? " · modifiée " + (new Date(s.updatedAtMs)).toLocaleTimeString("fr-FR") : "");
+    renderTakes(s);
 
     var mk = global.MultiCamSessionWs;
     var selfDidLocal = selfDid();
@@ -199,6 +200,45 @@
         + "</div></article>";
     }).join("");
   }
+
+
+  function renderTakes(s) {
+    var takes = (s.takes || []).slice();
+    takes.sort(function (a,b){ return (b.takeNumber||0) - (a.takeNumber||0); });
+    var count = byId('takesCount');
+    if (count) count.textContent = String(takes.length);
+    var list = byId('takesList');
+    if (!list) return;
+    if (!takes.length) {
+      list.innerHTML = '<div class="empty-state">Aucun Take</div>';
+    } else {
+      list.innerHTML = takes.map(function (t) {
+        var num = t.takeNumber || 0;
+        var st = t.status || 'PREPARATION';
+        return '<button type="button" class="card glass rounded-4 w-100 text-start take-card" data-take="' + num + '">'
+          + '<div class="card-body p-2 d-flex align-items-center gap-2">'
+          + '<div class="flex-grow-1"><div class="fw-semibold">Take ' + num + '</div>'
+          + '<div class="small muted">' + esc(st) + '</div></div>'
+          + '<i class="fa-solid fa-chevron-right muted"></i></div></button>';
+      }).join('');
+      var cards = document.querySelectorAll('.take-card');
+      Array.prototype.forEach.call(cards, function (c) {
+        c.onclick = function () {
+          if (global.MultiCamNav && global.MultiCamNav.show) {
+            global.MultiCamNav.show('take-stopped', { sid: s.sessionId, takeNumber: parseInt(c.getAttribute('data-take'), 10), archived: '1' });
+          }
+        };
+      });
+    }
+    var next = byId('nextTakeLabel');
+    if (next) {
+      var last = (s.takes||[]).slice();
+      last.sort(function(a,b){ return (a.takeNumber||0)-(b.takeNumber||0); });
+      var nn = last.length ? (last[last.length-1].takeNumber||0)+1 : 1;
+      next.textContent = 'Take ' + nn;
+    }
+  }
+
 
   /* ---------- modal locale (Ajouter / Modifier / Retirer) ---------- */
 
@@ -358,6 +398,15 @@
       prepareBtn.addEventListener("click", function () {
         if (state.session && state.session.state === "open") {
           console.log("SCREEN03_TO_TAKE sessionId=" + state.sid);
+          global.MultiCamNav.show("take", { sid: state.sid });
+        }
+      });
+    }
+    var nextPrep = byId("nextTakePrepare");
+    if (nextPrep) {
+      nextPrep.addEventListener("click", function () {
+        if (state.session && state.session.state === "open") {
+          console.log("SCREEN03_TO_TAKE_NEXT sessionId=" + state.sid);
           global.MultiCamNav.show("take", { sid: state.sid });
         }
       });

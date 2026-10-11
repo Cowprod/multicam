@@ -39,6 +39,12 @@
   var GPS_PROFILES = ["OFF", "ECO", "NORMAL", "PRECISE"];
   var COUNTDOWNS = [0, 3, 5, 10];
   var STATUS_PREPARATION = "PREPARATION";
+  var STATUS_IN_PROGRESS = "IN_PROGRESS";
+  var STATUS_COMPLETED = "COMPLETED";
+  var STATUS_ARCHIVED = "ARCHIVED";
+  var STATUS_ERROR = "ERROR";
+  var STATUS_STOPPED = "STOPPED";
+  var STATUS_TERMINATED = "TERMINATED";
 
   /* Échelle décroissante pour le "meilleure inférieure supportée". */
   var RESOLUTION_LADDER = ["4K", "FHD", "HD"];
@@ -146,6 +152,61 @@
     return out.sort();
   }
 
+  /* Statuts valides d'un Take (J12 : conservation de l'état validé). */
+  var VALID_STATUSES = [
+    STATUS_PREPARATION,
+    STATUS_IN_PROGRESS,
+    STATUS_COMPLETED,
+    STATUS_ARCHIVED,
+    STATUS_ERROR,
+    STATUS_STOPPED,
+    STATUS_TERMINATED
+  ];
+
+  /* Assainit un bloc résumé de transfert (J12). */
+  function sanitizeTransferSummary(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    var s = {
+      state: typeof raw.state === "string" && raw.state ? raw.state : "",
+      bytes: isNum(raw.bytes) && raw.bytes >= 0 ? raw.bytes : 0,
+      total: isNum(raw.total) && raw.total >= 0 ? raw.total : 0,
+      percent: isNum(raw.percent) && raw.percent >= 0 ? Math.min(100, Math.round(raw.percent)) : 0,
+      error: typeof raw.error === "string" ? raw.error : "",
+      startedAtMs: isNum(raw.startedAtMs) && raw.startedAtMs > 0 ? raw.startedAtMs : 0,
+      updatedAtMs: isNum(raw.updatedAtMs) && raw.updatedAtMs > 0 ? raw.updatedAtMs : 0,
+      completedAtMs: isNum(raw.completedAtMs) && raw.completedAtMs > 0 ? raw.completedAtMs : 0
+    };
+    return s;
+  }
+
+  function sanitizeTransferSummaryMap(raw) {
+    var map = {};
+    if (!raw || typeof raw !== "object") return map;
+    Object.keys(raw).forEach(function (k) {
+      if (!k) return;
+      var t = sanitizeTransferSummary(raw[k]);
+      if (t) map[k] = t;
+    });
+    return map;
+  }
+
+  /* Assainit un bloc résumé global Take (J12). */
+  function sanitizeTakeSummary(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    var s = {
+      stoppedAtMs: isNum(raw.stoppedAtMs) && raw.stoppedAtMs > 0 ? raw.stoppedAtMs : 0,
+      durationMs: isNum(raw.durationMs) && raw.durationMs >= 0 ? raw.durationMs : 0,
+      stopReason: typeof raw.stopReason === "string" ? raw.stopReason : "",
+      transferState: typeof raw.transferState === "string" && raw.transferState ? raw.transferState : "",
+      transferError: typeof raw.transferError === "string" ? raw.transferError : "",
+      transferBytes: isNum(raw.transferBytes) && raw.transferBytes >= 0 ? raw.transferBytes : 0,
+      transferTotal: isNum(raw.transferTotal) && raw.transferTotal >= 0 ? raw.transferTotal : 0,
+      transferPercent: isNum(raw.transferPercent) && raw.transferPercent >= 0 ? Math.min(100, Math.round(raw.transferPercent)) : 0,
+      transfers: sanitizeTransferSummaryMap(raw.transfers)
+    };
+    return s;
+  }
+
   /* Assainit un Take : forme canonique stable + champs de convergence
    * (updatedAtMs/updatedByDeviceId). takeNumber requis ≥ 1 (254 = Take 255 pas
    * réaliste en V1 mais pas de limite artificielle : borne haute souple 9999). */
@@ -154,9 +215,10 @@
     var n = Math.floor(raw.takeNumber);
     if (!isNum(n) || n < 1 || n > 9999) return null;
     var now = nowMs();
+    var status = typeof raw.status === "string" && VALID_STATUSES.indexOf(raw.status) >= 0 ? raw.status : STATUS_PREPARATION;
     var out = {
       takeNumber: n,
-      status: raw.status === STATUS_PREPARATION ? STATUS_PREPARATION : STATUS_PREPARATION,
+      status: status,
       captures: cleanStringArray(raw.captures),
       storages: cleanStringArray(raw.storages),
       settings: sanitizeSettings(raw.settings),
@@ -165,6 +227,8 @@
       updatedAtMs: isNum(raw.updatedAtMs) && raw.updatedAtMs > 0 ? raw.updatedAtMs : now,
       updatedByDeviceId: typeof raw.updatedByDeviceId === "string" ? raw.updatedByDeviceId : ""
     };
+    var summary = sanitizeTakeSummary(raw.summary);
+    if (summary) out.summary = summary;
     return out;
   }
 
@@ -585,12 +649,12 @@
   /* ---------- convergence des Takes entre Masters (LMW déterministe) ---------- */
 
   function takesEqual(a, b) {
-    return JSON.stringify({
-      takeNumber: a.takeNumber, captures: a.captures, storages: a.storages,
-      settings: a.settings, captureOverrides: a.captureOverrides
-    }) === JSON.stringify({
-      takeNumber: b.takeNumber, captures: b.captures, storages: b.storages,
-      settings: b.settings, captureOverrides: b.captureOverrides
+    return canon({
+      takeNumber: a.takeNumber, status: a.status, captures: a.captures, storages: a.storages,
+      settings: a.settings, captureOverrides: a.captureOverrides, summary: a.summary
+    }) === canon({
+      takeNumber: b.takeNumber, status: b.status, captures: b.captures, storages: b.storages,
+      settings: b.settings, captureOverrides: b.captureOverrides, summary: b.summary
     });
   }
 
@@ -608,8 +672,11 @@
 
   /* Vainqueur d'un Take concurrent : (updatedAtMs, updatedByDeviceId), puis
    * départage déterministe du contenu : nombre de Captures, nominaux, nombre de
-   * Storages, nominaux, réglages, overrides (la longueur prime pour qu'une
-   * sélection non vide ne perde jamais face à une copie vide au LMW égal). */
+   * Storages, nominaux, réglages, overrides, status, summary (la longueur prime
+   * pour qu'une sélection non vide ne perde jamais face à une copie vide au
+   * LMW égal). CRITIQUE J12 : le contenu du canon inclut status/summary pour
+   * éviter qu'un état plus récent/validé ne soit régressé par un état plus
+   * ancien au LMW égal. */
   function takeWinner(a, b) {
     var aMs = a.updatedAtMs || 0, bMs = b.updatedAtMs || 0;
     if (aMs !== bMs) return aMs > bMs ? a : b;
@@ -619,8 +686,8 @@
     if (ac.length !== bc.length) return ac.length > bc.length ? a : b;
     var asc = (a.storages || []), bsc = (b.storages || []);
     if (asc.length !== bsc.length) return asc.length > bsc.length ? a : b;
-    var aK = canon({ captures: ac, storages: asc, settings: a.settings, captureOverrides: a.captureOverrides });
-    var bK = canon({ captures: bc, storages: bsc, settings: b.settings, captureOverrides: b.captureOverrides });
+    var aK = canon({ status: a.status, summary: a.summary, captures: ac, storages: asc, settings: a.settings, captureOverrides: a.captureOverrides });
+    var bK = canon({ status: b.status, summary: b.summary, captures: bc, storages: bsc, settings: b.settings, captureOverrides: b.captureOverrides });
     if (aK !== bK) return aK > bK ? a : b;
     return a;
   }
@@ -657,6 +724,12 @@
 
   return {
     STATUS_PREPARATION: STATUS_PREPARATION,
+    STATUS_IN_PROGRESS: STATUS_IN_PROGRESS,
+    STATUS_COMPLETED: STATUS_COMPLETED,
+    STATUS_ARCHIVED: STATUS_ARCHIVED,
+    STATUS_ERROR: STATUS_ERROR,
+    STATUS_STOPPED: STATUS_STOPPED,
+    STATUS_TERMINATED: STATUS_TERMINATED,
     RESOLUTIONS: RESOLUTIONS,
     QUALITIES: QUALITIES,
     CAMERAS: CAMERAS,

@@ -235,7 +235,11 @@
       nh.addEventListener("click", function () {
         var menu = byId("menu");
         if (menu) menu.classList.remove("open");
-        showToast("Disponible dans une version ultérieure");
+        if (global.MultiCamNav && global.MultiCamNav.show) {
+          global.MultiCamNav.show("history");
+        } else {
+          showToast("Historique");
+        }
       });
     }
     var cs = byId("createSession");

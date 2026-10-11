@@ -41,7 +41,7 @@
 
   /* ---------- routeur panneaux (index.html monodocument) ---------- */
 
-  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown", "live", "take-stopped", "storage"];
+  var panels = ["home", "create", "join", "session", "settings", "take", "arm", "countdown", "live", "take-stopped", "storage", "history"];
   var current = "home";
 
   function panelEl(name) { return document.getElementById("panel-" + name); }
@@ -100,6 +100,11 @@
          * elle recharge les sessions du store puis re-rend. */
         if (global.MultiCamStorageView) {
           global.MultiCamStorageView.show(appCfg, params || {});
+        }
+        break;
+      case "history":
+        if (global.MultiCamHistoryScreen) {
+          global.MultiCamHistoryScreen.show(appCfg, params || {});
         }
         break;
       case "settings":

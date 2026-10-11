@@ -287,9 +287,63 @@
     /* ---------- notification UI ---------- */
 
     function notify() {
+      try { updateTakeFromTransfers(); } catch (e) {}
       listeners.slice().forEach(function (fn) {
         try { fn(); } catch (e) { log("TRANSFER_NOTIFY_ERROR " + String((e && e.message) || e)); }
       });
+    }
+
+    function updateTakeFromTransfers() {
+      var wsApi = ws();
+      var storeApi = sessionStore();
+      var takeMod = takeModel();
+      if (!wsApi || typeof wsApi.upsertTake !== "function" || !storeApi || typeof storeApi.get !== "function" || !takeMod) return;
+      if (!primary || !primary.sid || !primary.machine) return;
+      var v = primary.machine.view();
+      if (!v || !v.transfers) return;
+      storeApi.get(primary.sid).then(function (ses) {
+        if (!ses) return;
+        var takes = ses.takes || [];
+        var take = null;
+        for (var i = 0; i < takes.length; i++) {
+          if (takes[i] && takes[i].takeNumber === (primary.takeNumber || 0)) { take = takes[i]; break; }
+        }
+        if (!take) return;
+        var t2 = JSON.parse(JSON.stringify(take));
+        t2.updatedAtMs = Date.now();
+        var keys = Object.keys(v.transfers);
+        var transfers = v.transfers;
+        var done = 0, error = 0, totalFiles = 0, bytes = 0, totalBytes = 0;
+        keys.forEach(function (k) {
+          var tr = transfers[k];
+          if (!tr) return;
+          var f = tr.files || [];
+          totalFiles += f.length;
+          bytes += Number(tr.bytes) || 0;
+          totalBytes += Number(tr.total) || 0;
+          if (tr.state === "done") done += 1;
+          if (tr.state === "error") error += 1;
+        });
+        var transferState = "TRANSFERRING";
+        if (error > 0 && done === 0 && keys.length > 0) transferState = "ERROR";
+        else if (error > 0 && done > 0) transferState = "ERROR";
+        else if (keys.length > 0 && done === keys.length) transferState = "TERMINATED";
+        var summary = t2.summary ? JSON.parse(JSON.stringify(t2.summary)) : {
+          stoppedAtMs: 0, durationMs: 0, stopReason: "", transferState: "", transferError: "",
+          transferBytes: 0, transferTotal: 0, transferPercent: 0, transfers: {}
+        };
+        summary.transferState = transferState;
+        summary.transferBytes = bytes;
+        summary.transferTotal = totalBytes || bytes;
+        summary.transferPercent = (totalBytes > 0) ? Math.round((bytes / totalBytes) * 100) : (keys.length > 0 ? (done * 100 / keys.length) : 0);
+        if (transferState === "ERROR" && error > 0) summary.transferError = "transfer_error";
+        if (t2.status !== takeMod.STATUS_TERMINATED) {
+          if (transferState === "TERMINATED") t2.status = takeMod.STATUS_TERMINATED;
+          else if (transferState === "ERROR") t2.status = takeMod.STATUS_ERROR;
+        }
+        t2.summary = summary;
+        wsApi.upsertTake(ses, t2).catch(function (e) { log("TAKE_TRANSFER_PERSIST_ERR " + String((e && e.message) || e)); });
+      }).catch(function (e) { log("TAKE_TRANSFER_PERSIST_SERR " + String((e && e.message) || e)); });
     }
 
     /* ---------- déclencheurs ---------- */

@@ -595,19 +595,77 @@
     if (m && typeof m.refreshLocalReadiness === "function") m.refreshLocalReadiness();
   }
 
-  function view() {
-    var m = machine();
-    var v = m ? m.view() : { active: false, phase: startModel ? startModel().PHASE_IDLE : "IDLE", rev: 0 };
-    var cam = camera() && camera().view ? camera().view() : {};
-    v.camera = cam;
-    v.recording = !!cam.recording;
-    /* J09-07 : l'écran REC de la Capture a besoin de l'état caméra CONFIRMÉ.
-     * On le publie ici — et pas dans `camera` — pour que la ligne « Caméra »
-     * reste celle de la PRÉPARATION (J08), qui est une autre question. */
-    var cs = global.MultiCamCameraSwitchService;
-    v.cameraSwitch = (cs && typeof cs.view === "function") ? cs.view() : null;
-    return v;
-  }
+   var lastPersistedStopKey = "";
+
+   function persistStopIfNeeded(v) {
+     if (!v || !v.sid || !v.stopExecuted) return Promise.resolve(null);
+     var key = v.sid + "|" + (v.takeNumber || 0) + "|" + (v.stopId || "");
+     if (key === lastPersistedStopKey) return Promise.resolve(null);
+     lastPersistedStopKey = key;
+     var ses = sessionFor(v.sid) || lastSession;
+     if (!ses || !ws() || !ws().upsertTake) return Promise.resolve(null);
+     var take = null;
+     var takes = ses.takes || [];
+     for (var i = 0; i < takes.length; i++) {
+       if (takes[i] && takes[i].takeNumber === (v.takeNumber || 0)) { take = takes[i]; break; }
+     }
+     if (!take) return Promise.resolve(null);
+     var tm = global.MultiCamTakeModel;
+     var t2 = tm ? JSON.parse(JSON.stringify(take)) : JSON.parse(JSON.stringify(take));
+     t2.status = tm && tm.STATUS_TERMINATED ? tm.STATUS_TERMINATED : "TERMINATED";
+     t2.updatedByDeviceId = selfDid() || t2.updatedByDeviceId || "";
+     t2.updatedAtMs = nowMs();
+     var summary = {
+       stoppedAtMs: (v.localStopInfo && isNum(v.localStopInfo.stopAtMs)) ? v.localStopInfo.stopAtMs
+         : (isNum(v.stop) && isNum(v.stop.stopAtMs) ? v.stop.stopAtMs : nowMs()),
+       durationMs: isNum(v.stopDurationMs) ? v.stopDurationMs : 0,
+       stopReason: (v.stop && v.stop.reason) || "",
+       transferState: "",
+       transferError: "",
+       transferBytes: 0,
+       transferTotal: 0,
+       transferPercent: 0,
+       transfers: {}
+     };
+     if (v.stopStates) {
+       Object.keys(v.stopStates).forEach(function (did) {
+         var st = v.stopStates[did];
+         if (!st) return;
+         var kmap = did;
+         summary.transfers[kmap] = {
+           state: "STOPPED",
+           bytes: 0,
+           total: 0,
+           percent: 0,
+           error: "",
+           startedAtMs: 0,
+           updatedAtMs: st.receivedAtMs || nowMs(),
+           completedAtMs: st.receivedAtMs || nowMs()
+         };
+       });
+     }
+     t2.summary = summary;
+     return ws().upsertTake(ses, t2).then(function () {
+       log("TAKE_PERSIST_STOP sid=" + v.sid + " take=" + (v.takeNumber || 0) + " stopId=" + (v.stopId || ""));
+     }).catch(function (e) {
+       log("TAKE_PERSIST_STOP_ERR " + String((e && e.message) || e));
+     });
+   }
+
+   function view() {
+     var m = machine();
+     var v = m ? m.view() : { active: false, phase: startModel ? startModel().PHASE_IDLE : "IDLE", rev: 0 };
+     var cam = camera() && camera().view ? camera().view() : {};
+     v.camera = cam;
+     v.recording = !!cam.recording;
+     /* J09-07 : l'écran REC de la Capture a besoin de l'état caméra CONFIRMÉ.
+      * On le publie ici — et pas dans `camera` — pour que la ligne « Caméra »
+      * reste celle de la PRÉPARATION (J08), qui est une autre question. */
+     var cs = global.MultiCamCameraSwitchService;
+     v.cameraSwitch = (cs && typeof cs.view === "function") ? cs.view() : null;
+     try { persistStopIfNeeded(v); } catch (e) {}
+     return v;
+   }
 
   function isActive() {
     var m = machine();

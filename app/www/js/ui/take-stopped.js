@@ -365,10 +365,41 @@
     });
   }
 
+  function renderFromStore(sid, takeNumber) {
+    try {
+      var store = global.MultiCamSessionStore;
+      if (!store || typeof store.get !== "function") return;
+      store.get(sid).then(function (s) {
+        if (!s) return;
+        var takes = s.takes || [];
+        var t = null;
+        for (var i = 0; i < takes.length; i++) {
+          if (takes[i] && takes[i].takeNumber === takeNumber) { t = takes[i]; break; }
+        }
+        if (!t) return;
+        var dom = byId("tsSession") && global.document ? global.document : null;
+        if (!dom) return;
+        var vstart = {
+          sid: sid,
+          takeNumber: takeNumber,
+          active: false,
+          stopStates: (t.summary && t.summary.transfers) || {},
+          localStopInfo: { stopAtMs: t.summary && t.summary.stoppedAtMs }
+        };
+        render(vstart);
+      });
+    } catch (e) {}
+  }
+
   function show(cfg, params) {
     params = params || {};
     state.sid = params.sid || state.sid;
     bind();
+    if (params.archived === "1" && params.takeNumber) {
+      renderFromStore(params.sid || state.sid, params.takeNumber);
+      console.log("SCREEN09_OPEN_ARCHIVED sessionId=" + (params.sid || state.sid) + " take=" + params.takeNumber);
+      return;
+    }
     var v = global.MultiCamStartService ? global.MultiCamStartService.view() : null;
     var pv = render(v);
     console.log("SCREEN09_OPEN sessionId=" + (state.sid || "—")
