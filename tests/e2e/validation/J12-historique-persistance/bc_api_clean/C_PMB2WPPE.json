@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "PMB2WPPE",
+  "name": "Hist BC-1791824334",
+  "nameUpdatedMs": 1791825032893,
+  "nameByDeviceId": "",
+  "pin": "8262",
+  "state": "open",
+  "stateUpdatedMs": 1791825032893,
+  "stateByDeviceId": "",
+  "createdAtMs": 1791825032893,
+  "updatedAtMs": 1791825033077,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1791824559590
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "J11-B-Capture",
+      "endpoint": "192.168.92.76:45102",
+      "joinedAtMs": 1791824954329
+    },
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "J11-C-Storage1",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1791825032216
+    }
+  ],
+  "members": [],
+  "removedMembers": {},
+  "takes": []
+}
