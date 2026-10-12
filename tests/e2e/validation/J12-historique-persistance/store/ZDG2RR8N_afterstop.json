@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "ZDG2RR8N",
+  "name": "Hist A-1791789932",
+  "nameUpdatedMs": 1791789931932,
+  "nameByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "pin": "2834",
+  "state": "open",
+  "stateUpdatedMs": 1791789931932,
+  "stateByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "createdAtMs": 1791789931932,
+  "updatedAtMs": 1791789939466,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1791789931931
+    }
+  ],
+  "members": [],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "PREPARATION",
+      "captures": [],
+      "storages": [],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791789939466,
+      "updatedAtMs": 1791789939466,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a"
+    }
+  ]
+}

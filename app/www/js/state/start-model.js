@@ -948,6 +948,32 @@
       };
       logStopLocal(takeNumber, info, txn, plan);
       if (txn) publishStopState(txn, info);
+      try {
+        if (global.MultiCamStartService && typeof global.MultiCamStartService.registerStopPersistHook === "function" && global._mcStopPersistHooked !== true) {
+          global._mcStopPersistHooked = true;
+          global.MultiCamStartService.registerStopPersistHook(function (v) {
+            try {
+              // will be handled by service; but ensure context
+            } catch (e) {}
+          });
+        }
+      } catch (e) {}
+      try {
+        if (global.MultiCamStartService && typeof global.MultiCamStartService.triggerStopPersist === "function") {
+          var sv = (global.MultiCamStartService.view ? global.MultiCamStartService.view() : null) || {};
+          global.MultiCamStartService.triggerStopPersist({
+            sid: sv.sid || state.sid,
+            takeNumber: takeNumber,
+            stopId: state.localStopInfo.stopId,
+            stopExecuted: true,
+            stopStates: state.stopStates,
+            localStopInfo: state.localStopInfo,
+            stop: state.stop,
+            stopDurationMs: sv.stopDurationMs,
+            recElapsedMs: sv.recElapsedMs
+          });
+        }
+      } catch (e) {}
     };
 
     /* Exécution de l'arrêt local à l'instant cible (top d'arrêt). */

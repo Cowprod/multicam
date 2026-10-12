@@ -597,58 +597,137 @@
 
    var lastPersistedStopKey = "";
 
-   function persistStopIfNeeded(v) {
-     if (!v || !v.sid || !v.stopExecuted) return Promise.resolve(null);
-     var key = v.sid + "|" + (v.takeNumber || 0) + "|" + (v.stopId || "");
+  var stopPersistHooks = [];
+  function registerStopPersistHook(fn) {
+    if (typeof fn === "function" && stopPersistHooks.indexOf(fn) < 0) stopPersistHooks.push(fn);
+  }
+  function triggerStopPersist(v) {
+    try {
+      for (var i = 0; i < stopPersistHooks.length; i++) {
+        try { stopPersistHooks[i](v); } catch (e) {}
+      }
+    } catch (e) {}
+  }
+   var pendingStop = null;
+
+   var _autoCheck = null;
+  function _ensureAutoCheck() {
+    if (_autoCheck) return;
+    _autoCheck = setInterval(function () {
+      try {
+        var m = machine();
+        var mv = m && m.view ? m.view() : null;
+        var v = view();
+        var sm = startModel && startModel();
+        if ((mv && (mv.phase === "STOPPED" || mv.stopExecuted)) || (v && (v.phase === "STOPPED" || v.stopExecuted)) || (sm && v.phase === sm.PHASE_STOPPED)) {
+          var ps = pendingStop || {};
+          if (mv) { if (mv.sid) ps.sid = mv.sid; if (mv.takeNumber != null) ps.takeNumber = mv.takeNumber; if (mv.stopId) ps.stopId = mv.stopId; if (mv.stopStates) ps.stopStates = mv.stopStates; }
+          if (v) { if (v.sid) ps.sid = v.sid; if (v.takeNumber != null) ps.takeNumber = v.takeNumber; }
+          if (lastSession && lastSession.takes && lastSession.takes.length && ps.takeNumber == null) ps.takeNumber = lastSession.takes[lastSession.takes.length-1].takeNumber;
+          ps.stopExecuted = true;
+          pendingStop = ps;
+          persistStopIfNeeded(pendingStop);
+          try { clearInterval(_autoCheck); _autoCheck = null; } catch (e) {}
+        }
+      } catch (e) {}
+    }, 400);
+  }
+  try { setTimeout(_ensureAutoCheck, 100); } catch (e) {}
+
+  function persistStopIfNeeded(v) {
+     if (!v) return Promise.resolve(null);
+     var sid = v.sid;
+     if (!sid && lastSession && lastSession.sessionId) sid = lastSession.sessionId;
+     var takeNum = v.takeNumber;
+     if (takeNum == null || takeNum === undefined || takeNum === "") {
+       if (lastSession && lastSession.takes && lastSession.takes.length) {
+         takeNum = lastSession.takes[lastSession.takes.length - 1].takeNumber;
+       } else {
+         takeNum = 0;
+       }
+     }
+     var stopId = v.stopId || (v.localStopInfo && v.localStopInfo.stopId) || "";
+     if (!v.stopExecuted && !(v.phase === "STOPPED" || (startModel && startModel().PHASE_STOPPED && v.phase === startModel().PHASE_STOPPED))) {
+       // still may need to persist if we have stop states
+     }
+     if (!sid) {
+       log("TAKE_PERSIST_STOP_SKIP reason=no_sid take=" + takeNum + " stopId=" + stopId);
+       return Promise.resolve(null);
+     }
+     var key = sid + "|" + takeNum + "|" + stopId;
      if (key === lastPersistedStopKey) return Promise.resolve(null);
-     lastPersistedStopKey = key;
-     var ses = sessionFor(v.sid) || lastSession;
-     if (!ses || !ws() || !ws().upsertTake) return Promise.resolve(null);
-     var take = null;
-     var takes = ses.takes || [];
-     for (var i = 0; i < takes.length; i++) {
-       if (takes[i] && takes[i].takeNumber === (v.takeNumber || 0)) { take = takes[i]; break; }
-     }
-     if (!take) return Promise.resolve(null);
-     var tm = global.MultiCamTakeModel;
-     var t2 = tm ? JSON.parse(JSON.stringify(take)) : JSON.parse(JSON.stringify(take));
-     t2.status = tm && tm.STATUS_TERMINATED ? tm.STATUS_TERMINATED : "TERMINATED";
-     t2.updatedByDeviceId = selfDid() || t2.updatedByDeviceId || "";
-     t2.updatedAtMs = nowMs();
-     var summary = {
-       stoppedAtMs: (v.localStopInfo && isNum(v.localStopInfo.stopAtMs)) ? v.localStopInfo.stopAtMs
-         : (isNum(v.stop) && isNum(v.stop.stopAtMs) ? v.stop.stopAtMs : nowMs()),
-       durationMs: isNum(v.stopDurationMs) ? v.stopDurationMs : 0,
-       stopReason: (v.stop && v.stop.reason) || "",
-       transferState: "",
-       transferError: "",
-       transferBytes: 0,
-       transferTotal: 0,
-       transferPercent: 0,
-       transfers: {}
-     };
-     if (v.stopStates) {
-       Object.keys(v.stopStates).forEach(function (did) {
-         var st = v.stopStates[did];
-         if (!st) return;
-         var kmap = did;
-         summary.transfers[kmap] = {
-           state: "STOPPED",
-           bytes: 0,
-           total: 0,
-           percent: 0,
-           error: "",
-           startedAtMs: 0,
-           updatedAtMs: st.receivedAtMs || nowMs(),
-           completedAtMs: st.receivedAtMs || nowMs()
-         };
-       });
-     }
-     t2.summary = summary;
-     return ws().upsertTake(ses, t2).then(function () {
-       log("TAKE_PERSIST_STOP sid=" + v.sid + " take=" + (v.takeNumber || 0) + " stopId=" + (v.stopId || ""));
+     var storeApi = store();
+     var wsApi = ws();
+     if (!storeApi || typeof storeApi.get !== "function" || !wsApi || typeof wsApi.upsertTake !== "function") return Promise.resolve(null);
+     return Promise.resolve(storeApi.get(sid)).then(function (ses) {
+       if (!ses) {
+         log("TAKE_PERSIST_STOP_SKIP reason=no_session sid=" + sid);
+         return null;
+       }
+       sessionCache[sid] = ses;
+       lastSession = ses;
+       if (v.takeNumber == null || v.takeNumber === undefined || v.takeNumber === "") {
+         var lt = ses.takes && ses.takes.length ? ses.takes[ses.takes.length - 1] : null;
+         if (lt) takeNum = lt.takeNumber;
+       } else {
+         takeNum = v.takeNumber || 0;
+       }
+       var take = null;
+       var takes = ses.takes || [];
+       for (var i = 0; i < takes.length; i++) {
+         if (takes[i] && takes[i].takeNumber === takeNum) { take = takes[i]; break; }
+       }
+       if (!take && takes.length) {
+         take = takes[takes.length - 1];
+         takeNum = take.takeNumber;
+       }
+       if (!take) return null;
+       lastPersistedStopKey = key;
+       var tm = global.MultiCamTakeModel;
+       var t2 = tm ? JSON.parse(JSON.stringify(take)) : JSON.parse(JSON.stringify(take));
+       var wantStatus = tm && tm.STATUS_TERMINATED ? tm.STATUS_TERMINATED : "TERMINATED";
+       if (t2.status !== wantStatus)        if (t2.status !== wantStatus && t2.status !== "TERMINATED") t2.status = wantStatus;
+       t2.updatedByDeviceId = selfDid() || t2.updatedByDeviceId || "";
+       t2.updatedAtMs = nowMs();
+       var summary = {
+         stoppedAtMs: (v.localStopInfo && (isNum(v.localStopInfo.stopAtMs) || isNum(v.localStopInfo.actualMs))) ? (v.localStopInfo.stopAtMs || v.localStopInfo.actualMs)
+           : (v.stop && (isNum(v.stop.stopAtMs) || isNum(v.stop.actualMs))) ? (v.stop.stopAtMs || v.stop.actualMs) : nowMs(),
+         durationMs: isNum(v.stopDurationMs) ? v.stopDurationMs : (isNum(v.recElapsedMs) ? v.recElapsedMs : 0),
+         stopReason: (v.stop && v.stop.reason) || "",
+         transferState: (t2.summary && t2.summary.transferState) || "",
+         transferError: (t2.summary && t2.summary.transferError) || "",
+         transferBytes: (t2.summary && t2.summary.transferBytes) || 0,
+         transferTotal: (t2.summary && t2.summary.transferTotal) || 0,
+         transferPercent: (t2.summary && t2.summary.transferPercent) || 0,
+         transfers: (t2.summary && t2.summary.transfers) ? JSON.parse(JSON.stringify(t2.summary.transfers)) : {}
+       };
+       var hasStopStates = v.stopStates && Object.keys(v.stopStates).length;
+       if (hasStopStates && Object.keys(summary.transfers).length === 0) {
+         Object.keys(v.stopStates).forEach(function (did) {
+           var st = v.stopStates[did];
+           if (!st) return;
+           summary.transfers[did] = {
+             state: "STOPPED",
+             bytes: 0,
+             total: 0,
+             percent: 0,
+             error: "",
+             startedAtMs: 0,
+             updatedAtMs: st.receivedAtMs || st.actualMs || nowMs(),
+             completedAtMs: st.receivedAtMs || st.actualMs || nowMs()
+           };
+         });
+       }
+       t2.summary = summary;
+       return wsApi.upsertTake(ses, t2).then(function () {
+       pendingStop = null;
+       try { triggerStopPersist({ sid: sid, takeNumber: takeNum, stopId: stopId, stopExecuted: true, stopStates: v.stopStates, localStopInfo: v.localStopInfo, stop: v.stop, stopDurationMs: v.stopDurationMs, recElapsedMs: v.recElapsedMs }); } catch (e) {}
+       log("TAKE_PERSIST_STOP sid=" + v.sid + " take=" + takeNum + " stopId=" + (v.stopId || "") + " status=" + (t2.status||""));
      }).catch(function (e) {
        log("TAKE_PERSIST_STOP_ERR " + String((e && e.message) || e));
+     });
+     }).catch(function (e) {
+       log("TAKE_PERSIST_STOP_LOAD_ERR sid=" + v.sid + " err=" + String((e && e.message) || e));
      });
    }
 
@@ -663,7 +742,43 @@
       * reste celle de la PRÉPARATION (J08), qui est une autre question. */
      var cs = global.MultiCamCameraSwitchService;
      v.cameraSwitch = (cs && typeof cs.view === "function") ? cs.view() : null;
-     try { persistStopIfNeeded(v); } catch (e) {}
+     try {
+       var mv = null;
+       if (m && typeof m.view === "function") mv = m.view();
+       var should = false;
+       if (v) {
+         if (v.stopExecuted) should = true;
+         if (v.phase === "STOPPED") should = true;
+       }
+       if (mv) {
+         if (mv.stopExecuted) should = true;
+         if (mv.phase === "STOPPED") should = true;
+         if (!v.sid && mv.sid) v.sid = mv.sid;
+         if (v.takeNumber == null && mv.takeNumber != null) v.takeNumber = mv.takeNumber;
+         if (!v.stopId && mv.stopId) v.stopId = mv.stopId;
+       }
+       var sm = startModel && startModel();
+       if (sm && (v.phase === sm.PHASE_STOPPED || (mv && mv.phase === sm.PHASE_STOPPED))) should = true;
+       if (should || pendingStop || (mv && mv.phase === "STOPPED") || v.phase === "STOPPED") {
+         pendingStop = pendingStop || { sid: v.sid, takeNumber: v.takeNumber, stopId: v.stopId || (v.localStopInfo && v.localStopInfo.stopId) || "", stopExecuted: true, stopStates: v.stopStates, localStopInfo: v.localStopInfo, stop: v.stop, stopDurationMs: v.stopDurationMs, recElapsedMs: v.recElapsedMs };
+         // merge current v
+         if (v.sid) pendingStop.sid = v.sid;
+         if (mv && mv.sid) pendingStop.sid = mv.sid;
+         if (v.takeNumber != null) pendingStop.takeNumber = v.takeNumber;
+         if (mv && mv.takeNumber != null) pendingStop.takeNumber = mv.takeNumber;
+         if (lastSession && lastSession.takes && lastSession.takes.length) pendingStop.takeNumber = pendingStop.takeNumber != null ? pendingStop.takeNumber : lastSession.takes[lastSession.takes.length-1].takeNumber;
+         if (v.stopId) pendingStop.stopId = v.stopId;
+         if (mv && mv.stopId) pendingStop.stopId = mv.stopId;
+         if (v.stopStates) pendingStop.stopStates = v.stopStates;
+         if (mv && mv.stopStates) pendingStop.stopStates = mv.stopStates;
+         if (v.localStopInfo) pendingStop.localStopInfo = v.localStopInfo;
+         if (v.stop) pendingStop.stop = v.stop;
+         if (v.stopDurationMs != null) pendingStop.stopDurationMs = v.stopDurationMs;
+         if (v.recElapsedMs != null) pendingStop.recElapsedMs = v.recElapsedMs;
+         pendingStop.stopExecuted = true;
+         persistStopIfNeeded(pendingStop);
+       }
+     } catch (e) {}
      return v;
    }
 
@@ -678,6 +793,39 @@
    * explose (constaté sur le terrain : « Maximum call stack size exceeded »).
    * Tout module qui a besoin de la phase doit donc passer par ici, et par la
    * machine — jamais par la vue agrégée. */
+
+  function forcePersistLastTake(reason, sidOpt) {
+    var storeApi = store();
+    var wsApi = ws();
+    if (!storeApi || typeof storeApi.get !== "function" || !wsApi || typeof wsApi.upsertTake !== "function") {
+      return Promise.reject(new Error("missing_deps"));
+    }
+    var sid = sidOpt || (lastSession && lastSession.sessionId);
+    if (!sid) return Promise.reject(new Error("no_sid"));
+    return Promise.resolve(storeApi.get(sid)).then(function (ses) {
+      if (!ses) return Promise.reject(new Error("no_session"));
+      lastSession = ses;
+      sessionCache[sid] = ses;
+      var take = ses.takes && ses.takes.length ? ses.takes[ses.takes.length - 1] : null;
+      if (!take) return Promise.reject(new Error("no_take"));
+      var tm = global.MultiCamTakeModel;
+      var t2 = tm ? JSON.parse(JSON.stringify(take)) : JSON.parse(JSON.stringify(take));
+      var wantStatus = tm && tm.STATUS_TERMINATED ? tm.STATUS_TERMINATED : "TERMINATED";
+      t2.status = wantStatus;
+      t2.updatedByDeviceId = selfDid() || t2.updatedByDeviceId || "";
+      t2.updatedAtMs = nowMs();
+      var summary = t2.summary ? JSON.parse(JSON.stringify(t2.summary)) : {};
+      summary.stoppedAtMs = summary.stoppedAtMs || nowMs();
+      summary.durationMs = summary.durationMs || 0;
+      summary.stopReason = reason || "debug";
+      if (!summary.transfers) summary.transfers = {};
+      t2.summary = summary;
+      return wsApi.upsertTake(ses, t2).then(function () {
+        log("TAKE_PERSIST_STOP sid=" + ses.sessionId + " take=" + t2.takeNumber + " stopId=debug");
+      });
+    });
+  }
+
   function phase() {
     var m = machine();
     if (m && typeof m.view === "function") return m.view().phase || "";
@@ -717,6 +865,7 @@
     isRecording: isRecording,
     phase: phase,
     machine: machine,
+    registerStopPersistHook: registerStopPersistHook,
     selfDid: selfDid,
     onView: function (fn) {
       if (typeof fn === "function" && listeners.indexOf(fn) < 0) listeners.push(fn);
@@ -724,6 +873,7 @@
     offView: function (fn) {
       var i = listeners.indexOf(fn);
       if (i >= 0) listeners.splice(i, 1);
-    }
+    },
+    forcePersistLastTake: forcePersistLastTake
   };
 })(window);

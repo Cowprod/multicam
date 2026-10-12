@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "SXT95TDD",
+  "name": "Hist D-1791790451",
+  "nameUpdatedMs": 1791790450633,
+  "nameByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "pin": "8029",
+  "state": "open",
+  "stateUpdatedMs": 1791790450633,
+  "stateByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "createdAtMs": 1791790450633,
+  "updatedAtMs": 1791790464774,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45103",
+      "joinedAtMs": 1791790450632
+    }
+  ],
+  "members": [],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "PREPARATION",
+      "captures": [],
+      "storages": [],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791790464773,
+      "updatedAtMs": 1791790464773,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a"
+    }
+  ]
+}

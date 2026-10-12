@@ -1,0 +1,1 @@
+ls: /data/data/fr.emmanuel.multicam/files/sessions: Permission denied
