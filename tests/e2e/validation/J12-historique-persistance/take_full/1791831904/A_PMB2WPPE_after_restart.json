@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "PMB2WPPE",
+  "name": "Session 2026-10-12",
+  "nameUpdatedMs": 1791830337163,
+  "nameByDeviceId": "",
+  "pin": "5839",
+  "state": "open",
+  "stateUpdatedMs": 1791830337163,
+  "stateByDeviceId": "",
+  "createdAtMs": 1791830337163,
+  "updatedAtMs": 1791830337174,
+  "masters": [],
+  "members": [],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "TERMINATED",
+      "captures": [],
+      "storages": [],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791830337173,
+      "updatedAtMs": 1791830337173,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "summary": {
+        "stoppedAtMs": 1791831525766,
+        "durationMs": 5000,
+        "transferState": "TERMINATED",
+        "transfers": {}
+      }
+    }
+  ]
+}

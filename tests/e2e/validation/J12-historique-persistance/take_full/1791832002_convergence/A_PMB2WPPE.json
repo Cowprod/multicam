@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "PMB2WPPE",
+  "name": "Session 2026-10-12",
+  "nameUpdatedMs": 1791831914973,
+  "nameByDeviceId": "",
+  "pin": "9496",
+  "state": "open",
+  "stateUpdatedMs": 1791831914973,
+  "stateByDeviceId": "",
+  "createdAtMs": 1791831914973,
+  "updatedAtMs": 1791831914983,
+  "masters": [],
+  "members": [],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "PREPARATION",
+      "captures": [],
+      "storages": [],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791831914982,
+      "updatedAtMs": 1791831914982,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a"
+    }
+  ]
+}
