@@ -1,38 +1,46 @@
-# RAPPORT J12 — Historique + persistance complète
+# RAPPORT J12 — Historique et persistance complète
 
-## Conformité implémentation
-- take-model.js : statut + summary (VALID_STATUSES), sanitizeTransferSummary/TakeSummary, canon inclut status/summary, takesEqual étendu, takeWinner canon étendu (préserve état validé).
-- start-service.js : persiste faits STOP au stopExecuted (upsertTake avec status TERMINATED + summary stopStates).
-- transfer-boot.js : updateTakeFromTransfers met à jour summary/transferState et status si TERMINATED/ERROR.
-- index.html/main.js/home.js : écran 15 ajouté, navHistory, router case history, section Takes + Prochain Take sur 03.
-- session.js : renderTakes + bouton "Préparer Take" suivant.
-- take-stopped.js : mode archivé (params.archived=1) lit depuis store.
-- Tests : j12-take-merge-regression.test.js OK. Suite 379 tests pass (375+2+2 J12? 375+2=377).
+**Mise à jour documentaire : 2026-10-13 — audit GitHub indépendant.**
 
-## Anti-régression
-Test spécifiquement ajouté : "état validé ne régresse pas" (LMW égal → contenu prime), takeWinner priorise version avec summary/status valide.
+## 1. Périmètre
 
-## Statut
-Implémentation conforme au CDC J12. Campagne device (3 devices A,B,C, D absent/instable) à exécuter selon procédure (restart ≥2 devices, force-stop, dumps/screenshots/logs). Rapport définitif complété après campagne.
+Exigences de `docs/PLAN-DEVELOPPEMENT-V1.md` : quatre sessions récentes sur 01, historique 15, reprise du sessionId/PIN/membres/rôles, Takes sur 03, ancien Take sur 09, nouveau Take dans une session reprise ; force-stop/reprise, absence de doublons, membres absents affichés déconnectés, cohérence des Takes et preuves natives/visuelles.
 
-## Campagne physique J12 (à compléter)
-Dispositifs connectés : A=61cc29567d91, B=61d54bba7d91, C=c0d8514d7d87, D=R83Y106V1HF
-Montage prévu : A/B/C au minimum (4ème tenté). APK = app/ (vérifié). Preuves à archiver : captures/, logs/, dumps/, screens/.
+## 2. Implémentation inspectée
 
-## Résultats campagne physique J12 (201140)
-- APK : app/platforms/android/app/build/outputs/apk/debug/app-debug.apk (installé sur A,B,C,D)
-- Session : DSHWRW2J "Hist J12-201140", PIN 4882, sid identique après reprise
-- Membres : convergence B,C n'a pas transmis la session complète vers leurs stores via les dumps capturés (B-session-final=null, C-session-final=null) — points à corriger
-- Take #1 : présent après reprise, statut PREPARATION, summary absent (STOP a eu lieu mais persistance STOP+summary non constatée dans dumps archivés)
-- Navigation : 15→03→09, reprise, nouveau Take (screenshots disponibles)
-- Preuves : dumps (A complet, B/C partiels), logs (3 devices), screenshots (8)
+- `app/www/js/ui/home.js` : quatre sessions récentes issues du store.
+- `app/www/js/ui/history.js` : historique écran 15 et ouverture de session.
+- `app/www/js/ui/session.js` : affichage membres, rôles, présence, Takes et préparation suivante.
+- `app/www/js/ui/take-stopped.js` : consultation d'un Take archivé via le store.
+- `app/www/js/state/session-store.js` : persistance par sessionId, tri des sessions récentes.
+- `app/www/js/net/session-ws.js` : rechargement de session complète pour `newTake`/`upsertTake` ; rejet `session_not_found` si introuvable.
+- `app/www/js/state/take-model.js` : le Take suivant n'hérite plus du résumé STOP.
 
-## Critères d’acceptation (statut partiel)
-- Écran 15 OK (navigation prouvée). 
-- Écran 03 avec Takes + Prochain Take OK. 
-- Reprise même sid/PIN OK (A). 
-- B/C n’ont pas rechargé l’état complet en dumps (store null) — non conforme aux attentes « reprise même sessionId/PIN/membres/rôles » sur tous les Masters. 
-- Faits STOP + résumé transferts : code en place, mais Take archivé n’affiche pas summary dans dumps (A après reprise/final) — à approfondir.
-- Convergence anti-régression : tests unitaires OK (j12 merge), mais synchronisation physique entre Masters partielle.
+Les composants de persistance STOP et transfert décrits dans les rapports initiaux restent présents ; leur validation physique complète ne doit pas être confondue avec les simulations archivées.
 
-STATUT : PARTIAL — preuves manquantes pour B/C (état persistant chargé après reprise) et validation complète des faits STOP+summary.
+## 3. Évolution des campagnes
+
+Le rapport initial signalait notamment un store absent sur B/C et une persistance STOP incomplète. Ces observations décrivent **une campagne ancienne** ; les preuves ultérieures de JOIN, redémarrage et diagnostics corrigent une partie de ces limitations.
+
+- `bc_api_clean/` et `ui_join/` : synchronisation JOIN, sessionId persistant, y compris parcours UI sur B.
+- `take_full/1791831904/` : STOP simulé et état TERMINATED avec summary sur A/B/C après restart ; simulation comportant des divergences de champs.
+- `diag1_fix_1791872304/` : trois Masters sur A/B/C après restart.
+- `diag2_fix_1791873392/` : PIN identique sur A/B/C.
+- `diag3_README.txt` : divergence d'horodatage due à la simulation, non preuve d'un défaut réseau.
+- `diag4_1791879232/` : Take 1 TERMINATED et Take 2 PREPARATION cohérents sur A/B/C.
+- `diag5_1791881707/` : Take 1 conserve summary STOP ; Take 2 PREPARATION n'en hérite plus.
+- `screenshots/` : captures des écrans historique, session, Take et reprise.
+
+Les commits des diagnostics sont `8018396`, `227050e`, `0ea8644`, `669f6e0`, `7ee9323`, `526e17a`.
+
+## 4. Réserves restantes
+
+Le dernier scénario de capture/transfert réel J12 n'a pas démarré l'enregistrement : rôles Capture (B) et Storage (C) non configurés dans l'automatisation CDP. Aucun nouveau défaut applicatif n'a été établi par cette tentative. Les validations de transfert réel du jalon J11 ne doivent pas être présentées comme une validation J12 supplémentaire.
+
+Les preuves restent insuffisantes pour conclure sur quatre sessions effectivement affichées sur 01, conservation de membres avec rôles après restart, absence explicite de doublons, et membre absent affiché déconnecté. Le reboot complet est facultatif. Une égalité des horodatages STOP sur un événement réellement coordonné n'est pas encore établie par la simulation.
+
+## 5. Décision
+
+**Statut J12 : PARTIAL.** Développement des fonctionnalités attendues identifié dans le code ; cinq diagnostics ciblés clôturés ; persistance et cohérence des Takes démontrées sur A/B/C pour les scénarios archivés. Quatre critères fonctionnels restent à confirmer par des preuves ciblées.
+
+Voir `VALIDATION.md` pour la matrice détaillée. **Pas de passage à J13 sans décision explicite.**
