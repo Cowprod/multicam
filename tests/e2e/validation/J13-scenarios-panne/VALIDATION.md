@@ -1,17 +1,30 @@
-# J13 — Validation des scénarios de panne (final)
+# J13 — Validation des scénarios de panne
 
 Branche: feat/j11-media-transfer
-Commit: 82a5c1f
+Commit: bbb0240
 Référence: docs/PLAN-DEVELOPPEMENT-V1.md J13
+
+Statut: CLÔTURÉ AVEC RÉSERVES
+Décision: passage à J14 autorisé
+Levée des réserves obligatoire avant production
 
 ## Scénarios
 
-01-04,06-08,10: PASS (preuves complètes conservées)
-05: PARTIAL - injection contrôlée/réversible tentée (chmod 500↔771). Efficacité non démontrée sans risque sur fichiers internes; chemins natifs identifiés (MultiCamTransfer/Saf). Erreur-paths présents dans code.
-09: PARTIAL - procédures tentées; transfert non déclenché dans fenêtre test malgré REC+STOP long. J11 valide déjà transfert physique, progression, reprise HTTP Range/offset, SHA-256, intégrité.
+01. Master perdu — PASS
+02. Capture perdue — PASS
+03. Capture reconnectée — PASS
+04. Storage perdu — PASS
+05. Storage sans espace/erreur écriture simulée — PARTIAL (réserve 05: erreur d'écriture Storage non démontrée)
+06. Wi-Fi coupé — PASS
+07. App Capture tuée — PASS
+08. App Storage tuée — PASS
+09. Transfert interrompu — PARTIAL (réserve 09: interruption physique et reprise effective du transfert non démontrées)
+10. Redémarrage d'ancienne session — PASS (ouverte → reprise autorisée; fermée → closed wins)
 
-## Compléments
-- scenario-01-cmp, scenario-05-cmp, scenario-09-cmp, scenario-05-final, scenario-09-final ajoutés sans écrasement preuves initiales.
-- Flux REC corrigé (sélection participants par Take, ARM, REC, STOP).
+## Compléments / Notes
+- Flux REC corrigé (sélection participants par Take, ARM, REC, STOP)
+- Preuves initiales + complémentaires conservées (scenario-01-cmp, scenario-05-cmp/-final, scenario-09-cmp/-final)
+- PARTIAL ne sont pas modifiés en PASS
 
-Statut: PARTIEL (05,09). Non déclaré PASS.
+Réserve 05: erreur d'écriture Storage non démontrée  
+Réserve 09: interruption physique et reprise effective du transfert non démontrées
