@@ -285,6 +285,7 @@
     base.createdAtMs = now;
     base.updatedAtMs = now;
     base.updatedByDeviceId = actor || "";
+    if (base.summary) delete base.summary;
     return sanitizeTake(base);
   }
 

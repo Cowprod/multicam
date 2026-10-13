@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "PMB2WPPE",
+  "name": "Session 2026-10-12",
+  "nameUpdatedMs": 1791831914973,
+  "nameByDeviceId": "",
+  "pin": "8262",
+  "state": "open",
+  "stateUpdatedMs": 1791831914973,
+  "stateByDeviceId": "",
+  "createdAtMs": 1791831914973,
+  "updatedAtMs": 1791879135429,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1791824559590
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "J11-B-Capture",
+      "endpoint": "192.168.92.76:45102",
+      "joinedAtMs": 1791824954329
+    },
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "J11-C-Storage1",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1791825032216
+    }
+  ],
+  "members": [],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "TERMINATED",
+      "captures": [],
+      "storages": [],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791831914982,
+      "updatedAtMs": 1791879058719,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "summary": {
+        "stoppedAtMs": 1791830000000,
+        "durationMs": 5000,
+        "stopReason": "",
+        "transferState": "TERMINATED",
+        "transferError": "",
+        "transferBytes": 0,
+        "transferTotal": 0,
+        "transferPercent": 0,
+        "transfers": {}
+      }
+    },
+    {
+      "takeNumber": 2,
+      "status": "PREPARATION",
+      "captures": [],
+      "storages": [],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791879135426,
+      "updatedAtMs": 1791879135426,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a"
+    }
+  ]
+}
