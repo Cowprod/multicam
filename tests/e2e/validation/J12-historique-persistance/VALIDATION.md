@@ -1,6 +1,6 @@
 # J12 — Historique et persistance complète — état des validations
 
-**Statut : PARTIAL (audit documentaire indépendant, 2026-10-13).** Ce document consolide les preuves existantes sans prétendre qu'une nouvelle campagne physique a été exécutée. J13 non autorisé.
+**Statut : PASS (audit indépendant, 2026-10-13).** Critères obligatoires J12 couverts par les campagnes archivées ; reboot complet facultatif non effectué. J13 peut être engagé sur décision du responsable projet.
 
 Référence : `docs/PLAN-DEVELOPPEMENT-V1.md`, section J12. Branche : `feat/j11-media-transfer`.
 
@@ -8,18 +8,18 @@ Référence : `docs/PLAN-DEVELOPPEMENT-V1.md`, section J12. Branche : `feat/j11-
 
 | Critère | État | Justificatif / limite |
 | --- | --- | --- |
-| Accueil 01 : quatre sessions récentes | PARTIAL | `app/www/js/ui/home.js` limite à quatre les résultats de `session-store.list()`; démonstration physique avec quatre sessions non retrouvée. |
+| Accueil 01 : quatre sessions récentes | PASS | `campagne-finale/captures/home_a.png`, `home_after_restart.png` et comptage de quatre cartes. |
 | Historique écran 15 | PASS (parcours documenté) | `app/www/js/ui/history.js`; `screenshots/j12-history-A.png`, `screenshots/c-hist.png`. |
 | Reprise du même sessionId et PIN | PASS sur A/B/C | `bc_api_clean/`, `ui_join/`, `diag2_fix_1791873392/` (PIN identique après restart). |
 | Masters conservés | PASS sur A/B/C | `diag1_fix_1791872304/` : trois Masters sur chaque appareil après restart. |
-| Membres et rôles Capture/Storage conservés | PARTIAL | Gestion implémentée dans `app/www/js/ui/session.js`, mais dumps récents avec `members: []` : aucune démonstration de reprise avec rôles attribués. |
+| Membres et rôles Capture/Storage conservés | PASS sur A/B/C | `validation-roles/before_1791885921/` et `after_1791885971/` : B `sessionRoles: [capture]`, C `[storage]` sur les six dumps natifs. |
 | Takes accessibles depuis écran 03 | PASS (parcours documenté) | `screenshots/j12-session-03-A.png`, `screenshots/j12-reprise-session-03.png`; code `session.js`. |
 | Ancien Take ouvrable sur écran 09 | PASS (parcours documenté) | `screenshots/j12-take-09-A.png`; mode `archived` de `take-stopped.js`. |
 | Nouveau Take dans une session reprise | PASS sur A/B/C (données natives) | `diag4_1791879232/`, `diag5_1791881707/` : Take 1 TERMINATED et Take 2 PREPARATION. |
 | États des Takes cohérents après restart | PASS sur scénario A/B/C | `diag5_1791881707/` : Take 1 TERMINATED avec summary, Take 2 PREPARATION sans summary. |
 | Force-stop / reprise sur au moins deux devices | PASS sur scénarios archivés | `take_full/1791831904/` (états STOP simulés), `diag1_fix_1791872304/`, `diag2_fix_1791873392/`; vérifier la portée de chaque simulation avant d'extrapoler. |
-| Aucun doublon de session | PARTIAL | Store indexé par sessionId, mais preuve physique explicite d'absence de doublon à documenter. |
-| Membres absents affichés déconnectés | PARTIAL | Affichage prévu dans `session.js`, mais preuve visuelle ciblée après déconnexion absente. |
+| Aucun doublon de session | PASS sur scénario testé | `campagne-finale/captures/home_after_restart.png` ; même sessionId avant/après. |
+| Membres absents affichés déconnectés | PASS (preuve de campagne) | `validation-roles/screen_a_b_disconnected.png` ; B arrêté et rôle Capture conservé selon le protocole documenté. |
 | Reboot complet d'un device | OPTIONNEL / non prouvé | Le plan demande « si possible ». |
 
 ## Diagnostics clos et corrections
@@ -30,12 +30,12 @@ Référence : `docs/PLAN-DEVELOPPEMENT-V1.md`, section J12. Branche : `feat/j11-
 4. **diag4** — Régression apparente du Take sur A liée à l'ancien appel incomplet. Scénario corrigé : Take 1 TERMINATED, Take 2 PREPARATION sur A/B/C. `diag4_1791879232/`, commit `7ee9323`.
 5. **diag5** — `createNextTake` héritait du summary STOP. Suppression de cet héritage, test `app/tests/j12-diag5-nr.test.js`, preuves `diag5_1791881707/`, commit `526e17a`.
 
-## Limites et décision
+## Clôture et portée des preuves
 
-Les dumps des scénarios récents attestent la persistance de documents cohérents, mais les Takes utilisés n'ont pas de Capture/Storage affectés et ne démontrent pas un transfert réel. La capture et le transfert réels ont été validés au jalon J11 ; la tentative de revalidation J12 n'a pas abouti faute de configuration des rôles dans le scénario CDP. Ne pas présenter cette tentative comme un PASS.
+La campagne `campagne-finale/` (commit `0718fb1`) valide quatre sessions récentes, la reprise A/B/C et l'absence de doublon dans le scénario exécuté. Son premier essai de rôles était insuffisant (`members: []`) : il ne doit pas être confondu avec la validation ultérieure.
 
-Les rapports historiques `RAPPORT-J12-FINAL.md`, `RAPPORT-J12-CORRIGE.md` et `VALIDATION-J12-PARTIAL.md` sont conservés comme états intermédiaires et ne remplacent pas la présente synthèse.
+La campagne `validation-roles/` (commit `61b233e`) attribue via l'API applicative B=`capture` et C=`storage`. Les six dumps natifs avant/après force-stop et redémarrage présentent le même sessionId, PIN, les trois Masters et les deux membres avec `sessionRoles` inchangés. Le protocole archive également la capture d'un B déconnecté sur A.
 
-**À confirmer avant PASS J12 :** quatre sessions sur 01 ; conservation de membres et rôles après reprise ; absence de doublons ; affichage déconnecté d'un membre absent. Réutiliser les preuves existantes, sans relancer par défaut une campagne complète J11.
+Les preuves des Takes TERMINATED et PREPARATION proviennent des diagnostics précédents (`diag4_1791879232/`, `diag5_1791881707/`) : la campagne de rôles n'a pas créé de Take et n'a pas relancé de transfert. Le transfert réel appartient aux preuves J11. Le reboot complet reste facultatif et non démontré. La vérification d'absence de doublon porte sur le scénario testé, pas sur une garantie universelle.
 
-**Attention preuves :** certains JSON contiennent des PIN en clair ; masquer ces valeurs dans les futurs exports destinés à être diffusés.
+**Verdict : J12 PASS pour les critères obligatoires documentés.** Aucun nouveau test J12 n'est demandé ; passage à J13 autorisable par décision du responsable projet.
