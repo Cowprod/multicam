@@ -1,0 +1,1 @@
+Attendu: transfert réel démarré + progression mesurée, interruption, état partiel persistant/cohérent, reprise/rétablissement testés, SHA-256 final reçu==source B après reprise effective, pas suppression prématurée source.

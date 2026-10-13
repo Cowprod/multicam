@@ -1,0 +1,1 @@
+Attendu: injection erreur écriture contrôlée/réversible. Erreur détectée/loggée, transfert marqué erreur/partiel, summary.transfers à jour, aucune suppression média non vérifié, stockage restauré, cohérence A/B/C.

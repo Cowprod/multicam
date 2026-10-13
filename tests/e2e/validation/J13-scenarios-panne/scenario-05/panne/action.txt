@@ -1,0 +1,1 @@
+chmod 500 applied on C files dir (reversible to 771)

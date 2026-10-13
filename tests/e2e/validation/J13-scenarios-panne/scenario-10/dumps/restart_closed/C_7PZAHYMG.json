@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "7PZAHYMG",
+  "name": "J13 J13-1791890101",
+  "nameUpdatedMs": 1791890247011,
+  "nameByDeviceId": "",
+  "pin": "3427",
+  "state": "closed",
+  "stateUpdatedMs": 1791891751256,
+  "stateByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "createdAtMs": 1791890247011,
+  "updatedAtMs": 1791891772827,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1791890115189
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "J11-B-Capture",
+      "endpoint": "192.168.92.76:45102",
+      "joinedAtMs": 1791890239188
+    },
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "J11-C-Storage1",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1791890247445
+    }
+  ],
+  "members": [
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "J11-C-Storage1",
+      "endpoint": "",
+      "enabledSkills": [
+        "storage"
+      ],
+      "sessionRoles": [
+        "storage"
+      ],
+      "addedAtMs": 1791890263527,
+      "addedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "roleUpdatedMs": 1791890263527,
+      "roleByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1791890106263,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 38669758464,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1791890484105,
+        "updatedAtMs": 1791890484106,
+        "updatedByDeviceId": "94a4939e-d09e-4504-86e8-e79751920134"
+      }
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "J11-B-Capture",
+      "endpoint": "",
+      "enabledSkills": [
+        "capture"
+      ],
+      "sessionRoles": [
+        "capture"
+      ],
+      "addedAtMs": 1791890262766,
+      "addedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "roleUpdatedMs": 1791890262766,
+      "roleByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1791890481436,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 38193508352,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1791890481437,
+        "updatedAtMs": 1791890481439,
+        "updatedByDeviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3"
+      }
+    }
+  ],
+  "removedMembers": {},
+  "takes": []
+}
