@@ -2253,45 +2253,61 @@ store().get(env.sessionId).then(function (local) {
    * broadcast du sharedView (convergence immédiate, LMW). */
   function upsertTake(session, take) {
     var actor = state.localDid || (cfg() ? cfg().deviceId : "");
-    var res = model().upsertTake(session, take, actor);
-    if (!res.ok) {
-      emit("TAKE_UPDATE_REJECT sessionId=" + session.sessionId + " reason=" + (res.error || "rejected"));
-      return Promise.reject(new Error(res.error || "take_upsert_rejected"));
-    }
-    if (!res.changed) {
-      emit("TAKE_UPDATE_NOOP sessionId=" + session.sessionId + " take=" + (take && take.takeNumber));
-      return Promise.resolve(session);
-    }
-    return store().save(res.session).then(function () {
-      emit("TAKE_UPDATE_LOCAL sessionId=" + res.session.sessionId + " take=" + (take && take.takeNumber)
-        + " event=" + res.events[0].type + " by=" + actor);
-      emitEvents(res.events, res.session.sessionId, actor);
-      broadcastTargeted("take_update", res.session, { take: res.session.takes.filter(function (t) { return t.takeNumber === take.takeNumber; })[0] });
-      broadcast(res.session, "take_update", " take=" + (take && take.takeNumber));
-      notifyChanged();
-      return res.session;
+    return Promise.resolve().then(function () {
+      if (session && session.sessionId && (!Array.isArray(session.masters) || !Array.isArray(session.members))) {
+        return store().get(session.sessionId).then(function (fs) { return fs || session; });
+      }
+      return session;
+    }).then(function (full) {
+      session = full;
+      var res = model().upsertTake(session, take, actor);
+      if (!res.ok) {
+        emit("TAKE_UPDATE_REJECT sessionId=" + session.sessionId + " reason=" + (res.error || "rejected"));
+        return Promise.reject(new Error(res.error || "take_upsert_rejected"));
+      }
+      if (!res.changed) {
+        emit("TAKE_UPDATE_NOOP sessionId=" + session.sessionId + " take=" + (take && take.takeNumber));
+        return Promise.resolve(session);
+      }
+      return store().save(res.session).then(function () {
+        emit("TAKE_UPDATE_LOCAL sessionId=" + res.session.sessionId + " take=" + (take && take.takeNumber)
+          + " event=" + res.events[0].type + " by=" + actor);
+        emitEvents(res.events, res.session.sessionId, actor);
+        broadcastTargeted("take_update", res.session, { take: res.session.takes.filter(function (t) { return t.takeNumber === take.takeNumber; })[0] });
+        broadcast(res.session, "take_update", " take=" + (take && take.takeNumber));
+        notifyChanged();
+        return res.session;
+      });
     });
   }
 
   /* Nouveau Take (hérite du précédent). Retour Promise<{ session, takeNumber }>. */
   function newTake(session) {
     var actor = state.localDid || (cfg() ? cfg().deviceId : "");
-    var res = model().newTake(session, actor);
-    if (!res.ok) {
-      emit("TAKE_NEW_REJECT sessionId=" + session.sessionId + " reason=" + (res.error || "rejected"));
-      return Promise.reject(new Error(res.error || "take_new_rejected"));
-    }
-    if (!res.changed) {
-      emit("TAKE_NEW_NOOP sessionId=" + session.sessionId);
-      return Promise.resolve({ session: res.session, takeNumber: res.takeNumber });
-    }
-    return store().save(res.session).then(function () {
-      emit("TAKE_NEW_LOCAL sessionId=" + res.session.sessionId + " take=" + res.takeNumber + " by=" + actor);
-      emitEvents(res.events, res.session.sessionId, actor);
-      broadcastTargeted("take_update", res.session, { take: res.session.takes.filter(function (t) { return t.takeNumber === res.takeNumber; })[0] });
-      broadcast(res.session, "take_update", " take=" + res.takeNumber);
-      notifyChanged();
-      return { session: res.session, takeNumber: res.takeNumber };
+    return Promise.resolve().then(function () {
+      if (session && session.sessionId && (!Array.isArray(session.masters) || !Array.isArray(session.members))) {
+        return store().get(session.sessionId).then(function (fs) { return fs || session; });
+      }
+      return session;
+    }).then(function (full) {
+      session = full;
+      var res = model().newTake(session, actor);
+      if (!res.ok) {
+        emit("TAKE_NEW_REJECT sessionId=" + session.sessionId + " reason=" + (res.error || "rejected"));
+        return Promise.reject(new Error(res.error || "take_new_rejected"));
+      }
+      if (!res.changed) {
+        emit("TAKE_NEW_NOOP sessionId=" + session.sessionId);
+        return Promise.resolve({ session: res.session, takeNumber: res.takeNumber });
+      }
+      return store().save(res.session).then(function () {
+        emit("TAKE_NEW_LOCAL sessionId=" + res.session.sessionId + " take=" + res.takeNumber + " by=" + actor);
+        emitEvents(res.events, res.session.sessionId, actor);
+        broadcastTargeted("take_update", res.session, { take: res.session.takes.filter(function (t) { return t.takeNumber === res.takeNumber; })[0] });
+        broadcast(res.session, "take_update", " take=" + res.takeNumber);
+        notifyChanged();
+        return { session: res.session, takeNumber: res.takeNumber };
+      });
     });
   }
 
