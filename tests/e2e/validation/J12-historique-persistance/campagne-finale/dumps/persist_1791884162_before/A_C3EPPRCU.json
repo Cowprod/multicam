@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "C3EPPRCU",
+  "name": "Final FIN-1791883946",
+  "nameUpdatedMs": 1791884051652,
+  "nameByDeviceId": "",
+  "pin": "7776",
+  "state": "open",
+  "stateUpdatedMs": 1791883948630,
+  "stateByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "createdAtMs": 1791883948630,
+  "updatedAtMs": 1791884052148,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1791883948630
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "J11-B-Capture",
+      "endpoint": "192.168.92.76:45102",
+      "joinedAtMs": 1791883966416
+    },
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "J11-C-Storage1",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1791884052062
+    }
+  ],
+  "members": [],
+  "removedMembers": {},
+  "takes": []
+}
