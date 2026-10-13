@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "65VVQC32",
+  "name": "J13CMP9-1791895694",
+  "nameUpdatedMs": 1791895768131,
+  "nameByDeviceId": "",
+  "pin": "7234",
+  "state": "open",
+  "stateUpdatedMs": 1791895696014,
+  "stateByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "createdAtMs": 1791895696014,
+  "updatedAtMs": 1791895893803,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1791895696013
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "J11-B-Capture",
+      "endpoint": "192.168.92.76:45102",
+      "joinedAtMs": 1791895763176
+    },
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "J11-C-Storage1",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1791895768449
+    }
+  ],
+  "members": [
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "",
+      "endpoint": "",
+      "enabledSkills": [
+        "storage"
+      ],
+      "sessionRoles": [
+        "storage"
+      ],
+      "addedAtMs": 1791895772461,
+      "addedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "roleUpdatedMs": 1791895772461,
+      "roleByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1791894892100,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 38660255744,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1791895893410,
+        "updatedAtMs": 1791895893410,
+        "updatedByDeviceId": "94a4939e-d09e-4504-86e8-e79751920134"
+      }
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "",
+      "endpoint": "",
+      "enabledSkills": [
+        "capture"
+      ],
+      "sessionRoles": [
+        "capture"
+      ],
+      "addedAtMs": 1791895772557,
+      "addedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "roleUpdatedMs": 1791895772557,
+      "roleByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1791894891611,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 36591734784,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": true,
+        "atMs": 1791895891888,
+        "updatedAtMs": 1791895892772,
+        "updatedByDeviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3"
+      }
+    }
+  ],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "PREPARATION",
+      "captures": [
+        "afd69dd6-1409-4d00-b4bc-01318afc22e3"
+      ],
+      "storages": [
+        "94a4939e-d09e-4504-86e8-e79751920134"
+      ],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791895772678,
+      "updatedAtMs": 1791895796833,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "summary": {
+        "stoppedAtMs": 0,
+        "durationMs": 0,
+        "stopReason": "",
+        "transferState": "TRANSFERRING",
+        "transferError": "",
+        "transferBytes": 0,
+        "transferTotal": 0,
+        "transferPercent": 0,
+        "transfers": {}
+      }
+    }
+  ]
+}

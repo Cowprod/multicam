@@ -1,0 +1,1 @@
+progression measurement attempted (may be 0 during init)

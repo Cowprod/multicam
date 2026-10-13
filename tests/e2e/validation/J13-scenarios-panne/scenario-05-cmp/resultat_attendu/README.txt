@@ -1,0 +1,1 @@
+Attendu: injection erreur écriture contrôlée/réversible (chmod 500 sur files C) pendant transfert → erreur détectée/loggée, transfert marqué ERROR/PARTIAL, summary.transfers à jour, média source préservé, restauration chmod 771.

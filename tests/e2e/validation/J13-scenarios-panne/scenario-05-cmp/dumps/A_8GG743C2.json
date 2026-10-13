@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "8GG743C2",
+  "name": "J13CMP5-1791896004",
+  "nameUpdatedMs": 1791896108276,
+  "nameByDeviceId": "",
+  "pin": "2462",
+  "state": "open",
+  "stateUpdatedMs": 1791896005613,
+  "stateByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+  "createdAtMs": 1791896005613,
+  "updatedAtMs": 1791896182052,
+  "masters": [
+    {
+      "deviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "deviceName": "Cam 07",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1791896005612
+    },
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "J11-C-Storage1",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1791896108662
+    }
+  ],
+  "members": [
+    {
+      "deviceId": "94a4939e-d09e-4504-86e8-e79751920134",
+      "deviceName": "",
+      "endpoint": "",
+      "enabledSkills": [
+        "storage"
+      ],
+      "sessionRoles": [
+        "storage"
+      ],
+      "addedAtMs": 1791896111779,
+      "addedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "roleUpdatedMs": 1791896111779,
+      "roleByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1791895970857,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 38655987712,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1791896177484,
+        "updatedAtMs": 1791896177485,
+        "updatedByDeviceId": "94a4939e-d09e-4504-86e8-e79751920134"
+      }
+    },
+    {
+      "deviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3",
+      "deviceName": "",
+      "endpoint": "",
+      "enabledSkills": [
+        "capture"
+      ],
+      "sessionRoles": [
+        "capture"
+      ],
+      "addedAtMs": 1791896111725,
+      "addedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "roleUpdatedMs": 1791896111725,
+      "roleByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1791894891611,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 35842609152,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": true,
+        "atMs": 1791896181215,
+        "updatedAtMs": 1791896181216,
+        "updatedByDeviceId": "afd69dd6-1409-4d00-b4bc-01318afc22e3"
+      }
+    }
+  ],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "PREPARATION",
+      "captures": [],
+      "storages": [],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1791896111832,
+      "updatedAtMs": 1791896111832,
+      "updatedByDeviceId": "dd851456-82a0-482d-b833-ba55ae88d77a"
+    }
+  ]
+}

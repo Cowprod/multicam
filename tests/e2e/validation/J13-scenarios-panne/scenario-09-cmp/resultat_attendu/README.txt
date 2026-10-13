@@ -1,0 +1,1 @@
+Attendu: transfert réel démarré + progression mesurée, interruption (kill C), état partiel persistant, reprise après redémarrage C, pas de retransmission intégrale injustifiée, SHA-256 source==destination après reprise effective, aucune suppression prématurée source.
