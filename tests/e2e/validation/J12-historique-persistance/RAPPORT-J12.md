@@ -1,6 +1,6 @@
 # RAPPORT J12 — Historique et persistance complète
 
-**Mise à jour documentaire : 2026-10-13 — audit GitHub indépendant.**
+**Mise à jour documentaire : 2026-10-13 — audit GitHub indépendant ; J12 PASS.**
 
 ## 1. Périmètre
 
@@ -33,14 +33,14 @@ Le rapport initial signalait notamment un store absent sur B/C et une persistanc
 
 Les commits des diagnostics sont `8018396`, `227050e`, `0ea8644`, `669f6e0`, `7ee9323`, `526e17a`.
 
-## 4. Réserves restantes
+## 4. Campagnes de clôture
 
-Le dernier scénario de capture/transfert réel J12 n'a pas démarré l'enregistrement : rôles Capture (B) et Storage (C) non configurés dans l'automatisation CDP. Aucun nouveau défaut applicatif n'a été établi par cette tentative. Les validations de transfert réel du jalon J11 ne doivent pas être présentées comme une validation J12 supplémentaire.
+- `campagne-finale/` (`0718fb1`) : quatre sessions récentes, persistance A/B/C du sessionId/PIN/Masters et absence de doublon pour la session testée. L'essai initial ne prouvait pas les rôles (`members: []`).
+- `validation-roles/` (`61b233e`) : B membre `capture`, C membre `storage`, via `MultiCamSessionWs.addMember`. Les six dumps natifs avant/après force-stop et redémarrage démontrent la conservation des membres et de leurs `sessionRoles` sur A/B/C. Capture `screen_a_b_disconnected.png` documentant B déconnecté sur A.
+- Les Takes et leurs résumés STOP ont été contrôlés dans `diag4_1791879232/` et `diag5_1791881707/`. Ces campagnes distinctes ne doivent pas être présentées comme une capture/transfert réel J12.
 
-Les preuves restent insuffisantes pour conclure sur quatre sessions effectivement affichées sur 01, conservation de membres avec rôles après restart, absence explicite de doublons, et membre absent affiché déconnecté. Le reboot complet est facultatif. Une égalité des horodatages STOP sur un événement réellement coordonné n'est pas encore établie par la simulation.
+## 5. Verdict
 
-## 5. Décision
+**J12 : PASS pour les critères obligatoires, sur les scénarios physiquement documentés.** Le reboot complet est facultatif et non réalisé. L'absence de doublons est attestée dans le scénario de reprise testé. Aucune nouvelle campagne J12 n'est nécessaire.
 
-**Statut J12 : PARTIAL.** Développement des fonctionnalités attendues identifié dans le code ; cinq diagnostics ciblés clôturés ; persistance et cohérence des Takes démontrées sur A/B/C pour les scénarios archivés. Quatre critères fonctionnels restent à confirmer par des preuves ciblées.
-
-Voir `VALIDATION.md` pour la matrice détaillée. **Pas de passage à J13 sans décision explicite.**
+Voir `VALIDATION.md` pour la matrice détaillée. **J13 peut démarrer après décision du responsable projet.**
