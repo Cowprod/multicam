@@ -2255,7 +2255,10 @@ store().get(env.sessionId).then(function (local) {
     var actor = state.localDid || (cfg() ? cfg().deviceId : "");
     return Promise.resolve().then(function () {
       if (session && session.sessionId && (!Array.isArray(session.masters) || !Array.isArray(session.members))) {
-        return store().get(session.sessionId).then(function (fs) { return fs || session; });
+        return store().get(session.sessionId).then(function (fs) {
+          if (!fs) return Promise.reject(new Error("session_not_found"));
+          return fs;
+        });
       }
       return session;
     }).then(function (full) {
@@ -2286,7 +2289,10 @@ store().get(env.sessionId).then(function (local) {
     var actor = state.localDid || (cfg() ? cfg().deviceId : "");
     return Promise.resolve().then(function () {
       if (session && session.sessionId && (!Array.isArray(session.masters) || !Array.isArray(session.members))) {
-        return store().get(session.sessionId).then(function (fs) { return fs || session; });
+        return store().get(session.sessionId).then(function (fs) {
+          if (!fs) return Promise.reject(new Error("session_not_found"));
+          return fs;
+        });
       }
       return session;
     }).then(function (full) {
