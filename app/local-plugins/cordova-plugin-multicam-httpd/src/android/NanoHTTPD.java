@@ -74,7 +74,24 @@ import android.util.Log;
 public class NanoHTTPD
 {
 	private final String LOGTAG = "NanoHTTPD";
-	
+
+	/* MultiCam: un routeur optionnel permet de servir PLUSIEURS Takes depuis un
+	 * SEUL serveur (routage /<sessionId>/<takeNumber>/<rel> + token par Take).
+	 * Absent (null), le comportement d'origine est conservé : un myToken unique
+	 * et une racine fixe. Le routeur est appelé sur les threads de session HTTP,
+	 * pas sur le thread UI : ses structures doivent être thread-safe. */
+	public interface TakeRouter {
+		Response serve(String uri, String method, java.util.Properties header,
+				java.util.Properties parms, java.util.Properties files, NanoHTTPD nano);
+	}
+
+	private TakeRouter takeRouter = null;
+
+	/* MultiCam: installe le routeur multi-Take (null = mode historique). */
+	public void setTakeRouter( TakeRouter router ) {
+		takeRouter = router;
+	}
+
 	// ==================================================
 	// API parts
 	// ==================================================
@@ -93,6 +110,12 @@ public class NanoHTTPD
 	@SuppressWarnings("rawtypes")
 	public Response serve( String uri, String method, Properties header, Properties parms, Properties files )
 	{
+		/* MultiCam: en présence d'un routeur multi-Take, c'est LUI qui résout le
+		 * Take, vérifie le token associé, confirme le chemin, puis délègue à
+		 * serveFile() (Range/206 et confinement inchangés). */
+		if ( takeRouter != null )
+			return takeRouter.serve( uri, method, header, parms, files, this );
+
 		Log.i( LOGTAG, method + " '" + uri + "' " );
 
 		/* MultiCam: accès protégé. Un token non vide est EXIGÉ sur chaque
@@ -892,6 +915,14 @@ public class NanoHTTPD
 	public void setAccessToken( String token )
 	{
 		myToken = token == null ? "" : token;
+	}
+
+	/* MultiCam: port réellement écouté. Diffère du port DEMANDÉ lorsque l'on a
+	 * lié le port 0 (attribution par l'OS) — c'est cette valeur qui doit figurer
+	 * dans l'URL annoncée. */
+	public int getListeningPort()
+	{
+		return myServerSocket != null ? myServerSocket.getLocalPort() : -1;
 	}
 
 	// ==================================================

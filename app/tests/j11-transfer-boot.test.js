@@ -36,11 +36,13 @@ function makeWs() {
 
 function makeNative(cfg) {
   cfg = cfg || {};
-  const calls = { serveStart: [], serveStop: 0, sha256: [], download: [], stage: [], remove: [] };
+  const calls = { serveStart: [], serveStop: 0, serveRegister: [], serveUnregister: [], sha256: [], download: [], stage: [], remove: [] };
   return {
     calls,
     serveStart(o) { calls.serveStart.push(o); return Promise.resolve(cfg.serveUrl || "http://10.0.0.5:8080"); },
     serveStop() { calls.serveStop += 1; return Promise.resolve(); },
+    serveRegister(o) { calls.serveRegister.push(o); return Promise.resolve({}); },
+    serveUnregister(o) { calls.serveUnregister.push(o); return Promise.resolve({}); },
     sha256(p) { calls.sha256.push(p); return Promise.resolve((cfg.sha256Map && cfg.sha256Map[p]) || { bytes: 1000, sha256: "aaaa" }); },
     stage(src, dest) { calls.stage.push({ src, dest }); return Promise.resolve({ dest: dest, bytes: 1000 }); },
     remove(p) { calls.remove.push(p); return Promise.resolve({ removed: true, path: p }); },
@@ -132,7 +134,11 @@ module.exports.register = function (h) {
       assert.strictEqual(native.calls.stage[0].dest, "/data/app/MultiCam/" + SID + "/1/seg00.mp4");
       assert.strictEqual(native.calls.serveStart.length, 1, "serveur média démarré");
       assert.strictEqual(native.calls.serveStart[0].root, "/data/app/MultiCam/" + SID + "/1");
-      assert.strictEqual(native.calls.serveStart[0].token.length > 0, true, "token d'accès généré");
+      assert.strictEqual(native.calls.serveRegister.length, 1, "Take autorisé sur le serveur unique");
+      assert.strictEqual(native.calls.serveRegister[0].sessionId, SID);
+      assert.strictEqual(native.calls.serveRegister[0].takeNumber, 1);
+      assert.strictEqual(native.calls.serveRegister[0].root, "/data/app/MultiCam/" + SID + "/1");
+      assert.strictEqual(native.calls.serveRegister[0].token.length > 0, true, "token par Take généré");
       assert.strictEqual(native.calls.sha256[0], "/data/app/MultiCam/" + SID + "/1/seg00.mp4", "hash sur le fichier stagé");
       assert.strictEqual(ready.length, 1, "media_ready émis une fois");
       assert.strictEqual(ready[0].extra.files.length, 1);
@@ -205,7 +211,7 @@ module.exports.register = function (h) {
         files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
       });
       assert.strictEqual(native.calls.download.length, 1);
-      assert.strictEqual(native.calls.download[0].url, "http://10.0.0.5:8080/seg00.mp4");
+      assert.strictEqual(native.calls.download[0].url, "http://10.0.0.5:8080/" + SID + "/1/seg00.mp4");
       assert.strictEqual(native.calls.download[0].dest, "/data/app/MultiCam/" + SID + "/1/seg00.mp4");
     });
 

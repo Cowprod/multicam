@@ -46,6 +46,34 @@
       });
     },
 
+    /* MultiCam D-SERVE: autorise UN Take sur le serveur média unique.
+     * `opts` = { sessionId, takeNumber, root, token }. */
+    serveRegister: function (opts) {
+      return new Promise(function (resolve, reject) {
+        var h = httpd();
+        if (!h) { reject(new Error("CorHttpd_unavailable")); return; }
+        h.registerTake({
+          sessionId: opts.sessionId,
+          takeNumber: opts.takeNumber,
+          root: opts.root,
+          token: opts.token || ""
+        }, resolve, function (err) { reject(new Error("serve_register_failed: " + err)); });
+      });
+    },
+
+    /* MultiCam D-SERVE: retire l'autorisation d'UN Take. Le serveur média et
+     * les autres Takes ne sont PAS affectés. */
+    serveUnregister: function (opts) {
+      return new Promise(function (resolve, reject) {
+        var h = httpd();
+        if (!h) { reject(new Error("CorHttpd_unavailable")); return; }
+        h.unregisterTake({
+          sessionId: opts.sessionId,
+          takeNumber: opts.takeNumber
+        }, resolve, function (err) { reject(new Error("serve_unregister_failed: " + err)); });
+      });
+    },
+
     /* Empreinte SHA-256 streaming d'un fichier. */
     sha256: function (path) {
       return new Promise(function (resolve, reject) {

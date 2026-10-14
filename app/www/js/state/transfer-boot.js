@@ -76,6 +76,11 @@
     var pausedOffers = {}; /* "sid|take|src" -> offre en attente (garde REC) */
     var listeners = [];    /* fn() appelés à chaque changement de l'état transfert */
 
+    /* MultiCam D-SERVE: état du serveur média UNIQUE, partagé par TOUS les
+     * Takes/services du boot. `tokens` associe "sid/take" → token ; il ne doit
+     * jamais être dupliqué par entrée, sinon les autorisations divergent. */
+    var serverState = { running: false, url: "", host: "", port: 0, tokens: {} };
+
     function keyOf(sid, take) { return String(sid) + "|" + String(take); }
 
     function selfDid() {
@@ -245,6 +250,7 @@
         role: role,
         self: selfDid,
         log: log,
+        server: serverState,
         take: function () {
           return {
             sessionId: e.sid,
@@ -466,12 +472,29 @@
       return primary.service.masterOffer(sourceDeviceId);
     }
 
+    /* MultiCam D-SERVE: arrête le serveur média partagé UNIQUEMENT s'il ne reste
+     * plus aucun Take autorisé (fermeture de session). À NE PAS appeler sur une
+     * suppression de Take : celle-ci retire une autorisation, pas le serveur. */
+    function stopServerIfIdle() {
+      if (!serverState.running) return Promise.resolve();
+      if (Object.keys(serverState.tokens).length > 0) return Promise.resolve();
+      var api = nativeApi();
+      serverState.running = false;
+      serverState.url = "";
+      serverState.host = "";
+      serverState.port = 0;
+      serverState.tokens = {};
+      if (api && typeof api.serveStop === "function") return api.serveStop();
+      return Promise.resolve();
+    }
+
     return {
       bind: bind,
       view: view,
       viewFor: viewFor,
       views: views,
       retry: retry,
+      stopServerIfIdle: stopServerIfIdle,
       role: function () { return role; },
       onChange: function (fn) { if (typeof fn === "function" && listeners.indexOf(fn) < 0) listeners.push(fn); },
       offChange: function (fn) { var i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); },

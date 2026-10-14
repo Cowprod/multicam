@@ -12,7 +12,7 @@ var CorHttpd = {
   startServer: function (options, success, error) {
     var defaults = {
       www_root: '',
-      port: 8888,
+      port: 8080,
       localhost_only: false,
       token: ''
     };
@@ -25,6 +25,17 @@ var CorHttpd = {
 
   stopServer: function (success, error) {
     exec(success, error, 'CorHttpd', 'stopServer', []);
+  },
+
+  /* MultiCam: autorise l'accès au Take (sessionId, takeNumber) sur le serveur
+   * unique. `options` = { sessionId, takeNumber, root, token }. */
+  registerTake: function (options, success, error) {
+    exec(success, error, 'CorHttpd', 'registerTake', [options || {}]);
+  },
+
+  /* MultiCam: retire l'autorisation d'accès d'un Take (le serveur reste actif). */
+  unregisterTake: function (options, success, error) {
+    exec(success, error, 'CorHttpd', 'unregisterTake', [options || {}]);
   },
 
   getURL: function (success, error) {

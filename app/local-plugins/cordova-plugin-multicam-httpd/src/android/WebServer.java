@@ -18,4 +18,13 @@ public class WebServer extends NanoHTTPD
 		super(port, wwwroot);
 		setAccessToken(token);
 	}
+
+	/* MultiCam: serveur UNIQUE multi-Take. Le routeur résout
+	 * /<sessionId>/<takeNumber>/<rel> et vérifie le token PROPRE au Take ; la
+	 * racine passée ici n'est qu'un point d'ancrage, chaque requête étant servie
+	 * depuis la racine de son Take (voir le registre des Takes). */
+	public WebServer(int port, AndroidFile wwwroot, NanoHTTPD.TakeRouter router) throws IOException {
+		super(port, wwwroot);
+		setTakeRouter(router);
+	}
 }

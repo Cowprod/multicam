@@ -24,7 +24,7 @@ const STO2 = "sto-2";
 
 function fakeNative(cfg) {
   cfg = cfg || {};
-  const calls = { serveStart: [], serveStop: 0, sha256: [], download: [] };
+  const calls = { serveStart: [], serveStop: 0, serveRegister: [], serveUnregister: [], sha256: [], download: [] };
   return {
     calls: calls,
     serveStart(opts) {
@@ -33,6 +33,12 @@ function fakeNative(cfg) {
       return Promise.resolve(cfg.serveUrl || "http://10.0.0.5:8080");
     },
     serveStop() { calls.serveStop += 1; return Promise.resolve(); },
+    serveRegister(opts) {
+      calls.serveRegister.push(opts);
+      if (cfg.serveRegisterError) return Promise.reject(new Error(cfg.serveRegisterError));
+      return Promise.resolve({});
+    },
+    serveUnregister(opts) { calls.serveUnregister.push(opts); return Promise.resolve({}); },
     sha256(p) {
       calls.sha256.push(p);
       const r = (cfg.sha256Map && cfg.sha256Map[p]) || { bytes: 1000, sha256: "aaaa" };
@@ -103,9 +109,14 @@ module.exports.register = function (h) {
       assert.strictEqual(native.calls.sha256.length, 2);
       assert.strictEqual(native.calls.serveStart.length, 1);
       assert.strictEqual(native.calls.serveStart[0].root, `/media/${SID}/${TAKE}`);
-      assert.ok(native.calls.serveStart[0].token.length > 0, "token généré");
+      assert.strictEqual(native.calls.serveRegister.length, 1, "Take autorisé sur le serveur unique");
+      assert.strictEqual(native.calls.serveRegister[0].sessionId, SID);
+      assert.strictEqual(native.calls.serveRegister[0].takeNumber, TAKE);
+      assert.strictEqual(native.calls.serveRegister[0].root, `/media/${SID}/${TAKE}`);
+      assert.ok(native.calls.serveRegister[0].token.length > 0, "token par Take généré");
       assert.strictEqual(msg.host, "10.0.0.5");
       assert.strictEqual(msg.port, 8080);
+      assert.strictEqual(msg.token, native.calls.serveRegister[0].token, "media_ready porte le token du Take");
       assert.strictEqual(msg.files.length, 2);
       assert.deepStrictEqual(msg.files.map((f) => f.sha256), ["aaaa", "bbbb"]);
       assert.ok(model.sent.some((m) => m.kind === "media_ready"));
@@ -271,7 +282,7 @@ module.exports.register = function (h) {
         files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
       });
       assert.strictEqual(native.calls.download.length, 1);
-      assert.strictEqual(native.calls.download[0].url, "http://10.0.0.5:8080/seg00.mp4");
+      assert.strictEqual(native.calls.download[0].url, "http://10.0.0.5:8080/" + SID + "/" + TAKE + "/seg00.mp4");
       assert.strictEqual(native.calls.download[0].token, "tok");
       assert.strictEqual(native.calls.download[0].offset, 0);
       const t = model.machine.transferFor(CAP, STO1);

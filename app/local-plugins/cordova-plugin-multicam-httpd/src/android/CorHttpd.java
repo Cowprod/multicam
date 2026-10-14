@@ -1,12 +1,16 @@
 package com.rjfun.cordova.httpd;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -31,6 +35,8 @@ public class CorHttpd extends CordovaPlugin {
     /** Cordova Actions. */
     private static final String ACTION_START_SERVER = "startServer";
     private static final String ACTION_STOP_SERVER = "stopServer";
+    private static final String ACTION_REGISTER_TAKE = "registerTake";
+    private static final String ACTION_UNREGISTER_TAKE = "unregisterTake";
     private static final String ACTION_GET_URL = "getURL";
     private static final String ACTION_GET_LOCAL_PATH = "getLocalPath";
     
@@ -39,15 +45,36 @@ public class CorHttpd extends CordovaPlugin {
     private static final String OPT_LOCALHOST_ONLY = "localhost_only";
     /* MultiCam: token d'accès exigé pour toute requête HTTP. */
     private static final String OPT_TOKEN = "token";
+    /* MultiCam: identité du Take (clé du registre d'autorisations). */
+    private static final String OPT_SESSION_ID = "sessionId";
+    private static final String OPT_TAKE_NUMBER = "takeNumber";
+    private static final String OPT_ROOT = "root";
 
     private String www_root = "";
-	private int port = 8888;
+	private int port = 8080;
 	private boolean localhost_only = false;
 	private String token = "";
 
 	private String localPath = "";
+	/* MultiCam: UN SEUL serveur par tablette Capture (idempotent). */
 	private WebServer server = null;
 	private String	url = "";
+
+	/* MultiCam: registre des Takes autorisés, clé "sessionId/takeNumber" →
+	 * { racine médias, token }. Les requêtes HTTP sont traitées sur des threads
+	 * de session DISTINCTS du thread UI : la structure DOIT être thread-safe. */
+	private final Map<String, Grant> grants = new ConcurrentHashMap<String, Grant>();
+
+	/* MultiCam: autorisation d'accès au média d'UN Take. */
+	static final class Grant {
+		final AndroidFile root;
+		final String token;
+		Grant(AndroidFile root, String token) { this.root = root; this.token = token; }
+	}
+
+	private static String grantKey(String sessionId, int takeNumber) {
+		return String.valueOf(sessionId) + "/" + takeNumber;
+	}
 
     @Override
     public boolean execute(String action, JSONArray inputs, CallbackContext callbackContext) throws JSONException {
@@ -58,6 +85,12 @@ public class CorHttpd extends CordovaPlugin {
         } else if (ACTION_STOP_SERVER.equals(action)) {
             result = stopServer(inputs, callbackContext);
             
+        } else if (ACTION_REGISTER_TAKE.equals(action)) {
+            result = registerTake(inputs, callbackContext);
+
+        } else if (ACTION_UNREGISTER_TAKE.equals(action)) {
+            result = unregisterTake(inputs, callbackContext);
+
         } else if (ACTION_GET_URL.equals(action)) {
             result = getURL(inputs, callbackContext);
             
@@ -103,7 +136,7 @@ public class CorHttpd extends CordovaPlugin {
         if(options == null) return null;
         
         www_root = options.optString(OPT_WWW_ROOT);
-        port = options.optInt(OPT_PORT, 8888);
+        port = options.optInt(OPT_PORT, 8080);
         localhost_only = options.optBoolean(OPT_LOCALHOST_ONLY, false);
         token = options.optString(OPT_TOKEN, "");
         
@@ -123,15 +156,25 @@ public class CorHttpd extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable(){
 			@Override
             public void run() {
-				String errmsg = __startServer();
+				/* MultiCam: IDEMPOTENT. Un serveur déjà en écoute est RÉUTILISÉ
+				 * tel quel : on ne retente JAMAIS un bind (cause de l'EADDRINUSE
+				 * d'origine). */
+				if (server != null) {
+					Log.w(LOGTAG, "startServer: déjà en écoute, réutilisation url=" + url);
+					delayCallback.success( url );
+					return;
+				}
+				String errmsg = __startServer(port);
 				if (errmsg.length() > 0) {
 					delayCallback.error( errmsg );
 				} else {
-                    if (localhost_only) {
-                        url = "http://127.0.0.1:" + port;
-                    } else {
-                        url = "http://" + __getLocalIpAddress() + ":" + port;
-                    }
+					int effective = server.getListeningPort();
+					if (localhost_only) {
+						url = "http://127.0.0.1:" + effective;
+					} else {
+						url = "http://" + __getLocalIpAddress() + ":" + effective;
+					}
+					Log.w(LOGTAG, "startServer: port demandé=" + port + " effectif=" + effective);
 	                delayCallback.success( url );
 				}
             }
@@ -140,29 +183,52 @@ public class CorHttpd extends CordovaPlugin {
         return null;
     }
     
-    private String __startServer() {
+    private String __startServer(int preferredPort) {
     	String errmsg = "";
-    	try {
-    		AndroidFile f = new AndroidFile(localPath);
-    		
-	        Context ctx = cordova.getActivity().getApplicationContext();
-			AssetManager am = ctx.getResources().getAssets();
-    		f.setAssetManager( am );
-    		
-    		if(localhost_only) {
-    			InetSocketAddress localAddr = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127,0,0,1}), port);
-    			server = new WebServer(localAddr, f);
-    		} else {
-    			server = new WebServer(port, f);
-    		}
-    		/* MultiCam: le token est appliqué après construction (les deux
-    			 * constructeurs restent inchangés). */
-    		server.setAccessToken(token);
+		AndroidFile f = new AndroidFile(localPath);
+        Context ctx = cordova.getActivity().getApplicationContext();
+		AssetManager am = ctx.getResources().getAssets();
+		f.setAssetManager( am );
+		try {
+			server = __bind(preferredPort, f);
 		} catch (IOException e) {
-			errmsg = String.format("IO Exception: %s", e.getMessage());
-			Log.w(LOGTAG, errmsg);
+			/* MultiCam: conflit de port EXPLICITE. On ne masque PAS l'erreur
+			 * avec setReuseAddress : on la journalise, puis on replie sur un port
+			 * libre. L'URL annoncée portera le port réellement utilisé. */
+			if (isPortConflict(e)) {
+				Log.w(LOGTAG, "SERVE_PORT_CONFLICT port=" + preferredPort + " err=" + e.getMessage());
+				try {
+					server = __bind(0, f);
+				} catch (IOException e2) {
+					errmsg = String.format("IO Exception: %s", e2.getMessage());
+					Log.w(LOGTAG, errmsg);
+				}
+			} else {
+				errmsg = String.format("IO Exception: %s", e.getMessage());
+				Log.w(LOGTAG, errmsg);
+			}
 		}
     	return errmsg;
+    }
+
+    /* MultiCam: construit un WebServer sur `port` (0 = port libre attribué par
+     * l'OS) et lui installe le routeur multi-Take partagé. */
+    private WebServer __bind(int port, AndroidFile f) throws IOException {
+    	WebServer ws;
+		if(localhost_only) {
+			InetSocketAddress localAddr = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127,0,0,1}), port);
+			ws = new WebServer(localAddr, f);
+		} else {
+			ws = new WebServer(port, f);
+		}
+		ws.setTakeRouter(new TakeRouterImpl(grants));
+		return ws;
+    }
+
+    private static boolean isPortConflict(IOException e) {
+    	if (e instanceof BindException) return true;
+    	String m = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+    	return m.indexOf("eaddrinuse") >= 0 || m.indexOf("address already in use") >= 0;
     }
 
     private void __stopServer() {
@@ -170,6 +236,8 @@ public class CorHttpd extends CordovaPlugin {
 			server.stop();
 			server = null;
 		}
+		/* MultiCam: plus aucune autorisation valable une fois le serveur arrêté. */
+		grants.clear();
     }
     
    private PluginResult getURL(JSONArray inputs, CallbackContext callbackContext) {
@@ -203,6 +271,38 @@ public class CorHttpd extends CordovaPlugin {
         return null;
     }
 
+    /* MultiCam: enregistre un Take (racine + token PROPRE). Appelé à l'annonce ;
+     * le serveur HTTP (unique) doit déjà être démarré. Idempotent : ré-annoncer
+     * le même Take écrase la même entrée sans créer de ressource. */
+    private PluginResult registerTake(JSONArray inputs, CallbackContext callbackContext) {
+		JSONObject o = inputs.optJSONObject(0);
+		if (o == null) return new PluginResult(Status.ERROR, "missing_options");
+		String sid = o.optString(OPT_SESSION_ID, "");
+		int take = o.optInt(OPT_TAKE_NUMBER, -1);
+		String root = o.optString(OPT_ROOT, "");
+		String tk = o.optString(OPT_TOKEN, "");
+		if (sid.length() == 0 || take < 0 || root.length() == 0 || tk.length() == 0) {
+			Log.w(LOGTAG, "registerTake: paramètres invalides sid=" + sid + " take=" + take);
+			return new PluginResult(Status.ERROR, "invalid_grant");
+		}
+		grants.put(grantKey(sid, take), new Grant(new AndroidFile(root), tk));
+		Log.w(LOGTAG, "registerTake sid=" + sid + " take=" + take + " root=" + root + " grants=" + grants.size());
+		return new PluginResult(Status.OK);
+    }
+
+    /* MultiCam: retire l'autorisation d'accès d'UN Take (suppression locale
+     * validée). Le serveur HTTP et les AUTRES Takes restent intacts. */
+    private PluginResult unregisterTake(JSONArray inputs, CallbackContext callbackContext) {
+		JSONObject o = inputs.optJSONObject(0);
+		if (o == null) return new PluginResult(Status.ERROR, "missing_options");
+		String sid = o.optString(OPT_SESSION_ID, "");
+		int take = o.optInt(OPT_TAKE_NUMBER, -1);
+		if (sid.length() == 0 || take < 0) return new PluginResult(Status.ERROR, "invalid_grant");
+		grants.remove(grantKey(sid, take));
+		Log.w(LOGTAG, "unregisterTake sid=" + sid + " take=" + take + " grants=" + grants.size());
+		return new PluginResult(Status.OK);
+    }
+
     /**
      * Called when the system is about to start resuming a previous activity.
      *
@@ -226,5 +326,65 @@ public class CorHttpd extends CordovaPlugin {
      */
     public void onDestroy() {
     	__stopServer();
+    }
+
+    /* MultiCam: routage multi-Take par chemin /<sessionId>/<takeNumber>/<rel>.
+     * Le token exigé est CELUI DU TAKE visé (jamais un token global). Le
+     * confinement au root du Take est vérifié segment par segment, en plus du
+     * refus `../` déjà assuré par serveFile(). Exécuté sur les threads de
+     * session HTTP : le registre `grants` est un ConcurrentHashMap. */
+    private static final class TakeRouterImpl implements NanoHTTPD.TakeRouter {
+    	private final Map<String, Grant> grants;
+    	TakeRouterImpl(Map<String, Grant> grants) { this.grants = grants; }
+
+    	@Override
+    	public NanoHTTPD.Response serve(String uri, String method, Properties header,
+    			Properties parms, Properties files, NanoHTTPD nano) {
+    		if (uri == null) {
+    			return nano.new Response(NanoHTTPD.HTTP_BADREQUEST, NanoHTTPD.MIME_PLAINTEXT, "BAD REQUEST");
+    		}
+    		String u = uri;
+    		while (u.startsWith("/")) u = u.substring(1);
+    		int i1 = u.indexOf('/');
+    		int i2 = (i1 >= 0) ? u.indexOf('/', i1 + 1) : -1;
+    		if (i1 <= 0 || i2 <= 0) {
+    			return nano.new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.");
+    		}
+    		String sid = u.substring(0, i1);
+    		String take = u.substring(i1 + 1, i2);
+    		String rel = u.substring(i2 + 1);
+    		if (!safeSegment(sid) || !safeSegment(take) || !safeRel(rel)) {
+    			Log.w(LOGTAG, "REJECT unsafe path uri=" + uri);
+    			return nano.new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: invalid path.");
+    		}
+    		Grant g = grants.get(sid + "/" + take);
+    		if (g == null) {
+    			return nano.new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, take not registered.");
+    		}
+    		String provided = parms != null ? parms.getProperty("token") : null;
+    		boolean ok = provided != null && provided.equals(g.token);
+    		if (!ok) {
+    			String auth = header != null ? header.getProperty("authorization") : null;
+    			ok = auth != null && auth.equals("Bearer " + g.token);
+    		}
+    		if (!ok) {
+    			Log.w(LOGTAG, "REJECT token mismatch uri=" + uri);
+    			return nano.new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: invalid token.");
+    		}
+    		return nano.serveFile("/" + rel, header, g.root, false);
+    	}
+
+    	private static boolean safeSegment(String s) {
+    		return s != null && s.length() > 0 && !".".equals(s) && !"..".equals(s)
+    				&& s.indexOf('\\') < 0 && s.indexOf('\0') < 0;
+    	}
+
+    	private static boolean safeRel(String rel) {
+    		if (rel == null || rel.length() == 0) return false;
+    		String[] ps = rel.split("/");
+    		if (ps.length == 0) return false;
+    		for (String p : ps) { if (!safeSegment(p)) return false; }
+    		return true;
+    	}
     }
 }

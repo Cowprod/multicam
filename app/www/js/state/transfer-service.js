@@ -43,8 +43,34 @@
     var generateToken = deps.generateToken || function () { return Math.random().toString(36).slice(2, 12); };
     var port = deps.port || 8080;
 
-    /* Serveur média de la Capture (un seul à la fois : un Take à la fois). */
-    var server = { url: "", token: "", running: false };
+    /* MultiCam D-SERVE: serveur média UNIQUE, partagé au niveau boot entre les
+     * Takes. `deps.server` est injecté par la couche boot ; à défaut on crée un
+     * état local (tests). `tokens` mémorise le token de chaque Take pour le
+     * réutiliser à chaque ré-annonce (le token d'un Take ne change pas). */
+    var server = deps.server || { running: false, url: "", host: "", port: 0, tokens: {} };
+    if (!server.tokens) server.tokens = {};
+
+    function serverKey(sessionId, takeNumber) {
+      return String(sessionId == null ? "" : sessionId) + "/" + takeNumber;
+    }
+
+    /* Démarre le serveur média partagé s'il ne tourne pas déjà (idempotent :
+     * plusieurs Takes/Capture réutilisent la même instance et le même port). */
+    function ensureServer(root) {
+      if (server.running) return Promise.resolve(server);
+      return native.serveStart({ root: root, port: port, token: "" }).then(function (url) {
+        server.url = url;
+        server.running = true;
+        var m = /^https?:\/\/([^:\/]+):(\d+)/.exec(url || "");
+        server.host = m ? m[1] : "";
+        server.port = m ? parseInt(m[2], 10) : port;
+        return server;
+      });
+    }
+
+    function encodeRel(rel) {
+      return String(rel).split("/").map(encodeURIComponent).join("/");
+    }
 
     /* --------------------------------------------------------------- capture */
 
@@ -67,22 +93,25 @@
       var tk = take();
       return segmentList().then(function (segs) {
         if (!segs.length) { log("TRANSFER_ANNOUNCE_SKIP reason=no_segments"); return null; }
-        server.token = generateToken();
+        var key = serverKey(tk.sessionId, tk.takeNumber);
+        var tkToken = server.tokens[key] || (server.tokens[key] = generateToken());
+        var root = paths.mediaRoot(tk.sessionId, tk.takeNumber);
         return Promise.all(segs.map(function (s) {
           return native.sha256(s.path).then(function (r) {
             return { rel: s.rel, segmentIndex: s.segmentIndex || 0, bytes: r.bytes, sha256: r.sha256 };
           });
         })).then(function (files) {
-          return native.serveStart({ root: paths.mediaRoot(tk.sessionId, tk.takeNumber), port: port, token: server.token })
-            .then(function (url) {
-              server.url = url;
-              server.running = true;
-              var m = /^https?:\/\/([^:\/]+):(\d+)/.exec(url || "");
-              var host = m ? m[1] : "";
-              var prt = m ? parseInt(m[2], 10) : port;
-              log("TRANSFER_SERVE url=" + url + " files=" + files.length);
-              return model.announceMedia({ host: host, port: prt, token: server.token, files: files });
+          return ensureServer(root).then(function (sv) {
+            return native.serveRegister({
+              sessionId: tk.sessionId,
+              takeNumber: tk.takeNumber,
+              root: root,
+              token: tkToken
+            }).then(function () {
+              log("TRANSFER_SERVE url=" + sv.url + " take=" + tk.takeNumber + " files=" + files.length);
+              return model.announceMedia({ host: sv.host, port: sv.port, token: tkToken, files: files });
             });
+          });
         });
       }).catch(function (e) {
         log("TRANSFER_ANNOUNCE_ERROR error=" + (e && e.message ? e.message : e));
@@ -90,22 +119,32 @@
       });
     };
 
+    /* Arrêt du serveur partagé. Réservé à la fermeture de session (ou onDestroy
+     * natif) : jamais sur une simple suppression de Take. */
     var serveStop = function () {
       if (!server.running) return Promise.resolve();
       server.running = false;
       server.url = "";
+      server.host = "";
+      server.port = 0;
+      server.tokens = {};
       return native.serveStop();
     };
 
-    /* Suppression locale demandée par le Master : on supprime d'abord, PUIS on
-     * laisse le modèle accuser réception (ack). */
+    /* Suppression locale demandée par le Master : on supprime d'abord, on
+     * retire ensuite l'autorisation du Take (le serveur et les AUTRES Takes
+     * restent actifs), PUIS on laisse le modèle accuser réception (ack). */
     var captureHandleDelete = function (env) {
       var tk = take();
       return segmentList().then(function (segs) {
         var list = segs.map(function (s) { return s.path; });
         return deleteLocal(list).then(function () {
           log("TRANSFER_LOCAL_DELETED take=" + tk.takeNumber + " files=" + list.length);
-          return model.onIncoming(env);
+          delete server.tokens[serverKey(tk.sessionId, tk.takeNumber)];
+          var unreg = server.running
+            ? native.serveUnregister({ sessionId: tk.sessionId, takeNumber: tk.takeNumber })
+            : Promise.resolve();
+          return unreg.then(function () { return model.onIncoming(env); });
         });
       });
     };
@@ -177,7 +216,9 @@
         attempt += 1;
         var offset = model.resumeOffset(offer.sourceDeviceId, self(), f.rel);
         var dest = paths.destFor ? paths.destFor(offer.sessionId || take().sessionId, tkTake, f.rel) : {};
-        var base = "http://" + offer.host + ":" + offer.port + "/" + encodeURIComponent(f.rel);
+        var sid = offer.sessionId || take().sessionId;
+        var base = "http://" + offer.host + ":" + offer.port + "/"
+          + encodeURIComponent(sid) + "/" + encodeURIComponent(String(tkTake)) + "/" + encodeRel(f.rel);
         var opts = {
           url: base, token: offer.token, offset: offset, expectedBytes: f.bytes
         };
