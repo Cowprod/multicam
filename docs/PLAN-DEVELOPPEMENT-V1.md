@@ -20,7 +20,7 @@ Ce tableau de bord est tenu par le pilotage du projet, indépendamment des compt
 | J13 | Terminé avec réserves | J13-05 : erreur d'écriture Storage à qualifier ; J13-09 : reprise HTTP Range après interruption à confirmer |
 | D-SERVE, serveur HTTP unique par Capture | Implémentation et packaging corrigés ; tests automatisés rapportés | Validation de deux Takes et transferts réels encore requise |
 | Jonction A/B/C | Validée lors du diagnostic préalable | Session GES3F6KY ; B Capture, C Storage |
-| J14-B01, arbitrage des plans entre sessions | **Validation technique rapportée PASS sur A/B/C** | Deux sessions successives, seconde lexicalement inférieure à la première, REC confirmé sans redémarrage ; commit local annoncé `ba59ed800252b5df479255aa422574c186f34607`, **non encore retrouvé sur GitHub au 15/10** |
+| J14-B01, arbitrage des plans entre sessions | **Validation technique rapportée PASS sur A/B/C** | Deux sessions successives, seconde lexicalement inférieure à la première, REC confirmé sans redémarrage ; commit local annoncé `ba59ed800252b5df479255aa422574c186f34607`, **publié et vérifié sur GitHub le 15/10**, branche `feat/j11-media-transfer` |
 | Validation D-SERVE à deux Takes | **Bloquée puis à reprendre après J14-B01** | Prouver deux STOP persistés, deux transferts B→C, routage/grants, SHA-256, absence de 404/EADDRINUSE et suppression prématurée |
 | J14, campagne d'endurance | **Non démarrée** | Interdite avant PASS de la validation D-SERVE ciblée |
 
@@ -28,9 +28,9 @@ Ce tableau de bord est tenu par le pilotage du projet, indépendamment des compt
 
 Lors de la validation D-SERVE, le plan `GES3F6KY#3#2#2` a été écarté au profit d'un plan terminé de la session `NCT5E79Z` : comparaison lexicographique inter-sessions dans `start-model.js`. L'agent a rapporté une correction isolant l'arbitrage par session, ainsi que les clés de suivi des Takes par `sessionId#takeNumber`. Tests annoncés : 397/397 dans le runner applicatif et 45/45 pour le module start-model du plugin-lab. Reproduction Android annoncée : `TKW9METK` REC/STOP, puis `RAG29M68` REC sans redémarrage. Preuves locales annoncées : `tests/e2e/validation/J14-B01/`.
 
-**Réserve de vérification :** ces résultats proviennent du rapport d'exécution de Big Pickle ; le commit de correction n'était pas accessible dans le dépôt distant lors de la mise à jour du tableau de bord. Le test `tests/plugin-lab/session/start-service.test.js`, bloc 09, reste en échec, signalé comme préexistant, sans qualification indépendante à ce stade.
+**Traçabilité :** ces résultats proviennent du rapport d'exécution de Big Pickle ; le commit de correction `ba59ed8` a été vérifié sur GitHub (deux fichiers : `start-model.js` et son test de non-régression). Les preuves Android restent rapportées par l'agent et ne sont pas indépendamment revérifiées. Le test `tests/plugin-lab/session/start-service.test.js`, bloc 09, reste en échec, signalé comme préexistant, sans qualification indépendante à ce stade.
 
-**Prochaine étape autorisée :** synchroniser le commit correctif et ses preuves pertinentes, vérifier le code publié, puis reprendre uniquement le scénario D-SERVE de deux Takes. Ne pas lancer J14 endurance. Ne pas effacer les médias ou nettoyer les sessions existantes.
+**Prochaine étape autorisée :** reprendre uniquement le scénario D-SERVE de deux Takes, après confirmation de l'APK correctif installé sur A/B/C ; conserver et publier les preuves pertinentes. Ne pas lancer J14 endurance. Ne pas effacer les médias ou nettoyer les sessions existantes.
 
 ---
 
