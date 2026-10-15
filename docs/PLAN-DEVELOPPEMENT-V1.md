@@ -1,6 +1,6 @@
 # MultiCam — Plan de développement V1
 
-**État : J14 en cours — validation D-SERVE préalable à l'endurance**  
+**État : J14 — campagne d'endurance autorisée, non démarrée**  
 **Suivi actualisé : 15 octobre 2026**  
 **Plan initial : 17 septembre 2026**
 
@@ -18,11 +18,19 @@ Ce tableau de bord est tenu par le pilotage du projet, indépendamment des compt
 | --- | --- | --- |
 | J01–J12 | Développements et validations précédentes réalisés ; conserver les rapports de validation comme référence | Ne pas rouvrir sans anomalie démontrée |
 | J13 | Terminé avec réserves | J13-05 : erreur d'écriture Storage à qualifier ; J13-09 : reprise HTTP Range après interruption à confirmer |
-| D-SERVE, serveur HTTP unique par Capture | Implémentation et packaging corrigés ; tests automatisés rapportés | Validation de deux Takes et transferts réels encore requise |
+| D-SERVE, serveur HTTP unique par Capture | **PASS rapporté sur Android A/B/C (10/10 critères)** | Deux Takes transférés B→C ; preuves locales `dserve-validation/run3/`, publication Git à réaliser |
 | Jonction A/B/C | Validée lors du diagnostic préalable | Session GES3F6KY ; B Capture, C Storage |
 | J14-B01, arbitrage des plans entre sessions | **Validation technique rapportée PASS sur A/B/C** | Deux sessions successives, seconde lexicalement inférieure à la première, REC confirmé sans redémarrage ; commit local annoncé `ba59ed800252b5df479255aa422574c186f34607`, **publié et vérifié sur GitHub le 15/10**, branche `feat/j11-media-transfer` |
-| Validation D-SERVE à deux Takes | **Bloquée puis à reprendre après J14-B01** | Prouver deux STOP persistés, deux transferts B→C, routage/grants, SHA-256, absence de 404/EADDRINUSE et suppression prématurée |
-| J14, campagne d'endurance | **Non démarrée** | Interdite avant PASS de la validation D-SERVE ciblée |
+| Validation D-SERVE à deux Takes | **PASS rapporté (10/10), session `ZFMYZRAS`** | Takes 1 et 2 : 31 676 002 et 31 648 962 octets ; SHA-256 identiques B/C, aucun 404/EADDRINUSE, suppression après validation ; preuves à publier |
+| J14, campagne d'endurance | **Autorisée, non démarrée** | Exécuter la campagne représentative et archiver mesures, médias, checksums, incidents et verdict |
+
+### Validation D-SERVE ciblée — rapport du 15 octobre 2026
+
+**Verdict de pilotage : PASS rapporté sur les 10 critères ; feu vert pour préparer J14 endurance.** Campagne Android A/B/C, session `ZFMYZRAS` : deux Takes successifs (~10 secondes de REC chacun), STOP persisté, deux transferts B→C terminés (31 676 002 et 31 648 962 octets). Le rapport indique : serveur HTTP unique sur B (port 8080), grants/tokens distincts, routage par Take correct, SHA-256 source/destination identiques et vérifiés sur C, zéro `EADDRINUSE`, zéro HTTP 404 inattendu, suppression locale seulement après confirmation du transfert. Sept anciennes sessions et leurs médias conservés.
+
+**Preuves annoncées, encore locales :** `tests/e2e/validation/J14-endurance/dserve-validation/run3/`, notamment `RAPPORT-10-CRITERES.md`, logs, dumps, captures, analyse et journal du harnais. L'agent indique que le harnais `tests/e2e/dserve-two-takes.sh` a été corrigé sur son chemin ROOT ; aucun changement applicatif et aucun commit de ces preuves n'ont été rapportés. Le verdict est fondé sur le rapport de l'agent, non sur une inspection indépendante des fichiers de preuve. **Action documentaire restante :** publier les preuves utiles dans Git et en vérifier l'intégrité.
+
+**Décision :** lever le blocage D-SERVE et autoriser la campagne J14 ; ne pas déclarer J14 terminé avant la campagne d'endurance et ses critères d'acceptation.
 
 ### Incident J14-B01 et décision
 
@@ -30,7 +38,7 @@ Lors de la validation D-SERVE, le plan `GES3F6KY#3#2#2` a été écarté au prof
 
 **Traçabilité :** ces résultats proviennent du rapport d'exécution de Big Pickle ; le commit de correction `ba59ed8` a été vérifié sur GitHub (deux fichiers : `start-model.js` et son test de non-régression). Les preuves Android restent rapportées par l'agent et ne sont pas indépendamment revérifiées. Le test `tests/plugin-lab/session/start-service.test.js`, bloc 09, reste en échec, signalé comme préexistant, sans qualification indépendante à ce stade.
 
-**Prochaine étape autorisée :** reprendre uniquement le scénario D-SERVE de deux Takes, après confirmation de l'APK correctif installé sur A/B/C ; conserver et publier les preuves pertinentes. Ne pas lancer J14 endurance. Ne pas effacer les médias ou nettoyer les sessions existantes.
+**Prochaine étape autorisée :** préparer et exécuter J14 endurance. Conserver et publier les preuves pertinentes du test D-SERVE, sans effacer les médias ou nettoyer les sessions existantes.
 
 ---
 
