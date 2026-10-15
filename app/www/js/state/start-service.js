@@ -56,6 +56,7 @@
 
   function log(l) { console.log(l); }
   function nowMs() { return Date.now(); }
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
   function cfg() { return (global.MultiCamConfig && global.MultiCamConfig.get) ? global.MultiCamConfig.get() : null; }
   function ws() { return global.MultiCamSessionWs; }
   function store() { return global.MultiCamSessionStore; }

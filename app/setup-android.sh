@@ -105,6 +105,12 @@ add_local_plugin() {
 }
 add_local_plugin cordova-plugin-multicam-saf local-plugins/cordova-plugin-multicam-saf
 add_local_plugin cordova-plugin-multicam-platform local-plugins/cordova-plugin-multicam-platform
+# D-SERVE : le serveur media HTTP unique vit dans ce plugin. Il DOIT etre
+# re-installe a chaque iter pour que la source local-plugins/ (routeur
+# multi-Take) soit propagee a plugins/ et platforms/. `cordova prepare` ne
+# rafraichit pas un plugin deja present (restore-util.js), donc sans cette
+# ligne l'APK embarquerait une copie perimee.
+add_local_plugin cordova-plugin-multicam-httpd local-plugins/cordova-plugin-multicam-httpd
 add_local_plugin cordova-plugin-multicam-nsd local-plugins/cordova-plugin-multicam-nsd
 add_local_plugin cordova-websocket-server local-plugins/cordova-websocket-server
 
@@ -169,6 +175,9 @@ echo "J09-07 switchCameraTo + getCameraState presents dans la plateforme Android
 
 echo "=== Plugins ==="
 npx cordova plugin ls
+
+echo "=== Controle packaging D-SERVE (pre-build) ==="
+sh scripts/check-dserve-packaging.sh
 
 echo "=== Build ==="
 npx cordova build android
