@@ -18,10 +18,15 @@
  *    confondues ici produiraient un faux top de 2×l'offset — d'où ce commentaire.
  *    Aucune dépendance réseau à l'instant du top : la perte de TOUS les Masters
  *    après programmation n'annule donc pas le départ.
- *  - Arbitrage multi-Master déterministe : deux plans concurrents → le
- *    startPlanId lexicographiquement LE PLUS GRAND gagne (fonction pure du plan,
- *    donc même verdict sur tous les devices, sans confiance horloge croisée) ;
- *    le perdant abandonne son countdown (START_PLAN_SUPERSEDED).
+ *  - Arbitrage multi-Master déterministe, SCOPÉ PAR SESSION : deux plans
+ *    concurrents DE LA MÊME session → le startPlanId (take/cycle/rang)
+ *    LE PLUS GRAND gagne (fonction pure du plan, donc même verdict partout).
+ *    Un plan d'une AUTRE session n'est jamais écarté par l'ordre lexical du
+ *    sessionId : seul un plan EN COURS d'exécution (COUNTDOWN/REC) peut
+ *    repousser un plan étranger ; un plan terminé (STOPPED) ne bloque JAMAIS
+ *    une autre session. Entre deux sessions, la plus RÉCENTE (createdAtMs)
+ *    l'emporte — un plan périmé tardif est superseded. Le perdant abandonne son
+ *    countdown (START_PLAN_SUPERSEDED).
  *  - Idempotence : déduplication par deviceId + startPlanId (plan, état, exécution).
  *  - Countdown dérivé du temps restant (jamais un setInterval indépendant) :
  *    chiffre = ceil(restant / 1000) borné [1..countdownSeconds] → 5→4→3→2→1,
@@ -232,6 +237,9 @@
       sid: null,
       plan: null,
       planId: null,
+      /* Instant de création de la session du plan RETENU : seul discriminateur
+       * inter-sessions (le sessionId est aléatoire, donc non ordonnable). */
+      planSessionCreatedAtMs: null,
       seq: 0,
       leader: false,
       isMaster: false,
@@ -254,8 +262,8 @@
       recStartedAtMs: 0,
       recElapsedMs: 0,
       lastStart: null,           /* { actualMs, deltaMs, status, ackMs, ackDeltaMs } */
-      localStartedTakes: {},     /* takeNumber -> true (UN seul START local par Take) */
-      localStoppedTakes: {},     /* takeNumber -> true (STOP local, pas de redémarrage) */
+      localStartedTakes: {},     /* "sid#takeNumber" -> true (UN seul START local par Take) */
+      localStoppedTakes: {},     /* "sid#takeNumber" -> true (STOP local, pas de redémarrage) */
       stoppedTakeNumber: 0,      /* Take du STOP local en cours (affichage) */
       noMasterSinceMs: 0,
       masterLostLogged: false,
@@ -292,6 +300,22 @@
       return false;
     };
 
+    /* Clé de verrouillage d'un Take, SCOPÉE PAR SESSION : sans le sessionId,
+     * le Take 1 d'une nouvelle session entrerait en collision avec le Take 1
+     * (déjà démarré/arrêté) d'une session précédente → blocage inter-sessions. */
+    var takeKey = function (sid, takeNumber) {
+      return String(sid == null ? "" : sid) + "#" + String(takeNumber == null ? 0 : takeNumber);
+    };
+
+    /* Instant de création d'une session, seul ordre inter-sessions déterministe
+     * disponible (le sessionId est aléatoire). Repli sur updatedAtMs. */
+    var sessionRecencyMs = function (ses) {
+      if (!ses) return null;
+      if (isNum(ses.createdAtMs)) return ses.createdAtMs;
+      if (isNum(ses.updatedAtMs)) return ses.updatedAtMs;
+      return null;
+    };
+
     var sessionName = function () {
       if (state.plan && typeof state.plan.sessionName === "string") return state.plan.sessionName;
       return "";
@@ -302,7 +326,7 @@
       if (!plan || !Array.isArray(plan.participants)) return out;
       plan.participants.forEach(function (p) {
         if (!p || p.role !== "capture") return;
-        if (state.localStoppedTakes[p.takeNumber || (plan && plan.takeNumber)] === true) return;
+        if (state.localStoppedTakes[takeKey(plan.sessionId, p.takeNumber || plan.takeNumber)] === true) return;
         var st = (p.deviceId === self())
           ? (state.excluded ? STATE_EXCLUDED : STATE_ACCEPTED)
           : ((state.peers[p.deviceId] || {}).state || STATE_ACCEPTED);
@@ -519,7 +543,7 @@
         log("START_PLAN_DUPLICATE deviceId=" + self() + " startPlanId=" + plan.startPlanId);
         return;
       }
-      if (state.localStartedTakes[plan.takeNumber] === true) {
+      if (state.localStartedTakes[takeKey(plan.sessionId, plan.takeNumber)] === true) {
         /* Ce device a DÉJÀ démarré l'enregistrement de ce Take : il ne peut
          * surtout pas suivre un autre plan pour le même Take (sinon double
          * REC). Un plan pour un autre Take reste accepté. */
@@ -527,10 +551,38 @@
           + " take=" + plan.takeNumber + " reason=local_already_started");
         return;
       }
-      if (state.planId && choosePlanId(plan.startPlanId, state.planId) === state.planId) {
-        log("START_PLAN_SUPERSEDED deviceId=" + self() + " startPlanId=" + plan.startPlanId
-          + " kept=" + state.planId);
-        return;
+      /* Arbitrage SCOPÉ PAR SESSION. Même session : règle déterministe
+       * inchangée (identifiant le plus grand). Session différente : l'ordre
+       * lexical du sessionId ne décide jamais — seul un plan présentement en
+       * exécution (COUNTDOWN/REC) repousse un plan étranger ; un plan terminé
+       * (STOPPED) ne bloque plus une autre session. Entre deux sessions, le
+       * plan périmé (session créée plus tôt) est superseded. */
+      if (state.planId) {
+        var retainedPlan = state.plan;
+        var sameSession = !!(retainedPlan && plan.sessionId === retainedPlan.sessionId);
+        if (sameSession) {
+          if (choosePlanId(plan.startPlanId, state.planId) === state.planId) {
+            log("START_PLAN_SUPERSEDED deviceId=" + self() + " startPlanId=" + plan.startPlanId
+              + " kept=" + state.planId);
+            return;
+          }
+        } else {
+          if (state.phase === PHASE_COUNTDOWN || state.phase === PHASE_REC) {
+            log("START_PLAN_SUPERSEDED deviceId=" + self() + " startPlanId=" + plan.startPlanId
+              + " kept=" + state.planId + " reason=cross_session_active phase=" + state.phase);
+            return;
+          }
+          var incomingMs = isNum(opts.sessionCreatedAtMs) ? opts.sessionCreatedAtMs : null;
+          var retainedMs = isNum(state.planSessionCreatedAtMs) ? state.planSessionCreatedAtMs : null;
+          if (incomingMs != null && retainedMs != null && incomingMs < retainedMs) {
+            log("START_PLAN_SUPERSEDED deviceId=" + self() + " startPlanId=" + plan.startPlanId
+              + " kept=" + state.planId + " reason=stale_session"
+              + " incomingSessionCreatedAtMs=" + incomingMs + " keptSessionCreatedAtMs=" + retainedMs);
+            return;
+          }
+          log("START_PLAN_CROSS_SESSION deviceId=" + self() + " old=" + state.planId
+            + " new=" + plan.startPlanId + " phase=" + state.phase);
+        }
       }
       if (state.planId) {
         log("START_PLAN_REPLACED deviceId=" + self() + " old=" + state.planId + " new=" + plan.startPlanId);
@@ -539,6 +591,7 @@
       state.sid = plan.sessionId;
       state.plan = plan;
       state.planId = plan.startPlanId;
+      state.planSessionCreatedAtMs = isNum(opts.sessionCreatedAtMs) ? opts.sessionCreatedAtMs : null;
       state.leader = plan.createdByDeviceId === self();
       state.isMaster = !!opts.isMaster;
       state.isCapture = selfIsParticipantCapture(plan);
@@ -703,7 +756,7 @@
       }
       var actualMs = now();
       var deltaMs = actualMs - (state.localTopMs == null ? actualMs : state.localTopMs);
-      state.localStartedTakes[state.plan.takeNumber] = true;
+      state.localStartedTakes[takeKey(state.plan.sessionId, state.plan.takeNumber)] = true;
       state.phase = PHASE_REC;
       state.recStartedAtMs = actualMs;
       state.recElapsedMs = 0;
@@ -796,6 +849,7 @@
         + " take=" + plan.takeNumber + " reason=" + reason);
       state.plan = null;
       state.planId = null;
+      state.planSessionCreatedAtMs = null;
       state.leader = false;
       state.phase = keepPhase === true ? PHASE_STOPPED : PHASE_IDLE;
       state.localTopMs = null;
@@ -923,7 +977,7 @@
     var enterStopped = function (info, txn) {
       var plan = state.plan;
       var takeNumber = plan ? plan.takeNumber : state.stoppedTakeNumber;
-      state.localStoppedTakes[takeNumber] = true;
+      state.localStoppedTakes[takeKey(state.sid, takeNumber)] = true;
       state.stoppedTakeNumber = takeNumber;
       state.phase = PHASE_STOPPED;
       state.showEmergencyStop = false;
@@ -1205,11 +1259,11 @@
           log("START_REJECTED sessionId=" + sid + " reason=no_take");
           throw new Error("no_take");
         }
-        if (state.localStoppedTakes[take.takeNumber]) {
+        if (state.localStoppedTakes[takeKey(sid, take.takeNumber)]) {
           log("START_REJECTED sessionId=" + sid + " take=" + take.takeNumber + " reason=local_stopped_take");
           throw new Error("local_stopped_take");
         }
-        if (state.localStartedTakes[take.takeNumber] === true && state.phase === PHASE_REC) {
+        if (state.localStartedTakes[takeKey(sid, take.takeNumber)] === true && state.phase === PHASE_REC) {
           log("START_REJECTED sessionId=" + sid + " take=" + take.takeNumber + " reason=local_already_started");
           throw new Error("local_already_started");
         }
@@ -1319,7 +1373,7 @@
           + " targetStart=" + fmtClock(plan.targetStartMs) + " countdown=" + plan.countdownSeconds);
         /* Adoption AVANT diffusion : le leader doit être prêt à recevoir les
          * start_state que les pairs publient en adoptant à leur tour. */
-        adoptPlan(plan, { isMaster: true, isStorage: !!state.isStorage });
+        adoptPlan(plan, { isMaster: true, isStorage: !!state.isStorage, sessionCreatedAtMs: sessionRecencyMs(ses) });
         if (deps.sendStartPlan) deps.sendStartPlan(ses, plan);
         return view();
       });
@@ -1459,6 +1513,7 @@
           }
           role.isMaster = deps.isMasterRole ? deps.isMasterRole(self(), ses) : false;
           role.isStorage = deps.storageRole ? deps.storageRole(self(), ses) : false;
+          role.sessionCreatedAtMs = sessionRecencyMs(ses);
           adoptPlan(s, role);
         }).catch(function (err) {
           log("START_PLAN_ERROR sessionId=" + (s.sessionId || "?") + " err=" + String((err && err.message) || err));
@@ -1494,7 +1549,7 @@
             + " active=" + (state.planId || "none") + " reason=plan_mismatch");
           return;
         }
-        if (state.phase === PHASE_STOPPED && state.localStoppedTakes[env.takeNumber] === true) {
+        if (state.phase === PHASE_STOPPED && state.localStoppedTakes[takeKey(state.sid, env.takeNumber)] === true) {
           /* Take déjà arrêté localement : late ack idempotent, JAMAIS de
            * redémarrage (exigence J10 : reconnect/double-STOP sans reprise). */
           republishStopState(env);
@@ -1580,8 +1635,8 @@
         recElapsedMs: state.recElapsedMs,
         lastStart: state.lastStart,
         showEmergencyStop: state.showEmergencyStop,
-        localStoppedTake: !!state.localStoppedTakes[state.plan ? state.plan.takeNumber : state.stoppedTakeNumber],
-        localStartedTake: !!state.localStartedTakes[state.plan ? state.plan.takeNumber : state.stoppedTakeNumber],
+        localStoppedTake: !!state.localStoppedTakes[takeKey(state.sid, state.plan ? state.plan.takeNumber : state.stoppedTakeNumber)],
+        localStartedTake: !!state.localStartedTakes[takeKey(state.sid, state.plan ? state.plan.takeNumber : state.stoppedTakeNumber)],
         stoppedTakeNumber: state.stoppedTakeNumber,
         /* ---------- J10 : STOP coordonné ---------- */
         stop: state.stop,
