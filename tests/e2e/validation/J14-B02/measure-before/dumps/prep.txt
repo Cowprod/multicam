@@ -1,0 +1,10 @@
+HEAD: c6d98dfeddf1ae8c07a7f668d5cafdbb438cbb15
+c6d98df fix(J14-B02): break onChanged→advertise/reSync loop, coalesce advertiseOpenSessions and transfer progress persists; remove network side-effects from take.js onChanged
+
+List of devices attached
+61cc29567d91           device usb:0-1.3.4 product:flare_eea model:24075RP89G device:flare transport_id:10
+61d54bba7d91           device usb:2-1.2 product:flare_eea model:24075RP89G device:flare transport_id:4
+R83Y106V1HF            device usb:0-1.3.2 product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:12
+c0d8514d7d87           device usb:2-1.1 product:flare_eea model:24075RP89G device:flare transport_id:3
+192.168.92.103:5555    device product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:7
+

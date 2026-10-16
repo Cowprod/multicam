@@ -1,0 +1,7 @@
+### [+0s] PHASE 0 — git / adb
+### [+0s] PHASE 1 — roles + relance des 4 devices
+### [+737s] PHASE 2 — session sur A + jonction B/C/D
+### [+2858s] PHASE 3 — MESURE IDLE (60 s)
+### [+2936s] PHASE 4 — Take court (REC 30 s, 2 captures + 1 storage) — pilotage injecté
+### [+3110s] PHASE 5 — post-réplication (120 s)
+### [+3242s] TERMINÉ — evidence=/Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J14-B02/measure-after sid=RAEVQ9D9

@@ -1,0 +1,7 @@
+RATE newtake tn=3
+RATE participants ncap=2 nsto=1
+RATE armrec disabled=false
+RATE stop
+RATE at=11:20:19.429
+RATE phase=STOPPED
+RATE DONE
