@@ -1961,13 +1961,49 @@ store().get(env.sessionId).then(function (local) {
     });
   }
 
-  function advertiseOpenSessions() {
-    if (!global.MultiCamNsd || !global.MultiCamNsd.advertiseSession) return Promise.resolve();
-    return store().list().then(function (sessions) {
+  /* J14-B02 — anti-tempête. `advertiseOpenSessions()` parcourt TOUTES les
+   * sessions ouvertes et re-publie chacune via NSD ; appelé à chaque mutation de
+   * session (boucle `onChanged` de l'écran Take), il produisait des centaines
+   * d'appels/seconde et saturait la WebView. On le COALESCE (leading + trailing)
+   * sur une fenêtre : la 1re demande dans la fenêtre s'exécute immédiatement,
+   * les suivantes sont regroupées en UNE seule exécution de fin de fenêtre.
+   * L'appelant conserve une Promise qui résout à la fin de l'exécution
+   * (best-effort : l'annonce n'est jamais perdue, seulement différée). */
+  var ADVERTISE_COALESCE_MS = 1000;
+  var _advertiseTimer = null;
+  var _advertiseWaiters = [];
+  var _advertiseLastRunAt = 0;
+
+  function _advertiseOpenSessionsNow() {
+    var waiters = _advertiseWaiters;
+    _advertiseWaiters = [];
+    _advertiseLastRunAt = nowMs();
+    if (_advertiseTimer !== null) { clearTimeout(_advertiseTimer); _advertiseTimer = null; }
+    var p = store().list().then(function (sessions) {
       var jobs = sessions
         .filter(function (s) { return s.state === "open"; })
         .map(function (s) { return advertiseOne(s); });
       return Promise.all(jobs);
+    });
+    var settle = function () { waiters.forEach(function (r) { r(); }); };
+    p.then(settle, settle);
+    return p;
+  }
+
+  function advertiseOpenSessions() {
+    if (!global.MultiCamNsd || !global.MultiCamNsd.advertiseSession) return Promise.resolve();
+    var now = nowMs();
+    if (_advertiseTimer === null && (now - _advertiseLastRunAt) >= ADVERTISE_COALESCE_MS) {
+      return _advertiseOpenSessionsNow();
+    }
+    return new Promise(function (resolve) {
+      _advertiseWaiters.push(resolve);
+      if (_advertiseTimer === null) {
+        _advertiseTimer = setTimeout(function () {
+          _advertiseTimer = null;
+          _advertiseOpenSessionsNow();
+        }, ADVERTISE_COALESCE_MS);
+      }
     });
   }
 

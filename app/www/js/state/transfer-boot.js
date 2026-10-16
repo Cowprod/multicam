@@ -76,6 +76,18 @@
     var pausedOffers = {}; /* "sid|take|src" -> offre en attente (garde REC) */
     var listeners = [];    /* fn() appelés à chaque changement de l'état transfert */
 
+    /* J14-B02 — anti-tempête. Chaque message de transfert entrant (dont la
+     * progression) appelait `notify()` → `updateTakeFromTransfers()` →
+     * `upsertTake()` → broadcast du sharedView COMPLET + `notifyChanged()`. En
+     * 4 devices avec 2 Captures qui transfèrent, ce chemin soutenait la boucle
+     * d'annonces. On COALESCE l'écriture de la progression (leading + trailing) :
+     * la 1re passe, les suivantes sont regroupées, et un flush de fin de fenêtre
+     * garantit que l'état TERMINAL (done/error) est toujours persisté. */
+    var PERSIST_COALESCE_MS = 1000;
+    var persistTimer = null;
+    var persistLastAt = 0;
+    var persistDirty = false;
+
     /* MultiCam D-SERVE: état du serveur média UNIQUE, partagé par TOUS les
      * Takes/services du boot. `tokens` associe "sid/take" → token ; il ne doit
      * jamais être dupliqué par entrée, sinon les autorisations divergent. */
@@ -292,8 +304,32 @@
 
     /* ---------- notification UI ---------- */
 
-    function notify() {
+    function scheduleTakePersist() {
+      persistDirty = true;
+      if (persistTimer !== null) return;
+      var now = Date.now();
+      if ((now - persistLastAt) >= PERSIST_COALESCE_MS) {
+        flushTakePersist();
+      } else {
+        persistTimer = setTimeout(function () {
+          persistTimer = null;
+          flushTakePersist();
+        }, PERSIST_COALESCE_MS - (now - persistLastAt));
+      }
+    }
+
+    function flushTakePersist() {
+      if (!persistDirty) return;
+      persistDirty = false;
+      persistLastAt = Date.now();
       try { updateTakeFromTransfers(); } catch (e) {}
+    }
+
+    function notify() {
+      /* L'AFFICHAGE (listeners) reste immédiat : l'UI de transfert doit suivre
+       * la progression en temps réel. Seule la PERSISTANCE de session (qui
+       * broadcast à tous les pairs) est coalescée. */
+      scheduleTakePersist();
       listeners.slice().forEach(function (fn) {
         try { fn(); } catch (e) { log("TRANSFER_NOTIFY_ERROR " + String((e && e.message) || e)); }
       });

@@ -44,7 +44,8 @@ async function targets(serial) {
 function rpc(wsUrl, method, params) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(wsUrl);
-    const timer = setTimeout(() => { try { ws.close(); } catch (e) {} reject(new Error("cdp_timeout")); }, 15000);
+    const timeoutMs = parseInt(process.env.CDP_TIMEOUT_MS || "60000", 10);
+    const timer = setTimeout(() => { try { ws.close(); } catch (e) {} reject(new Error("cdp_timeout")); }, timeoutMs);
     ws.onopen = () => ws.send(JSON.stringify({ id: 1, method, params: params || {} }));
     ws.onmessage = (ev) => {
       let msg;

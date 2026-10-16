@@ -698,10 +698,13 @@
         state.session = s;
         state.take = currentTake(s);
         if (changed) render();
-        if (s.state === "open") {
-          global.MultiCamSessionWs.advertiseOpenSessions();
-          global.MultiCamSessionWs.reSyncSession(s);
-        }
+        /* J14-B02 : NE JAMAIS émettre de réseau ici. `onChanged` est déclenché à
+         * CHAQUE mutation de session (dont la progression de transfert et la
+         * télémétrie, potentiellement plusieurs dizaines de fois par seconde).
+         * Y appeler `advertiseOpenSessions()` + `reSyncSession()` auto-entretenait
+         * la boucle (l'annonce/re-sync génère de nouveaux changements → nouvel
+         * `onChanged` → …) et saturait le thread WebView. L'annonce et le re-sync
+         * sont émis UNE fois à l'ouverture de l'écran (`afterShow`). */
         /* J09-D2 : le service suit la session lui-même (abonnement posé au
          * boot) ; cet écran ne fait plus que rafraîchir son AFFICHAGE. Les
          * capacités restent un besoin d'écran (sonde native mise en cache). */
