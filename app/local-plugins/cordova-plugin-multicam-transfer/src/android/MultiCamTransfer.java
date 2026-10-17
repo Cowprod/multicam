@@ -170,6 +170,23 @@ public class MultiCamTransfer extends CordovaPlugin {
         long offset = o.optLong("offset", 0L);
         long expected = o.optLong("expectedBytes", -1L);
 
+        /* J14-B03 : la reprise DOIT rester cohérente avec les octets réellement
+         * présents sur le disque. Le modèle JS fournit l'offset de progression,
+         * mais si le fichier contient plus d'octets que la progression signalée
+         * (flush, latence de callback), appender à l'offset LOGIQUE duplique des
+         * octets → fichier corrompu (taille plausible, SHA-256 faux). En mode
+         * fichier, la taille de la destination fait FOI : on reprend exactement
+         * là où le disque s'est arrêté. */
+        if (dest.length() > 0 && offset > 0) {
+            File df = new File(dest);
+            long onDisk = df.exists() ? df.length() : 0L;
+            if (onDisk != offset) {
+                android.util.Log.i(LOGTAG, "TRANSFER_NATIVE resume adjusted requested=" + offset
+                        + " onDisk=" + onDisk + " dest=" + dest);
+                offset = onDisk;
+            }
+        }
+
         if (url.length() == 0) { cb.error("download_missing_url"); return; }
         if (dest.length() == 0 && (treeUri.length() == 0 || relPath.length() == 0)) {
             cb.error("download_missing_dest"); return;
@@ -224,6 +241,14 @@ public class MultiCamTransfer extends CordovaPlugin {
                 File f = new File(dest);
                 File parent = f.getParentFile();
                 if (parent != null && !parent.exists()) parent.mkdirs();
+                /* J14-B03 : aligner la taille du fichier sur l'offset de reprise
+                 * avant d'appender — jamais d'octets résiduels au-delà de la
+                 * position demandée. */
+                if (offset > 0) {
+                    try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(f, "rw")) {
+                        raf.setLength(offset);
+                    }
+                }
                 out = new FileOutputStream(f, offset > 0); /* append si reprise */
             }
             if (out == null) { cb.error("download_open_dest_failed"); return; }

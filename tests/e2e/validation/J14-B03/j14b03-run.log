@@ -1,0 +1,284 @@
+
+### [+0s] PHASE 1 — PREPARATION (git, adb, APK, rôles)
+  ## Git
+  branche: feat/j11-media-transfer
+  HEAD: c01dc2c21d334c96f14e4e6ee58b556b7c7b265f
+  c01dc2c docs(J14-B02): publier les preuves de vérification avant/après (4 devices)
+  c6d98df fix(J14-B02): break onChanged→advertise/reSync loop, coalesce advertiseOpenSessions and transfer progress persists; remove network side-effects from take.js onChanged
+  ba59ed8 fix(J14): start plans scopés par session (fin du blocage inter-sessions)
+  11e602a fix(J14): isNum + contrôle packaging D-SERVE
+  
+  ## ADB
+  List of devices attached
+  61cc29567d91           device usb:0-1.3.4 product:flare_eea model:24075RP89G device:flare transport_id:1
+  61d54bba7d91           device usb:2-1.2 product:flare_eea model:24075RP89G device:flare transport_id:4
+  R83Y106V1HF            device usb:0-1.3.2 product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:2
+  c0d8514d7d87           device usb:2-1.1 product:flare_eea model:24075RP89G device:flare transport_id:3
+  192.168.92.103:5555    device product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:5
+  
+
+### [+0s] PHASE 1.1 — attestation APK (md5 local + installé sur les 4 devices)
+local_md5=db14e5d0cf282b5bb647f01ad65fa322
+61cc29567d91 md5=db14e5d0cf282b5bb647f01ad65fa322 MATCH
+61d54bba7d91 md5=db14e5d0cf282b5bb647f01ad65fa322 MATCH
+c0d8514d7d87 md5=db14e5d0cf282b5bb647f01ad65fa322 MATCH
+R83Y106V1HF md5=db14e5d0cf282b5bb647f01ad65fa322 MATCH
+
+### [+0s] PHASE 1.2 — rôles + relance des 4 devices
+tests/e2e/j14b03-multicapture.sh: line 132: 91336 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  A="[\"controller\"]"
+  B="[\"capture\"]"
+  C="[\"storage\"]"
+  D="[\"capture\"]"
+tests/e2e/j14b03-multicapture.sh: line 42: 91502 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 42: 91527 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 42: 91553 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 42: 91576 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 138: 91595 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+
+### [+41s] PHASE 1.3 — nouvelle session sur A (anciennes conservées)
+  RUN_TAG=J14B03-081341
+tests/e2e/j14b03-multicapture.sh: line 142: 91609 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 143: 91623 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  SESSION_CREATED sid=G3635MCH name='Regie J14B03-081341'
+  PIN=5217
+
+### [+53s] PHASE 1.4 — jonction B, C, D
+  ANNOUNCE_OK 61d54bba 192.168.92.57:45102
+  SESSION_JOINED 61d54bba (t=0s)
+  ANNOUNCE_OK c0d8514d 192.168.92.57:45102
+  SESSION_JOINED c0d8514d (t=0s)
+  ANNOUNCE_OK R83Y106V 192.168.92.57:45102
+  SESSION_JOINED R83Y106V (t=0s)
+tests/e2e/j14b03-multicapture.sh: line 168: 91754 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  BDID=19848326-0070-44cb-8de3-0d0d4ec7eb19 CDID=ece36247-72e3-4268-a3b7-d0dcf80f4bfa DDID=d618012d-c15b-4a08-8097-88e75f126cd4
+  membres: "[\"J14B03-B-Capture:capture\",\"J14B03-C-Storage:storage\",\"J14B03-D-Capture:capture\"]"
+tests/e2e/j14b03-multicapture.sh: line 174: 91813 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+
+### [+60s] TAKE T1 — 2 captures (B+D) → 1 storage (C)
+  TAKE_N=1
+  T1=1
+tests/e2e/j14b03-multicapture.sh: line 181: 91864 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 74: 91887 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  participants="{\"take\":1,\"ncap\":2,\"nsto\":1,\"caps\":[\"19848326-0070-44cb-8de3-0d0d4ec7eb19\",\"d618012d-c15b-4a08-8097-88e75f126cd4\"],\"stos\":[\"ece36247-72e3-4268-a3b7-d0dcf80f4bfa\"]}"
+tests/e2e/j14b03-multicapture.sh: line 183: 91899 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 183: 91909 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  wait_arm_ready T1 t=0s yes/dev=3/clock=2
+  ARM_READY T1 (t=0s) yes/dev=3/clock=2
+tests/e2e/j14b03-multicapture.sh: line 185: 91923 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  PRESS_REC T1
+    "CLICKED"
+  shot T1-after-press
+    "CONTINUE"
+tests/e2e/j14b03-multicapture.sh: line 66: 91948 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=REC T1 (t=6s)
+  phases REC: A=REC B=REC D=REC
+  shot T1-rec
+  shot T1-rec
+  shot T1-rec
+tests/e2e/j14b03-multicapture.sh: line 189: 92071 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  enregistrement 60s...
+  STOP_REQUEST T1
+tests/e2e/j14b03-multicapture.sh: line 71: 92147 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=STOPPED T1 (t=2s)
+  phases STOP: A=STOPPED B=STOPPED D=STOPPED
+  shot T1-stopped
+tests/e2e/j14b03-multicapture.sh: line 100: 92224 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  local T1-B : 1 fichier(s)
+tests/e2e/j14b03-multicapture.sh: line 197: 92224 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  local T1-D : 1 fichier(s)
+tests/e2e/j14b03-multicapture.sh: line 108: 92272 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  manifest T1-B : 0 segment(s)
+tests/e2e/j14b03-multicapture.sh: line 108: 92286 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  manifest T1-D : 0 segment(s)
+  tr_wait_done T1 t=0s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92299 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=5s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92422 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=10s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92437 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=15s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92462 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=20s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92476 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=25s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92498 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=30s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92513 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=35s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92532 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=40s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92546 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=45s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92563 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=50s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92578 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=55s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92593 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=60s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92609 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=65s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92722 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=70s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92744 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=75s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92855 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=80s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92876 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=85s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92893 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=90s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92908 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=95s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92923 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=100s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92939 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=105s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92956 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=110s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92971 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=115s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 92986 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=120s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93004 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=125s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93019 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=130s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93034 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=135s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93050 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=140s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93070 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=145s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93085 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=150s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93102 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=155s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93120 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=160s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 93139 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T1 t=165s yes
+tests/e2e/j14b03-multicapture.sh: line 202: 93154 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 204: 93173 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  dest T1-C : 2 fichier(s)
+  logs 61cc29567d91-T1 (2034 lignes)
+  logs 61d54bba7d91-T1 (1707 lignes)
+  logs c0d8514d7d87-T1 (752 lignes)
+  logs R83Y106V1HF-T1 (1438 lignes)
+
+### [+360s] TAKE T2 — coupure Wi-Fi C en plein transfert puis reprise (Range)
+  TAKE_N=2
+  T2=2
+tests/e2e/j14b03-multicapture.sh: line 215: 93322 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 74: 93441 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  participants="{\"take\":2,\"ncap\":2,\"nsto\":1,\"caps\":[\"19848326-0070-44cb-8de3-0d0d4ec7eb19\",\"d618012d-c15b-4a08-8097-88e75f126cd4\"],\"stos\":[\"ece36247-72e3-4268-a3b7-d0dcf80f4bfa\"]}"
+tests/e2e/j14b03-multicapture.sh: line 217: 93547 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 217: 93557 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  wait_arm_ready T2 t=0s yes/dev=3/clock=2
+  ARM_READY T2 (t=0s) yes/dev=3/clock=2
+tests/e2e/j14b03-multicapture.sh: line 219: 93572 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  PRESS_REC T2
+    "CLICKED"
+  shot T2-after-press
+    "CONTINUE"
+tests/e2e/j14b03-multicapture.sh: line 66: 93600 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=REC T2 (t=6s)
+  STOP_REQUEST T2
+tests/e2e/j14b03-multicapture.sh: line 71: 93806 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=STOPPED T2 (t=2s)
+  [t=0s] partiel: 19848326-0070-44cb-8de3-0d0d4ec7eb19:4678488/151007518
+  caught_partial=yes
+  C wifi disable (plein transfert)
+  C wifi enable
+tests/e2e/j14b03-multicapture.sh: line 100: 94006 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  local T2-B : 1 fichier(s)
+tests/e2e/j14b03-multicapture.sh: line 243: 94006 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  local T2-D : 1 fichier(s)
+tests/e2e/j14b03-multicapture.sh: line 108: 94061 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  manifest T2-B : 0 segment(s)
+tests/e2e/j14b03-multicapture.sh: line 108: 94074 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  manifest T2-D : 0 segment(s)
+  tr_wait_done T2 t=0s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94087 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=5s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94103 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=10s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94122 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=15s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94141 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=20s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94160 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=25s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94173 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=30s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94192 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=35s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94209 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=40s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94230 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=45s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94247 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=50s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94263 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=55s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94288 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=60s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94304 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=65s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94322 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=70s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94343 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=75s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94366 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=80s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94380 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=85s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94408 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=90s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94428 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=95s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94449 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=100s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94462 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=105s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94479 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=110s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94506 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=115s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94620 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=120s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94639 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=125s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94660 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=130s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94773 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=135s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94792 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=140s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94812 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=145s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94831 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=150s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94847 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=155s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94862 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=160s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94879 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=165s no/{"19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"done","d618012d-c15b-4a08-8097-88e75f126cd4|ece36247-72e3-4268-a3b7-d0dcf80f4bfa":"transferring"}
+tests/e2e/j14b03-multicapture.sh: line 79: 94905 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  tr_wait_done T2 t=170s yes
+tests/e2e/j14b03-multicapture.sh: line 247: 94924 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14b03-multicapture.sh: line 249: 94943 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  dest T2-C : 2 fichier(s)
+  logs 61cc29567d91-T2 (3451 lignes)
+  logs 61d54bba7d91-T2 (3134 lignes)
+  logs c0d8514d7d87-T2 (1500 lignes)
+  logs R83Y106V1HF-T2 (1429 lignes)
+
+### [+692s] PHASE 5 — vérification intégrité (source vs destination, par source)
+tests/e2e/j14b03-multicapture.sh: line 259: tag: unbound variable
+tests/e2e/j14b03-multicapture.sh: line 259: tag: unbound variable
+
+=== J14-B03 TERMINÉ ===
+EVIDENCE_DIR=/Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J14-B03
+SID=G3635MCH T1=1 T2=2

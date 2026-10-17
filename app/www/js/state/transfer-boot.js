@@ -130,8 +130,14 @@
       return b ? (b.replace(/\/$/, "") + "/MultiCam/" + sid + "/" + take) : "";
     }
 
-    function destFor(sid, take, rel) {
-      var relFull = "MultiCam/" + sid + "/" + take + "/" + rel;
+    /* J14-B03 : la destination d'un segment DOIT être unique par Capture. Le
+     * nom de fichier seul (`videoTmp.mp4`) est identique pour toutes les
+     * Captures d'un Take : sans le deviceId source dans le chemin, deux
+     * Captures écrivant vers le même Storage se collisionnent (fichier partagé,
+     * écritures entremêlées, SHA-256 destination ≠ source). L'arborescence
+     * devient Session / Take / <sourceDeviceId> / <segment>. */
+    function destFor(sid, take, sourceDeviceId, rel) {
+      var relFull = "MultiCam/" + sid + "/" + take + "/" + sourceDeviceId + "/" + rel;
       if (cfg.storage && cfg.storage.mode === "saf" && cfg.storage.treeUri) {
         return { treeUri: cfg.storage.treeUri, relPath: relFull };
       }

@@ -1,0 +1,8 @@
+### [+0s] PHASE 1 — PREPARATION (git, adb, APK, rôles)
+### [+0s] PHASE 1.1 — attestation APK (md5 local + installé sur les 4 devices)
+### [+0s] PHASE 1.2 — rôles + relance des 4 devices
+### [+41s] PHASE 1.3 — nouvelle session sur A (anciennes conservées)
+### [+53s] PHASE 1.4 — jonction B, C, D
+### [+60s] TAKE T1 — 2 captures (B+D) → 1 storage (C)
+### [+360s] TAKE T2 — coupure Wi-Fi C en plein transfert puis reprise (Range)
+### [+692s] PHASE 5 — vérification intégrité (source vs destination, par source)

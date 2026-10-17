@@ -212,7 +212,33 @@ module.exports.register = function (h) {
       });
       assert.strictEqual(native.calls.download.length, 1);
       assert.strictEqual(native.calls.download[0].url, "http://10.0.0.5:8080/" + SID + "/1/seg00.mp4");
-      assert.strictEqual(native.calls.download[0].dest, "/data/app/MultiCam/" + SID + "/1/seg00.mp4");
+      assert.strictEqual(native.calls.download[0].dest, "/data/app/MultiCam/" + SID + "/1/" + CAP + "/seg00.mp4");
+    });
+
+    it("B4b. storage multi-Captures : destinations DISTINCTES pour un même rel (J14-B03)", async () => {
+      const CAP2 = "cap-2";
+      const takes = { [SID]: [{ takeNumber: 1, storages: [], settings: {} }] };
+      const { boot, native } = makeBoot({
+        cfg: { enabledSkills: ["storage"] }, takes,
+        start: { view: { sid: SID, takeNumber: 1 }, self: STO1 }
+      });
+      boot.bind();
+
+      for (const src of [CAP, CAP2]) {
+        await boot._onTransferMessage({
+          kind: "transfer_offer", sessionId: SID, takeNumber: 1,
+          sourceDeviceId: src, storageDeviceId: STO1, host: "10.0.0.5", port: 8080, token: "tok",
+          files: [{ rel: "videoTmp.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
+        });
+      }
+
+      assert.strictEqual(native.calls.download.length, 2, "un téléchargement par Capture");
+      const dests = native.calls.download.map((d) => d.dest);
+      assert.deepStrictEqual(dests, [
+        "/data/app/MultiCam/" + SID + "/1/" + CAP + "/videoTmp.mp4",
+        "/data/app/MultiCam/" + SID + "/1/" + CAP2 + "/videoTmp.mp4"
+      ]);
+      assert.notStrictEqual(dests[0], dests[1], "pas de collision de destination entre Captures");
     });
 
     it("B5. garde RECORDING : offre mise en attente puis rejouée après le Take", async () => {

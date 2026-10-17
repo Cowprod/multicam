@@ -62,7 +62,7 @@ function fakePaths(segs, dest) {
   return {
     mediaRoot: (sid, take) => `/media/${sid}/${take}`,
     listSegments: () => segs || [],
-    destFor: (sid, take, rel) => dest ? dest(rel) : { dest: `/dest/${sid}/${take}/${rel}` }
+    destFor: (sid, take, sourceDeviceId, rel) => dest ? dest(rel) : { dest: `/dest/${sid}/${take}/${sourceDeviceId}/${rel}` }
   };
 }
 
@@ -289,6 +289,31 @@ module.exports.register = function (h) {
       assert.strictEqual(t.state, M.PH_DONE);
       assert.ok(model.logs.some((l) => l.indexOf("TRANSFER_PROGRESS") >= 0));
       assert.ok(model.logs.some((l) => l.indexOf("TRANSFER_FILE_DONE") >= 0));
+    });
+
+    it("S3c. storage : deux Captures, même rel ⇒ destinations distinctes (J14-B03)", async () => {
+      const native = fakeNative({
+        downloadPlan: () => ({ ok: true, result: { done: true, received: 1000, total: 1000, sha256: "aaaa" } })
+      });
+      const model = makeModel("storage", STO1, TAKE);
+      const svc = S.createTransferService({
+        model: model.machine, native, role: "storage", self: () => STO1,
+        log: (l) => model.logs.push(l),
+        take: () => ({ sessionId: SID, takeNumber: TAKE, storages: [] }),
+        paths: fakePaths([])
+      });
+      const offer = (src) => ({
+        kind: "transfer_offer", sessionId: SID, takeNumber: TAKE,
+        sourceDeviceId: src, storageDeviceId: STO1, host: "h", port: 1, token: "t",
+        files: [{ rel: "videoTmp.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
+      });
+      await svc.handle(offer(CAP));
+      await svc.handle(offer("cap-2"));
+      const dests = native.calls.download.map((d) => d.dest);
+      assert.deepStrictEqual(dests, [
+        `/dest/${SID}/${TAKE}/${CAP}/videoTmp.mp4`,
+        `/dest/${SID}/${TAKE}/cap-2/videoTmp.mp4`
+      ], "une destination par Capture");
     });
 
     it("S4. storage : échec transitoire puis reprise (offset conservé) → done", async () => {

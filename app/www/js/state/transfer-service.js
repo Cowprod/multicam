@@ -215,7 +215,7 @@
       var run = function () {
         attempt += 1;
         var offset = model.resumeOffset(offer.sourceDeviceId, self(), f.rel);
-        var dest = paths.destFor ? paths.destFor(offer.sessionId || take().sessionId, tkTake, f.rel) : {};
+        var dest = paths.destFor ? paths.destFor(offer.sessionId || take().sessionId, tkTake, offer.sourceDeviceId, f.rel) : {};
         var sid = offer.sessionId || take().sessionId;
         var base = "http://" + offer.host + ":" + offer.port + "/"
           + encodeURIComponent(sid) + "/" + encodeURIComponent(String(tkTake)) + "/" + encodeRel(f.rel);
