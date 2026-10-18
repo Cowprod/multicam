@@ -256,43 +256,28 @@ logs_all "T2"
 mark "PHASE 5 — vérification intégrité (source vs destination, par source)"
 : > "$OUT/dumps/verdict.txt"
 verify_take() { local take="$1" label="$2"
-  node -e "
-    const fs=require('fs');
-    const sid=fs.readFileSync('$OUT/dumps/sid.txt','utf8').trim();
-    const readLines=(f)=>{try{return fs.readFileSync(f,'utf8').trim().split('\n').filter(Boolean);}catch(e){return [];}};
-    const parseLocal=(l)=>{const m=l.match(/^(.*?) sha256=(\\S+) bytes=(\\S+)/);return m?{p:m[1],base:m[1].split('/').pop(),sha:m[2],bytes:m[3]}:null;};
-    const parseManifest=(l)=>{const m=l.match(/^(.*?) sha256=(\\S+) bytes=(\\S+)/);return m?{p:m[1],base:m[1].split('/').pop(),sha:m[2],bytes:m[3]}:null;};
-    const dst=readLines('$OUT/dumps/dest-sha-$label-C.txt').map(parseLocal).filter(Boolean);
-    const sources=(did,tag)=>{
-      let s=readLines('$OUT/dumps/local-sha-$tag.txt').map(parseLocal).filter(Boolean);
-      let kind='local';
-      if(!s.length){s=readLines('$OUT/dumps/manifest-$tag.txt').map(parseManifest).filter(Boolean);kind='manifest';}
-      return {did:did,rows:s,kind:kind,tag:tag};
-    };
-    const B=sources('$BDID','$label-B'), D=sources('$DDID','$label-D');
-    let out=['## $label (take=$take) sid='+sid];
-    out.push('destination C fichiers: '+dst.length);
-    let ok=true;
-    const check=(S)=>{
-      out.push(S.tag+' ('+S.kind+'): '+S.rows.length+' segment(s)');
-      if(!S.rows.length){out.push('  -> AUCUNE source ni manifeste -> ECHEC');ok=false;return;}
-      S.rows.forEach(s=>{
-        const d=dst.find(x=>x.p.indexOf('/'+S.did+'/')>=0 && x.base===s.base);
-        if(!d){out.push('  '+s.base+' sha='+s.sha+' -> MANQUANT sur C (sous '+S.did+') ECHEC');ok=false;return;}
-        const same=(d.sha===s.sha && String(d.bytes)===String(s.bytes));
-        if(!same)ok=false;
-        out.push('  '+s.base+' src.sha='+s.sha+' dst.sha='+d.sha+' src.b='+s.bytes+' dst.b='+d.bytes+' '+(same?'OK':'ECHEC'));
-      });
-    };
-    check(B); check(D);
-    const bf=dst.filter(x=>x.p.indexOf('/$BDID/')>=0), df=dst.filter(x=>x.p.indexOf('/$DDID/')>=0);
-    const distinct=(bf.length>0&&df.length>0&&bf.every(b=>!df.some(d=>d.p===b.p)));
-    out.push('anti-collision: B.files='+bf.length+' D.files='+df.length+' chemins_distincts='+distinct);
-    if(!distinct)ok=false;
-    out.push('VERDICT $label: '+(ok?'PASS':'FAIL'));
-    console.log(out.join('\n'));
-  " | tee -a "$OUT/dumps/verdict.txt"
+  OUTD="$OUT/dumps" TAKEv="$take" LABELv="$label" BDIDv="$BDID" DDIDv="$DDID" SIDv="$SID" node <<'NODE'
+const fs=require('fs');
+const OUTD=process.env.OUTD, TAKE=process.env.TAKEv, LABEL=process.env.LABELv, BDID=process.env.BDIDv, DDID=process.env.DDIDv, SID=process.env.SIDv;
+const read=(f)=>{try{return fs.readFileSync(f,'utf8').trim().split('\n').filter(Boolean);}catch(e){return[]}};
+const parse=(l)=>{const m=l.match(/^(.*?) sha256=(\S+) bytes=(\S+)/);return m?{p:m[1],base:m[1].split('/').pop(),sha:m[2],bytes:m[3]}:null};
+function srcOf(did,tag){let s=read(OUTD+'/local-sha-'+tag+'.txt').map(parse).filter(Boolean); let k='local'; if(!s.length){s=read(OUTD+'/manifest-'+tag+'.txt').map(parse).filter(Boolean);k='manifest';} return {did,k,rows:s};}
+const dst=read(OUTD+'/dest-sha-'+LABEL+'-C.txt').map(parse).filter(Boolean);
+const B=srcOf(BDID,LABEL+'-B'), D=srcOf(DDID,LABEL+'-D');
+let ok=true, lines=['## '+LABEL+' (take='+TAKE+') sid='+SID];
+lines.push('destination C fichiers: '+dst.length);
+function cmp(S,t){ lines.push(t+' ('+S.k+'): '+S.rows.length+' segment(s)'); if(!S.rows.length){ok=false; lines.push('  -> ECHEC AUCUNE SOURCE'); return;} S.rows.forEach(s=>{const d=dst.find(x=>x.p.includes('/'+S.did+'/')&&x.base===s.base); if(!d){ok=false; lines.push('  '+s.base+' -> MANQUANT'); return;} const same=(d.sha===s.sha&&String(d.bytes)===String(s.bytes)); if(!same)ok=false; lines.push('  '+s.base+' src.sha='+s.sha+' dst.sha='+d.sha+' src.b='+s.bytes+' dst.b='+d.bytes+' '+(same?'OK':'ECHEC'));});}
+cmp(B,'B'); cmp(D,'D');
+const bf=dst.filter(x=>x.p.includes('/'+BDID+'/')), df=dst.filter(x=>x.p.includes('/'+DDID+'/'));
+const distinct=bf.length>0&&df.length>0&&bf.every(b=>!df.some(d=>d.p===b.p));
+if(!distinct)ok=false;
+lines.push('anti-collision: B.files='+bf.length+' D.files='+df.length+' chemins_distincts='+distinct);
+lines.push('VERDICT '+LABEL+': '+(ok?'PASS':'FAIL'));
+fs.appendFileSync(OUTD+'/verdict.txt', lines.join('\n')+'\n');
+console.log(lines.join('\n'));
+NODE
 }
+
 verify_take "$T1" "T1"
 verify_take "$T2" "T2"
 
