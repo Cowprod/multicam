@@ -1,0 +1,3 @@
+5538400	/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam
+10701702	/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam
+12754858	/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam

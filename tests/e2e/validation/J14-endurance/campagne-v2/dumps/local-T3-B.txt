@@ -1,0 +1,5 @@
+# T3-B (61d54bba7d91) sid=CCQM6BFH take=3 Sun Oct 18 21:24:56 CEST 2026
+total 449154
+drwxrws--- 2 u0_a163 ext_data_rw      3452 2026-10-18 21:24 .
+drwxrws--- 5 u0_a163 ext_data_rw      3452 2026-10-18 21:24 ..
+-rw-rw---- 1 u0_a163 ext_data_rw 459472896 2026-10-18 21:24 videoTmp.mp4

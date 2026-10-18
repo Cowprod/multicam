@@ -1,0 +1,5 @@
+# T5-D (R83Y106V1HF) sid=CCQM6BFH take=5 Sun Oct 18 21:49:08 CEST 2026
+total 4282806
+drwxrws--- 2 u0_a231 ext_data_rw       3452 2026-10-18 21:48 .
+drwxrws--- 7 u0_a231 ext_data_rw       3452 2026-10-18 21:48 ..
+-rw-rw---- 1 u0_a231 ext_data_rw 4381274991 2026-10-18 21:49 videoTmp.mp4

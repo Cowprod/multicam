@@ -1,0 +1,5 @@
+# T4-D (R83Y106V1HF) sid=CCQM6BFH take=4 Sun Oct 18 21:29:46 CEST 2026
+total 771070
+drwxrws--- 2 u0_a231 ext_data_rw      3452 2026-10-18 21:29 .
+drwxrws--- 6 u0_a231 ext_data_rw      3452 2026-10-18 21:29 ..
+-rw-rw---- 1 u0_a231 ext_data_rw 788791296 2026-10-18 21:29 videoTmp.mp4

@@ -1,0 +1,5 @@
+# T6-B (61d54bba7d91) sid=CCQM6BFH take=6 Sun Oct 18 21:55:36 CEST 2026
+total 452998
+drwxrws--- 2 u0_a163 ext_data_rw      3452 2026-10-18 21:55 .
+drwxrws--- 8 u0_a163 ext_data_rw      3452 2026-10-18 21:55 ..
+-rw-rw---- 1 u0_a163 ext_data_rw 463405056 2026-10-18 21:55 videoTmp.mp4

@@ -1,0 +1,16 @@
+## Git
+branche: feat/j11-media-transfer
+HEAD: 1f3905efba35f6175d6bfab017865e1b8e59d472
+1f3905e fix(J14-B03): harnais — externalise la vérification, fermeture explicite anti-trompeuse
+d2b9913 fix(J14-B03): harnais — corrige erreur 'tag: unbound variable' dans verify_take, génère verdict.txt explicite (prévention fermeture trompeuse)
+5b6bc03 fix(J14-B03): unification destination par source + durcissement reprise
+c01dc2c docs(J14-B02): publier les preuves de vérification avant/après (4 devices)
+
+## ADB
+List of devices attached
+61cc29567d91           device usb:0-1.3.4 product:flare_eea model:24075RP89G device:flare transport_id:1
+61d54bba7d91           device usb:2-1.2 product:flare_eea model:24075RP89G device:flare transport_id:4
+R83Y106V1HF            device usb:0-1.3.2 product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:2
+c0d8514d7d87           device usb:2-1.1 product:flare_eea model:24075RP89G device:flare transport_id:3
+192.168.92.103:5555    device product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:5
+

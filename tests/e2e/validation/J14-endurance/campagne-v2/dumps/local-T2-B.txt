@@ -1,0 +1,5 @@
+# T2-B (61d54bba7d91) sid=CCQM6BFH take=2 Sun Oct 18 21:13:44 CEST 2026
+total 392586
+drwxrws--- 2 u0_a163 ext_data_rw      3452 2026-10-18 21:13 .
+drwxrws--- 4 u0_a163 ext_data_rw      3452 2026-10-18 21:13 ..
+-rw-rw---- 1 u0_a163 ext_data_rw 401604608 2026-10-18 21:13 videoTmp.mp4

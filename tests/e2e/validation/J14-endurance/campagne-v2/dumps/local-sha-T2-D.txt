@@ -1,0 +1,2 @@
+# sha256 T2-D
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/CCQM6BFH/2/videoTmp.mp4 sha256=2cf772afba65cb56a8dba6e84e0e576b6c8580394676047189113cf11539e9d5 bytes=1797808128

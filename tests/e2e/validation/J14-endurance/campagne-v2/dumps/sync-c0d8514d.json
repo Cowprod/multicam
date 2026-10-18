@@ -1,0 +1,1 @@
+"{\"peers\":{\"serverRunning\":true,\"effectivePort\":45102,\"localDid\":\"ece36247-72e3-4268-a3b7-d0dcf80f4bfa\",\"localName\":\"J14D-C-Storage\",\"selfEndpoint\":\"192.168.92.192:45102\",\"serverConns\":3,\"clientConns\":3,\"heartbeat\":true},\"skills\":[\"storage\"]}"

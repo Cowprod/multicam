@@ -1,0 +1,5 @@
+# T1-D (R83Y106V1HF) sid=CCQM6BFH take=1 Sun Oct 18 21:06:49 CEST 2026
+total 790238
+drwxrws--- 2 u0_a231 ext_data_rw      3452 2026-10-18 21:06 .
+drwxrws--- 3 u0_a231 ext_data_rw      3452 2026-10-18 21:06 ..
+-rw-rw---- 1 u0_a231 ext_data_rw 808398208 2026-10-18 21:06 videoTmp.mp4

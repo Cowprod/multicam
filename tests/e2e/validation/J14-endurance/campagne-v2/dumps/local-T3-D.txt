@@ -1,0 +1,5 @@
+# T3-D (R83Y106V1HF) sid=CCQM6BFH take=3 Sun Oct 18 21:25:15 CEST 2026
+total 2802630
+drwxrws--- 2 u0_a231 ext_data_rw       3452 2026-10-18 21:24 .
+drwxrws--- 5 u0_a231 ext_data_rw       3452 2026-10-18 21:24 ..
+-rw-rw---- 1 u0_a231 ext_data_rw 2867068928 2026-10-18 21:25 videoTmp.mp4

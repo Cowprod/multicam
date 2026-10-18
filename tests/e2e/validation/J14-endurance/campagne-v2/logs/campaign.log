@@ -1,0 +1,33 @@
+### [+0s] PHASE 1 — PREPARATION : Git / ADB / APK / disque / roles
+### [+0s] PHASE 1.1 — attestation APK (md5 sur chaque device)
+### [+1s] PHASE 1.2 — disque initial
+### [+1s] PHASE 1.3 — anciennes sessions (AVANT)
+### [+2s] PHASE 1.4 — roles + relance des 4 devices
+### [+46s] PHASE 1.5 — nouvelle session sur A (anciennes conservées)
+### [+57s] PHASE 1.6 — jonction B, C, D (host/port annoncés + PIN)
+### [+71s] PHASE 1.7 — purge logcat + démarrage échantillonneur
+### [+77s] VERIFICATION PREP : Take 1 (2 min) sert aussi de contrôle Capture B+D simultanées
+### [+77s] TAKE T1 : nouvel Take + sélection participants + ARM
+### [+91s] TAKE T1 : REC 120s
+### [+248s] INCIDENT 1 (après T1) : Wi-Fi Capture B coupé 30s puis rétabli
+### [+311s] TAKE T2 : REC 5 min
+### [+311s] TAKE T2 : nouvel Take + sélection participants + ARM
+### [+326s] TAKE T2 : REC 300s
+### [+683s] TAKE T3 : REC 10 min
+### [+683s] TAKE T3 : nouvel Take + sélection participants + ARM
+### [+698s] TAKE T3 : REC 600s
+### [+1392s] TAKE T4 : REC 3 min
+### [+1392s] TAKE T4 : nouvel Take + sélection participants + ARM
+### [+1407s] TAKE T4 : REC 180s
+### [+1641s] INCIDENT 2 (après T4) : Wi-Fi Storage C coupé 30s puis rétabli
+### [+1721s] INCIDENT 3 (après T4) : interruption d'un transfert en cours (Wi-Fi C coupé pendant download)
+### [+1806s] TAKE T5 : REC 15 min
+### [+1806s] TAKE T5 : nouvel Take + sélection participants + ARM
+### [+1821s] TAKE T5 : REC 900s
+### [+2824s] TAKE T6 : REC 5 min
+### [+2824s] TAKE T6 : nouvel Take + sélection participants + ARM
+### [+2839s] TAKE T6 : REC 300s
+### [+3202s] PHASE 3 — attente de TOUS les transferts (B->C et D->C pour les 6 Takes)
+### [+3204s] PHASE 5 — INTEGRITE : inventaire final, SHA-256, durées, disque
+### [+3427s] PHASE 6 — INTEGRITE PAR TAKE (source vs destination, DONE, ordre HASH->DELETE)
+### [+3429s] PHASE 6.1 — ordre TRANSFER_HASH puis TRANSFER_DELETE (Master)

@@ -1,0 +1,38 @@
+## INTEGRITE PAR TAKE sid=CCQM6BFH mode=reanalyse-post-campagne
+## T1 (take=1)
+  T1-B videoTmp.mp4: src.sha=bacbab7755d913096bfada8b1cc074d1eb484affb985fb0a40fa769777154a0f dst.sha=bacbab7755d913096bfada8b1cc074d1eb484affb985fb0a40fa769777154a0f src.b=320202463 dst.b=320202463 -> OK
+  T1-D videoTmp.mp4: src.sha=9dc055423809f27dddf01e8a4070fc77337e5c604b51b2787cff8d87ca2ff96a dst.sha=9dc055423809f27dddf01e8a4070fc77337e5c604b51b2787cff8d87ca2ff96a src.b=808398208 dst.b=808398208 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T1: PASS
+## T2 (take=2)
+  T2-B videoTmp.mp4: src.sha=1f82392ede90cc3238497f493c054ad8bb2246087adda465c169af24898cd1e1 dst.sha=1f82392ede90cc3238497f493c054ad8bb2246087adda465c169af24898cd1e1 src.b=772539998 dst.b=772539998 -> OK
+  T2-D videoTmp.mp4: src.sha=2cf772afba65cb56a8dba6e84e0e576b6c8580394676047189113cf11539e9d5 dst.sha=c9344d3ba409e1b11275fda431d663cb0622297c2c7639ee3fd81656c2c2c252 src.b=1946232248 dst.b=1713382016 -> ECHEC
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=transferring] C[B=done D=error] -> ECHEC
+VERDICT T2: FAIL
+## T3 (take=3)
+  T3-B videoTmp.mp4: src.sha=93992d83161768eb266fe9349d4372215ebd19486b6fec75fc6456c374eb6324 dst.sha=93992d83161768eb266fe9349d4372215ebd19486b6fec75fc6456c374eb6324 src.b=1519218334 dst.b=1519218334 -> OK
+  T3-D videoTmp.mp4: src.sha=fbd8d657a5e1c5b5f79695c14b6a37f6203a7a85a718f53a7946f30edabf7f46 dst.sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 src.b=3552831571 dst.b=0 -> ECHEC
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=error] C[B=done D=error] -> ECHEC
+VERDICT T3: FAIL
+## T4 (take=4)
+  T4-B videoTmp.mp4: src.sha=edaee45807dfde946caec3eeccd86448f465ffe44f0bed01c9bd0b846a7d4f04 dst.sha=edaee45807dfde946caec3eeccd86448f465ffe44f0bed01c9bd0b846a7d4f04 src.b=469792477 dst.b=469792477 -> OK
+  T4-D videoTmp.mp4: src.sha=2233c12aec967f9353cec39b026543be466c92dd342a0db38cfdc2704613d1e8 dst.sha=2233c12aec967f9353cec39b026543be466c92dd342a0db38cfdc2704613d1e8 src.b=908016745 dst.b=908016745 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T4: PASS
+## T5 (take=5)
+  T5-B videoTmp.mp4: src.sha=f7f56d786d830f9327191d2d3aa6b074e9c855672d0c4299656fdba236007b1f dst.sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 src.b=2264233103 dst.b=0 -> ECHEC
+  T5-D videoTmp.mp4: src.sha=83fcae7c4fbd395f41709fe7640008cecb7ee1df40d02eb0570c76baf1992552 dst.sha=a6f05ec53c0dbb112f2938805bec33c187cb464eaa497f40306a116a5d7af89d src.b=4381274991 dst.b=86307695 -> ECHEC
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=error D=error] C[B=error D=error] -> ECHEC
+VERDICT T5: FAIL
+## T6 (take=6)
+  T6-B videoTmp.mp4: src.sha=51130079f67e6cdef06af830148f601e9e84419b3a9e78364103733c29c60b8e dst.sha=51130079f67e6cdef06af830148f601e9e84419b3a9e78364103733c29c60b8e src.b=479657984 dst.b=768569758 -> OK (tailles divergentes : bytes source saisi pendant la finalisation — arbitrage par SHA)
+  T6-D videoTmp.mp4: src.sha=3a94452a9e3a99c47eaedcffbeec8f446111a4892c654db5004e4815bb8ea6bf dst.sha=3a94452a9e3a99c47eaedcffbeec8f446111a4892c654db5004e4815bb8ea6bf src.b=961552107 dst.b=961552107 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T6: PASS
+VERDICT GLOBAL INTEGRITE: FAIL

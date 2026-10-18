@@ -1,0 +1,1 @@
+"{\"peers\":{\"serverRunning\":true,\"effectivePort\":45102,\"localDid\":\"d618012d-c15b-4a08-8097-88e75f126cd4\",\"localName\":\"J14D-D-Capture\",\"selfEndpoint\":\"192.168.92.103:45102\",\"serverConns\":3,\"clientConns\":3,\"heartbeat\":true},\"skills\":[\"capture\"]}"
