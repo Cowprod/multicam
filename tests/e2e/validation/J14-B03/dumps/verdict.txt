@@ -1,0 +1,17 @@
+## T1 (take=1) sid=G3635MCH
+destination C fichiers: 2
+B (local): 1 segment(s)
+  videoTmp.mp4: src.sha=1bf09a56cdf607024dbc5f7576492c7425be2b226e614db2c61e26e277670f2e dst.sha=1bf09a56cdf607024dbc5f7576492c7425be2b226e614db2c61e26e277670f2e src.b=168666476 dst.b=168666476 -> OK
+D (local): 1 segment(s)
+  videoTmp.mp4: src.sha=7f24ed56d6c9de3e7c1ec35788e9857d0a39ab3479a9df436555a0f6f63339ff dst.sha=7f24ed56d6c9de3e7c1ec35788e9857d0a39ab3479a9df436555a0f6f63339ff src.b=427805628 dst.b=427805628 -> OK
+anti-collision: B.files=1 D.files=1 chemins_distincts=true
+VERDICT T1: PASS
+## T2 (take=2) sid=G3635MCH
+destination C fichiers: 2
+B (local): 1 segment(s)
+  videoTmp.mp4: src.sha=9d28667bb558e3449d3fbeab70e64416d12afd6f06c8b4698fbad5ddb8c7b053 dst.sha=9d28667bb558e3449d3fbeab70e64416d12afd6f06c8b4698fbad5ddb8c7b053 src.b=151007518 dst.b=151007518 -> OK
+D (local): 1 segment(s)
+  videoTmp.mp4: src.sha=7426790361bdba49b4998e8ceb9ba02f7a23d56345f9c006acdc543f711a94cb dst.sha=7426790361bdba49b4998e8ceb9ba02f7a23d56345f9c006acdc543f711a94cb src.b=380683676 dst.b=380683676 -> OK
+anti-collision: B.files=1 D.files=1 chemins_distincts=true
+VERDICT T2: PASS
+VERDICT GLOBAL: PASS
