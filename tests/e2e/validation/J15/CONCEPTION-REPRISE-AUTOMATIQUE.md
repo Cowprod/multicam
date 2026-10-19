@@ -5,7 +5,7 @@
 **Branche** : `feat/j11-media-transfer`
 **Commit de référence** : `a548aba` (J14 clôturé)
 **Date** : 19 octobre 2026
-**Statut** : `EN ATTENTE D'AUDIT CHATGPT ET VALIDATION UTILISATEUR`
+**Statut** : `PHASE 1 BIS — REVISION PAR CHATGPT, EN ATTENTE DE VALIDATION UTILISATEUR`
 
 ---
 
@@ -233,127 +233,25 @@ L'architecture préserve le modèle en couches existant et **ajoute** trois méc
 
 ---
 
-## 4. États et transitions
+## 4. États et transitions — révision phase 1 bis
+### 4.1 États par fichier
+`pending → transferring → verifying → done` ; `transferring → waiting_network → pending` ; `verifying → pending` uniquement après crash et revalidation locale ; `pending/transferring/verifying → error` uniquement pour une cause irrécupérable démontrée. `done` et `error` demeurent terminaux et absorbants. La restauration d'un état non terminal ne constitue pas une régression d'un terminal.
+### 4.2 Agrégation source × storage
+`waiting_network` est non terminal. Une source avec plusieurs fichiers doit agréger `error` si un fichier est fatal, `done` si tous sont vérifiés, `waiting_network` si aucun travail exécutable et au moins un fichier attend, sinon `transferring` ou `pending`. Définir des tests de priorité d'agrégation avant implémentation.
+### 4.3 Classification contextualisée
+`ConnectException`, `SocketException`, timeout, HTTP 429/5xx : transitoires, sous réserve de revalidation. HTTP 401/403 : vérifier d'abord expiration/renouvellement du token ; 404 : vérifier réannonce, changement d'adresse et disponibilité du serveur avant d'établir une disparition définitive ; 416 : comparer taille locale et taille attendue, vérifier SHA si complet, sinon reprendre à zéro si autorisé. Réponse 200 à Range : ne jamais append ; repartir à zéro après contrôle d'identité. 206 : valider Content-Range, longueur et identité du média avant append. `download_truncated` : potentiellement transitoire. SHA mismatch : ne jamais valider `done` ; isoler le fichier, autoriser au plus une récupération complète contrôlée avant erreur d'intégrité terminale. Erreurs d'écriture/stockage plein : état bloqué récupérable ou erreur explicite selon possibilité réelle de correction, jamais classées arbitrairement comme réseau.
+### 4.4 Fermeture de session
+Ne pas assimiler automatiquement `session_closed` à une perte irrécupérable : préciser contractuellement la durée de disponibilité des médias et la politique de rétention. En l'absence de garantie, conserver le journal et signaler `blocked_source_unavailable` sans supprimer les médias. La suppression Capture reste conditionnée aux ACK de réplication vérifiée. Toute décision de purge nécessite une politique explicite validée.
 
-### 4.1 États de fichier (étendus)
 
-```
-pending ──→ transferring ──→ verifying ──→ done
-   │              │               │
-   │              │               └──→ error (sha256_mismatch) [FATAL]
-   │              │
-   │              └──→ waiting_network (erreur transitoire détectée)
-   │                        │
-   │                        ├──→ pending (reconnexion / reprise)
-   │                        └──→ error (retry_exhausted) [FATAL, après délai max]
-   │
-   └──→ error (fatal) [FATAL]
-```
+## 5. Politique de retry / backoff — révision phase 1 bis
+- `MAX_ATTEMPTS=3` demeure la borne d'une séquence HTTP courte. Le backoff entre séquences est exponentiel et plafonné à 60 s, avec jitter conseillé.
+- **Aucun `WAITING_NETWORK_MAX_MS` ni `RESUME_MAX_RETRIES` global** ne transforme une indisponibilité réseau en erreur terminale. Les ressources restent bornées par un seul téléchargement actif par clé, une file bornée, des timers non accumulatifs et un scan de secours à 120 s.
+- Le coordinateur ne relance que les entrées récupérables, lorsque réseau, identité de pair, serveur et absence de REC incompatible sont établis. Il ne réémet jamais `boot.retry()` pendant un transfert actif (contrainte J14-C02).
+- Événements répétés : coalescence, verrou acquis **avant** programmation du délai et relâché en `finally` ; un échec redonne `waiting_network`. Ne jamais passer définitivement à `pending` avant de réserver le run.
+- Un échec durable reste observable (`waiting_network` avec `lastError`, `lastAttemptAt`, `nextAttemptAt`) ; un arrêt explicite validé ou une impossibilité prouvée produit `error`. Une connexion Wi-Fi seule ne prouve pas la disponibilité HTTP du pair.
+- Au redémarrage, les transferts `transferring` ou `verifying` restaurés sont requalifiés comme récupérables après inspection du disque, jamais considérés terminés sans SHA.
 
-### 4.2 États de transfert (source × storage)
-
-```
-pending ──→ transferring ──→ done
-   │              │
-   │              ├──→ waiting_network ──→ pending (reconnexion)
-   │              │                          │
-   │              │                          └──→ error (retry_exhausted)
-   │              │
-   │              └──→ error (fatal, non retryable)
-   │
-   └──→ error (fatal)
-```
-
-### 4.3 Classification des erreurs
-
-| Catégorie | Codes d'erreur | Transitoire ? | Action |
-|---|---|---|---|
-| **Réseau coupé** | `ConnectException`, `SocketException`, `SocketTimeoutException` | **OUI** | `waiting_network` |
-| **Timeout lecture** | `Read timed out`, `connect_timeout` | **OUI** | `waiting_network` |
-| **HTTP transitoire** | `download_http_5xx`, `download_http_429` | **OUI** | `waiting_network` |
-| **HTTP définitif** | `download_http_404`, `download_http_403`, `download_http_416` | **NON** | `error` (fatal) |
-| **Troncature** | `download_truncated` | **NON** | `error` (fatal, réessai complet) |
-| **SHA mismatch** | `sha256_mismatch` | **NON** | `error` (fatal, réessai complet) |
-| **Source disparue** | serveur injoignable > délai max | **NON** | `error` (fatal) |
-| **Stalled** | watchdog (pas de progrès) | **OUI** (1er), **NON** (exhaustion) | `waiting_network` → `error` |
-
-### 4.4 Règle de transition
-
-```
-waiting_network n'est JAMAIS terminal.
-Un transfert en waiting_network peut revenir à pending.
-Un error (fatal) reste terminal (monotonie terminale préservée).
-```
-
-**Contrainte J14-C02 §6.4** : ne **jamais** retransformer arbitrairement un `error` en `pending`. Seuls les `waiting_network` (nouvel état, non terminal) peuvent être relancés. Les `error` historiques (produits avant J15) restent `error`.
-
----
-
-## 5. Politique de retry / backoff
-
-### 5.1 Philosophie
-
-**Retries courts et bornés** pendant une coupure, puis **attente de reconnexion** (pas de boucle de retry). Le retour réseau déclenche la reprise (événement), pas un timer.
-
-### 5.2 Paramètres proposés
-
-| Paramètre | Valeur proposée | Justification |
-|---|---|---|
-| `MAX_ATTEMPTS` (par fichier, en continu) | **3** (inchangé) | Fenêtre courte pour absorber micro-coupures |
-| `BACKOFF_STEPS_MS` | `[500, 1000, 2000]` (inchangé) | Total ~3,5 s — absorbe coupures < 4 s |
-| `WAITING_NETWORK_MAX_MS` | **300 000** (5 min) | Durée max en attente avant `error` fatal |
-| `RESUME_BASE_MS` | **5 000** | Backoff de reprise après reconnexion (1re tentative) |
-| `RESUME_MAX_MS` | **60 000** (1 min) | Backoff plafonné de reprise |
-| `RESUME_MAX_RETRIES` | **10** | Nombre max de reprises après reconnexion |
-| `WATCHDOG_TICK_MS` | **5 000** (inchangé) | Fréquence du watchdog |
-| `PERIODIC_RESUME_MS` | **120 000** (2 min) | Vérification périodique de secours (très peu fréquente) |
-
-### 5.3 Algorithme de reprise
-
-```
-sur erreur transitoire pendant download:
-    attempt++
-    if attempt < MAX_ATTEMPTS:
-        delay(BACKOFF_STEPS_MS[attempt])  # 500/1000/2000 ms
-        retry download (Range, offset = taille disque)
-    else:
-        modèle → waiting_network (enregistré dans TransferJournal)
-        return (STOP, pas de boucle)
-
-sur event network_reconnect (WS onopen, network_change, peer_identified):
-    ResumeCoordinator.scanWaitingNetwork():
-        pour chaque transfert waiting_network:
-            if waiting_network_duration < WAITING_NETWORK_MAX_MS:
-                if dedup OK (pas déjà en cours):
-                    delay(RESUME_BASE_MS * 2^resume_attempt, cap RESUME_MAX_MS)
-                    modèle → pending
-                    relance storageRun (Range, offset = taille disque)
-            else:
-                modèle → error("retry_exhausted")  # fatal
-
-sur watchdog tick (PERIODIC_RESUME_MS écoulé depuis dernier scan):
-    ResumeCoordinator.scanWaitingNetwork()  # secours, même logique
-```
-
-### 5.4 Garde-fous anti-boucle
-
-1. **`waiting_network` est non-terminal mais borné** : après `WAITING_NETWORK_MAX_MS` (5 min), passage à `error` fatal.
-2. **`RESUME_MAX_RETRIES`** : nombre max de reprises (10). Au-delà, `error` fatal.
-3. **Déduplication** : un transfert déjà `transferring` n'est jamais relancé (garde `runningRuns` existante + garde ResumeCoordinator).
-4. **Backoff plafonné** : `RESUME_MAX_MS` (1 min) entre tentatives de reprise.
-5. **Pas de retry() périodique** : conformément à J14-C02 §6.4, aucun nudge `retry()` n'est émis pendant un transfert actif.
-6. **Vérification périodique de secours** : toutes les 2 min seulement (pas toutes les 5 s).
-
-### 5.5 Pourquoi ne pas utiliser `retry()` existant
-
-`boot.retry()` réémet `masterOffer(sourceDeviceId)`, ce qui :
-- crée une **nouvelle offre** (remplace `state.offers[src]`) ;
-- réinitialise les offsets à 0 côté modèle (le natif reprend via disque, mais le modèle perd la progression logique) ;
-- peut provoquer `download_http_404` si le serveur source ne sert plus le chemin (J14-C02 §6.4).
-
-**La reprise J15 doit utiliser un chemin dédié** (`resumeDownload`) qui préserve l'offset et n'émet pas de nouvelle offre.
-
----
 
 ## 6. Déclencheurs de reprise
 
@@ -383,86 +281,16 @@ sur watchdog tick (PERIODIC_RESUME_MS écoulé depuis dernier scan):
 
 ---
 
-## 7. Persistance
+## 7. Persistance — révision phase 1 bis
+### 7.1 Journal minimal mais suffisant
+Journal versionné par `(sessionId,takeNumber,storageDeviceId)`, avec par fichier `sourceDeviceId, storageDeviceId, rel, expectedBytes (64-bit), expectedSha256, destination stable, état, waitingSinceMs, lastError, nextAttemptAt, generation/manifestId`. Conserver les métadonnées permettant de **redécouvrir** endpoint et token ; ne pas considérer IP/port/token sauvegardés comme valides au reboot. La taille réelle du fichier local reste autoritaire, et le champ `received` n'est qu'indicatif.
+### 7.2 Durabilité
+Écrire les transitions critiques avant de les considérer acquises : fichier temporaire, flush/sync si supporté, renommage atomique sur même système de fichiers, gestion de l'échec d'écriture et récupération de la dernière version valide. Ne pas supposer qu'une écriture coalescée à 1 s garantit la durabilité. Les progressions fréquentes peuvent être coalescées puisque la taille disque sera relue.
+### 7.3 Reconstruction au boot
+Charger le journal **avant** d'activer watchdog et ResumeCoordinator ; vérifier version, identité locale, session/take, manifeste, destination et existence des fichiers. Restaurer `waiting_network`, `transferring` et `verifying` comme **récupérables en attente**, puis déclencher le coordinateur une fois le pair redécouvert. Un partiel absent redémarre à zéro ; un fichier complet est vérifié par SHA ; un partiel incohérent est isolé, pas effacé aveuglément. Journal corrompu : conserver les fichiers, signaler le diagnostic, reconstruire via session/manifeste/annonces si possible ; ne jamais déclarer `done` sur seule foi du journal.
+### 7.4 Cohérence
+Le journal technique gouverne l'exécution ; `take.summary` reste projection UI, réconciliée après restauration. Les messages WS sont rejouables/idempotents, avec génération de manifeste et clé complète. Ne supprimer un journal qu'après preuve persistée de tous les résultats `done` et de la finalisation métier prévue ; une session fermée ne justifie pas une purge automatique des médias non répliqués.
 
-### 7.1 TransferJournal (nouveau fichier)
-
-**Emplacement** : `cordova.file.dataDirectory/transfers/<sessionId>-<takeNumber>.json`
-(web fallback : `localStorage["multicam.transfers.<sid>.<take>"]`)
-
-**Contenu** (par machine de transfert) :
-
-```json
-{
-  "version": 1,
-  "sessionId": "2HVHJ8VV",
-  "takeNumber": 1,
-  "role": "storage",
-  "selfDeviceId": "ece36247-…",
-  "updatedAtMs": 1760912345678,
-  "sources": {
-    "19848326-…": {
-      "host": "192.168.92.110",
-      "port": 8080,
-      "token": "mc-abc123",
-      "files": {
-        "videoTmp.mp4": {
-          "bytes": 2456888998,
-          "sha256": "1a20f2823…",
-          "received": 35584600,
-          "state": "waiting_network"
-        }
-      }
-    }
-  },
-  "transfers": {
-    "src|storage": {
-      "srcDid": "19848326-…",
-      "storageDid": "ece36247-…",
-      "state": "waiting_network",
-      "files": { "…": { "…": "…" } },
-      "waitingSinceMs": 1760912000000,
-      "resumeAttempts": 2
-    }
-  }
-}
-```
-
-### 7.2 Cycle de vie du journal
-
-| Événement | Action |
-|---|---|
-| Changement d'état (progress, result, waiting_network) | Écriture coalescée (1 s, même mécanisme que `PERSIST_COALESCE_MS`) |
-| État terminal (`done`/`error`) | Écriture immédiate (flush) |
-| Redémarrage app/storage | Lecture au boot → restauration `waiting_network` → `pending` |
-| Take terminé (`done` tous fichiers + delete confirmé) | Suppression du fichier journal |
-| Session fermée | Suppression des journaux de la session |
-
-### 7.3 Restauration au boot
-
-```
-TransferJournal.restore():
-    pour chaque fichier transfers/<sid>-<take>.json:
-        lire état
-        si role=storage ET state=waiting_network:
-            vérifier fichiers partiels sur disque (taille)
-            si partiel exploitable:
-                modèle → pending
-                ResumeCoordinator.enqueue(sid, take, srcDid)
-            else:
-                modèle → error("resume_source_missing")
-        si role=master ET state non terminal:
-            (le Master n'a pas de fichiers ; il attend les results)
-            marquer "en attente" pour re-sollicitation
-```
-
-### 7.4 Compatibilité avec la persistance existante
-
-- `take.summary.transfer*` (dans `session-store.js`) **reste inchangé** (affichage écran 09 / 07).
-- `TransferJournal` est un **journal technique** séparé, non exposé à l'UI.
-- En cas de conflit, le journal technique fait foi pour la reprise ; le summary reste la source d'affichage.
-
----
 
 ## 8. Gestion HTTP Range
 
@@ -548,47 +376,11 @@ Les transferts de Captures **distinctes** (B, D) vers le même Storage (C) sont 
 
 ---
 
-## 10. Convergence Master / Storage
+## 10. Convergence Master / Storage — révision phase 1 bis
+Le Storage publie un **état d'attente non terminal** au Master, via une extension compatible du protocole (champ de statut/cause, sans inventer un résultat terminal). Le Master doit distinguer `waiting_network` d'un `transferring` réellement bloqué. En cas de perte du message d'attente, le watchdog Master doit effectuer une réconciliation explicite et non conclure à `error` sur simple silence. Les ré-offres doivent rester idempotentes et ne jamais interrompre un run actif.
+Sur reconnexion : échange de snapshots identifiés par `(session,take,source,storage,rel,manifestGeneration)`, résolution déterministe des états, retransmission des résultats terminaux, conservation de `done` vérifié et des garanties de monotonie. Le Storage ne doit jamais convertir un `done` en `waiting_network`. L'absence du Storage, y compris au-delà de 45 s × 3 re-offers, n'est pas une preuve d'erreur fatale. Les états Master et Storage doivent converger après retour du réseau, y compris si les messages WS ont été perdus ou dupliqués.
+La Capture ne supprime jamais tant que toutes les destinations attendues ne sont pas `done` avec SHA confirmé ; les suppressions différées pendant REC restent inchangées.
 
-### 10.1 Invariant de convergence
-
-**Master et Storage convergent vers le même état** pour chaque (source × storage) :
-- `done` : SHA vérifié des deux côtés ;
-- `error` : erreur explicite identique des deux côtés ;
-- `waiting_network` : état **local au Storage** (le Master voit `transferring` ou `pending` — le Storage ne publie pas `waiting_network` au Master).
-
-### 10.2 Publication des états
-
-| État | Storage → Master | Master → UI |
-|---|---|---|
-| `pending` | Pas de message (Master l'a déjà via `ensureTransfer`) | Barre `pending` |
-| `transferring` | `transfer_progress` (toutes les 250 ms, coalescé) | Barre progression |
-| `waiting_network` | **Pas de message** (reste local) | Barre `transferring` (figée) |
-| `done` | `transfer_result state=done` | Barre `done` |
-| `error` | `transfer_result state=error` | Barre `error` |
-
-**Rationale** : `waiting_network` est un état **d'exécution** du Storage, pas un résultat. Le Master n'a pas besoin de le connaître (il suit `transferring` jusqu'à `done`/`error`). Cela évite une proliferation d'états sur le wire et préserve la compatibilité J14.
-
-### 10.3 Réconciliation après reprise
-
-Quand le Storage reprend et termine :
-- `transfer_progress` repart (le Master voit la progression avancer) ;
-- `transfer_result done` confirme la complétion ;
-- le Master déclenche `requestDelete` (chemin existant).
-
-Si le `transfer_result` est perdu (coupure pendant la reprise) :
-- le Storage re-diffuse au prochain `onPeerIdentified` / `onTransportReconnect` (mécanisme existant J14-C01) ;
-- le Master re-offre si non terminal (mécanisme existant).
-
-### 10.4 Cas de non-convergence
-
-| Cas | Comportement |
-|---|---|
-| Source disparue définitivement (Capture éteinte) | Storage → `waiting_network` → `error("retry_exhausted")` après 5 min. Master reçoit `error`. |
-| Storage éteint pendant reprise | Master watchdog → `error("stalled")` après 45 s × 3 re-offers. Storage restaure au boot via journal. |
-| SHA mismatch après reprise | `error("sha256_mismatch")` (fatal). Réessai complet si nouvelle offre. |
-
----
 
 ## 11. Compatibilité avec les Takes successifs
 
@@ -753,89 +545,19 @@ Structure `tests/e2e/validation/J15-P{n}/` :
 
 ---
 
-## 15. Questions nécessitant une décision utilisateur
-
-### Q1 — Durée max d'attente réseau (`WAITING_NETWORK_MAX_MS`)
-
-**Question** : Quelle durée max d'attente en `waiting_network` avant de basculer en `error` fatal ?
-
-| Option | Valeur | Avantage | Inconvénient |
-|---|---|---|---|
-| **A** | 5 min | Couvre coupures longues typiques (tournage) | Un Storage indisponible > 5 min perd la reprise |
-| **B** | 15 min | Plus tolérant pour environnements instables | Risque de files d'attente prolongées |
-| **C** | Illimité (jusqu'à session fermée) | Aucune perte | Risque de accumulation ressources, états fantômes |
-
-**Recommandation** : **Option A (5 min)**. Une coupure Wi-Fi de tournage dépasse rarement 5 min. Au-delà, un redémarrage ou une nouvelle offre est plus probable.
-
-### Q2 — Nombre max de reprises (`RESUME_MAX_RETRIES`)
-
-**Question** : Combien de tentatives de reprise après reconnexion avant `error` fatal ?
-
-| Option | Valeur | Avantage | Inconvénient |
-|---|---|---|---|
-| **A** | 10 | Couvre 10 reconnexions | — |
-| **B** | 20 | Plus robuste | Plus long avant `error` définitif |
-| **C** | 3 | Rapide vers `error` | Peut manquer des reconnexions |
-
-**Recommandation** : **Option A (10)**. Avec backoff plafonné (1 min), 10 reprises couvrent ~10 min de reconnexions instables.
-
-### Q3 — Support de la reprise en mode SAF
-
-**Question** : Faut-il implémenter la reprise Range en mode SAF, ou limiter la reprise au mode fichier ?
-
-| Option | Avantage | Inconvénient |
+## 15. Arbitrages Q1–Q7 — proposition révisée à valider
+| Question | Arbitrage phase 1 bis | Condition |
 |---|---|---|
-| **A** (recommandée) | Limitation documentée, moins de code, moins de risque | SAF redémarre à 0 en cas de coupure |
-| **B** | Reprise complète en SAF | Code natif SAF append complexe, risque de régression |
+| Q1 | Attente réseau sans expiration automatique | Rétention médias et signalement des attentes prolongées |
+| Q2 | Pas de limite globale de reprises transitoires | Backoff plafonné, un seul run par clé, file/timers bornés |
+| Q3 | SAF : reprise automatique **depuis zéro**, pas de Range | Vérifier qu'un retry complet est possible sans doublons |
+| Q4 | Publier `waiting_network` au Master | Protocole compatible, watchdog et réconciliation adaptés |
+| Q5 | Scan de secours toutes les 2 minutes | Ne jamais appeler le retry manuel sur un transfert actif |
+| Q6 | Conservation par défaut des partiels récupérables | Quarantaine/purge uniquement sur preuve et politique explicite |
+| Q7 | Journal technique minimal, mais durable | Restaurer aussi les runs interrompus pendant transfert/vérification |
 
-**Recommandation** : **Option A**. Le mode fichier est le mode principal de production. SAF reste fonctionnel (retry complet) mais sans reprise partielle. La limitation sera documentée dans les Known Limitations.
+**Validation utilisateur requise avant phase 2.** Les valeurs opérationnelles, la politique de rétention et les transitions exactes doivent être confrontées au code lors du pré-audit d'implémentation.
 
-### Q4 — Persistance du `waiting_network` sur le wire
-
-**Question** : Faut-il publier `waiting_network` au Master, ou le garder local au Storage ?
-
-| Option | Avantage | Inconvénient |
-|---|---|---|
-| **A** (recommandée) | Master voit `transferring` (figée) ; pas de changement protocole | Master ne sait pas que le Storage attend |
-| **B** | Master informé ; UI plus précise | Changement protocole ; risque de régression J14 |
-
-**Recommandation** : **Option A**. `waiting_network` est un état d'exécution local. Le Master suit `transferring` jusqu'à `done`/`error` (comportement J14 inchangé). L'UI peut afficher « en attente réseau » via un champ local si souhaité.
-
-### Q5 — Vérification périodique de secours
-
-**Question** : Faut-il une vérification périodique de secours (au-delà des événements) ?
-
-| Option | Valeur | Avantage | Inconvénient |
-|---|---|---|---|
-| **A** (recommandée) | 2 min | Sécurise si événement réseau manqué | Consommation minimale |
-| **B** | 30 s | Plus réactif | Un peu plus fréquent |
-| **C** | Aucune | Zéro coût | Dépend uniquement des événements |
-
-**Recommandation** : **Option A (2 min)**. Fréquence très basse, inoffensive (scan coalescé, pas de broadcast).
-
-### Q6 — Nettoyage des fichiers partiels après `error` fatal
-
-**Question** : Faut-il supprimer les fichiers partiels après un `error` fatal (retry_exhausted, sha256_mismatch) ?
-
-| Option | Avantage | Inconvénient |
-|---|---|---|
-| **A** (recommandée) | Évite l'accumulation de résidus (observation J14-C02 §6.2) | Un nouveau retry repart de 0 |
-| **B** | Conserve les partiels pour un éventuel retry manuel | Accumulation de résidus |
-
-**Recommandation** : **Option A**. Après un `error` fatal, le fichier partiel n'a plus de valeur (SHA ne correspondra jamais sans re-téléchargement complet). Le nettoyage évite l'accumulation observée en J14-C02 (35,5 Mo / 114 Ko résiduels).
-
-### Q7 — Périmètre de la persistance (TransferJournal)
-
-**Question** : Faut-il persister **tous** les états, ou uniquement les états nécessaires à la reprise (`waiting_network`, offsets) ?
-
-| Option | Avantage | Inconvénient |
-|---|---|---|
-| **A** (recommandée) | Journal minimal (`waiting_network` + offsets) | Moins de traçabilité |
-| **B** | Journal complet (tous états) | Plus gros, plus de complexité |
-
-**Recommandation** : **Option A**. Le journal sert à la **reprise**, pas à l'affichage. Persister `waiting_network`, offsets (received), et métadonnées (host/port/token/files SHA) suffit. Les états `done`/`error` sont déjà dans `take.summary`.
-
----
 
 ## Annexe A — Fichiers impactés (Phase 2 prévisionnelle)
 
@@ -876,3 +598,35 @@ Structure `tests/e2e/validation/J15-P{n}/` :
 - `app/www/js/state/transfer-service.js` (service actuel)
 - `app/www/js/state/transfer-boot.js` (boot actuel)
 - `app/local-plugins/.../MultiCamTransfer.java` (natif actuel)
+
+
+---
+
+## 16. Réponse à l'audit ChatGPT — Phase 1 bis (19 octobre 2026)
+
+Cette section remplace les recommandations contradictoires qui pourraient subsister dans les exemples, tableaux de risques et plans de tests historiques des §§1–3, 6, 8–14. **Les §§4, 5, 7, 10 et 15 révisés font autorité.** Aucune modification applicative n'est autorisée par ce commit.
+
+| Réserve | Décision | Risque résiduel | Vérification obligatoire |
+|---|---|---|---|
+| R1 | Attente réseau non terminale sans TTL | Médias retenus longtemps | Coupure simulée >5 min ; source absente longtemps |
+| R2 | Reprises transitoires non bornées dans le temps, bornées en ressources | Réveil intempestif / tempête | Rafales d'événements, backoff, aucun double run |
+| R3 | Journal atomique + restauration transferring/verifying | Crash entre disque et journal | Crash à chaque point critique, corruption, partiel absent |
+| R4 | Range seulement après validation d'identité et de Content-Range | Partiel appartenant à un ancien média | 200/206/416, IP/token changé, >2 Gio, SHA |
+| R5 | État d'attente connu du Master + réconciliation | Versions de protocole mixtes | Perte/duplication WS, watchdog, B/D vers C |
+| R6 | Partiels conservés par défaut, nettoyage sélectif | Consommation de disque | SHA mismatch, erreur permanente, reprise manuelle |
+| R7 | Journal minimal suffisant, versionné, sans endpoint figé | Manifestes périmés | Boot multi-Takes, redécouverte, fermeture session |
+
+### Contrats à spécifier avant toute implémentation
+1. **Identité forte du média** : tuple session/take/source/storage/rel + génération de manifeste, taille et SHA source. Rejeter tout append si l'identité est ambiguë.
+2. **Sémantique de l'attente Master** : message, compatibilité descendante, règles de priorité et réconciliation des snapshots ; absence de résultat fatal sur seul timeout.
+3. **Concurrence et crash** : verrou par clé acquis avant programmation, journal restauré avant watchdog, replay idempotent, commit de `done` seulement après SHA.
+4. **SAF** : distinguer reprise *du travail* (automatique depuis zéro) et reprise *des octets* (non prise en charge).
+5. **Rétention** : la fermeture de session, la disparition de la source et l'épuisement du stockage doivent être spécifiés ; aucun nettoyage implicite de médias non répliqués.
+
+### Compléments au plan de tests (à réaliser en phase 2, sans rouvrir J14)
+Tests automatisés : coupure virtuelle >5 min, 20 reconnexions, redémarrage en transferring/verifying, perte d'écriture journal, journal corrompu, partiel absent, complet non vérifié, 200/206/416, IP/token renouvelé, message waiting perdu, watchdog Master silencieux, transfert B/D indépendant, REC Take N+1, SAF reprise intégrale. Validation physique ciblée J15 : Wi-Fi 20 s puis 60 s, restart Storage, deux sources B/D, SHA et suppression différée ; le scénario >5 min peut d'abord être couvert par horloge simulée. Les critères historiques P1–P15 restent indicatifs et doivent être actualisés selon ces contrats.
+
+### Périmètre des fichiers à étudier pour la phase 2
+`transfer-model.js` (états/protocole), `transfer-service.js` (erreurs/Range), `transfer-boot.js` (watchdog/coordinator), nouveau `transfer-journal.js` (durabilité), `session-ws.js` et `discovery.js` (événements/réconciliation), plugin natif uniquement si le contrat Range nécessite une correction démontrée. Aucune régression des invariants J14 n'est autorisée.
+
+**Statut final : PROPOSITION PHASE 1 BIS — EN ATTENTE DE VALIDATION UTILISATEUR ET DE CONTRÔLE CROISÉ CODE.**
