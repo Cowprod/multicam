@@ -667,6 +667,7 @@
         if (reconnects[key]) {
           delete reconnects[key];
           reSyncSessionsFor(key);
+          notifyTransferReconnect({ endpoint: key });
         }
       };
       ws.onmessage = function (ev) {
@@ -781,6 +782,10 @@
         /* D4 : le pair s'est (re)annoncé sur une connexion restaurée — prévenir
          * le pont caméra pour qu'il republie un SNAPSHOT d'état idempotent. */
         resyncCameraState(env, entry);
+        /* J14-C01 / D1 : même signal pour le pont TRANSFERT. Le Master re-offre
+         * un transfert non terminal ; le Storage re-diffuse ses issues
+         * terminales — sinon un résultat émis pendant la coupure est PERDU. */
+        resyncTransferState(env, entry);
       }
     }
     handleIncoming(env, entry, conn);
@@ -794,6 +799,34 @@
       bridge.onPeerIdentified(env, entry);
     } catch (e) {
       emit("CAMERA_RESYNC_ERROR from=" + (env.from || "?") + " err=" + String((e && e.message) || e));
+    }
+  }
+
+  /* J14-C01 / D1 — réconciliation du TRANSFERT à la (ré)identification d'un pair.
+   * Miroir de `resyncCameraState`. Le transport WS est best-effort : un
+   * transfer_result terminal peut être perdu pendant une coupure. Le pont
+   * transfert re-diffuse (Storage) ou re-offre (Master) de façon idempotente. */
+  function resyncTransferState(env, entry) {
+    if (!env || !env.from) return;
+    var bridge = state.transferBridge;
+    if (!bridge || typeof bridge.onPeerIdentified !== "function") return;
+    try {
+      bridge.onPeerIdentified(env, entry);
+    } catch (e) {
+      emit("TRANSFER_RESYNC_ERROR from=" + (env.from || "?") + " err=" + String((e && e.message) || e));
+    }
+  }
+
+  /* J14-C01 / D1 — reconnexion du transport LOCAL : prévient le pont transfert
+   * pour qu'il re-diffuse ses issues terminales (le socket vient de se rétablir,
+   * les messages émis pendant la coupure n'ont jamais atteint leurs pairs). */
+  function notifyTransferReconnect(env) {
+    var bridge = state.transferBridge;
+    if (!bridge || typeof bridge.onTransportReconnect !== "function") return;
+    try {
+      bridge.onTransportReconnect(env || {});
+    } catch (e) {
+      emit("TRANSFER_RESYNC_RECONNECT_ERROR err=" + String((e && e.message) || e));
     }
   }
 

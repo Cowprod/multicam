@@ -75,11 +75,17 @@ public class MultiCamTransfer extends CordovaPlugin {
     private void doRemove(String path, CallbackContext cb) {
         try {
             File f = new File(stripScheme(path));
-            boolean removed = f.exists() && f.delete();
+            boolean existed = f.exists();
+            boolean removed = existed && f.delete();
             JSONObject res = new JSONObject();
             res.put("removed", removed);
+            /* `existed` permet au JS de traiter « déjà absent » comme un succès
+             * IDEMPOTENT (J14-C01 / D3) : une suppression rejouée ne doit pas
+             * être vue comme un échec. */
+            res.put("existed", existed);
             res.put("path", f.getAbsolutePath());
-            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE remove path=" + f.getAbsolutePath() + " removed=" + removed);
+            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE remove path=" + f.getAbsolutePath()
+                    + " existed=" + existed + " removed=" + removed);
             cb.success(res);
         } catch (Exception e) {
             android.util.Log.e(LOGTAG, "TRANSFER_NATIVE remove error " + e);
@@ -273,6 +279,18 @@ public class MultiCamTransfer extends CordovaPlugin {
             out = null;
             in.close();
             in = null;
+
+            /* J14-C01 / D2 : le serveur annonce `Content-Length`. Si le flux se
+             * termine AVANT la taille attendue, le fichier est TRONQUÉ : on
+             * échoue explicitement (message clair) au lieu de produire
+             * l'empreinte d'un contenu incomplet. C'est la conséquence visible
+             * de l'ancienne borne de longueur 32 bits côté serveur, qui se
+             * manifestait sinon en `ProtocolException` opaque. */
+            if (total > 0 && written != total) {
+                android.util.Log.e(LOGTAG, "TRANSFER_NATIVE download truncated received=" + written + " expected=" + total);
+                cb.error("download_truncated: received=" + written + " expected=" + total);
+                return;
+            }
 
             String sha = (treeUri.length() > 0)
                     ? "saf_unverified"  /* SAF : hash calculé côté appelant si besoin */

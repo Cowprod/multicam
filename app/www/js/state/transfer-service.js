@@ -28,6 +28,8 @@
 
   var MAX_ATTEMPTS = 3;
 
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
+
   function createTransferService(deps) {
     deps = deps || {};
     var model = deps.model;
@@ -42,6 +44,10 @@
     var deleteLocal = deps.deleteLocal || function () { return Promise.resolve(); };
     var generateToken = deps.generateToken || function () { return Math.random().toString(36).slice(2, 12); };
     var port = deps.port || 8080;
+    /* Backoff injectable entre deux tentatives de téléchargement. Par défaut
+     * IDENTITÉ (aucune attente) pour ne pas ralentir les tests ; le boot injecte
+     * un vrai délai progressif afin d'absorber les coupures transitoires. */
+    var delay = deps.delay || function () { return Promise.resolve(); };
 
     /* MultiCam D-SERVE: serveur média UNIQUE, partagé au niveau boot entre les
      * Takes. `deps.server` est injecté par la couche boot ; à défaut on crée un
@@ -133,21 +139,109 @@
 
     /* Suppression locale demandée par le Master : on supprime d'abord, on
      * retire ensuite l'autorisation du Take (le serveur et les AUTRES Takes
-     * restent actifs), PUIS on laisse le modèle accuser réception (ack). */
+     * restent actifs), PUIS on laisse le modèle accuser réception (ack).
+     *
+     * J14-C01 / D3 — deux règles fermes :
+     *  1. La cible est identifiée par (session, Take) porté par la DEMANDE, et
+     *     résolue dans les segments STAGÉS de ce Take — JAMAIS via la vue du Take
+     *     « courant » (vidée à l'acceptation du Take suivant, ce qui rendait la
+     *     suppression silencieusement vide : `files=0`).
+     *  2. L'ACK n'est émis que si la suppression est RÉELLEMENT confirmée. Sinon
+     *     la demande est DIFFÉRÉE (conservée), JAMAIS acquittée : le Master ne
+     *     doit pas croire un média supprimé à tort.
+     */
+
+    /* Segments stagés d'un Take précis, + est-ce un Take connu de cette Capture.
+     * `paths.listSegmentsFor`/`paths.hasTake` sont fournis par le boot ; à défaut
+     * on retombe sur `listSegments` (tests, anciens appels). */
+    function deleteTargets(sid, tk) {
+      if (typeof paths.listSegmentsFor === "function") {
+        var segs = paths.listSegmentsFor(sid, tk) || [];
+        var known = (typeof paths.hasTake === "function") ? !!paths.hasTake(sid, tk) : segs.length > 0;
+        return { known: known, paths: segs.map(function (s) { return s.path; }).filter(Boolean) };
+      }
+      var legacy = paths.listSegments ? (paths.listSegments(sid, tk) || []) : [];
+      return { known: true, paths: legacy.map(function (s) { return s.path; }).filter(Boolean) };
+    }
+
+    /* Demandes de suppression DIFFÉRÉES (REC en cours, take inconnu, échec
+     * transitoire). Conservées jusqu'à confirmation effective ou abandon. */
+    var deferredDeletes = {}; /* "session/take" -> { env, sid, takeNumber, attempts } */
+    var DELETE_MAX_ATTEMPTS = 5;
+
+    function deferDelete(env, sid, tk, reason) {
+      var pk = serverKey(sid, tk);
+      var e = deferredDeletes[pk] || { env: env, sid: sid, takeNumber: tk, attempts: 0 };
+      e.env = env || e.env; /* garder la dernière demande connue */
+      e.attempts += 1;
+      if (e.attempts > DELETE_MAX_ATTEMPTS) {
+        delete deferredDeletes[pk];
+        log("TRANSFER_LOCAL_DELETE_FAILED take=" + tk + " attempts=" + e.attempts + " reason=" + (reason || "unknown"));
+        model.reportDeleteFailed(env, "delete_failed");
+        return false;
+      }
+      deferredDeletes[pk] = e;
+      log("TRANSFER_LOCAL_DELETE_DEFER take=" + tk + " reason=" + (reason || "unknown") + " attempt=" + e.attempts);
+      return true;
+    }
+
     var captureHandleDelete = function (env) {
-      var tk = take();
-      return segmentList().then(function (segs) {
-        var list = segs.map(function (s) { return s.path; });
-        return deleteLocal(list).then(function () {
-          log("TRANSFER_LOCAL_DELETED take=" + tk.takeNumber + " files=" + list.length);
-          delete server.tokens[serverKey(tk.sessionId, tk.takeNumber)];
-          var unreg = server.running
-            ? native.serveUnregister({ sessionId: tk.sessionId, takeNumber: tk.takeNumber })
-            : Promise.resolve();
-          return unreg.then(function () { return model.onIncoming(env); });
-        });
+      var sid = (env && env.sessionId) || take().sessionId;
+      var tk = isNum(env && env.takeNumber) ? env.takeNumber : take().takeNumber;
+      if (env && env.sourceDeviceId && env.sourceDeviceId !== self()) return Promise.resolve(false);
+      /* Ne JAMAIS supprimer pendant un enregistrement : on conserve la demande
+       * et on la rejouera dans des conditions sûres (voir `retryDeferredDeletes`). */
+      if (isRecording()) { deferDelete(env, sid, tk, "recording"); return Promise.resolve(false); }
+      return doCaptureDelete(env, sid, tk).then(function (done) {
+        if (!done) deferDelete(env, sid, tk, "not_confirmed");
+        return done;
       });
     };
+
+    /* Tente la suppression ; rend `true` si (et seulement si) l'ACK a été émis. */
+    function doCaptureDelete(env, sid, tk) {
+      var t = deleteTargets(sid, tk);
+      if (!t.known) return Promise.resolve(false);
+      return Promise.resolve(deleteLocal(t.paths)).then(function (res) {
+        var ok = !res || res.ok !== false;
+        if (!ok) {
+          log("TRANSFER_LOCAL_DELETE_RETRY take=" + tk
+            + " removed=" + ((res && res.removed) || 0) + " failed=" + ((res && res.failed) || 0));
+          return false;
+        }
+        var removed = (res && isNum(res.removed)) ? res.removed : t.paths.length;
+        log("TRANSFER_LOCAL_DELETED take=" + tk + " files=" + t.paths.length + " removed=" + removed);
+        delete server.tokens[serverKey(sid, tk)];
+        var unreg = server.running
+          ? native.serveUnregister({ sessionId: sid, takeNumber: tk })
+          : Promise.resolve();
+        return unreg.then(function () { model.onIncoming(env); return true; });
+      });
+    }
+
+    /* Rejoue les suppressions différées (appelé par le watchdog de boot quand
+     * l'appareil est de nouveau dans des conditions sûres : Take terminé). */
+    var retryDeferredDeletes = function () {
+      var keys = Object.keys(deferredDeletes);
+      if (!keys.length) return Promise.resolve(0);
+      if (isRecording()) return Promise.resolve(0);
+      var done = 0;
+      var chain = Promise.resolve();
+      keys.forEach(function (pk) {
+        chain = chain.then(function () {
+          var e = deferredDeletes[pk];
+          if (!e) return null;
+          return doCaptureDelete(e.env, e.sid, e.takeNumber).then(function (okd) {
+            if (okd) { delete deferredDeletes[pk]; done += 1; }
+            else { deferDelete(e.env, e.sid, e.takeNumber, "not_confirmed"); }
+            return null;
+          });
+        });
+      });
+      return chain.then(function () { return done; });
+    };
+
+    var hasDeferredDeletes = function () { return Object.keys(deferredDeletes).length; };
 
     /* ------------------------------------------------------------------ master */
 
@@ -234,8 +328,12 @@
         }).catch(function (e) {
           var msg = e && e.message ? e.message : String(e);
           log("TRANSFER_FILE_ERROR file=" + f.rel + " attempt=" + attempt + " error=" + msg);
-          if (attempt < MAX_ATTEMPTS) return run();
-          model.reportResult(offer.sourceDeviceId, f.rel, model.PH_ERROR, { error: "download_failed" });
+          /* Ne PAS masquer la cause réelle derrière un « download_failed »
+           * générique (J14-C01 / D2) : on préfixe pour rester filtrable mais on
+           * conserve le message (ex. « download_truncated », ProtocolException). */
+          if (attempt < MAX_ATTEMPTS) return delay(attempt).then(run);
+          model.reportResult(offer.sourceDeviceId, f.rel, model.PH_ERROR,
+            { error: "download_failed" + (msg ? ": " + msg : "") });
           return false;
         });
       };
@@ -274,6 +372,8 @@
       masterOffer: masterOffer,
       maybeRequestDelete: maybeRequestDelete,
       storageRun: storageRun,
+      retryDeferredDeletes: retryDeferredDeletes,
+      hasDeferredDeletes: hasDeferredDeletes,
       handle: handle,
       server: server
     };

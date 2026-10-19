@@ -39,5 +39,8 @@ files.forEach((f) => {
   }
   console.log("\n" + "-".repeat(60));
   console.log(pass + " passed, " + failures.length + " failed");
-  if (failures.length) process.exitCode = 1;
+  /* Sortie EXPLICITE : certains harnais simulent des services (WS, timers) dont
+   * les handles garderaient sinon le process en vie après l'affichage du
+   * résultat — `npm test` ne rendrait jamais la main. */
+  process.exit(failures.length ? 1 : 0);
 })();

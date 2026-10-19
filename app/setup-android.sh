@@ -111,6 +111,11 @@ add_local_plugin cordova-plugin-multicam-platform local-plugins/cordova-plugin-m
 # rafraichit pas un plugin deja present (restore-util.js), donc sans cette
 # ligne l'APK embarquerait une copie perimee.
 add_local_plugin cordova-plugin-multicam-httpd local-plugins/cordova-plugin-multicam-httpd
+# J14-C01 : le client de téléchargement natif (doRemove/existed, garde de
+# troncature) vit dans ce plugin. Comme pour httpd, `cordova prepare` ne
+# rafraîchit PAS un plugin déjà présent : sans cette ré-installation, l'APK
+# embarquerait la copie périmée et le correctif D2/D3 serait absent du build.
+add_local_plugin cordova-plugin-multicam-transfer local-plugins/cordova-plugin-multicam-transfer
 add_local_plugin cordova-plugin-multicam-nsd local-plugins/cordova-plugin-multicam-nsd
 add_local_plugin cordova-websocket-server local-plugins/cordova-websocket-server
 

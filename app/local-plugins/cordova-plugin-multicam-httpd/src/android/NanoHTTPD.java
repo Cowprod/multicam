@@ -853,11 +853,34 @@ public class NanoHTTPD
 
 				if ( data != null )
 				{
-					int pending = data.available();	// This is to support partial sends, see serveFile()
-					byte[] buff = new byte[theBufferSize];
-					while (pending>0)
+					/* MultiCam (J14-C01 / D2) : le corps est borné par la longueur
+					 * DÉCLARÉE (`Content-Length`) en 64 bits, jamais par
+					 * `data.available()` — dont le type `int` plafonne à 2 Gio
+					 * (Integer.MAX_VALUE) et tronquait silencieusement tout fichier
+					 * plus gros. Le client, qui attendait la longueur annoncée,
+					 * levait alors `java.net.ProtocolException: unexpected end of
+					 * stream` et l'échec était déterministe (T3-D, T5-B, T5-D en
+					 * J14). À défaut d'en-tête déclaré, on retombe sur `available()`
+					 * (réponses internes courtes : erreurs, redirections, 304). */
+					long pending = -1L;
+					if ( header != null )
 					{
-						int read = data.read( buff, 0, ( (pending>theBufferSize) ?  theBufferSize : pending ));
+						String cl = header.getProperty( "Content-Length" );
+						if ( cl == null ) cl = header.getProperty( "content-length" );
+						if ( cl != null )
+						{
+							try { pending = Long.parseLong( cl.trim() ); }
+							catch ( NumberFormatException nfe ) { pending = -1L; }
+						}
+					}
+					if ( pending < 0L )
+						pending = data.available();
+
+					byte[] buff = new byte[theBufferSize];
+					while ( pending > 0L )
+					{
+						int want = (int)( ( pending > (long)theBufferSize ) ? (long)theBufferSize : pending );
+						int read = data.read( buff, 0, want );
 						if (read <= 0)	break;
 						out.write( buff, 0, read );
 						pending -= read;

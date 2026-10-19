@@ -128,6 +128,7 @@
       transfers: {},   /* "src|storage" -> { srcDid, storageDid, state, files:{rel}, error } */
       offers: {},      /* storage : srcDid -> { source:{host,port}, files:[...] } */
       deleted: {},     /* srcDid -> true (accusé de suppression locale reçu) */
+      deleteFailed: {},/* srcDid -> raison (suppression locale annoncée en échec) */
       rev: 0
     };
 
@@ -270,9 +271,20 @@
      * de log EXIGÉ par le plan : TRANSFER_PROGRESS take=… source=… storage=… bytes=… total=… */
     var applyTransferProgress = function (msg) {
       if (!msg || !sameTake(msg)) return false;
+      /* MONOTONIE TERMINALE (J14-C01 / D1) : un `done`/`error` est définitif. Une
+       * progression tardive (retry concurrent, réémission réseau) ne doit JAMAIS
+       * rétrograder un état terminal vers `transferring` — sinon un transfert
+       * réussi paraîtrait de nouveau en cours et bloquerait la suppression, et un
+       * échec acquitté repasserait « en cours » (T2-D). */
+      var k = key(msg.sourceDeviceId, msg.storageDeviceId);
+      var cur = state.transfers[k] && state.transfers[k].files[msg.rel];
+      if (cur && (cur.state === PH_DONE || cur.state === PH_ERROR)) {
+        log("TRANSFER_PROGRESS_IGNORE take=" + state.takeNumber
+          + " source=" + msg.sourceDeviceId + " rel=" + msg.rel + " state=" + cur.state);
+        return false;
+      }
       var ok = applyFileUpdate(msg, true);
       if (!ok) return false;
-      var k = key(msg.sourceDeviceId, msg.storageDeviceId);
       var f = state.transfers[k] && state.transfers[k].files[msg.rel];
       if (!f) return false;
       f.state = (f.received >= f.bytes && f.bytes > 0) ? PH_VERIFYING : PH_TRANSFERRING;
@@ -337,6 +349,7 @@
       }
       t.state = computeTransferState(t.files);
       if (!done) t.error = isStr(msg.error) ? msg.error : "transfer_error";
+      else if (t.state === PH_DONE) t.error = "";
       t.updatedAtMs = now();
       log("TRANSFER_RESULT take=" + state.takeNumber + " source=" + msg.sourceDeviceId
         + " storage=" + msg.storageDeviceId + " state=" + t.state);
@@ -346,10 +359,125 @@
 
     var applyDeleteAck = function (msg) {
       if (!msg || !isStr(msg.sourceDeviceId)) return false;
+      /* Un accusé de suppression ne vaut « réussi » que si la Capture le dit :
+       * `state` absent = rétro-compatibilité (J11) ; `state:"failed"` = la
+       * suppression n'a PAS été confirmée — le Master ne doit PAS croire le
+       * média supprimé (J14-C01 / D3). */
+      var st = isStr(msg.state) ? msg.state : PH_DONE;
+      if (st === PH_ERROR || st === "failed") {
+        state.deleteFailed[msg.sourceDeviceId] = isStr(msg.error) ? msg.error : "delete_failed";
+        log("TRANSFER_DELETE_FAILED take=" + state.takeNumber + " source=" + msg.sourceDeviceId
+          + " error=" + state.deleteFailed[msg.sourceDeviceId]);
+        bump();
+        return true;
+      }
+      delete state.deleteFailed[msg.sourceDeviceId];
       state.deleted[msg.sourceDeviceId] = true;
       log("TRANSFER_DELETE_ACK take=" + state.takeNumber + " source=" + msg.sourceDeviceId);
       bump();
       return true;
+    };
+
+    /* ---------- réconciliation / blocage (J14-C01 / D1) ---------- */
+
+    /* Un transfert (source × Storage) est TERMINAL s'il est `done` ou `error`. */
+    var isTransferTerminal = function (srcDid, storageDid) {
+      var t = state.transfers[key(srcDid, storageDid)];
+      return !!t && (t.state === PH_DONE || t.state === PH_ERROR);
+    };
+
+    /* Transferts NON terminaux dont l'état n'a pas bougé depuis `thresholdMs` :
+     * brique de détection des transferts bloqués (Master ET Storage). Rend
+     * `updatedAtMs` pour que l'appelant puisse accélérer son backoff. */
+    var staleTransfers = function (thresholdMs, nowMs) {
+      var t0 = isNum(nowMs) ? nowMs : now();
+      var out = [];
+      Object.keys(state.transfers).forEach(function (k) {
+        var t = state.transfers[k];
+        if (t.state === PH_DONE || t.state === PH_ERROR) return;
+        var at = isNum(t.updatedAtMs) ? t.updatedAtMs : 0;
+        var stale = t0 - at;
+        if (stale >= thresholdMs) {
+          out.push({
+            sourceDeviceId: t.srcDid, storageDeviceId: t.storageDid,
+            state: t.state, staleMs: stale, updatedAtMs: at
+          });
+        }
+      });
+      return out;
+    };
+
+    /* Réconciliation Storage → Master : re-diffuse l'issue TERMINALE de chaque
+     * fichier. Le Master ayant pu PERDRE le message terminal pendant une coupure
+     * (WS best-effort, aucune reprise), cette ré-émission à la reconnexion le
+     * fait converger. Idempotent : le récepteur ignore une issue déjà connue. */
+    var rebroadcastTerminalResults = function () {
+      if (!isStorage) return 0;
+      var n = 0;
+      Object.keys(state.transfers).forEach(function (k) {
+        var t = state.transfers[k];
+        if (t.storageDid !== self()) return;
+        Object.keys(t.files).forEach(function (rel) {
+          var f = t.files[rel];
+          if (f.state !== PH_DONE && f.state !== PH_ERROR) return;
+          send(K_TRANSFER_RESULT, {
+            sessionId: state.sid, takeNumber: state.takeNumber,
+            sourceDeviceId: t.srcDid, storageDeviceId: self(), rel: rel,
+            state: f.state, bytes: f.received, total: f.bytes,
+            sha256Destination: f.sha256Destination || "", error: f.error || ""
+          });
+          n += 1;
+        });
+      });
+      if (n) log("TRANSFER_RESYNC take=" + state.takeNumber + " results=" + n);
+      return n;
+    };
+
+    /* Force un transfert bloqué vers un état TERMINAL `error` (plus de
+     * `transferring` infini). Côté Storage, l'échec est PUBLIÉ au Master. */
+    var markTransferStuck = function (srcDid, storageDid, reason, nowMs) {
+      var t = state.transfers[key(srcDid, storageDid)];
+      if (!t || t.state === PH_DONE || t.state === PH_ERROR) return false;
+      var why = isStr(reason) ? reason : "stalled";
+      var changed = false;
+      Object.keys(t.files).forEach(function (rel) {
+        var f = t.files[rel];
+        if (f.state === PH_DONE || f.state === PH_ERROR) return;
+        f.state = PH_ERROR;
+        f.error = why;
+        changed = true;
+      });
+      if (!changed) return false;
+      t.state = computeTransferState(t.files);
+      t.error = why;
+      t.updatedAtMs = isNum(nowMs) ? nowMs : now();
+      log("TRANSFER_STUCK take=" + state.takeNumber + " source=" + srcDid
+        + " storage=" + storageDid + " reason=" + why);
+      if (isStorage && t.storageDid === self()) {
+        Object.keys(t.files).forEach(function (rel) {
+          var f = t.files[rel];
+          send(K_TRANSFER_RESULT, {
+            sessionId: state.sid, takeNumber: state.takeNumber,
+            sourceDeviceId: srcDid, storageDeviceId: self(), rel: rel,
+            state: PH_ERROR, error: f.error || why, received: f.received, total: f.bytes
+          });
+        });
+      }
+      bump();
+      return true;
+    };
+
+    /* Capture : annonce au Master qu'une suppression n'a PAS été confirmée
+     * (l'ordre reste côté Master ; la Capture ne ment jamais sur un succès). */
+    var reportDeleteFailed = function (env, error) {
+      if (!isCapture) return null;
+      var out = {
+        sessionId: (env && env.sessionId) || state.sid,
+        takeNumber: isNum(env && env.takeNumber) ? env.takeNumber : state.takeNumber,
+        sourceDeviceId: self(), state: PH_ERROR, error: isStr(error) ? error : "delete_failed"
+      };
+      send(K_TRANSFER_DELETE_ACK, out);
+      return out;
     };
 
     /* Répartition des kinds entrants (le transport appelle cette fonction). */
@@ -560,6 +688,11 @@
       transferFor: transferFor,
       allDestinationsDone: allDestinationsDone,
       canDeleteLocal: canDeleteLocal,
+      isTransferTerminal: isTransferTerminal,
+      staleTransfers: staleTransfers,
+      rebroadcastTerminalResults: rebroadcastTerminalResults,
+      markTransferStuck: markTransferStuck,
+      reportDeleteFailed: reportDeleteFailed,
       view: view
     };
   }

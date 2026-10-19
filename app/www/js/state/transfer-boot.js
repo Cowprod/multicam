@@ -198,16 +198,41 @@
       }));
     }
 
+    /* Segments STAGÉS d'un Take précis (identifié par session+Take), indépendants
+     * du Take « courant » : base de la suppression ciblée (J14-C01 / D3). La clé
+     * `sid|take|rel` mémorise l'emplacement définitif même après disparition de
+     * la source, donc la suppression retrouve SA cible à tout moment. */
+    function listSegmentsFor(sid, take) {
+      var prefix = keyOf(sid, take) + "|";
+      var out = [];
+      Object.keys(stagedMap).forEach(function (k) {
+        if (k.indexOf(prefix) === 0) out.push({ rel: k.slice(prefix.length), segmentIndex: 0, path: stagedMap[k] });
+      });
+      return out;
+    }
+
+    /* Cette Capture a-t-elle annoncé (donc stagé) un média pour ce Take ? */
+    function hasTake(sid, take) {
+      return !!announced[keyOf(sid, take)] || listSegmentsFor(sid, take).length > 0;
+    }
+
     /* Suppression locale des segments. Le NATIF d'abord (verdict réel, et il
      * accepte un chemin absolu nu) ; sinon repli sur l'API File HTML5 (résout
-     * mal les chemins nus du stockage externe : `removed=0` observé). */
+     * mal les chemins nus du stockage externe : `removed=0` observé).
+     * Rend un RÉSULTAT exploitable `{ok, removed, failed, requested}` : le
+     * service n'émet l'ACK de suppression que si `ok` est vrai (J14-C01 / D3). */
     function deleteLocalFiles(paths) {
-      if (!paths || !paths.length) return Promise.resolve();
+      if (!paths || !paths.length) {
+        return Promise.resolve({ ok: true, removed: 0, failed: 0, requested: 0 });
+      }
       var nat = nativeApi();
       var useNative = nat && typeof nat.remove === "function";
       return Promise.all(paths.map(function (p) {
         if (useNative) {
-          return nat.remove(p).then(function (r) { return !!(r && r.removed); }, function () { return false; });
+          return nat.remove(p).then(function (r) {
+            /* `removed` OU « déjà absent » (idempotence) = succès. */
+            return !!(r && (r.removed || r.existed === false));
+          }, function () { return false; });
         }
         if (typeof root.resolveLocalFileSystemURL !== "function") return Promise.resolve(false);
         return new Promise(function (resolve) {
@@ -216,7 +241,10 @@
           }, function () { resolve(false); });
         });
       })).then(function (rs) {
-        log("TRANSFER_LOCAL_DELETE_NATIVE files=" + paths.length + " removed=" + rs.filter(Boolean).length);
+        var removed = rs.filter(Boolean).length;
+        var failed = rs.length - removed;
+        log("TRANSFER_LOCAL_DELETE_NATIVE files=" + paths.length + " removed=" + removed);
+        return { ok: failed === 0, removed: removed, failed: failed, requested: paths.length };
       });
     }
 
@@ -257,6 +285,7 @@
       return modelMod().createMachine({
         role: role, sid: e.sid, self: selfDid,
         takeNumber: e.takeNumber,
+        now: deps.now,
         log: log, send: sendOnWs, sendTo: sendToWs
       });
     }
@@ -283,7 +312,17 @@
             deleteLocalAfterVerifiedReplication: st.deleteLocalAfterVerifiedReplication !== false
           };
         },
-        paths: { mediaRoot: mediaRoot, destFor: destFor, listSegments: listSegments, stageSegments: stageSegments },
+        paths: {
+          mediaRoot: mediaRoot, destFor: destFor,
+          listSegments: listSegments, stageSegments: stageSegments,
+          listSegmentsFor: listSegmentsFor, hasTake: hasTake
+        },
+        /* Backoff entre tentatives : absorb les coupures réseau transitoires
+         * sans saturer (J14-C01 / D2). */
+        delay: function (attempt) {
+          var ms = Math.min(4000, 500 * Math.pow(2, Math.max(0, (attempt || 1) - 1)));
+          return new Promise(function (r) { setTimeout(r, ms); });
+        },
         isRecording: function () {
           var svc = startService();
           return !!(svc && svc.isRecording && svc.isRecording());
@@ -458,14 +497,137 @@
       });
     }
 
+    /* ---------- réconciliation & détection de blocage (J14-C01 / D1) ---------- */
+
+    var nowMs = deps.now || function () { return Date.now(); };
+    var setI = deps.setInterval || (typeof setInterval !== "undefined" ? setInterval : null);
+    var clearI = deps.clearInterval || (typeof clearInterval !== "undefined" ? clearInterval : null);
+    var WATCHDOG_MS = isNum(deps.watchdogMs) ? deps.watchdogMs : 5000;
+    var STUCK_MS = isNum(deps.stuckMs) ? deps.stuckMs : 45000;
+    var STUCK_MAX_REOFFERS = isNum(deps.stuckMaxReoffers) ? deps.stuckMaxReoffers : 3;
+    var REIDENTIFY_THROTTLE_MS = isNum(deps.reidentifyThrottleMs) ? deps.reidentifyThrottleMs : 10000;
+    var watchdogTimer = null;
+    var stuckState = {};     /* "sid|take|src|storage" -> { count, baseAt } */
+    var lastReidentify = 0;  /* throttling de la réconciliation de maillage */
+
+    /* Un pair vient de se (ré)identifier sur une connexion restaurée — miroir de
+     * `resyncCameraState`. Le Master RE-OFFRE un transfert non terminal (l'offre
+     * initiale a pu être perdue pendant la coupure) ; le Storage RE-DIFFUSE ses
+     * issues terminales (le résultat a pu être perdu). Throttlé : le maillage
+     * livre plusieurs évènements par pair, on ne veut pas de tempête (J14-B02). */
+    function onPeerIdentified(env) {
+      var now = nowMs();
+      if (now - lastReidentify < REIDENTIFY_THROTTLE_MS) return 0;
+      lastReidentify = now;
+      var cameFrom = env && (env.from || env.deviceId);
+      var n = 0;
+      Object.keys(entries).forEach(function (k) {
+        var e = entries[k];
+        if (!e.machine || !e.service) return;
+        if (role === "master") {
+          if (cameFrom && e.machine.state.sources[cameFrom]) { e.service.masterOffer(cameFrom); n += 1; }
+        } else if (role === "storage") {
+          n += e.machine.rebroadcastTerminalResults();
+        }
+      });
+      if (n) log("TRANSFER_RESYNC_TRIGGER role=" + role + " peer=" + (cameFrom || "") + " count=" + n);
+      return n;
+    }
+
+    /* Reconnexion du transport LOCAL (socket WS rétablie) : le Storage re-diffuse
+     * ses issues terminales. S'il n'y a encore aucun destinataire joignable, la
+     * ré-émission est inoffensive et sera retentée au prochain pair identifié. */
+    function onTransportReconnect() {
+      if (role !== "storage") return 0;
+      var n = 0;
+      Object.keys(entries).forEach(function (k) {
+        var e = entries[k];
+        if (e.machine) n += e.machine.rebroadcastTerminalResults();
+      });
+      if (n) log("TRANSFER_RESYNC_RECONNECT role=" + role + " count=" + n);
+      return n;
+    }
+
+    /* Un tick : rejoue les suppressions DIFFÉRÉES devenues sûres, puis débloque
+     * les transferts figés. Jamais pendant un RECORDING : la « pause » d'un
+     * téléchargement pendant un Take est LÉGITIME, pas un échec. */
+    function watchdogTick(atMs) {
+      var svc = startService();
+      var recording = !!(svc && svc.isRecording && svc.isRecording());
+      Object.keys(entries).forEach(function (k) {
+        var e = entries[k];
+        if (e.service && role === "capture" && typeof e.service.retryDeferredDeletes === "function") {
+          e.service.retryDeferredDeletes();
+        }
+      });
+      if (recording) return 0;
+      var now = isNum(atMs) ? atMs : nowMs();
+      var acted = 0;
+      Object.keys(entries).forEach(function (entryKey) {
+        var e = entries[entryKey];
+        if (!e.machine || !e.service) return;
+        e.machine.staleTransfers(STUCK_MS, now).forEach(function (s) {
+          if (role === "master") { applyMasterStuck(entryKey, e, s, now); acted += 1; }
+          else if (role === "storage") {
+            if (e.machine.markTransferStuck(s.sourceDeviceId, s.storageDeviceId, "stalled", now)) acted += 1;
+          }
+        });
+      });
+      if (acted) notify();
+      return acted;
+    }
+
+    /* Master : relance bornée avec backoff, puis marque en échec. Une progression
+     * reçue (updatedAtMs avance) remet le compteur à zéro. */
+    function applyMasterStuck(entryKey, e, s, now) {
+      var sk = entryKey + "|" + s.sourceDeviceId + "|" + s.storageDeviceId;
+      var st = stuckState[sk] || { count: 0, baseAt: s.updatedAtMs };
+      if (st.count > 0 && s.updatedAtMs > st.baseAt) st = { count: 0, baseAt: s.updatedAtMs };
+      if (st.count >= STUCK_MAX_REOFFERS) {
+        e.machine.markTransferStuck(s.sourceDeviceId, s.storageDeviceId, "stalled", now);
+        delete stuckState[sk];
+        log("TRANSFER_STUCK_FINAL source=" + s.sourceDeviceId + " storage=" + s.storageDeviceId + " staleMs=" + s.staleMs);
+        return;
+      }
+      if (s.staleMs >= STUCK_MS * (st.count + 1)) {
+        st.count += 1;
+        st.baseAt = s.updatedAtMs;
+        stuckState[sk] = st;
+        log("TRANSFER_STUCK_REOFFER source=" + s.sourceDeviceId + " storage=" + s.storageDeviceId + " attempt=" + st.count);
+        e.service.masterOffer(s.sourceDeviceId);
+      } else {
+        stuckState[sk] = st;
+      }
+    }
+
+    function startWatchdog() {
+      if (watchdogTimer !== null || !setI) return;
+      watchdogTimer = setI(function () {
+        try { watchdogTick(); } catch (e) { log("TRANSFER_WATCHDOG_ERR " + String((e && e.message) || e)); }
+      }, WATCHDOG_MS);
+      /* Ne pas retenir le process (Node) — l'horloge est aussi pilotable en test. */
+      if (watchdogTimer && typeof watchdogTimer.unref === "function") watchdogTimer.unref();
+    }
+
+    function stopWatchdog() {
+      if (watchdogTimer === null) return;
+      if (clearI) clearI(watchdogTimer);
+      watchdogTimer = null;
+    }
+
     function bind() {
       if (bound) return;
       bound = true;
 
       var w = ws();
       if (w && typeof w.setTransferBridge === "function") {
-        w.setTransferBridge({ onTransferMessage: onTransferMessage });
+        w.setTransferBridge({
+          onTransferMessage: onTransferMessage,
+          onPeerIdentified: onPeerIdentified,
+          onTransportReconnect: onTransportReconnect
+        });
       }
+      startWatchdog();
 
       var svc = startService();
       if (svc && typeof svc.onView === "function") {
@@ -546,6 +708,11 @@
       _ensureFor: ensureFor,
       _onStartView: onStartView,
       _onTransferMessage: onTransferMessage,
+      _onPeerIdentified: onPeerIdentified,
+      _onTransportReconnect: onTransportReconnect,
+      _watchdogTick: watchdogTick,
+      _startWatchdog: startWatchdog,
+      _stopWatchdog: stopWatchdog,
       _resumePaused: resumePaused,
       _maybeCaptureAnnounce: maybeCaptureAnnounce,
       _machine: function () { return primary ? primary.machine : null; },
