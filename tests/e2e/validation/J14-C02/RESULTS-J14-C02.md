@@ -56,12 +56,15 @@ panne (coupure > fenêtre de retry) — voir §6.
 - **T2** répliqué vers C : B `done` puis D `done` (vérifié par SHA, cf. §5).
 - Demandes de suppression du Take 2 émises par le Master **pendant le REC de T3** :
   B à `16:14:24`, D à `16:22:48` (`TRANSFER_DELETE`).
+- **Fenêtre réelle du REC de T3 : `16:13:22.922` → STOP `16:29:49.9`** (`START_REQUEST` /
+  `STOP_REQUEST` / `STOP_STATE`, horodatés A).
 - **B** : `TRANSFER_LOCAL_DELETE_DEFER take=2 reason=recording` (observé en direct), puis
   `TRANSFER_LOCAL_DELETED take=2 files=1 removed=1` + `TRANSFER_LOCAL_DELETE_NATIVE files=1 removed=1`
-  à `16:29:50` — soit **~15 min après la demande**, à la **fin du REC** de T3.
-- **D** : suppression honorée à `16:29:52` — l'ACK maître (`TRANSFER_DELETE_ACK take=2 source=d618012d`)
-  n'arrive que **~7 min après la demande** (post-STOP T3), ce qui atteste la **différation** jusqu'à la
-  fin du REC (le logcat de D a été perdu — cf. §6).
+  à `16:29:50.489` — soit **+15 min 26 s après la demande**, 0,6 s **après** le STOP de T3
+  (différé jusqu'à la fin du REC, prouvé par horodatage précis).
+- **D** : suppression honorée à `16:29:52.770` (ACK maître) — **2,9 s après** le STOP de T3,
+  soit **~7 min après** sa demande de `16:22:48`, ce qui atteste la **différation** jusqu'à la fin du
+  REC (le logcat de D a été perdu — cf. §6).
 - **Aucun bug « files=0 »** : `files=1 removed=1` (suppression réellement effectuée).
 - **Ordre HASH → DELETE** respecté (A/B) : `HASH` et `DELETE` Take 2 à `16:14:24.636`.
 - **T3 non supprimé prématurément** : T3-B supprimé à `16:34:58`, T3-D à `16:57:03`, seulement
