@@ -1,0 +1,8 @@
+10-19 09:36:50.844 W/CorHttpd(29566): startServer
+10-19 09:36:50.854 W/CorHttpd(29566): startServer: port demandé=8077 effectif=8077
+10-19 09:37:40.564 W/CorHttpd(29566): startServer
+10-19 09:37:40.646 W/CorHttpd(29566): startServer: port demandé=8077 effectif=8077
+10-19 09:37:40.648 W/CorHttpd(29566): registerTake sid=_d2c01 take=1 root=/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/_d2c01/1 grants=1
+10-19 09:38:39.840 W/CorHttpd( 1866): startServer
+10-19 09:38:39.892 W/CorHttpd( 1866): startServer: port demandé=8077 effectif=8077
+10-19 09:38:39.896 W/CorHttpd( 1866): registerTake sid=_d2c01 take=1 root=/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/_d2c01/1 grants=1

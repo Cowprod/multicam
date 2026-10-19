@@ -1,0 +1,27 @@
+### [+0s] PHASE 0 — préparation (git / adb / APK)
+### [+0s] PHASE 0.1 — attestation APK (md5 par appareil)
+### [+1s] PHASE 0.2 — démarrage de l'app sur A/B/C/D (WebView prête)
+### [+12s] PHASE 1 — fichiers synthétiques sur les sources
+### [+13s] PHASE 1.1 — SHA-256 et taille des sources
+### [+33s] PHASE 2 — serveurs média + autorisations (B et D)
+### [+34s] TEST tiny : B->C tiny.bin (expected=1048576)
+  result="{\"done\":true,\"received\":1048576,\"total\":1048576,\"sha256\":\"6b0483d8c6586caa8263f8a4d5c6049af78ad1bbe23cbb26e43769ae07612003\"}"
+### [+34s] TEST under : B->C under.bin (expected=2147483000)
+  result="{\"done\":true,\"received\":2147483000,\"total\":2147483000,\"sha256\":\"72e631b649c2415fda324d0846a2830a083bb3e3a2b9d67ea991ba102e479ec0\"}"
+### [+264s] TEST exact : B->C exact.bin (expected=2147483648)
+  result="{\"done\":true,\"received\":2147483648,\"total\":2147483648,\"sha256\":\"a7c744c13cc101ed66c29f672f92455547889cc586ce6d44fe76ae824958ea51\"}"
+### [+475s] TEST over : B->C over.bin (expected=2684354560)
+  result="{\"done\":true,\"received\":2684354560,\"total\":2684354560,\"sha256\":\"9679aa8d70d80446e83955c51d2fe0cbc0af409a5202ee4c977a59a117372cff\"}"
+### [+745s] TEST resume : offset=2362232000 (> 2 Gio) — Range/206 au-delà de la borne 32 bits
+  result="{\"done\":true,\"received\":2684354560,\"total\":2684354560,\"sha256\":\"9679aa8d70d80446e83955c51d2fe0cbc0af409a5202ee4c977a59a117372cff\"}"
+### [+795s] TEST concurrence : B->C et D->C SIMULTANÉS (512 Mio chacun)
+  result="[{\"done\":true,\"received\":536870912,\"total\":536870912,\"sha256\":\"9acca8e8c22201155389f65abbf6bc9723edc7384ead80503839f49dcc56d767\"},{\"done\":true,\"received\":536870912,\"total\":536870912,\"sha256\":\"9acca8e8c22201155389f65abbf6bc9723edc7384ead80503839f49dcc56d767\"}]"
+### [+1052s] PHASE 3 — logs + nettoyage des répertoires synthétiques
+### [+1070s] RÉSUMÉ
+  tiny         PASS
+  under        PASS
+  exact        PASS
+  over         PASS
+  resume       PASS
+  concurrence  PASS
+  => 6 PASS / 0 FAIL
