@@ -1,0 +1,1 @@
+"{\"sid\":\"2HVHJ8VV\",\"members\":[\"J14C02-B-Capture:capture\",\"J14C02-D-Capture:capture\",\"J14C02-C-Storage:storage\"],\"peers\":{\"serverRunning\":true,\"effectivePort\":45102,\"localDid\":\"9d714526-9cb5-4e66-a5ab-9886a6117dfa\",\"localName\":\"J14C02-A-Master\",\"selfEndpoint\":\"192.168.92.57:45102\",\"serverConns\":3,\"clientConns\":3,\"heartbeat\":true}}"

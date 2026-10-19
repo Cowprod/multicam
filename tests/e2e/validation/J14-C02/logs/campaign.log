@@ -1,0 +1,463 @@
+
+### [+0s] PHASE 1 — PREPARATION : Git / ADB / APK / disque / sessions
+  ## Git
+  branche: feat/j11-media-transfer
+  HEAD: 0b03aaf33bb66c0d07d1311af43758da1ab58275
+  0b03aaf docs(J14-C01): diagnostic, campagne D2 sur appareils et résultats
+  5be1553 fix(J14-C01): fiabiliser le cycle de vie des transferts (D1/D2/D3)
+  d4e6fb7 docs(J14): campagne d'endurance — preuves, verdict PARTIAL, re-analyse et corrections harnais
+  1f3905e fix(J14-B03): harnais — externalise la vérification, fermeture explicite anti-trompeuse
+  
+  ## ADB
+  List of devices attached
+  61cc29567d91           device usb:0-1.3.4 product:flare_eea model:24075RP89G device:flare transport_id:1
+  61d54bba7d91           device usb:2-1.2 product:flare_eea model:24075RP89G device:flare transport_id:4
+  R83Y106V1HF            device usb:0-1.3.2 product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:2
+  c0d8514d7d87           device usb:2-1.1 product:flare_eea model:24075RP89G device:flare transport_id:3
+  192.168.92.103:5555    device product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:5
+  
+
+### [+0s] PHASE 1.1 — attestation APK (md5)
+  attendu a2f292ec4dba10723485ce33c6f36992
+  61cc29567d91 a2f292ec4dba10723485ce33c6f36992
+  61d54bba7d91 a2f292ec4dba10723485ce33c6f36992
+  c0d8514d7d87 a2f292ec4dba10723485ce33c6f36992
+  R83Y106V1HF a2f292ec4dba10723485ce33c6f36992
+
+### [+1s] PHASE 1.2 — disque initial
+  disque initial : 61cc29567d91 35626780 61d54bba7d91 32597032 c0d8514d7d87 18863288 R83Y106V1HF 21763568 
+
+### [+1s] PHASE 1.3 — roles + relance
+tests/e2e/j14c02-campaign.sh: line 227: 42606 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  A roles="[\"controller\"]"
+  B roles="[\"capture\"]"
+  C roles="[\"storage\"]"
+  D roles="[\"capture\"]"
+tests/e2e/j14c02-campaign.sh: line 72: 42810 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 72: 42844 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 72: 42885 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 72: 42919 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 234: 42942 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  dump cfg-61cc2956.json = "{\"did\":\"9d714526-9cb5-4e66-a5ab-9886a6117dfa\",\"name\":\"J14C02-A-Master\",\"skills\":[\"controller\"],\"storage\":{\"mode\":\"internal\",\"treeUri\":null,\"displayName\":null}}"
+  dump cfg-61d54bba.json = "{\"did\":\"19848326-0070-44cb-8de3-0d0d4ec7eb19\",\"name\":\"J14C02-B-Capture\",\"skills\":[\"capture\"],\"storage\":{\"mode\":\"internal\",\"treeUri\":null,\"displayName\":null}}"
+  dump cfg-c0d8514d.json = "{\"did\":\"ece36247-72e3-4268-a3b7-d0dcf80f4bfa\",\"name\":\"J14C02-C-Storage\",\"skills\":[\"storage\"],\"storage\":{\"mode\":\"internal\",\"treeUri\":null,\"displayName\":null}}"
+  dump cfg-R83Y106V.json = "{\"did\":\"d618012d-c15b-4a08-8097-88e75f126cd4\",\"name\":\"J14C02-D-Capture\",\"skills\":[\"capture\"],\"storage\":{\"mode\":\"internal\",\"treeUri\":null,\"displayName\":null}}"
+
+### [+47s] PHASE 1.3b — sessions historiques (AVANT, app lancée)
+  "[{\"sid\":\"ES2NPQR8\",\"name\":\"Regie J14-C02-152607\",\"takes\":3},{\"sid\":\"U4JUZXCZ\",\"name\":\"Regie J14-C02-150258\",\"takes\":3},{\"sid\":\"CCQM6BFH\",\"name\":\"Regie J14D-210338\",\"takes\":6},{\"sid\":\"326UH4Z8\",\"name\":\"Regie J14-C02-145653\",\"takes\":2},{\"sid\":\"DTJ37RAB\",\"name\":\"Regie J14-C02-144943\",\"takes\":0},{\"sid\":\"G3635MCH\",\"name\":\"Regie J14B03-081341\",\"takes\":2},{\"sid\":\"RAEVQ9D9\",\"name\":\"J14B02-after-102548\",\"takes\":3},{\"sid\":\"5NN7BX9K\",\"name\":\"J14B02-before-093422\",\"takes\":0},{\"sid\":\"D98ETUUG\",\"name\":\"Regie J14C-163305\",\"takes\":2},{\"sid\":\"KXFJTX4W\",\"name\":\"Regie J14-022014\",\"takes\":4},{\"sid\":\"ZFMYZRAS\",\"name\":\"Regie J14DS2-153027\",\"takes\":2},{\"sid\":\"DUSHPHX8\",\"name\":\"Regie J14-091056\",\"takes\":3},{\"sid\":\"RAG29M68\",\"name\":\"B01-S2-143346\",\"takes\":1},{\"sid\":\"TKW9METK\",\"name\":\"B01-S1-143231\",\"takes\":1},{\"sid\":\"GES3F6KY\",\"name\":\"DSV2-090213\",\"takes\":3},{\"sid\":\"NCT5E79Z\",\"name\":\"Regie J14DS-084627\",\"takes\":2},{\"sid\":\"DVFFXZRJ\",\"name\":\"Regie J14DS-180824\",\"takes\":2}]"
+tests/e2e/j14c02-campaign.sh: line 240: 43044 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+
+### [+47s] PHASE 1.4 — nouvelle session J14-C02 (anciennes conservees)
+  RUN_TAG=J14-C02-160330
+tests/e2e/j14c02-campaign.sh: line 243: 43058 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 244: 43076 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  SESSION_CREATED sid=2HVHJ8VV name='Regie J14-C02-160330'
+tests/e2e/j14c02-campaign.sh: line 250: 43106 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  PIN=2087
+  shot PREP-session
+
+### [+57s] PHASE 1.4b — jonction B, C, D (annonce host/port + PIN)
+tests/e2e/j14c02-campaign.sh: line 44: 43116 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  ANNOUNCE_OK 61d54bba 192.168.92.57:45102
+    "NAV_PIN"
+  SESSION_JOINED 61d54bba (t=0s)
+  ANNOUNCE_OK c0d8514d 192.168.92.76:45102
+    "NAV_PIN"
+  SESSION_JOINED c0d8514d (t=0s)
+  ANNOUNCE_OK R83Y106V 192.168.92.192:45102
+    "NAV_PIN"
+  SESSION_JOINED R83Y106V (t=0s)
+
+### [+64s] PHASE 1.4c — membres + DID
+  BDID=19848326-0070-44cb-8de3-0d0d4ec7eb19 CDID=ece36247-72e3-4268-a3b7-d0dcf80f4bfa DDID=d618012d-c15b-4a08-8097-88e75f126cd4
+  membres: "[\"J14C02-B-Capture:capture\",\"J14C02-C-Storage:storage\",\"J14C02-D-Capture:capture\"]"
+tests/e2e/j14c02-campaign.sh: line 279: 43291 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  dump session-roles-A.json = "{\"sid\":\"2HVHJ8VV\",\"members\":[\"J14C02-B-Capture:capture\",\"J14C02-D-Capture:capture\",\"J14C02-C-Storage:storage\"],\"peers\":{\"serverRunning\":true,\"effectivePort\":45102,\"localDid\":\"9d7
+
+### [+71s] PHASE 1.5 — purge logcat
+
+### [+74s] TEST D1 — TAKE T1 : REC 120s (B+D -> C)
+tests/e2e/j14c02-campaign.sh: line 44: 43349 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+
+### [+74s] TAKE T1 : newTake + participants + ARM + REC 120s
+  TAKE_N=1
+tests/e2e/j14c02-campaign.sh: line 176: 43394 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 111: 43420 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  T1 NCAP=2 NSTO=1 captures=19848326-0070-44cb-8de3-0d0d4ec7eb19,d618012d-c15b-4a08-8097-88e75f126cd4
+tests/e2e/j14c02-campaign.sh: line 176: 43447 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  wait_arm_ready T1 t=0s yes/dev=3/clock=2
+  ARM_READY T1 (t=0s) yes/dev=3/clock=2
+  shot T1-arm
+  PRESS_REC T1
+    "CLICKED"
+tests/e2e/j14c02-campaign.sh: line 98: 43471 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  shot T1-after-press
+    "CONTINUE"
+tests/e2e/j14c02-campaign.sh: line 98: 43496 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=REC T1 (t=6s)
+  phases REC: A=REC B=REC D=REC
+  shot T1-rec
+  shot T1-rec
+  shot T1-rec
+  disque take-T1-start : 61cc29567d91 35627460 61d54bba7d91 32579540 c0d8514d7d87 18858332 R83Y106V1HF 21737924 
+  enregistrement 120s ...
+tests/e2e/j14c02-campaign.sh: line 176: 43618 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  STOP_REQUEST T1
+tests/e2e/j14c02-campaign.sh: line 104: 43838 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=STOPPED T1 (t=2s)
+  phases STOP: A=STOPPED B=STOPPED C=STOPPED D=STOPPED
+  shot T1-stopped
+  disque take-T1-end : 61cc29567d91 35625912 61d54bba7d91 32284184 c0d8514d7d87 18827288 R83Y106V1HF 21240112 
+tests/e2e/j14c02-campaign.sh: line 290: 43932 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  T1=1
+  presence after-T1-stop:
+    61d54bba7d91 take=1 files=1
+    c0d8514d7d87 take=1 files=2
+    R83Y106V1HF take=1 files=1
+  inventaire T1 en arrière-plan (pid 43988 43989)
+
+### [+232s] TEST D1 — détection d'un transfert T1 en cours puis COUPURE Wi-Fi de C (JAMAIS D)
+  [t=0s] transferts en cours: 19848326-0070-44cb-8de3-0d0d4ec7eb19:10
+  >>> C wifi disable @ 16:06:35 (pendant transfert)
+  logs 61cc29567d91-D1-during-cut (4567 lignes)
+  logs 61d54bba7d91-D1-during-cut (3489 lignes)
+  logs c0d8514d7d87-D1-during-cut (3745 lignes)
+  logs R83Y106V1HF-D1-during-cut (3191 lignes)
+  C wifi disable 20s (< read-timeout 30s -> reprise attendue) — interruption détectée
+  C wifi enable @ +257s
+
+### [+257s] TEST D1 — attente de convergence A==C (watchdog/réconciliation, sans intervention)
+tests/e2e/j14c02-campaign.sh: line 156: 44182 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+converged=NO B:A=transferring/C=error D:A=transferring/C=error
+tests/e2e/j14c02-campaign.sh: line 156: 44214 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+converged=YES B:A=error/C=error D:A=error/C=error
+  convergence T1 = converged=YES B:A=error/C=error D:A=error/C=error
+  logs 61cc29567d91-D1 (5695 lignes)
+  logs 61d54bba7d91-D1 (4694 lignes)
+  logs c0d8514d7d87-D1 (4840 lignes)
+  logs R83Y106V1HF-D1 (4208 lignes)
+
+### [+280s] TEST D3 — TAKE T2 : REC 300s (B+D -> C)
+
+### [+280s] TAKE T2 : newTake + participants + ARM + REC 300s
+  TAKE_N=2
+tests/e2e/j14c02-campaign.sh: line 176: 44361 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 111: 44386 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  T2 NCAP=2 NSTO=1 captures=19848326-0070-44cb-8de3-0d0d4ec7eb19,d618012d-c15b-4a08-8097-88e75f126cd4
+tests/e2e/j14c02-campaign.sh: line 176: 44418 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  wait_arm_ready T2 t=0s yes/dev=3/clock=2
+  ARM_READY T2 (t=0s) yes/dev=3/clock=2
+  shot T2-arm
+  PRESS_REC T2
+    "CLICKED"
+tests/e2e/j14c02-campaign.sh: line 98: 44440 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  shot T2-after-press
+    "CONTINUE"
+tests/e2e/j14c02-campaign.sh: line 98: 44461 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=REC T2 (t=6s)
+  phases REC: A=REC B=REC D=REC
+  shot T2-rec
+  shot T2-rec
+  shot T2-rec
+  disque take-T2-start : 61cc29567d91 35625448 61d54bba7d91 32265952 c0d8514d7d87 18851072 R83Y106V1HF 21213616 
+  enregistrement 300s ...
+tests/e2e/j14c02-campaign.sh: line 176: 44592 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  STOP_REQUEST T2
+tests/e2e/j14c02-campaign.sh: line 104: 45173 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=STOPPED T2 (t=2s)
+  phases STOP: A=STOPPED B=STOPPED C=STOPPED D=STOPPED
+  shot T2-stopped
+  disque take-T2-end : 61cc29567d91 35654456 61d54bba7d91 31116196 c0d8514d7d87 18846420 R83Y106V1HF 19224756 
+tests/e2e/j14c02-campaign.sh: line 341: 45273 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  T2=2
+  presence after-T2-stop:
+    61d54bba7d91 take=1 files=1
+    61d54bba7d91 take=2 files=1
+    c0d8514d7d87 take=1 files=2
+    c0d8514d7d87 take=2 files=0
+    R83Y106V1HF take=1 files=1
+    R83Y106V1HF take=2 files=1
+
+### [+618s] TEST D3 — démarrage IMMÉDIAT du TAKE T3 (réplication T2 pendant REC T3)
+  TAKE_N=3
+  T3=3
+tests/e2e/j14c02-campaign.sh: line 351: 45428 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+tests/e2e/j14c02-campaign.sh: line 111: 45478 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  T3 participants={"take":3,"ncap":2,"nsto":1,"caps":["19848326-0070-44cb-8de3-0d0d4ec7eb19","d618012d-c15b-4a08-8097-88e75f126cd4"],"stos":["ece36247-72e3-4268-a3b7-d0dcf80f4bfa"]}
+tests/e2e/j14c02-campaign.sh: line 353: 45554 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  wait_arm_ready T3 t=0s yes/dev=3/clock=2
+  ARM_READY T3 (t=0s) yes/dev=3/clock=2
+tests/e2e/j14c02-campaign.sh: line 355: 45570 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  PRESS_REC T3
+    "CLICKED"
+  shot T3-after-press
+    "CONTINUE"
+tests/e2e/j14c02-campaign.sh: line 98: 45595 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=REC T3 (t=6s)
+  T3 REC: A=REC B=REC D=REC
+
+### [+644s] TEST D3 — surveillance : réplication T2 + demande de suppression DIFFÉRÉE (recording)
+  [t=0s] T2 done=0/2 DELETE(A)=0 DEFER(B)=0 DEFER(D)=0
+  [t=10s] T2 done=0/2 DELETE(A)=0 DEFER(B)=0 DEFER(D)=0
+  [t=20s] T2 done=1/2 DELETE(A)=0 DEFER(B)=0 DEFER(D)=0
+  [t=30s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=40s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=50s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=60s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=70s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=80s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=90s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=100s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=110s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=120s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=130s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=140s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=150s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=160s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=170s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=180s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=190s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=200s] T2 done=1/2 DELETE(A)=1 DEFER(B)=1 DEFER(D)=0
+  [t=210s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=220s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=230s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=240s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=250s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=260s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=270s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=280s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  [t=290s] T2 done=2/2 DELETE(A)=2 DEFER(B)=1 DEFER(D)=0
+  T3 fin d'enregistrement ...
+tests/e2e/j14c02-campaign.sh: line 104: 48709 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  phase=STOPPED T3 (t=2s)
+  phases STOP T3: A=STOPPED B=STOPPED C=STOPPED D=
+  local T3-B : 2 fichier(s)
+adb: device 'R83Y106V1HF' not found
+  local T3-D : 1 fichier(s)
+adb: device 'R83Y106V1HF' not found
+adb: device 'R83Y106V1HF' not found
+adb: device 'R83Y106V1HF' not found
+  presence T3-stopped-pre-delete:
+    61d54bba7d91 take=1 files=1
+    61d54bba7d91 take=2 files=0
+    61d54bba7d91 take=3 files=1
+    c0d8514d7d87 take=1 files=2
+    c0d8514d7d87 take=2 files=2
+    c0d8514d7d87 take=3 files=2
+    R83Y106V1HF take=1 files=0
+    R83Y106V1HF take=2 files=0
+    R83Y106V1HF take=3 files=0
+
+### [+1688s] TEST D3 — attente de l'exécution de la suppression DIFFÉRÉE de T2 (watchdog post-REC)
+adb: device 'R83Y106V1HF' not found
+  [t=0s] T2 fichiers restants: B=0 D=0
+adb: device 'R83Y106V1HF' not found
+adb: device 'R83Y106V1HF' not found
+adb: device 'R83Y106V1HF' not found
+  presence after-T3:
+    61d54bba7d91 take=1 files=1
+    61d54bba7d91 take=2 files=0
+    61d54bba7d91 take=3 files=1
+    c0d8514d7d87 take=1 files=2
+    c0d8514d7d87 take=2 files=2
+    c0d8514d7d87 take=3 files=2
+    R83Y106V1HF take=1 files=0
+    R83Y106V1HF take=2 files=0
+    R83Y106V1HF take=3 files=0
+
+### [+1706s] PHASE 3b — attente de TOUS les transferts terminaux (done|error) avant intégrité
+t=0s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=20s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=40s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=60s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=80s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=100s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=120s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=140s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=160s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=180s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=200s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=220s T1=0/2+2err T2=2/2+0err T3=0/2+0err
+t=240s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=260s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=280s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=300s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=320s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=340s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=360s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=380s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=400s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=420s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=440s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=460s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=480s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=500s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=520s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=540s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=560s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=580s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=600s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=620s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=640s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=660s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=680s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=700s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=720s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=740s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=760s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=780s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=800s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=820s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=840s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=860s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=880s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=900s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=920s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=940s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=960s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=980s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1000s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1020s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1040s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1060s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1080s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1100s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1120s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1140s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1160s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1180s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1200s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1220s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1240s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1260s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1280s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1300s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1320s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1340s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1360s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1380s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1400s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1420s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1440s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1460s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1480s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1500s T1=0/2+2err T2=2/2+0err T3=1/2+0err
+t=1520s T1=0/2+2err T2=2/2+0err T3=2/2+0err
+  transferts=partial (done=4/6 erreurs=2)
+adb: device 'R83Y106V1HF' not found
+adb: device 'R83Y106V1HF' not found
+adb: device 'R83Y106V1HF' not found
+  presence final-presence:
+    61d54bba7d91 take=1 files=1
+    61d54bba7d91 take=2 files=0
+    61d54bba7d91 take=3 files=0
+    c0d8514d7d87 take=1 files=2
+    c0d8514d7d87 take=2 files=2
+    c0d8514d7d87 take=3 files=2
+    R83Y106V1HF take=1 files=0
+    R83Y106V1HF take=2 files=0
+    R83Y106V1HF take=3 files=0
+
+### [+3277s] PHASE 3 — logs finaux
+  logs 61cc29567d91-final (139472 lignes)
+  logs 61d54bba7d91-final (91511 lignes)
+  logs c0d8514d7d87-final (135417 lignes)
+  logs R83Y106V1HF-final (0 lignes)
+
+### [+3328s] PHASE 4 — intégrité par Take (SHA source vs destination C, DONE)
+  C media=6
+## INTEGRITE PAR TAKE sid=2HVHJ8VV mode=campagne
+## T1 (take=1)
+  T1-B videoTmp_1.mp4: src.sha=1c715d56ac58663d1605fd34ca651ed764d65fef35c8603ed58ea371a6d6df6d dst.sha=3768972c65ecd53e7656dec63c52d8137c38d87f4e66ffbed9611e3e6f05f513 src.b=318115081 dst.b=35584600 -> ECHEC
+  T1-D videoTmp_1.mp4: src.sha=c2577ba59998a5fc394d9dd92793696dbb42e9c139bb8b5f60fff4aa78d6a439 dst.sha=c26863e8d2f8a025d0da0db06b5dd9c789dd9dfc92ed552d11509c6f3db1fd4b src.b=535359272 dst.b=114392 -> ECHEC
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=error D=error] C[B=error D=error] -> ECHEC
+VERDICT T1: FAIL
+## T2 (take=2)
+  T2-B videoTmp_1.mp4: src.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 dst.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 src.b=768135799 dst.b=768135799 -> OK
+  T2-D videoTmp_1.mp4: src.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 dst.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 src.b=1301903249 dst.b=1301903249 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T2: PASS
+## T3 (take=3)
+  T3-B videoTmp_1.mp4: src.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa dst.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa src.b=2456888998 dst.b=2456888998 -> OK
+  T3-D: ECHEC AUCUNE SOURCE (inventaire vide)
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T3: FAIL
+VERDICT GLOBAL INTEGRITE: FAIL
+tests/e2e/j14c02-campaign.sh: line 435: 55823 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+  WARN intégrité non conforme (voir dumps/verdict.txt)
+
+### [+3377s] PHASE 5 — synthèse preuves D1 / D3
+# J14-C02 — synthèse preuves D1 / D3
+
+## D1 — convergence Master/Storage après coupure Wi-Fi de C
+- A Master : TRANSFER_STUCK_REOFFER=0 STUCK_FINAL=0 RESYNC_TRIGGER=0 PROGRESS_IGNORE=0
+- C Storage : TRANSPORT_DROP=0 RESYNC_RECONNECT=6 RESYNC_TRIGGER=2 RESYNC=8
+- convergence T1 (A==C, terminal) : converged=YES B:A=error/C=error D:A=error/C=error
+
+## D3 — suppression du Take précédent pendant le REC du suivant
+- T2=2  T3=3
+- A : TRANSFER_DELETE take=2=2 ACK=4 DELETE_FAILED=0
+- B : DEFER(recording)=0 LOCALD_DELETED=1 files0(bug)=0
+- D : DEFER(recording)=0 LOCAL_DELETED=0 files0(bug)=0 NATIVE=0
+- T3 intact : LOCAL_DELETED take=3 (B)=1 (D)=0
+- ordre HASH->DELETE (A) : HASH=10-19 16:14:24.636 DELETE=10-19 16:14:24.636
+- suppression effective B/D (d3-gone=yes) ; defer-seen=yes
+
+## Présence physique
+61d54bba7d91 take=1 files=1
+61d54bba7d91 take=2 files=1
+c0d8514d7d87 take=1 files=2
+c0d8514d7d87 take=2 files=0
+R83Y106V1HF take=1 files=1
+R83Y106V1HF take=2 files=1
+61d54bba7d91 take=1 files=1
+61d54bba7d91 take=2 files=0
+61d54bba7d91 take=3 files=1
+c0d8514d7d87 take=1 files=2
+c0d8514d7d87 take=2 files=2
+c0d8514d7d87 take=3 files=2
+R83Y106V1HF take=1 files=0
+R83Y106V1HF take=2 files=0
+R83Y106V1HF take=3 files=0
+61d54bba7d91 take=1 files=1
+61d54bba7d91 take=2 files=0
+61d54bba7d91 take=3 files=1
+c0d8514d7d87 take=1 files=2
+c0d8514d7d87 take=2 files=2
+c0d8514d7d87 take=3 files=2
+R83Y106V1HF take=1 files=0
+R83Y106V1HF take=2 files=0
+R83Y106V1HF take=3 files=0
+
+## Intégrité (verdict)
+## INTEGRITE PAR TAKE sid=2HVHJ8VV mode=campagne
+## T1 (take=1)
+  T1-B videoTmp_1.mp4: src.sha=1c715d56ac58663d1605fd34ca651ed764d65fef35c8603ed58ea371a6d6df6d dst.sha=3768972c65ecd53e7656dec63c52d8137c38d87f4e66ffbed9611e3e6f05f513 src.b=318115081 dst.b=35584600 -> ECHEC
+  T1-D videoTmp_1.mp4: src.sha=c2577ba59998a5fc394d9dd92793696dbb42e9c139bb8b5f60fff4aa78d6a439 dst.sha=c26863e8d2f8a025d0da0db06b5dd9c789dd9dfc92ed552d11509c6f3db1fd4b src.b=535359272 dst.b=114392 -> ECHEC
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=error D=error] C[B=error D=error] -> ECHEC
+VERDICT T1: FAIL
+## T2 (take=2)
+  T2-B videoTmp_1.mp4: src.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 dst.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 src.b=768135799 dst.b=768135799 -> OK
+  T2-D videoTmp_1.mp4: src.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 dst.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 src.b=1301903249 dst.b=1301903249 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T2: PASS
+## T3 (take=3)
+  T3-B videoTmp_1.mp4: src.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa dst.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa src.b=2456888998 dst.b=2456888998 -> OK
+  T3-D: ECHEC AUCUNE SOURCE (inventaire vide)
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T3: FAIL
+VERDICT GLOBAL INTEGRITE: FAIL
+  disque final : 61cc29567d91 35634936 61d54bba7d91 32292456 c0d8514d7d87 11112676 R83Y106V1HF  
+tests/e2e/j14c02-campaign.sh: line 478: 55844 Terminated: 15          ( sleep "$t"; kill -TERM "$p" 2> /dev/null; sleep 1; kill -KILL "$p" 2> /dev/null ) > /dev/null 2>&1
+
+=== CAMPAGNE J14-C02 TERMINEE ===
+EVIDENCE_DIR=/Volumes/SSD1TO/testia/openCode/multicam/tests/e2e/validation/J14-C02
+SID=2HVHJ8VV T1=1 T2=2 T3=3
+verdict intégrite: VERDICT GLOBAL INTEGRITE: FAIL
+duree: 3377 s

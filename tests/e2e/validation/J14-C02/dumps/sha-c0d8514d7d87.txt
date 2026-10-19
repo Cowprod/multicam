@@ -1,0 +1,6 @@
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/2HVHJ8VV/1/19848326-0070-44cb-8de3-0d0d4ec7eb19/videoTmp_1.mp4 sha256=3768972c65ecd53e7656dec63c52d8137c38d87f4e66ffbed9611e3e6f05f513 bytes=35584600 duration_s=
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/2HVHJ8VV/1/d618012d-c15b-4a08-8097-88e75f126cd4/videoTmp_1.mp4 sha256=c26863e8d2f8a025d0da0db06b5dd9c789dd9dfc92ed552d11509c6f3db1fd4b bytes=114392 duration_s=
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/2HVHJ8VV/2/19848326-0070-44cb-8de3-0d0d4ec7eb19/videoTmp_1.mp4 sha256=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 bytes=768135799 duration_s=308.245
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/2HVHJ8VV/2/d618012d-c15b-4a08-8097-88e75f126cd4/videoTmp_1.mp4 sha256=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 bytes=1301903249 duration_s=308.368
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/2HVHJ8VV/3/d618012d-c15b-4a08-8097-88e75f126cd4/videoTmp_1.mp4 sha256=1a20f2823e0ca4fa978127593432a4a9f5deac1e5265dedc11acff7e162877b8 bytes=3361543395 duration_s=
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/2HVHJ8VV/3/19848326-0070-44cb-8de3-0d0d4ec7eb19/videoTmp_1.mp4 sha256=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa bytes=2456888998 duration_s=985.792

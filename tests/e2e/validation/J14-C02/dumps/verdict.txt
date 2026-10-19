@@ -1,0 +1,20 @@
+## INTEGRITE PAR TAKE sid=2HVHJ8VV mode=campagne
+## T1 (take=1)
+  T1-B videoTmp_1.mp4: src.sha=1c715d56ac58663d1605fd34ca651ed764d65fef35c8603ed58ea371a6d6df6d dst.sha=3768972c65ecd53e7656dec63c52d8137c38d87f4e66ffbed9611e3e6f05f513 src.b=318115081 dst.b=35584600 -> ECHEC
+  T1-D videoTmp_1.mp4: src.sha=c2577ba59998a5fc394d9dd92793696dbb42e9c139bb8b5f60fff4aa78d6a439 dst.sha=c26863e8d2f8a025d0da0db06b5dd9c789dd9dfc92ed552d11509c6f3db1fd4b src.b=535359272 dst.b=114392 -> ECHEC
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=error D=error] C[B=error D=error] -> ECHEC
+VERDICT T1: FAIL
+## T2 (take=2)
+  T2-B videoTmp_1.mp4: src.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 dst.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 src.b=768135799 dst.b=768135799 -> OK
+  T2-D videoTmp_1.mp4: src.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 dst.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 src.b=1301903249 dst.b=1301903249 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T2: PASS
+## T3 (take=3)
+  T3-B videoTmp_1.mp4: src.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa dst.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa src.b=2456888998 dst.b=2456888998 -> OK
+  T3-D videoTmp_1.mp4: src.sha=1a20f2823e0ca4fa978127593432a4a9f5deac1e5265dedc11acff7e162877b8 dst.sha=1a20f2823e0ca4fa978127593432a4a9f5deac1e5265dedc11acff7e162877b8 src.b=3361543395 dst.b=3361543395 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T3: PASS
+VERDICT GLOBAL INTEGRITE: FAIL

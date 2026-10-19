@@ -1,0 +1,5 @@
+# T3-B-post (61d54bba7d91) sid=2HVHJ8VV take=3 Mon Oct 19 16:30:52 CEST 2026
+total 2401674
+drwxrws--- 2 u0_a163 ext_data_rw       3452 2026-10-19 16:29 .
+drwxrws--- 5 u0_a163 ext_data_rw       3452 2026-10-19 16:29 ..
+-rw-rw---- 1 u0_a163 ext_data_rw 2456888998 2026-10-19 16:30 videoTmp_1.mp4

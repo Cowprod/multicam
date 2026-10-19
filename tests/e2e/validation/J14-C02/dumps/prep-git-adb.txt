@@ -1,0 +1,16 @@
+## Git
+branche: feat/j11-media-transfer
+HEAD: 0b03aaf33bb66c0d07d1311af43758da1ab58275
+0b03aaf docs(J14-C01): diagnostic, campagne D2 sur appareils et résultats
+5be1553 fix(J14-C01): fiabiliser le cycle de vie des transferts (D1/D2/D3)
+d4e6fb7 docs(J14): campagne d'endurance — preuves, verdict PARTIAL, re-analyse et corrections harnais
+1f3905e fix(J14-B03): harnais — externalise la vérification, fermeture explicite anti-trompeuse
+
+## ADB
+List of devices attached
+61cc29567d91           device usb:0-1.3.4 product:flare_eea model:24075RP89G device:flare transport_id:1
+61d54bba7d91           device usb:2-1.2 product:flare_eea model:24075RP89G device:flare transport_id:4
+R83Y106V1HF            device usb:0-1.3.2 product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:2
+c0d8514d7d87           device usb:2-1.1 product:flare_eea model:24075RP89G device:flare transport_id:3
+192.168.92.103:5555    device product:gta9wifieea model:SM_X110 device:gta9wifi transport_id:5
+

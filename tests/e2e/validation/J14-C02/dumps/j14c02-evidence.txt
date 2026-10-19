@@ -1,0 +1,64 @@
+# J14-C02 — synthèse preuves D1 / D3
+
+## D1 — convergence Master/Storage après coupure Wi-Fi de C
+- A Master : TRANSFER_STUCK_REOFFER=0 STUCK_FINAL=0 RESYNC_TRIGGER=0 PROGRESS_IGNORE=0
+- C Storage : TRANSPORT_DROP=0 RESYNC_RECONNECT=6 RESYNC_TRIGGER=2 RESYNC=8
+- convergence T1 (A==C, terminal) : converged=YES B:A=error/C=error D:A=error/C=error
+
+## D3 — suppression du Take précédent pendant le REC du suivant
+- T2=2  T3=3
+- A : TRANSFER_DELETE take=2=2 ACK=4 DELETE_FAILED=0 (requête B 16:14:24, D 16:22:48 — pendant REC T3)
+- B : DEFER(recording)=1 (observé live ; log final rogné par rotation logcat) ; TRANSFER_LOCAL_DELETED take=2 files=1 removed=1 (16:29:50) ; NATIVE files=1 removed=1 ; files0(bug)=0
+- D : DEFER non loggué (logcat D perdu — USB de D tombé pendant la campagne) ; suppression honorée 16:29:52 (ACK maître post-STOP) => différée jusqu'à la fin de REC ; files0(bug)=0
+- T3 non supprimé prématurément : B T3 supprimé 16:34:58, D T3 16:57:03 (après leur propre réplication totalement confirmée)
+- ordre HASH->DELETE (A, B) : HASH=10-19 16:14:24.636 DELETE=10-19 16:14:24.636
+- suppression effective B/D après REC (d3-gone=yes) ; defer-seen=yes
+
+## Présence physique
+61d54bba7d91 take=1 files=1
+61d54bba7d91 take=2 files=1
+c0d8514d7d87 take=1 files=2
+c0d8514d7d87 take=2 files=0
+R83Y106V1HF take=1 files=1
+R83Y106V1HF take=2 files=1
+61d54bba7d91 take=1 files=1
+61d54bba7d91 take=2 files=0
+61d54bba7d91 take=3 files=1
+c0d8514d7d87 take=1 files=2
+c0d8514d7d87 take=2 files=2
+c0d8514d7d87 take=3 files=2
+R83Y106V1HF take=1 files=0
+R83Y106V1HF take=2 files=0
+R83Y106V1HF take=3 files=0
+61d54bba7d91 take=1 files=1
+61d54bba7d91 take=2 files=0
+61d54bba7d91 take=3 files=1
+c0d8514d7d87 take=1 files=2
+c0d8514d7d87 take=2 files=2
+c0d8514d7d87 take=3 files=2
+R83Y106V1HF take=1 files=0
+R83Y106V1HF take=2 files=0
+R83Y106V1HF take=3 files=0
+
+## Intégrité (verdict)
+## INTEGRITE PAR TAKE sid=2HVHJ8VV mode=campagne
+## T1 (take=1)
+  T1-B videoTmp_1.mp4: src.sha=1c715d56ac58663d1605fd34ca651ed764d65fef35c8603ed58ea371a6d6df6d dst.sha=3768972c65ecd53e7656dec63c52d8137c38d87f4e66ffbed9611e3e6f05f513 src.b=318115081 dst.b=35584600 -> ECHEC
+  T1-D videoTmp_1.mp4: src.sha=c2577ba59998a5fc394d9dd92793696dbb42e9c139bb8b5f60fff4aa78d6a439 dst.sha=c26863e8d2f8a025d0da0db06b5dd9c789dd9dfc92ed552d11509c6f3db1fd4b src.b=535359272 dst.b=114392 -> ECHEC
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=error D=error] C[B=error D=error] -> ECHEC
+VERDICT T1: FAIL
+## T2 (take=2)
+  T2-B videoTmp_1.mp4: src.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 dst.sha=121b664209c8d71d9ab06d692866fc80c899b3bd699dd969b6e1a0d456a4c277 src.b=768135799 dst.b=768135799 -> OK
+  T2-D videoTmp_1.mp4: src.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 dst.sha=974c3acc95b019d4d7aaa49a34a968f99155b2a7d380852ae61f389429be79e9 src.b=1301903249 dst.b=1301903249 -> OK
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T2: PASS
+## T3 (take=3)
+  T3-B videoTmp_1.mp4: src.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa dst.sha=80dd089aa92bb5e52be88cc95c8af82d0f80cc3a50e2dc1a153f0c4ec63ecbaa src.b=2456888998 dst.b=2456888998 -> OK
+  T3-D videoTmp_1.mp4: src.sha=1a20f2823e0ca4fa978127593432a4a9f5deac1e5265dedc11acff7e162877b8 dst.sha=1a20f2823e0ca4fa978127593432a4a9f5deac1e5265dedc11acff7e162877b8 src.b=3361543395 dst.b=3361543395 -> OK
+  (source T3-D reconstruite : SHA source déclaré par D avant suppression via TRANSFER_HASH (sourceSha256==storageSha256) ; USB de D tombé pendant l'inventaire harnais ; recoupé taille+C)
+  anti-collision: B=1 D=1 distincts=true
+  DONE: A[B=done D=done] C[B=done D=done] -> OK
+VERDICT T3: PASS
+VERDICT GLOBAL INTEGRITE: FAIL (T1 = Take de la panne injectée D1, non-DONE -> hors critère d'intégrité « transferts DONE »)

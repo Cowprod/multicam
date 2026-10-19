@@ -1,0 +1,2 @@
+# sha256 T3-D (source SHA reporté par D avant suppression — USB de D tombé pendant l'inventaire; recoupé par C)
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/2HVHJ8VV/3/videoTmp_1.mp4 sha256=1a20f2823e0ca4fa978127593432a4a9f5deac1e5265dedc11acff7e162877b8 bytes=3361543395
