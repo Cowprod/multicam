@@ -388,9 +388,20 @@ module.exports.register = function (h) {
       ctx.boot._stopWatchdog();
     });
 
-    it("J15.19 reprise : le scan planifie puis EXECUTE une offre ciblée (mode=retry)", async () => {
-      /* Timers et horloge injectables : on CAPTURE le callback de reprise pour
-       * prouver l'EXECUTION reelle, pas seulement la journalisation. */
+    it("J15.19 reception d'une offre : endpoint memorise (host/port/token)", async () => {
+      const ctx = makeStorageBoot({ takes: [{ takeNumber: TAKE, storages: [] }], native: {} });
+      ctx.boot.bind();
+      await ctx.boot._onTransferMessage(offerMsg());
+      await flush(5);
+      const e = ctx.boot._entries()[SID + "|" + TAKE];
+      assert.ok(e.machine.transferFor(CAP, STO1), "offre appliquee au modele");
+      /* L'endpoint de l'offre est conserve pour une reprise ulterieure. */
+      const logs = ctx.logs.join("\n");
+      assert.ok(logs.indexOf("TRANSFER_OFFER") >= 0, "offre traitee par le canal reel");
+      ctx.boot._stopWatchdog();
+    });
+
+    it("J15.19b reprise : le scan planifie puis EXECUTE une offre ciblee (mode=retry)", async () => {
       const timers = [];
       const ctx = makeStorageBoot({
         takes: [{ takeNumber: TAKE, storages: [] }], native: {},
@@ -398,23 +409,33 @@ module.exports.register = function (h) {
         clearTimeout: () => {}
       });
       ctx.boot.bind();
-      ctx.boot._ensureFor(SID, TAKE);
+      /* Le canal reel memorise l'endpoint de l'offre. */
+      await ctx.boot._onTransferMessage(offerMsg());
+      await flush(5);
       const e = ctx.boot._entries()[SID + "|" + TAKE];
-      e.machine.onIncoming(offerMsg());
-      e.machine.markTransferWaiting(CAP, STO1, "network", 1000, 0);
+      /* Transfert DISTINCT en attente (une autre source), sans toucher au done. */
+      const CAP2 = "cap-2";
+      e.machine.onIncoming({ kind: "transfer_offer", sessionId: SID, takeNumber: TAKE,
+        sourceDeviceId: CAP2, storageDeviceId: STO1, host: "h", port: 1, token: "t",
+        files: [{ rel: "seg01.mp4", segmentIndex: 0, bytes: 1000, sha256: "bbbb" }] });
+      e.machine.markTransferWaiting(CAP2, STO1, "network", 1000, 0);
+      assert.strictEqual(e.machine.transferFor(CAP2, STO1).state, M.PH_WAITING_NETWORK);
       let captured = null;
       e.service.storageRun = (offer) => { captured = offer; return Promise.resolve(); };
       const n = ctx.boot._onNetworkChange();
       assert.strictEqual(n, 1, "un fichier en attente est planifie au retour reseau");
       const planned = ctx.logs.filter((l) => l.indexOf("TRANSFER_RESUME_PLANNED") >= 0);
       assert.strictEqual(planned.length, 1, "planification effective (pas de faux positif)");
-      assert.ok(planned[0].indexOf("rel=seg00.mp4") >= 0, "la reprise cible le fichier en attente");
+      assert.ok(planned[0].indexOf("rel=seg01.mp4") >= 0, "la reprise cible le fichier en attente");
       assert.strictEqual(timers.length, 1, "un timer de reprise planifie");
       timers[0].fn();
       await flush(5);
       assert.ok(captured, "storageRun execute a l'echeance");
       assert.strictEqual(captured.mode, "retry", "offre de reprise en mode retry");
-      assert.ok((captured.files || []).some((f) => f.rel === "seg00.mp4"), "offre ciblee sur le fichier attendu");
+      assert.ok((captured.files || []).some((f) => f.rel === "seg01.mp4"), "offre ciblee sur le fichier attendu");
+      assert.strictEqual(captured.host, "h", "host memorise depuis l'offre");
+      assert.strictEqual(captured.port, 1, "port memorise depuis l'offre");
+      assert.strictEqual(captured.token, "t", "token memorise depuis l'offre");
       ctx.boot._stopWatchdog();
     });
 
@@ -688,6 +709,191 @@ module.exports.register = function (h) {
       await s.downloadWithRetry(off(), f, TAKE);
       assert.strictEqual(dl, 1, "transfert neuf télécharge toujours");
       assert.strictEqual(statCalls, 0, "aucun précontrôle sans trace locale");
+    });
+  });
+
+  /* ====================================================================== */
+  /* J15-F — correctifs post-audit (verrou async, journal, compteur)        */
+  /* ====================================================================== */
+
+  describe("J15-F — verrou de reprise tenu pendant toute l'opération async", function () {
+
+    it("J15.35 une reconnexion PENDANT un storageRun non résolu ne démarre pas de run concurrent", async () => {
+      const timers = [];
+      const ctx = makeStorageBoot({
+        takes: [{ takeNumber: TAKE, storages: [] }], native: {},
+        setTimeout: (fn, ms) => { const t = { fn, ms, unref() { return t; } }; timers.push(t); return t; },
+        clearTimeout: () => {}
+      });
+      ctx.boot.bind();
+      await ctx.boot._onTransferMessage(offerMsg());
+      await flush(5);
+      const e = ctx.boot._entries()[SID + "|" + TAKE];
+      e.machine.onIncoming({ kind: "transfer_offer", sessionId: SID, takeNumber: TAKE,
+        sourceDeviceId: "cap-2", storageDeviceId: STO1, host: "h", port: 1, token: "t",
+        files: [{ rel: "seg01.mp4", segmentIndex: 0, bytes: 1000, sha256: "bbbb" }] });
+      e.machine.markTransferWaiting("cap-2", STO1, "network", 1000, 0);
+      /* `storageRun` renvoie une promesse VOLONTAIREMENT NON résolue. */
+      let runs = 0;
+      let release = null;
+      e.service.storageRun = () => { runs += 1; return new Promise((r) => { release = r; }); };
+      ctx.boot._onNetworkChange();
+      assert.strictEqual(runs, 0, "aucun run avant l'échéance");
+      const first = timers[0];
+      assert.ok(first, "un timer planifié");
+      first.fn();
+      await flush(2);
+      assert.strictEqual(runs, 1, "un premier run démarré");
+      /* Reconnexion PENDANT le run en cours : le verrou doit être encore tenu. */
+      const n2 = ctx.boot._onNetworkChange();
+      assert.strictEqual(n2, 0, "aucune nouvelle planification pendant le run");
+      assert.strictEqual(runs, 1, "toujours un seul run concurrent");
+      /* Libère l'opération : le verrou se relâche alors seulement. */
+      release();
+      await flush(2);
+      ctx.boot._stopWatchdog();
+    });
+
+    it("J15.36 le verrou est libéré APRÈS la fin de storageRun (échec inclus)", async () => {
+      const timers = [];
+      const ctx = makeStorageBoot({
+        takes: [{ takeNumber: TAKE, storages: [] }], native: {},
+        setTimeout: (fn, ms) => { const t = { fn, ms, unref() { return t; } }; timers.push(t); return t; },
+        clearTimeout: () => {}
+      });
+      ctx.boot.bind();
+      await ctx.boot._onTransferMessage(offerMsg());
+      await flush(5);
+      const e = ctx.boot._entries()[SID + "|" + TAKE];
+      e.machine.onIncoming({ kind: "transfer_offer", sessionId: SID, takeNumber: TAKE,
+        sourceDeviceId: "cap-2", storageDeviceId: STO1, host: "h", port: 1, token: "t",
+        files: [{ rel: "seg01.mp4", segmentIndex: 0, bytes: 1000, sha256: "bbbb" }] });
+      e.machine.markTransferWaiting("cap-2", STO1, "network", 1000, 0);
+      let reject = null;
+      e.service.storageRun = () => new Promise((_r, rj) => { reject = rj; });
+      ctx.boot._onNetworkChange();
+      timers[0].fn();
+      await flush(2);
+      reject(new Error("boom"));
+      await flush(2);
+      /* Après échec, le verrou est relâché : un nouveau scan peut replanifier. */
+      const n = ctx.boot._onNetworkChange();
+      assert.strictEqual(n, 1, "verrou relâché après échec → replanification possible");
+      ctx.boot._stopWatchdog();
+    });
+  });
+
+  describe("J15-G — journal : une progression ancienne ne peut écraser un terminal", function () {
+
+    it("J15.37 une écriture coalescée antérieure est ANNULÉE par un done immédiat", async () => {
+      /* Timers contrôlés : la progression coalescée ne se déclenche QUE si on
+       * l'exécute explicitement. */
+      const scheduled = [];
+      const fs = J.memoryFs();
+      const j = J.createTransferJournal({
+        fs, log: () => {}, coalesceMs: 1000,
+        setTimeout: (fn) => { const t = { fn, unref() { return t; } }; scheduled.push(t); return t; },
+        clearTimeout: (t) => { t.cancelled = true; }
+      });
+      const base = {
+        sessionId: SID, takeNumber: TAKE, storageDeviceId: STO1, nowMs: 1,
+        transfers: { "cap-1|sto-1": { srcDid: CAP, storageDid: STO1, state: "transferring",
+          files: { "seg00.mp4": { bytes: 1000, sha256: "aaaa", state: "transferring", received: 100 } } } }
+      };
+      await j.save(J.buildDoc(base), false);            /* progression coalescée */
+      const terminal = J.buildDoc({
+        sessionId: SID, takeNumber: TAKE, storageDeviceId: STO1, nowMs: 2,
+        transfers: { "cap-1|sto-1": { srcDid: CAP, storageDid: STO1, state: "done",
+          files: { "seg00.mp4": { bytes: 1000, sha256: "aaaa", state: "done", received: 1000 } } } }
+      });
+      await j.save(terminal, true);                      /* terminal immédiat */
+      /* Exécute le timer coalescé (s'il n'a pas été annulé) : il ne doit PAS
+       * écraser le terminal. */
+      scheduled.forEach((t) => { if (!t.cancelled) t.fn(); });
+      await new Promise((r) => setTimeout(r, 5));
+      const res = await j.restore(SID, TAKE, STO1);
+      assert.ok(res.ok, "journal relu");
+      const f = res.doc.files.find((x) => x.rel === "seg00.mp4");
+      assert.strictEqual(f.state, "done", "l'état terminal N'EST PAS écrasé par la progression");
+      assert.strictEqual(f.received, 1000, "progression terminale conservée");
+    });
+
+    it("J15.38 deux terminaux immédiats consécutifs : le DERNIER fait autorité", async () => {
+      const fs = J.memoryFs();
+      const j = J.createTransferJournal({ fs, log: () => {} });
+      const mk = (state, rec) => J.buildDoc({
+        sessionId: SID, takeNumber: TAKE, storageDeviceId: STO1, nowMs: 1,
+        transfers: { "cap-1|sto-1": { srcDid: CAP, storageDid: STO1, state,
+          files: { "seg00.mp4": { bytes: 1000, sha256: "aaaa", state, received: rec } } } }
+      });
+      await j.save(mk("done", 1000), true);
+      await j.save(mk("error", 0), true);
+      const res = await j.restore(SID, TAKE, STO1);
+      const f = res.doc.files.find((x) => x.rel === "seg00.mp4");
+      assert.strictEqual(f.state, "error", "le dernier terminal immédiat l'emporte");
+    });
+  });
+
+  describe("J15-H — resumeScan : ne compte que les planifications ACCEPTÉES", function () {
+
+    it("J15.39 file pleine → le compteur ne compte PAS les refus", async () => {
+      const ctx = makeStorageBoot({
+        takes: [{ takeNumber: TAKE, storages: [] }], native: {},
+        maxResumeQueue: 1,
+        setTimeout: (fn) => { const t = { fn, unref() { return t; } }; return t; },
+        clearTimeout: () => {}
+      });
+      ctx.boot.bind();
+      await ctx.boot._onTransferMessage(offerMsg());
+      await flush(5);
+      const e = ctx.boot._entries()[SID + "|" + TAKE];
+      /* `cap-1` a terminé son transfert par le canal réel : un TERMINAL ne
+       * consomme AUCUNE place de file (il n'est plus reprise du tout). */
+      assert.strictEqual(e.machine.transferFor(CAP, STO1).state, M.PH_DONE,
+        "prérequis : cap-1 est terminal");
+      /* Deux AUTRES sources réellement en attente, mais file bornée à 1. */
+      ["cap-2", "cap-3"].forEach(function (src, i) {
+        e.machine.onIncoming({ kind: "transfer_offer", sessionId: SID, takeNumber: TAKE,
+          sourceDeviceId: src, storageDeviceId: STO1, host: "h", port: 1, token: "t",
+          files: [{ rel: "seg0" + (i + 1) + ".mp4", segmentIndex: 0, bytes: 1000, sha256: "bbbb" }] });
+        e.machine.markTransferWaiting(src, STO1, "network", 1000, 0);
+      });
+      /* Garde-fou du montage : SANS deux candidats réels, l'absence de
+       * QUEUE_FULL ne prouverait rien (c'est exactement le piège initial). */
+      assert.strictEqual(e.machine.waitingTransfers().length, 2,
+        "prérequis : deux transferts distincts en waiting_network");
+      e.service.storageRun = () => Promise.resolve();
+      const n = ctx.boot._resumeScan();
+      assert.strictEqual(n, 1, "seule la planification acceptée est comptée (file pleine)");
+      assert.ok(ctx.logs.some((l) => l.indexOf("TRANSFER_RESUME_QUEUE_FULL") >= 0), "refus journalisé");
+      ctx.boot._stopWatchdog();
+    });
+  });
+
+  describe("J15-I — endpoint absent : reprise impossible reste récupérable", function () {
+
+    it("J15.40 sans endpoint connu, la reprise ne lance RIEN et reste en attente", async () => {
+      const timers = [];
+      const ctx = makeStorageBoot({
+        takes: [{ takeNumber: TAKE, storages: [] }], native: {},
+        setTimeout: (fn) => { const t = { fn, unref() { return t; } }; timers.push(t); return t; },
+        clearTimeout: () => {}
+      });
+      ctx.boot.bind();
+      ctx.boot._ensureFor(SID, TAKE);
+      const e = ctx.boot._entries()[SID + "|" + TAKE];
+      /* Transfert en attente SANS passer par une offre (donc endpoint inconnu). */
+      e.machine.onIncoming(offerMsg());
+      e.machine.markTransferWaiting(CAP, STO1, "network", 1000, 0);
+      let runs = 0;
+      e.service.storageRun = () => { runs += 1; return Promise.resolve(); };
+      ctx.boot._onNetworkChange();
+      if (timers[0]) timers[0].fn();
+      await flush(5);
+      assert.strictEqual(runs, 0, "aucun téléchargement lancé sans endpoint");
+      assert.strictEqual(e.machine.transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK, "reste récupérable, jamais terminal");
+      assert.ok(ctx.logs.some((l) => l.indexOf("TRANSFER_RESUME_NO_ENDPOINT") >= 0), "absence d'endpoint journalisée");
+      ctx.boot._stopWatchdog();
     });
   });
 };

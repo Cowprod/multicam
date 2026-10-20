@@ -598,15 +598,15 @@
     /* Reçoit une notification d'attente du service : planifie la reprise.
      * `delayMs` = échéance (now + backoff) fournie par `nextAttemptAtMs`. */
     function scheduleResume(e, info) {
-      if (!e || !info || !info.sourceDeviceId || !info.rel) return;
+      if (!e || !info || !info.sourceDeviceId || !info.rel) return false;
       var rk = resumeKey(e.sid, e.takeNumber, info.sourceDeviceId, info.rel);
       if (resumeLocks[rk]) {
         log("TRANSFER_RESUME_SKIP src=" + info.sourceDeviceId + " rel=" + info.rel + " reason=already_planned");
-        return;
+        return false;
       }
       if (Object.keys(resumeLocks).length >= MAX_RESUME_QUEUE) {
         log("TRANSFER_RESUME_QUEUE_FULL size=" + Object.keys(resumeLocks).length);
-        return;
+        return false;
       }
       /* Verrou AVANT de planifier (empêche les doublons de timers). */
       resumeLocks[rk] = true;
@@ -614,15 +614,26 @@
       var when = isNum(info.nextAttemptAtMs) ? info.nextAttemptAtMs : (at + nextResumeBackoff(e, info));
       var waitMs = Math.max(0, when - at);
       var setT = deps.setTimeout || (typeof setTimeout !== "undefined" ? setTimeout : null);
-      if (!setT) { delete resumeLocks[rk]; return; }
+      if (!setT) { delete resumeLocks[rk]; return false; }
       var timer = setT(function () {
         delete resumeTimers[rk];
-        try { runResume(e, rk, info); } catch (err) { log("TRANSFER_RESUME_ERR " + String((err && err.message) || err)); }
-        finally { delete resumeLocks[rk]; }
+        /* Le verrou doit couvrir TOUTE l'opération asynchrone : on le libère
+         * lorsque `runResume` a RÉELLEMENT terminé (succès ou échec), pas au
+         * retour synchrone de l'appel. Sinon une reconnexion pendant le
+         * téléchargement planifierait un run concurrent. */
+        var p;
+        try { p = runResume(e, rk, info); }
+        catch (err) { log("TRANSFER_RESUME_ERR " + String((err && err.message) || err)); delete resumeLocks[rk]; return; }
+        Promise.resolve(p).then(function () { delete resumeLocks[rk]; },
+          function (err) {
+            log("TRANSFER_RESUME_ERR " + String((err && err.message) || err));
+            delete resumeLocks[rk];
+          });
       }, waitMs);
       if (timer && typeof timer.unref === "function") timer.unref();
       resumeTimers[rk] = timer;
       log("TRANSFER_RESUME_PLANNED src=" + info.sourceDeviceId + " rel=" + info.rel + " inMs=" + waitMs);
+      return true;
     }
 
     function nextResumeBackoff(e, info) {
@@ -636,22 +647,31 @@
     /* Rejoue les fichiers EN ATTENTE d'une source via `storageRun`, avec
      * `mode:"retry"` (le modèle réactive l'attente sans détruire les terminaux). */
     function runResume(e, rk, info) {
-      if (!e || !e.service || !e.machine) return;
+      if (!e || !e.service || !e.machine) return Promise.resolve(false);
       /* Ne pas transférer pendant un RECORDING : on replanifie plus tard, la
        * pause est légitime (§5). */
       var svc = startService();
       if (svc && svc.isRecording && svc.isRecording()) {
         log("TRANSFER_RESUME_DEFER src=" + info.sourceDeviceId + " rel=" + info.rel + " reason=recording");
-        return;
+        return Promise.resolve(false);
       }
       var offer = buildResumeOffer(e, info.sourceDeviceId, [info.rel]);
-      if (!offer) return;
-      if (typeof e.service.storageRun !== "function") return;
+      /* Endpoint/token inconnus (ex. après un redémarrage, avant toute nouvelle
+       * annonce) : on NE lance PAS un téléchargement voué à l'échec. Le
+       * transfert reste `waiting_network` et sera repris à la prochaine annonce
+       * (déclencheur réseau / scan). */
+      if (!offer) {
+        log("TRANSFER_RESUME_NO_ENDPOINT src=" + info.sourceDeviceId + " rel=" + info.rel);
+        return Promise.resolve(false);
+      }
+      if (typeof e.service.storageRun !== "function") return Promise.resolve(false);
       log("TRANSFER_RESUME_RUN src=" + info.sourceDeviceId + " rel=" + info.rel + " manifest=" + (offer.manifestId || ""));
-      Promise.resolve(e.service.storageRun(offer)).then(function () {
+      return Promise.resolve(e.service.storageRun(offer)).then(function () {
         notify();
+        return true;
       }, function (err) {
         log("TRANSFER_RESUME_ERR src=" + info.sourceDeviceId + " error=" + String((err && err.message) || err));
+        return false;
       });
     }
 
@@ -682,6 +702,11 @@
         files.push({ rel: rel, bytes: f.bytes, sha256: f.sha256, segmentIndex: f.segmentIndex || 0 });
       });
       if (!files.length) return null;
+      /* Sans endpoint ni token exploitables (redémarrage, avant nouvelle annonce
+       * réseau), l'offre est INEXPLOITABLE : on rend `null` pour NE PAS lancer un
+       * téléchargement voué à l'échec. Le transfert reste récupérable et sera
+       * repris à la prochaine annonce (déclencheur réseau / scan de secours). */
+      if (!serverState.host || !serverState.port || !token) return null;
       return {
         sessionId: e.sid, takeNumber: e.takeNumber,
         sourceDeviceId: src, files: files,
@@ -706,11 +731,14 @@
           rels.forEach(function (rel) {
             var rk = resumeKey(e.sid, e.takeNumber, w.sourceDeviceId, rel);
             if (resumeLocks[rk]) return;
-            scheduleResume(e, {
+            /* Compter UNIQUEMENT les reprises réellement acceptées par le
+             * coordinateur (SKIP/file pleine/absence de timer = refus). */
+            if (scheduleResume(e, {
               sourceDeviceId: w.sourceDeviceId, rel: rel,
               cause: w.cause, nextAttemptAtMs: now
-            });
-            planned += 1;
+            })) {
+              planned += 1;
+            }
           });
         });
       });
@@ -731,10 +759,13 @@
       if (!env || !env.sessionId) return Promise.resolve(false);
       var take = isNum(env.takeNumber) ? env.takeNumber
         : ((primary && primary.sid === env.sessionId) ? primary.takeNumber : 0);
-      /* Garde RECORDING : une offre reçue pendant un Take est mise en attente et
-       * rejouée à la fin du Take (voir resumePaused) — on n'engage même pas le
-       * téléchargement. */
+      /* J15 (§7.1) : une offre porte l'ENDPOINT du serveur média (host/port/token).
+       * On le mémorise pour que la reprise automatique puisse le réutiliser plus
+       * tard, même après un redémarrage où la mémoire vive est perdue. */
       if (role === "storage" && env.kind === "transfer_offer") {
+        if (env.host) serverState.host = env.host;
+        if (isNum(env.port) || env.port) serverState.port = env.port;
+        if (env.token) serverState.tokens[env.sessionId + "/" + take] = env.token;
         var svc = startService();
         if (svc && svc.isRecording && svc.isRecording()) {
           pausedOffers[keyOf(env.sessionId, take) + "|" + env.sourceDeviceId] = env;

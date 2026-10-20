@@ -17,7 +17,7 @@ et n'ont pas été implémentés.
 | Backoff exponentiel entre séquences : base 5 s, plafond 60 s, jitter 0,5–1,0 | `transfer-service.js` (`RESUME_BASE_MS=5000`, `RESUME_MAX_MS=60000`, `nextBackoffMs`) |
 | `MAX_ATTEMPTS=3` = borne de la séquence HTTP courte | `transfer-service.js` |
 | 1 run actif par clé, file bornée (défaut 64) | `transfer-boot.js` (`resumeLocks`, `MAX_RESUME_QUEUE`) |
-| Verrou acquis AVANT planification, libéré en `finally` | `transfer-boot.js` (`scheduleResume`) |
+| Verrou acquis AVANT planification, libéré APRÈS résolution (succès **ou** échec) de `runResume` | `transfer-boot.js` (`scheduleResume`) |
 | Timers non accumulatifs | `transfer-boot.js` (`TRANSFER_RESUME_SKIP`) |
 | Scan de secours 120 s | `transfer-boot.js` (`RECONCILE_CYCLE_MS`) |
 | `waiting_network` publié au Master (`transfer_waiting`) | `transfer-model.js` (`K_TRANSFER_WAITING`), routage `session-ws.js` |
@@ -38,8 +38,8 @@ et n'ont pas été implémentés.
 
 Commande : `cd app && node tests/run.js`
 
-- **Suite complète : 464 PASS / 0 FAIL.**
-- Tests J15 dédiés : **34 PASS / 0 FAIL** (`app/tests/j15-resilience.test.js`).
+- **Suite complète : 471 PASS / 0 FAIL.**
+- Tests J15 dédiés : **41 PASS / 0 FAIL** (`app/tests/j15-resilience.test.js`).
 
 ### Scénarios J15 nominaux (§4/§5/§7/§10/§15/§16)
 
@@ -74,6 +74,52 @@ Commande : `cd app && node tests/run.js`
 **Point clé E :** la réutilisation n'est prononcée que si le **SHA réellement
 calculé** de la destination égale l'attendu. Un fichier de même taille mais SHA
 différent est rejeté (J15.32).
+
+### Correctifs post-audit (séries F–I)
+
+| Série | Test | Objet | Résultat |
+|---|---|---|---|
+| **F** | J15.35 | reconnexion **PENDANT** un `storageRun` non résolu → aucun run concurrent | PASS |
+| **F** | J15.36 | verrou libéré APRÈS résolution de `storageRun` (échec inclus) | PASS |
+| **G** | J15.37 | écriture coalescée antérieure ANNULÉE par un `done` immédiat | PASS |
+| **G** | J15.38 | deux terminaux immédiats consécutifs → le DERNIER fait autorité | PASS |
+| **H** | J15.39 | file pleine (`maxResumeQueue=1`) → compteur = **1** et `TRANSFER_RESUME_QUEUE_FULL` journalisé | PASS |
+| **I** | J15.19 | réception d'offre → endpoint (host/port/token) mémorisé | PASS |
+| **I** | J15.19b | reprise → offre `mode=retry` portant le host/port/token **du Take** | PASS |
+| **I** | J15.40 | sans endpoint : AUCUN téléchargement, transfert reste `waiting_network` | PASS |
+
+**Les 4 garanties de l'audit :**
+
+1. **Verrou de reprise** — `scheduleResume` ne libère `resumeLocks[rk]` qu'après
+   résolution (ou rejet) de la promesse rendue par `runResume`, et non plus au
+   retour synchrone de l'appel (J15.35 / J15.36).
+2. **Journal protégé** — une écriture `immediate` (done/error) annule la
+   progression coalescée en attente pour ce nom (`pending[name]`), qui ne peut
+   donc plus écraser un état terminal plus récent (J15.37 / J15.38).
+3. **Compteur `resumeScan()` exact** — `scheduleResume` rend désormais un
+   booléen ; seules les planifications ACCEPTÉES sont comptées (`SKIP`, file
+   pleine ou timer absent = refus) (J15.18 / J15.39).
+4. **Endpoint de reprise** — host/port/token sont mémorisés à la réception de
+   l'offre et indexés par `(sessionId, takeNumber)` ; sans endpoint
+   exploitable, `buildResumeOffer` rend `null` et `runResume` journalise
+   `TRANSFER_RESUME_NO_ENDPOINT` sans rien lancer (J15.19 / J15.19b / J15.40).
+
+**Diagnostic J15.39 (session précédente) :** le test observait `n = 1` sans
+aucun `QUEUE_FULL`. Cause réelle : le montage faisait transiter `cap-1` par le
+canal `_onTransferMessage`, dont le `storageRun` réel menait le transfert à
+`done` ; `markTransferWaiting` refuse légitimement de basculer un TERMINAL, si
+bien qu'un **seul** candidat atteignait réellement la file. Le compteur était
+donc exact — c'était le **montage du test** qui était faux. Corrigé : `cap-1`
+sert de prérequis terminal, et **deux** sources distinctes (`cap-2`, `cap-3`)
+sont réellement mises en `waiting_network`, avec une garde-fou
+`waitingTransfers().length === 2` qui fait échouer le test si le montage se
+dégrade à nouveau.
+
+**Défaut structurel corrigé :** les blocs J15-F..I avaient été insérés à
+l'intérieur du `it("J15.34")` (deux `});` orphelins en fin de fichier), ce qui
+les faisait enregistrer au moment de l'exécution d'un test plutôt qu'à
+l'enregistrement de la suite. Refermés et replacés au niveau `describe`.
+
 
 ### Défauts de production corrigés pendant l'implémentation
 

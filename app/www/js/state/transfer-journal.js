@@ -199,7 +199,18 @@
     function save(doc, immediate) {
       var name = fileFor(doc.sessionId, doc.takeNumber, doc.storageDeviceId);
       return fs.dir().then(function (dir) {
-        if (immediate || !setT) return writeNow(dir, name, doc);
+        if (immediate || !setT) {
+          /* Écriture TERMINALE (done/error) : elle fait AUTORITÉ. On ANNULE toute
+           * progression coalescée encore en attente pour ce nom, sinon son timer
+           * se déclencherait PLUS TARD et écraserait cet état terminal plus récent
+           * par une ancienne progression (§7.2). */
+          var stale = pending[name];
+          if (stale) {
+            if (stale.timer && clearT) clearT(stale.timer);
+            delete pending[name];
+          }
+          return writeNow(dir, name, doc);
+        }
         var p = pending[name];
         if (p && p.timer && clearT) clearT(p.timer);
         var entry = { doc: doc, dir: dir, timer: null };
