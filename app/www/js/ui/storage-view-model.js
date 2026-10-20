@@ -67,6 +67,7 @@
     if (state === "error") return "text-danger";
     if (state === "verifying") return "text-info";
     if (state === "transferring") return "text-warning";
+    if (state === "waiting_network") return "text-warning";
     return "muted";
   }
 
@@ -75,6 +76,7 @@
     if (state === "error") return "Erreur";
     if (state === "verifying") return "Vérification";
     if (state === "transferring") return "Transfert";
+    if (state === "waiting_network") return "En attente réseau";
     return "En attente";
   }
 

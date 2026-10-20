@@ -111,15 +111,55 @@ module.exports.register = function (h) {
       assert.strictEqual(m.machine.staleTransfers(5000, 6000)[0].storageDeviceId, STO1);
     });
 
-    it("D1.4 Storage : markTransferStuck rend le transfert terminal ET publie l'échec", async () => {
+    /* J14→J15 — CONTRAT MODIFIÉ.
+     *
+     * J14 : un blocage (stall watchdog) rendait le transfert TERMINAL `error` et
+     *       publiait `transfer_result state=error` (D1.4), ce qui, à tort,
+     *       faisait échouer définitivement un transfert sur simple silence réseau
+     *       (cause A du diagnostic J15) et déclenchait la voie de suppression.
+     *
+     * J15 : un stall n'est PAS une preuve d'impossibilité (§16-R5). Le watchdog
+     *       passe le transfert en `waiting_network` NON terminal (§4/§5) et le
+     *       PUBLIE via `transfer_waiting`, sans jamais émettre de résultat
+     *       terminal `error`. La reprise reste possible (aucun `done` détruit).
+     *
+     * Conservé : convergence Storage→Master (publication immédiate), idempotence,
+     *            monotonie terminale, et AUCUNE suppression Capture prématurée. */
+    it("D1.4 Storage : un blocage passe en waiting_network PUBLIÉ (J15, plus d'error terminal)", async () => {
       const m = mkModel("storage", STO1, () => 1000);
       m.machine.onIncoming(offerMsg(CAP));
       assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_PENDING);
-      const changed = m.machine.markTransferStuck(CAP, STO1, "stalled", 9000);
+
+      const changed = m.machine.markTransferWaiting(CAP, STO1, "stalled", 9000, 0);
       assert.strictEqual(changed, true);
-      assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_ERROR);
-      assert.ok(m.sent.some((s) => s.kind === "transfer_result" && s.msg.state === "error"), "échec publié au Master");
-      assert.ok(m.logs.some((l) => l.indexOf("TRANSFER_STUCK") >= 0));
+      assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK,
+        "J15 : attente réseau, PAS error");
+      /* Publication immédiate au Master (convergence), kind dédié, AUCUN
+       * résultat terminal. */
+      const pub = m.sent.filter((s) => s.kind === "transfer_waiting");
+      assert.strictEqual(pub.length, 1, "état d'attente publié au Master");
+      assert.strictEqual(pub[0].msg.state, "waiting_network");
+      assert.strictEqual(pub[0].msg.storageDeviceId, STO1);
+      assert.ok(!m.sent.some((s) => s.kind === "transfer_result"), "J15 : AUCUN `transfer_result` terminal sur simple stall");
+      assert.ok(m.logs.some((l) => l.indexOf("TRANSFER_WAITING") >= 0));
+
+      /* Le Master converge vers le MÊME état (pas d'error). */
+      const master = mkModel("master", MST, () => 1000);
+      master.machine.onIncoming({ kind: "media_ready", sessionId: SID, takeNumber: TAKE, deviceId: CAP, host: "h", port: 1, files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }] });
+      master.machine.offerTransfers(CAP, [STO1]);
+      const waitEnv = m.sent.find((s) => s.kind === "transfer_waiting").msg;
+      master.machine.onIncoming(Object.assign({ kind: "transfer_waiting" }, waitEnv));
+      assert.strictEqual(master.machine.transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK);
+    });
+
+    it("D1.4b J15 : le stall reste REPRENABLE (offre en mode reprise ne détruit pas l'attente)", async () => {
+      const m = mkModel("storage", STO1, () => 1000);
+      m.machine.onIncoming(offerMsg(CAP));
+      m.machine.markTransferWaiting(CAP, STO1, "stalled", 9000, 0);
+      /* Ré-offre de reprise : l'état d'attente est CONSERVÉ (pas de reset dur). */
+      m.machine.onIncoming(offerMsg(CAP));
+      assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK,
+        "une ré-offre de reprise n'efface pas l'attente (resumeOffset conservé)");
     });
 
     it("D1.5 Storage : rebroadcastTerminalResults ré-émet les issues terminales (idempotent côté Master)", async () => {
@@ -140,12 +180,35 @@ module.exports.register = function (h) {
       assert.strictEqual(second, false, "re-diffusion idempotente");
     });
 
-    it("D1.6 Storage : un PROGRESS ne « débloque » pas un transfert marqué bloqué", async () => {
+    /* J14→J15 — CONTRAT MODIFIÉ.
+     *
+     * J14 : après un marquage « bloqué », un PROGRESS ne devait pas ressusciter
+     *       l'état, mais celui-ci était terminal `error` (l'échec restait figé).
+     *
+     * J15 : l'attente réseau n'est PAS terminale : un PROGRESS reçu prouve que le
+     *       travail a REPRIS, donc il LÈVE l'attente (§4 : `waiting_network` est
+     *       un état de repos réversible) et re-synchronise l'avancement. La
+     *       garantie conservée est l'absence de rétrogradation d'un `done`/`error`
+     *       (voir D1.1/D1.2). */
+    it("D1.6 Storage : un PROGRESS lève l'attente mais ne rétrograde pas un terminal (J15)", async () => {
       const m = mkModel("storage", STO1, () => 1000);
       m.machine.onIncoming(offerMsg(CAP));
-      m.machine.markTransferStuck(CAP, STO1, "stalled", 2000);
-      m.machine.onIncoming({ kind: "transfer_progress", sessionId: SID, takeNumber: TAKE, sourceDeviceId: CAP, storageDeviceId: STO1, rel: "seg00.mp4", received: 400, total: 1000 });
-      assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_ERROR, "l'échec reste terminal");
+      /* Terminal franc : un PROGRESS ne doit JAMAIS le rétrograder (garantie J14
+       * conservée — c'est le cœur anti-double-suppression). */
+      m.machine.onIncoming({ kind: "transfer_result", sessionId: SID, takeNumber: TAKE, sourceDeviceId: CAP, storageDeviceId: STO1, rel: "seg00.mp4", state: "done", bytes: 1000, sha256Destination: "aaaa" });
+      assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_DONE);
+      const applied = m.machine.onIncoming({ kind: "transfer_progress", sessionId: SID, takeNumber: TAKE, sourceDeviceId: CAP, storageDeviceId: STO1, rel: "seg00.mp4", received: 400, total: 1000 });
+      assert.strictEqual(applied, false, "progression ignorée après terminal");
+      assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_DONE, "terminal préservé");
+
+      /* Attente réseau : une progression côté Storage (reprise) lève l'attente. */
+      const s = mkModel("storage", STO1, () => 1000);
+      s.machine.onIncoming(offerMsg(CAP));
+      s.machine.markTransferWaiting(CAP, STO1, "stalled", 2000, 0);
+      assert.strictEqual(s.machine.transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK);
+      s.machine.onIncoming({ kind: "transfer_progress", sessionId: SID, takeNumber: TAKE, sourceDeviceId: CAP, storageDeviceId: STO1, rel: "seg00.mp4", received: 400, total: 1000 });
+      assert.strictEqual(s.machine.transferFor(CAP, STO1).state, M.PH_TRANSFERRING,
+        "J15 : le PROGRESS prouve la reprise → attente levée (non terminale)");
     });
   });
 
@@ -276,7 +339,13 @@ module.exports.register = function (h) {
 
   describe("J14-C01 D2 — diagnostic & backoff (service)", function () {
 
-    it("D2.1 l'échec conserve la cause réelle (pas de « download_failed » masquant)", async () => {
+    /* J14→J15 — CONTRAT MODIFIÉ.
+     * J14 : `download_truncated` (et toute erreur) finissait en `error` terminal
+     *       après MAX_ATTEMPTS.
+     * J15 : `download_truncated` est POTENTIELLEMENT TRANSITOIRE (§4.3) → attente
+     *       réseau NON terminale, cause réelle conservée dans `lastError`. La
+     *       garantie de diagnostic (cause précise non masquée) est conservée. */
+    it("D2.1 l'échec conserve la cause réelle (transitoire → waiting_network, cause précise)", async () => {
       const native = fakeNative();
       native.download = (o) => { native.calls.download.push(o); return Promise.reject(new Error("download_truncated: received=100 expected=5000")); };
       const m = mkModel("storage", STO1, () => 1000);
@@ -288,9 +357,12 @@ module.exports.register = function (h) {
       });
       await svc.handle(offerMsg(CAP));
       const f = m.machine.transferFor(CAP, STO1).files[0];
-      assert.strictEqual(f.state, M.PH_ERROR);
+      assert.strictEqual(f.state, M.PH_WAITING_NETWORK, "J15 : troncature = attente réseau récupérable");
       assert.ok(f.error.indexOf("download_truncated") >= 0, "cause précise remontée : " + f.error);
       assert.ok(f.error.indexOf("download_failed") === 0, "préfixe filtrable conservé");
+      assert.ok(m.sent.some((s) => s.kind === "transfer_waiting"), "attente publiée au Master");
+      assert.ok(!m.sent.some((s) => s.kind === "transfer_result" && s.msg.state === "error"),
+        "J15 : aucun résultat terminal sur cause transitoire");
     });
 
     it("D2.2 backoff injecté entre les tentatives (délai requis avant chaque reprise)", async () => {
@@ -308,6 +380,8 @@ module.exports.register = function (h) {
       await svc.handle(offerMsg(CAP));
       assert.strictEqual(native.calls.download.length, S.MAX_ATTEMPTS);
       assert.deepStrictEqual(waited, [1, 2], "un backoff avant les 2 reprises");
+      /* J15 : séquence épuisée (cause par défaut = transitoire) → waiting_network. */
+      assert.strictEqual(m.machine.transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK);
     });
   });
 
@@ -366,7 +440,21 @@ module.exports.register = function (h) {
       return { boot, ws, native, logs, setClock: (v) => { clock = v; }, getClock: () => clock };
     }
 
-    it("D1.7 Master : transfert bloqué ⇒ re-offres bornées puis passage en error", async () => {
+    /* J14→J15 — CONTRAT MODIFIÉ.
+     *
+     * J14 : le watchdog Master, après `stuckMaxReoffers` re-offres, marquait le
+     *       transfert terminal `error` (`TRANSFER_STUCK_FINAL`), aggravant le
+     *       diagnostic (un Storage simplement lent était déclaré en échec).
+     *
+     * J15 : après la séquence bornée de re-offres, le Master GÈLE la séquence
+     *       (`TRANSFER_RECONCILE_WAIT`) et passe en `waiting_network` NON
+     *       terminal. Aucune tempête de re-offres : le compteur gelé n'est purgé
+     *       qu'à la réconciliation cyclique (120 s), et une progression reçue
+     *       réarme la séquence.
+     *
+     * Conservés : bornage strict du nombre de re-offres, idempotence, convergence
+     *            au retour du Storage, AUCUNE suppression Capture prématurée. */
+    it("D1.7 Master : transfert bloqué ⇒ re-offres bornées puis waiting_network gelé (J15)", async () => {
       const takes = {}; takes[SID] = [{ takeNumber: TAKE, storages: [STO1], settings: { transferAuto: true, deleteLocalAfterVerifiedReplication: true } }];
       const b = makeBoot({ cfg: { enabledSkills: ["controller"] }, takes, self: MST });
       b.boot.bind();
@@ -379,11 +467,53 @@ module.exports.register = function (h) {
       assert.ok(b.ws.out.sendTo.filter((m) => m.kind === "transfer_offer").length > offersBefore, "re-offre déclenchée");
       assert.ok(b.logs.some((l) => l.indexOf("TRANSFER_STUCK_REOFFER") >= 0));
 
+      /* Dépassement de la séquence bornée : gel + attente, jamais `error`. */
       b.setClock(1000 + 10000);
       b.boot._watchdogTick();
       b.boot._watchdogTick();
-      assert.ok(b.logs.some((l) => l.indexOf("TRANSFER_STUCK_FINAL") >= 0), "échec explicite après backoff borné");
-      assert.strictEqual(b.boot._machine().transferFor(CAP, STO1).state, M.PH_ERROR, "plus de transferring infini");
+      assert.ok(b.logs.some((l) => l.indexOf("TRANSFER_RECONCILE_WAIT") >= 0),
+        "J15 : séquence gelée au lieu d'un échec terminal");
+      assert.ok(!b.logs.some((l) => l.indexOf("TRANSFER_STUCK_FINAL") >= 0),
+        "J15 : plus de passage terminal error sur simple silence");
+      assert.strictEqual(b.boot._machine().transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK,
+        "J15 : attente réseau (non terminal), plus de transferring infini");
+
+      /* Aucune tempête : les ticks suivants ne relancent plus d'offres tant que
+       * la séquence est gelée. */
+      const offersAtFreeze = b.ws.out.sendTo.filter((m) => m.kind === "transfer_offer").length;
+      b.setClock(1000 + 20000);
+      b.boot._watchdogTick();
+      assert.strictEqual(b.ws.out.sendTo.filter((m) => m.kind === "transfer_offer").length, offersAtFreeze,
+        "un seul cycle actif par transfert : pas de re-offres en rafale");
+
+      /* Toutes destinations `waiting_network` (aucune `done`/`error`) : la
+       * suppression Capture est INTERDITE (aucune preuve de réplication). */
+      assert.strictEqual(b.boot._machine().allDestinationsDone(CAP), false);
+      assert.ok(!b.ws.out.sendTo.some((m) => m.kind === "transfer_delete"),
+        "aucune suppression prématurée pendant une attente réseau");
+    });
+
+    it("D1.7b J15 : le retour du Storage lève l'attente et reprend (pas de restart de la séquence)", async () => {
+      const takes = {}; takes[SID] = [{ takeNumber: TAKE, storages: [STO1], settings: { transferAuto: true, deleteLocalAfterVerifiedReplication: true } }];
+      const b = makeBoot({ cfg: { enabledSkills: ["controller"] }, takes, self: MST });
+      b.boot.bind();
+      await b.boot._onTransferMessage({ kind: "media_ready", sessionId: SID, takeNumber: TAKE, deviceId: CAP, host: "h", port: 1, files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }] });
+      b.setClock(1000 + 1000); b.boot._watchdogTick();
+      b.setClock(1000 + 10000); b.boot._watchdogTick(); b.boot._watchdogTick();
+      assert.strictEqual(b.boot._machine().transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK);
+
+      /* Le Storage reprend : une progression arrive. */
+      b.setClock(1000 + 30000);
+      await b.boot._onTransferMessage({ kind: "transfer_progress", sessionId: SID, takeNumber: TAKE, sourceDeviceId: CAP, storageDeviceId: STO1, rel: "seg00.mp4", received: 500, total: 1000 });
+      assert.strictEqual(b.boot._machine().transferFor(CAP, STO1).state, M.PH_TRANSFERRING,
+        "la reprise lève l'attente");
+
+      /* Puis le transfert converge vers `done`. */
+      await b.boot._onTransferMessage({ kind: "transfer_result", sessionId: SID, takeNumber: TAKE, sourceDeviceId: CAP, storageDeviceId: STO1, rel: "seg00.mp4", state: "done", bytes: 1000, sha256Destination: "aaaa" });
+      assert.strictEqual(b.boot._machine().transferFor(CAP, STO1).state, M.PH_DONE);
+      assert.strictEqual(b.boot._machine().allDestinationsDone(CAP), true);
+      const deletions = b.ws.out.sendTo.filter((m) => m.kind === "transfer_delete");
+      assert.strictEqual(deletions.length, 1, "la suppression Capture n'est ordonnée QU'APRÈS réplication vérifiée");
     });
 
     it("D1.8 Master : une progression reçue remet le backoff à zéro", async () => {

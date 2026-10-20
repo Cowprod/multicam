@@ -27,8 +27,41 @@
   "use strict";
 
   var MAX_ATTEMPTS = 3;
+  /* J15 / §5 — backoff ENTRE SÉQUENCES (pas entre tentatives d'une même
+   * séquence) : exponentiel, plafonné à 60 s, avec jitter. Aucune borne
+   * temporelle globale (`WAITING_NETWORK_MAX_MS`) : une attente réseau n'est
+   * jamais convertie en erreur terminale par simple expiration. */
+  var RESUME_BASE_MS = 5000;
+  var RESUME_MAX_MS = 60000;
 
   function isNum(v) { return typeof v === "number" && isFinite(v); }
+
+  /* Classification contextuelle d'une erreur (§4.3).
+   *  - `transient` : cause réversible (réseau, timeout, 429, 5xx, troncature,
+   *    404 potentiellement temporaire, 416 réconciliable).
+   *  - `fatal`     : cause irrécupérable démontrée (intégrité SHA, écriture
+   *    disque/SAF, 401/403 après échec de renouvellement n'est PAS fatal ici —
+   *    on préfère transitoire et réannonce).
+   * Par DÉFAUT : transitoire (§16 — « aucune preuve d'impossibilité »). Un
+   * silence, une absence ou un code inconnu ne suffisent jamais à conclure. */
+  function classifyError(message) {
+    var m = String(message || "");
+    if (/sha256_mismatch/i.test(m)) return { transient: false, cause: "integrity" };
+    if (/saf_|ENOSPC|no space|open_dest_failed|create_failed|mkdir_failed/i.test(m)) {
+      return { transient: false, cause: "storage" };
+    }
+    if (/saf_unverified/i.test(m)) return { transient: false, cause: "storage" };
+    if (/download_truncated/i.test(m)) return { transient: true, cause: "truncated" };
+    if (/range_mismatch/i.test(m)) return { transient: true, cause: "identity" };
+    if (/download_http_401|download_http_403/i.test(m)) return { transient: true, cause: "auth" };
+    if (/download_http_404/i.test(m)) return { transient: true, cause: "source_unavailable" };
+    if (/download_http_416/i.test(m)) return { transient: true, cause: "range_conflict" };
+    if (/download_http_429|download_http_5\d\d/i.test(m)) return { transient: true, cause: "server" };
+    if (/Connect|Socket|timeout|Timed out|UnknownHost|ECONN|ENETUNREACH|EHOSTUNREACH|ETIMEDOUT|broken pipe|connection|ProtocolException/i.test(m)) {
+      return { transient: true, cause: "network" };
+    }
+    return { transient: true, cause: "unknown" };
+  }
 
   function createTransferService(deps) {
     deps = deps || {};
@@ -48,6 +81,18 @@
      * IDENTITÉ (aucune attente) pour ne pas ralentir les tests ; le boot injecte
      * un vrai délai progressif afin d'absorber les coupures transitoires. */
     var delay = deps.delay || function () { return Promise.resolve(); };
+    /* J15 : horloge et jitter injectables. Le jitter évite que plusieurs
+     * Storages ne reprennent exactement au même instant après une coupure
+     * commune (anti-tempête). */
+    var now = deps.now || function () { return Date.now(); };
+    var rand = deps.rand || Math.random;
+    /* J15 : signal de reprise. Appelé quand un fichier bascule en
+     * `waiting_network` : le boot planifie la prochaine séquence à
+     * `nextAttemptAtMs` (déclencheur périodique + événementiel). */
+    var onWaiting = deps.onWaiting || function () {};
+    /* J15 : vérification d'identité optionnelle sur l'offset (reprise après 416).
+     * Rend `{ bytes, sha256 }` du fichier destination, ou `null` si indisponible. */
+    var statDest = deps.statDest || function () { return Promise.resolve(null); };
 
     /* MultiCam D-SERVE: serveur média UNIQUE, partagé au niveau boot entre les
      * Takes. `deps.server` est injecté par la couche boot ; à défaut on crée un
@@ -304,40 +349,205 @@
       );
     };
 
-    var downloadWithRetry = function (offer, f, tkTake) {
-      var attempt = 0;
-      var run = function () {
-        attempt += 1;
-        var offset = model.resumeOffset(offer.sourceDeviceId, self(), f.rel);
-        var dest = paths.destFor ? paths.destFor(offer.sessionId || take().sessionId, tkTake, offer.sourceDeviceId, f.rel) : {};
-        var sid = offer.sessionId || take().sessionId;
-        var base = "http://" + offer.host + ":" + offer.port + "/"
-          + encodeURIComponent(sid) + "/" + encodeURIComponent(String(tkTake)) + "/" + encodeRel(f.rel);
-        var opts = {
-          url: base, token: offer.token, offset: offset, expectedBytes: f.bytes
-        };
-        applyDest(opts, dest);
-        return native.download(opts, function (p) {
-          model.reportFileProgress(offer.sourceDeviceId, f.rel, p.received);
-        }).then(function (res) {
-          model.reportResult(offer.sourceDeviceId, f.rel, model.PH_DONE, {
-            bytes: res.received, sha256Destination: res.sha256
-          });
-          log("TRANSFER_FILE_DONE file=" + f.rel + " bytes=" + res.received);
-          return true;
-        }).catch(function (e) {
-          var msg = e && e.message ? e.message : String(e);
-          log("TRANSFER_FILE_ERROR file=" + f.rel + " attempt=" + attempt + " error=" + msg);
-          /* Ne PAS masquer la cause réelle derrière un « download_failed »
-           * générique (J14-C01 / D2) : on préfixe pour rester filtrable mais on
-           * conserve le message (ex. « download_truncated », ProtocolException). */
-          if (attempt < MAX_ATTEMPTS) return delay(attempt).then(run);
-          model.reportResult(offer.sourceDeviceId, f.rel, model.PH_ERROR,
-            { error: "download_failed" + (msg ? ": " + msg : "") });
-          return false;
+    /* J15 / §5 — calcule la prochaine échéance de reprise entre séquences :
+     * exponentielle depuis `RESUME_BASE_MS`, plafonnée à `RESUME_MAX_MS`, avec un
+     * jitter multiplicatif (0,5–1,0] pour désynchroniser les Storages. */
+    function nextBackoffMs(sequence) {
+      var s = Math.max(1, isNum(sequence) ? sequence : 1);
+      var base = Math.min(RESUME_MAX_MS, RESUME_BASE_MS * Math.pow(2, s - 1));
+      var jitter = 0.5 + 0.5 * (typeof rand === "function" ? rand() : 0.5);
+      return Math.round(base * jitter);
+    }
+
+    /* Bascule un fichier en attente NON terminale et publie au Master (§4/§5/§10).
+     * `sequence` = numéro de séquence échouée (backoff croissant). */
+    function reportWaiting(offer, f, cause, errMsg, sequence) {
+      var waitMs = nextBackoffMs(sequence);
+      var at = now();
+      var nextAt = at + waitMs;
+      if (typeof model.reportWaiting === "function") {
+        model.reportWaiting(offer.sourceDeviceId, {
+          rel: f.rel, lastError: errMsg, cause: cause, nowMs: at, nextAttemptAtMs: nextAt
         });
-      };
-      return run();
+      }
+      log("TRANSFER_WAITING_NETWORK file=" + f.rel + " cause=" + cause
+        + " sequence=" + sequence + " nextInMs=" + waitMs);
+      try { onWaiting({ sourceDeviceId: offer.sourceDeviceId, rel: f.rel, cause: cause, nextAttemptAtMs: nextAt }); } catch (e) {}
+      return nextAt;
+    }
+
+    /* Réconciliation d'un 416 : comparer taille/SHA de la destination avec
+     * l'attendu. Si le fichier est COMPLET et conforme, il est déjà `done`. Sinon
+     * on repart à zéro (le partiel local est incohérent vis-à-vis de la source).
+     * Rend `true` si un restart à 0 est requis, `false` si le fichier est en fait
+     * complet (à vérifier par l'appelant). */
+    function reconcile416(offer, f, dest) {
+      return Promise.resolve(statDest(dest)).then(function (st) {
+        if (!st || !isNum(st.bytes)) return true; /* inconnu → restart sûr */
+        if (st.bytes === f.bytes && (isStr(st.sha256) ? String(st.sha256).toLowerCase() === String(f.sha256 || "").toLowerCase() : true)) {
+          return false; /* le fichier est en fait complet */
+        }
+        return true; /* restart à zéro */
+      })["catch"](function () { return true; });
+    }
+
+    function isStr(v) { return typeof v === "string" && v.length > 0; }
+
+    /* Télécharge UN fichier avec reprise, sur une séquence HTTP COURTE bornée par
+     * `MAX_ATTEMPTS`. À l'épuisement de la séquence :
+     *   - cause transitoire → `waiting_network` (NON terminal) + backoff ;
+     *   - cause fatale      → `error` terminal (intégrité, stockage).
+     * Un `sha256_mismatch` déclenche AU PLUS UNE récupération complète contrôlée
+     * (suppression du partiel + restart à 0) avant l'erreur d'intégrité. */
+    var downloadWithRetry = function (offer, f, tkTake) {
+      /* `sequence` = SÉQUENCES échouées (backoff entre séquences).
+       * `integrityRetryDone` = garde-fou « au plus une récupération complète ». */
+      var sequence = 0;
+      var integrityRetryDone = false;
+      var dest = paths.destFor ? paths.destFor(offer.sessionId || take().sessionId, tkTake, offer.sourceDeviceId, f.rel) : {};
+
+      function terminal(msg, cause) {
+        model.reportResult(offer.sourceDeviceId, f.rel, model.PH_ERROR,
+          { error: "download_failed: " + msg + " [cause=" + cause + "]" });
+        log("TRANSFER_FILE_FATAL file=" + f.rel + " cause=" + cause);
+        return false;
+      }
+
+      /* Supprime un partiel incohérent avant restart à zéro (best-effort). */
+      function clearDest() {
+        if (!native || typeof native.remove !== "function") return Promise.resolve();
+        var p = dest && (dest.dest || dest.relPath);
+        if (!p) return Promise.resolve();
+        return Promise.resolve(native.remove(p))["catch"](function () { return null; });
+      }
+
+      /* Précontrôle d'intégrité (J15 / §7.3) : un fichier déjà présent peut être
+       * RÉUTILISÉ sans téléchargement inutile — mais JAMAIS sur la seule foi du
+       * journal : on compare la taille RÉELLE et le SHA RÉELLEMENT calculé
+       * (`statDest`) aux attendus. Une taille seule ne prouve rien. Rend `true`
+       * si le fichier est réutilisable tel quel. */
+      function reuseIfIntact() {
+        if (typeof statDest !== "function") return Promise.resolve(false);
+        var d = dest && (dest.dest || dest.relPath);
+        if (!d) return Promise.resolve(false);
+        /* Ne TENTER la réutilisation que si une destination locale peut
+         * RÉELLEMENT exister : progression enregistrée, attente restaurée, ou
+         * tentative antérieure. Un transfert NEUF partirait sinon d'un précontrôle
+         * inutile ; l'existence seule ne suffit jamais — le SHA réel tranche. */
+        var maybeLocal = (isNum(f.received) && f.received > 0)
+          || (isNum(f.waitingSinceMs) && f.waitingSinceMs > 0)
+          || (isNum(f.lastAttemptAtMs) && f.lastAttemptAtMs > 0);
+        if (!maybeLocal) return Promise.resolve(false);
+        return Promise.resolve(statDest(dest)).then(function (st) {
+          if (!st || !isNum(st.bytes)) return false;
+          if (st.bytes !== f.bytes) return false; /* taille différente → pas intact */
+          var want = String(f.sha256 || "").toLowerCase();
+          var got = String(st.sha256 || "").toLowerCase();
+          if (!want || !got || want !== got) return false;
+          return true;
+        })["catch"](function () { return false; });
+      }
+
+      function attemptSequence(forceRestart) {
+        var attempt = 0;
+        function run() {
+          attempt += 1;
+          var offset = forceRestart ? 0 : model.resumeOffset(offer.sourceDeviceId, self(), f.rel);
+          var sid = offer.sessionId || take().sessionId;
+          var base = "http://" + offer.host + ":" + offer.port + "/"
+            + encodeURIComponent(sid) + "/" + encodeURIComponent(String(tkTake)) + "/" + encodeRel(f.rel);
+          var opts = { url: base, token: offer.token, offset: offset, expectedBytes: f.bytes };
+          applyDest(opts, dest);
+          /* Le `.catch` est DANS `run` : chaque nouvelle tentative réinstalle sa
+           * propre gestion d'échec (sinon une reprise échouée ne serait jamais
+           * re-classifiée). */
+          return native.download(opts, function (p) {
+            model.reportFileProgress(offer.sourceDeviceId, f.rel, p.received);
+          }).then(function (res) {
+            model.reportResult(offer.sourceDeviceId, f.rel, model.PH_DONE, {
+              bytes: res.received, sha256Destination: res.sha256
+            });
+            log("TRANSFER_FILE_DONE file=" + f.rel + " bytes=" + res.received
+              + " offset=" + offset + " sequence=" + sequence);
+            return true;
+          }).catch(function (e) {
+            var msg = e && e.message ? e.message : String(e);
+            log("TRANSFER_FILE_ERROR file=" + f.rel + " attempt=" + attempt
+              + " sequence=" + sequence + " error=" + msg);
+
+            /* 416 : réconcilier taille/SHA avant de conclure (§4.3). */
+            if (/download_http_416/.test(msg)) {
+              return reconcile416(offer, f, dest).then(function (needRestart) {
+                if (!needRestart) {
+                  return Promise.resolve(statDest(dest)).then(function (s2) {
+                    model.reportResult(offer.sourceDeviceId, f.rel, model.PH_DONE,
+                      { bytes: (s2 && s2.bytes) || f.bytes, sha256Destination: s2 && s2.sha256 });
+                    return true;
+                  });
+                }
+                if (attempt < MAX_ATTEMPTS) return delay(attempt).then(run);
+                sequence += 1;
+                reportWaiting(offer, f, "range_conflict", "download_failed: " + msg, sequence);
+                return false;
+              });
+            }
+
+            var cls = classifyError(msg);
+
+            /* 206 incohérent (Content-Range ≠ offset demandé) : l'offset local
+             * n'est pas fiable → repartir à zéro une fois (§4.3). */
+            if (/range_mismatch/.test(msg)) {
+              if (!integrityRetryDone) {
+                integrityRetryDone = true;
+                log("TRANSFER_INTEGRITY_RESTART file=" + f.rel + " reason=" + msg);
+                return clearDest().then(function () { return attemptSequence(true); });
+              }
+              if (attempt < MAX_ATTEMPTS) return delay(attempt).then(run);
+              sequence += 1;
+              reportWaiting(offer, f, "identity", "download_failed: " + msg, sequence);
+              return false;
+            }
+
+            /* Intégrité : au plus UNE récupération complète contrôlée. */
+            if (!cls.transient && cls.cause === "integrity") {
+              if (!integrityRetryDone) {
+                integrityRetryDone = true;
+                log("TRANSFER_INTEGRITY_RESTART file=" + f.rel + " reason=" + msg);
+                return clearDest().then(function () { return attemptSequence(true); });
+              }
+              return terminal(msg, cls.cause);
+            }
+
+            /* Cause fatale (stockage/SAF) : erreur terminale explicite. */
+            if (!cls.transient) return terminal(msg, cls.cause);
+
+            /* Cause transitoire : tentatives courtes, puis attente réseau. */
+            if (attempt < MAX_ATTEMPTS) return delay(attempt).then(run);
+            sequence += 1;
+            f.received = model.resumeOffset(offer.sourceDeviceId, self(), f.rel);
+            reportWaiting(offer, f, cls.cause, "download_failed: " + msg, sequence);
+            return false;
+          });
+        }
+        return run();
+      }
+
+      /* Réutilisation d'un fichier déjà intègre AVANT toute séquence HTTP. Le
+       * `done` est publié par le chemin normal (`reportResult`) : la convergence
+       * Master/Storage et la dédup restent inchangées. */
+      return reuseIfIntact().then(function (intact) {
+        if (intact) {
+          log("TRANSFER_REUSE_INTACT file=" + f.rel + " bytes=" + f.bytes);
+          return Promise.resolve(statDest(dest)).then(function (st) {
+            model.reportResult(offer.sourceDeviceId, f.rel, model.PH_DONE, {
+              bytes: (st && isNum(st.bytes)) ? st.bytes : f.bytes,
+              sha256Destination: (st && st.sha256) || f.sha256
+            });
+            return true;
+          });
+        }
+        return attemptSequence(false);
+      });
     };
 
     function applyDest(opts, dest) {
@@ -375,12 +585,19 @@
       retryDeferredDeletes: retryDeferredDeletes,
       hasDeferredDeletes: hasDeferredDeletes,
       handle: handle,
-      server: server
+      server: server,
+      /* J15 : surfaces de test / coordination. */
+      downloadWithRetry: downloadWithRetry,
+      nextBackoffMs: nextBackoffMs,
+      isRunning: function (src) { return !!runningRuns[src]; }
     };
   }
 
   return {
     MAX_ATTEMPTS: MAX_ATTEMPTS,
+    RESUME_BASE_MS: RESUME_BASE_MS,
+    RESUME_MAX_MS: RESUME_MAX_MS,
+    classifyError: classifyError,
     createTransferService: createTransferService
   };
 });

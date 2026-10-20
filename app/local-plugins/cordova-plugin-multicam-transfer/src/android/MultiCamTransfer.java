@@ -193,6 +193,16 @@ public class MultiCamTransfer extends CordovaPlugin {
             }
         }
 
+        /* J15 (§4/§16) : en mode SAF, le fichier de destination est RECRÉÉ
+         * (delete + create) à chaque écriture — une reprise d'OCTETS est donc
+         * impossible (elle écrirait à la suite d'un fichier tronqué, produisant
+         * un SHA faux SILENCIEUX). On repart TOUJOURS de zéro : c'est une reprise
+         * du TRAVAIL, pas des octets. */
+        if (treeUri.length() > 0 && offset > 0) {
+            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE saf_restart_from_zero requested=" + offset);
+            offset = 0;
+        }
+
         if (url.length() == 0) { cb.error("download_missing_url"); return; }
         if (dest.length() == 0 && (treeUri.length() == 0 || relPath.length() == 0)) {
             cb.error("download_missing_dest"); return;
@@ -219,6 +229,18 @@ public class MultiCamTransfer extends CordovaPlugin {
             if (code == HttpURLConnection.HTTP_OK && offset > 0) {
                 /* Le serveur a ignoré le Range : on repart de zéro. */
                 offset = 0;
+            } else if (code == HttpURLConnection.HTTP_PARTIAL) {
+                /* J15 (§4.3) : un 206 DOIT démarrer exactement à l'offset demandé,
+                 * sinon les octets suivants écriraient une plage différente de
+                 * celle attendue (fichier incohérent, taille plausible). */
+                String cr = conn.getHeaderField("Content-Range");
+                long start = parseContentRangeStart(cr);
+                if (offset > 0 && start >= 0 && start != offset) {
+                    android.util.Log.e(LOGTAG, "TRANSFER_NATIVE range_mismatch requested=" + offset
+                            + " contentRange=" + cr);
+                    cb.error("download_range_mismatch: requested=" + offset + " got=" + cr);
+                    return;
+                }
             } else if (code != HttpURLConnection.HTTP_OK && code != 206) {
                 cb.error("download_http_" + code);
                 return;
@@ -310,6 +332,20 @@ public class MultiCamTransfer extends CordovaPlugin {
             try { if (in != null) in.close(); } catch (Exception ignored) {}
             try { if (out != null) out.close(); } catch (Exception ignored) {}
             if (conn != null) conn.disconnect();
+        }
+    }
+
+    /* Extrait la borne de début d'un en-tête `Content-Range: bytes S-E/T`.
+     * Rend -1 si l'en-tête est absent/illisible (on ne peut alors pas valider). */
+    private static long parseContentRangeStart(String cr) {
+        if (cr == null) return -1L;
+        try {
+            int sp = cr.indexOf(' ');
+            int dash = cr.indexOf('-');
+            if (sp < 0 || dash < 0 || dash <= sp + 1) return -1L;
+            return Long.parseLong(cr.substring(sp + 1, dash).trim());
+        } catch (Exception e) {
+            return -1L;
         }
     }
 

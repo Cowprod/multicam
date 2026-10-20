@@ -342,7 +342,12 @@ module.exports.register = function (h) {
       assert.strictEqual(model.machine.transferFor(CAP, STO1).state, M.PH_DONE);
     });
 
-    it("S5. storage : échec persistant → error après MAX_ATTEMPTS", async () => {
+    /* J14→J15 — CONTRAT MODIFIÉ.
+     * J14 : un échec persistant finissait en `error` terminal.
+     * J15 : cause transitoire (défaut) → `waiting_network` NON terminal après la
+     *       séquence courte, reprise possible. Une cause FATALE démontrée
+     *       (stockage/SAF) reste `error`. */
+    it("S5. storage : échec transitoire persistant → waiting_network après MAX_ATTEMPTS (J15)", async () => {
       const native = fakeNative({ downloadPlan: () => ({ ok: false, error: "boom" }) });
       const model = makeModel("storage", STO1, TAKE);
       const svc = S.createTransferService({
@@ -357,7 +362,27 @@ module.exports.register = function (h) {
         files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
       });
       assert.strictEqual(native.calls.download.length, S.MAX_ATTEMPTS);
-      assert.strictEqual(model.machine.transferFor(CAP, STO1).state, M.PH_ERROR);
+      assert.strictEqual(model.machine.transferFor(CAP, STO1).state, M.PH_WAITING_NETWORK);
+    });
+
+    it("S5b. storage : cause FATALE démontrée (écriture/SAF) → error terminal", async () => {
+      const native = fakeNative({ downloadPlan: () => ({ ok: false, error: "saf_create_failed" }) });
+      const model = makeModel("storage", STO1, TAKE);
+      const svc = S.createTransferService({
+        model: model.machine, native, role: "storage", self: () => STO1,
+        log: (l) => model.logs.push(l),
+        take: () => ({ sessionId: SID, takeNumber: TAKE, storages: [] }),
+        paths: fakePaths([], () => ({ dest: "/dest/f" }))
+      });
+      await svc.handle({
+        kind: "transfer_offer", sessionId: SID, takeNumber: TAKE,
+        sourceDeviceId: CAP, storageDeviceId: STO1, host: "h", port: 1, token: "t",
+        files: [{ rel: "seg00.mp4", segmentIndex: 0, bytes: 1000, sha256: "aaaa" }]
+      });
+      assert.strictEqual(native.calls.download.length, 1, "une cause fatale n'est PAS réessayée en rafale");
+      const f = model.machine.transferFor(CAP, STO1).files[0];
+      assert.strictEqual(f.state, M.PH_ERROR);
+      assert.ok(f.error.indexOf("saf_create_failed") >= 0);
     });
 
     it("S6. garde RECORDING : aucun téléchargement pendant un Take", async () => {

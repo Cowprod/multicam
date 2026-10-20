@@ -42,6 +42,10 @@
   var PH_VERIFYING = "verifying";
   var PH_DONE = "done";
   var PH_ERROR = "error";
+  /* J15 — état NON terminal : le travail est reporté faute de pair/joinable,
+   * pas abandonné. `done` et `error` demeurent terminaux et absorbants
+   * (§4.1) ; `waiting_network` peut redevenir `pending`/`transferring`. */
+  var PH_WAITING_NETWORK = "waiting_network";
 
   var K_MEDIA_READY = "media_ready";
   var K_TRANSFER_OFFER = "transfer_offer";
@@ -49,10 +53,20 @@
   var K_TRANSFER_RESULT = "transfer_result";
   var K_TRANSFER_DELETE = "transfer_delete";
   var K_TRANSFER_DELETE_ACK = "transfer_delete_ack";
+  /* J15 / §10 — extension COMPATIBLE du protocole : le Storage publie son état
+   * d'attente non terminal au Master. Un vieux peer ignore un `kind` inconnu
+   * (`WS_DROP`) : la compatibilité descendante est donc naturelle, et aucun
+   * résultat terminal n'est inventé. */
+  var K_TRANSFER_WAITING = "transfer_waiting";
+
+  var TERMINAL = {};
+  TERMINAL[PH_DONE] = true;
+  TERMINAL[PH_ERROR] = true;
 
   function isNum(v) { return typeof v === "number" && isFinite(v); }
   function isStr(v) { return typeof v === "string" && v.length > 0; }
   function clampBytes(v) { return isNum(v) && v > 0 ? Math.floor(v) : 0; }
+  function isTerminalState(st) { return st === PH_DONE || st === PH_ERROR; }
 
   function key(srcDid, storageDid) { return String(srcDid) + "|" + String(storageDid); }
 
@@ -71,7 +85,12 @@
       received: received,
       state: isStr(f.state) ? f.state : PH_PENDING,
       attempts: isNum(f.attempts) ? f.attempts : 0,
-      error: isStr(f.error) ? f.error : ""
+      error: isStr(f.error) ? f.error : "",
+      /* J15 / §5 — métadonnées d'attente observables : `lastError` (= error),
+       * dernière tentative et prochaine échéance (backoff plafonné). */
+      waitingSinceMs: isNum(f.waitingSinceMs) ? f.waitingSinceMs : 0,
+      lastAttemptAtMs: isNum(f.lastAttemptAtMs) ? f.lastAttemptAtMs : 0,
+      nextAttemptAtMs: isNum(f.nextAttemptAtMs) ? f.nextAttemptAtMs : 0
     };
   }
 
@@ -92,19 +111,33 @@
     return Object.keys(files).reduce(function (sum, rel) { return sum + files[rel].received; }, 0);
   }
 
+  /* Agrégation source × Storage — §4.2 (J15) :
+   *   error      si un fichier est fatal ;
+   *   done       si TOUS sont vérifiés ;
+   *   transferring si un fichier est en cours (travail réellement exécuté) ;
+   *   waiting_network si AUCUN travail exécutable et AU MOINS un fichier attend
+   *                   (aucun actif, aucun terminé qui justifierait l'affichage) ;
+   *   sinon transferring (partiel déjà vérifié) ou pending.
+   * L'ordre importe : `waiting_network` doit précéder le repli `anyDone`,
+   * sinon un lot [done, waiting] afficherait « en cours » alors qu'il est bloqué. */
   function computeTransferState(files) {
     var rels = Object.keys(files);
     if (!rels.length) return PH_PENDING;
-    var anyError = false, anyActive = false, anyDone = false, allDone = true;
+    var anyError = false, anyActive = false, anyDone = false, anyWaiting = false, allDone = true;
     rels.forEach(function (rel) {
       var s = files[rel].state;
       if (s === PH_ERROR) { anyError = true; allDone = false; }
       else if (s === PH_DONE) { anyDone = true; }
-      else { allDone = false; if (s === PH_TRANSFERRING || s === PH_VERIFYING) anyActive = true; }
+      else {
+        allDone = false;
+        if (s === PH_TRANSFERRING || s === PH_VERIFYING) anyActive = true;
+        else if (s === PH_WAITING_NETWORK) anyWaiting = true;
+      }
     });
     if (allDone) return PH_DONE;
     if (anyError) return PH_ERROR;
     if (anyActive) return PH_TRANSFERRING;
+    if (anyWaiting) return PH_WAITING_NETWORK;
     return anyDone ? PH_TRANSFERRING : PH_PENDING;
   }
 
@@ -160,9 +193,39 @@
       return isNum(msg.takeNumber) && msg.takeNumber === state.takeNumber;
     };
 
-    /* media_ready : une Capture annonce les segments d'un Take (chemin relatif,
-     * taille, SHA-256 source). C'est la source de vérité de la liste des
-     * fichiers ; le manifeste HTTP sert de secours. */
+    /* Identité du manifeste (§7.1 / §10) : les snapshots et le journal sont
+     * identifiés par une GÉNÉRATION déterministe, pas par l'adresse IP ou le
+     * token (qui changent au redémarrage). */
+    function manifestIdOf(files, host, port, token) {
+      var rels = Object.keys(files).sort();
+      var parts = rels.map(function (rel) {
+        var f = files[rel];
+        return rel + ":" + f.bytes + ":" + (f.sha256 || "");
+      });
+      parts.push("ep:" + (host || "") + ":" + (port || 0) + ":" + (token || ""));
+      var s = parts.join("|");
+      var h = 2166136261;
+      for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = (h * 16777619) >>> 0; }
+      return h.toString(16) + "-" + rels.length;
+    }
+
+    /* Identité forte d'un fichier de destination (§16 / contrat 1) : taille et
+     * SHA source doivent correspondre pour qu'un append/état conservé soit
+     * ACCEPTÉ. Une identité ambiguë n'autorise ni reprise ni monotonie. */
+    function sameFileIdentity(a, b) {
+      if (!a || !b) return false;
+      return a.bytes === b.bytes && (a.sha256 || "") === (b.sha256 || "");
+    }
+
+    /* Un fichier re-entre en TRAVAIL actif : l'attente est levée, son échéance
+     * de backoff ne doit plus être lue par le coordonnateur (sinon un run
+     * déjà reparti serait planifié à nouveau). */
+    function clearWaiting(f) {
+      if (!f) return;
+      f.waitingSinceMs = 0;
+      f.nextAttemptAtMs = 0;
+    }
+
     /* Deux annonces sont équivalentes si elles décrivent le MÊME manifeste
      * (mêmes segments, mêmes tailles, mêmes SHA-256, même endpoint). Sert à
      * écarter la LIVRAISON EN DOUBLE d'une même annonce par le transport. */
@@ -190,6 +253,8 @@
         token: isStr(msg.token) ? msg.token : "",
         totalBytes: isNum(msg.totalBytes) ? msg.totalBytes : totalBytes(files),
         files: files,
+        manifestId: isStr(msg.manifestId) ? String(msg.manifestId)
+          : manifestIdOf(files, msg.host, msg.port, msg.token),
         readyAtMs: now()
       };
       /* `broadcastTargeted` atteint un pair par CHACUN de ses sockets (deux
@@ -210,37 +275,91 @@
 
     /* transfer_offer : le Master demande à UN Storage de tirer les segments d'une
      * source. Chaque Storage reçoit SON offre : les destinations restent
-     * indépendantes. */
+     * indépendantes.
+     *
+     * J15 / §10 — une ré-offre est un réémet IDEMPOTENT :
+     *  - le terminal `done` VÉRIFIÉ est CONSERVÉ (identité taille+SHA source
+     *    identique) : sinon la reconnexion du Master ferait retélécharger un
+     *    média déjà répliqué, voire repasserait `done` → `pending` ;
+     *  - le terminal `error` est conservé lui aussi : une cause irrécupérable
+     *    démontrée (intégrité) ne doit pas être rejouée en boucle. Seul un
+     *    retry MANUEL (`mode:"retry"`, bouton Réessayer) le réactive ;
+     *  - l'avancement partiel (`received`) et l'état `waiting_network` sont
+     *    conservés : l'offre ne réinitialise PAS la reprise (l'offset de Range
+     *    reste valable, le natif l'aligne sur le disque — J14-B03) ;
+     *  - l'endpoint (host/port/token) est TOUJOURS repris : il change après un
+     *    redémarrage, l'offre fraîche est la seule source de vérité. */
     var applyTransferOffer = function (msg) {
       if (!msg || !isStr(msg.sourceDeviceId)) return false;
       if (!sameTake(msg)) { log("TRANSFER_OFFER_IGNORE take=" + (msg && msg.takeNumber)); return false; }
       var files = normFiles(msg.files);
-      /* Un même (source) ne peut pas garder une offre concurrente : la dernière
-       * reçue fait foi (reprise = nouvelle offre, offsets repartent de 0 et le
-       * service réutilisera la taille du fichier partiel). */
-      state.offers[msg.sourceDeviceId] = {
-        sourceDeviceId: msg.sourceDeviceId,
+      var manualRetry = msg.mode === "retry";
+      var srcDid = msg.sourceDeviceId;
+      state.offers[srcDid] = {
+        sourceDeviceId: srcDid,
         host: isStr(msg.host) ? msg.host : "",
         port: isNum(msg.port) ? msg.port : 0,
         token: isStr(msg.token) ? msg.token : "",
         files: files,
         takeNumber: state.takeNumber,
+        manifestId: manifestIdOf(files, msg.host, msg.port, msg.token),
+        manualRetry: manualRetry,
         receivedAtMs: now()
       };
-      var k = key(msg.sourceDeviceId, self());
+      var k = key(srcDid, self());
       var prev = state.transfers[k];
+      var merged = {};
+      var keptDone = 0, keptError = 0, keptProgress = 0;
+      Object.keys(files).forEach(function (rel) {
+        var nf = files[rel];
+        var pf = prev && prev.files ? prev.files[rel] : null;
+        if (!pf || pf.state === PH_PENDING || pf.state === PH_TRANSFERRING
+            || pf.state === PH_VERIFYING || pf.state === PH_WAITING_NETWORK) {
+          if (pf && sameFileIdentity(pf, nf)) {
+            if (isNum(pf.received)) nf.received = Math.min(pf.received, nf.bytes);
+            if (pf.state === PH_WAITING_NETWORK) {
+              nf.state = PH_WAITING_NETWORK;
+              nf.waitingSinceMs = pf.waitingSinceMs;
+              nf.nextAttemptAtMs = pf.nextAttemptAtMs;
+              nf.lastAttemptAtMs = pf.lastAttemptAtMs;
+              nf.error = pf.error;
+            }
+            if (isNum(pf.attempts)) nf.attempts = pf.attempts;
+            if (nf.received > 0) keptProgress += 1;
+          }
+          merged[rel] = nf;
+          return;
+        }
+        /* État terminal du fichier précédent. */
+        if (pf.state === PH_DONE && sameFileIdentity(pf, nf) && !manualRetry) {
+          nf.state = PH_DONE;
+          nf.received = nf.bytes;
+          if (pf.sha256Destination) nf.sha256Destination = pf.sha256Destination;
+          keptDone += 1;
+        } else if (pf.state === PH_ERROR && sameFileIdentity(pf, nf) && !manualRetry) {
+          nf.state = PH_ERROR;
+          nf.error = pf.error;
+          nf.received = pf.received;
+          keptError += 1;
+        } else {
+          /* Identité différente, ou re-demande explicite : on repart proprement. */
+          nf.received = 0;
+        }
+        merged[rel] = nf;
+      });
       state.transfers[k] = {
-        srcDid: msg.sourceDeviceId,
+        srcDid: srcDid,
         storageDid: self(),
-        state: PH_PENDING,
-        files: files,
+        state: computeTransferState(merged),
+        files: merged,
         error: "",
         startedAtMs: prev ? prev.startedAtMs : now(),
-
         updatedAtMs: now()
       };
-      log("TRANSFER_OFFER take=" + state.takeNumber + " source=" + msg.sourceDeviceId
-        + " storage=" + self() + " files=" + Object.keys(files).length + " total=" + totalBytes(files));
+      log("TRANSFER_OFFER take=" + state.takeNumber + " source=" + srcDid
+        + " storage=" + self() + " files=" + Object.keys(merged).length
+        + " total=" + totalBytes(merged) + " mode=" + (manualRetry ? "retry" : "resume")
+        + " keptDone=" + keptDone + " keptError=" + keptError + " keptProgress=" + keptProgress);
       bump();
       return true;
     };
@@ -288,6 +407,12 @@
       var f = state.transfers[k] && state.transfers[k].files[msg.rel];
       if (!f) return false;
       f.state = (f.received >= f.bytes && f.bytes > 0) ? PH_VERIFYING : PH_TRANSFERRING;
+      clearWaiting(f);
+      /* Recalcul APRÈS avoir posé l'état du fichier : sinon l'agrégation du lot
+       * resterait calculée sur l'état précédent (ex. `waiting_network` levé par
+       * cette progression). */
+      state.transfers[k].state = computeTransferState(state.transfers[k].files);
+      state.transfers[k].updatedAtMs = now();
       log("TRANSFER_PROGRESS take=" + state.takeNumber + " source=" + msg.sourceDeviceId
         + " storage=" + msg.storageDeviceId + " bytes=" + f.received + " total=" + f.bytes);
       bump();
@@ -388,13 +513,19 @@
 
     /* Transferts NON terminaux dont l'état n'a pas bougé depuis `thresholdMs` :
      * brique de détection des transferts bloqués (Master ET Storage). Rend
-     * `updatedAtMs` pour que l'appelant puisse accélérer son backoff. */
+     * `updatedAtMs` pour que l'appelant puisse accélérer son backoff.
+     *
+     * J15 / §12.2-R10 : les transferts DÉJÀ en `waiting_network` sont EXCLUS.
+     * Ils sont déjà au repos, en attente du retour du réseau : les re-marquer à
+     * chaque tick transformerait une attente légitime en action de watchdog
+     * (et, avant J15, en erreur prématurée — la cause A du diagnostic). */
     var staleTransfers = function (thresholdMs, nowMs) {
       var t0 = isNum(nowMs) ? nowMs : now();
       var out = [];
       Object.keys(state.transfers).forEach(function (k) {
         var t = state.transfers[k];
-        if (t.state === PH_DONE || t.state === PH_ERROR) return;
+        if (isTerminalState(t.state)) return;
+        if (t.state === PH_WAITING_NETWORK) return;
         var at = isNum(t.updatedAtMs) ? t.updatedAtMs : 0;
         var stale = t0 - at;
         if (stale >= thresholdMs) {
@@ -405,6 +536,60 @@
         }
       });
       return out;
+    };
+
+    /* Transferts en attente réseau : c'est LA file de lecture du
+     * ResumeCoordinator (§6.3). Ne contient QUE les transferts non terminaux
+     * dont AU MOINS un fichier attend ; `nextAttemptAtMs` = plus petite échéance
+     * du lot (backoff plafonné, §5). */
+    var waitingTransfers = function (nowMs) {
+      var t0 = isNum(nowMs) ? nowMs : now();
+      var out = [];
+      Object.keys(state.transfers).forEach(function (k) {
+        var t = state.transfers[k];
+        if (t.state !== PH_WAITING_NETWORK) return;
+        var next = 0, waiting = 0, worst = "", rels = [];
+        Object.keys(t.files).forEach(function (rel) {
+          var f = t.files[rel];
+          if (f.state !== PH_WAITING_NETWORK) return;
+          waiting += 1;
+          rels.push(rel);
+          if (!isNum(f.nextAttemptAtMs) || f.nextAttemptAtMs <= 0) return;
+          if (!next || f.nextAttemptAtMs < next) next = f.nextAttemptAtMs;
+          if (!worst) worst = f.error || "";
+        });
+        if (!waiting) return;
+        out.push({
+          key: k, sourceDeviceId: t.srcDid, storageDeviceId: t.storageDid,
+          rels: rels,
+          nextAttemptAtMs: next, ready: next <= t0, waitingFiles: waiting,
+          staleMs: t0 - (isNum(t.updatedAtMs) ? t.updatedAtMs : 0),
+          lastError: worst
+        });
+      });
+      return out;
+    };
+
+    /* Y a-t-il encore un transfert NON terminal (récupérable/en cours) ? Sert au
+     * journal : tant qu'il en reste, la persistance reste coalescée (§7.2). */
+    var hasPendingTransfers = function () {
+      return Object.keys(state.transfers).some(function (k) {
+        var t = state.transfers[k];
+        if (t.storageDid !== self()) return false;
+        if (!isTerminalState(t.state)) return true;
+        return Object.keys(t.files).some(function (rel) { return !isTerminalState(t.files[rel].state); });
+      });
+    };
+
+    /* Au moins un transfert TERMINAL (done/error) confirmé ? Si tous les
+     * transferts de ce Storage sont terminaux, l'écriture journal est immédiate. */
+    var hasTerminalTransfers = function () {
+      return Object.keys(state.transfers).some(function (k) {
+        var t = state.transfers[k];
+        if (t.storageDid !== self()) return false;
+        return isTerminalState(t.state)
+          || Object.keys(t.files).some(function (rel) { return isTerminalState(t.files[rel].state); });
+      });
     };
 
     /* Réconciliation Storage → Master : re-diffuse l'issue TERMINALE de chaque
@@ -433,38 +618,202 @@
       return n;
     };
 
-    /* Force un transfert bloqué vers un état TERMINAL `error` (plus de
-     * `transferring` infini). Côté Storage, l'échec est PUBLIÉ au Master. */
-    var markTransferStuck = function (srcDid, storageDid, reason, nowMs) {
-      var t = state.transfers[key(srcDid, storageDid)];
-      if (!t || t.state === PH_DONE || t.state === PH_ERROR) return false;
-      var why = isStr(reason) ? reason : "stalled";
+    /* J15 / §10 — miroir du ré-émission TERMINALE pour l'état d'ATTENTE : si le
+     * message `transfer_waiting` a été perdu pendant la coupure, le Master
+     * croirait à tort un `transferring` actif (et son watchdog pourrait le
+     * ré-offre en rafale). Cette ré-émission à la reconnexion réaligne les deux
+     * vues. Le Storage ne convertit JAMAIS `done` en attente : c'est un relevé,
+     * pas une transition. */
+    var rebroadcastWaitingStates = function () {
+      if (!isStorage) return 0;
+      var n = 0;
+      Object.keys(state.transfers).forEach(function (k) {
+        var t = state.transfers[k];
+        if (t.storageDid !== self()) return;
+        if (t.state !== PH_WAITING_NETWORK) return;
+        var rels = Object.keys(t.files).filter(function (rel) {
+          return t.files[rel].state === PH_WAITING_NETWORK;
+        });
+        if (!rels.length) return;
+        var f0 = t.files[rels[0]];
+        send(K_TRANSFER_WAITING, {
+          sessionId: state.sid, takeNumber: state.takeNumber,
+          sourceDeviceId: t.srcDid, storageDeviceId: self(),
+          state: PH_WAITING_NETWORK,
+          cause: waitCauseOf(f0.error),
+          lastError: f0.error || "",
+          waitingSinceMs: f0.waitingSinceMs || 0,
+          nextAttemptAtMs: f0.nextAttemptAtMs || 0,
+          received: receivedBytes(t.files), total: totalBytes(t.files)
+        });
+        n += 1;
+      });
+      if (n) log("TRANSFER_RESYNC take=" + state.takeNumber + " waiting=" + n);
+      return n;
+    };
+
+    /* Cause compacte et parsable d'une attente (§10 : champ de statut/cause). */
+    function waitCauseOf(msg) {
+      var m = String(msg || "");
+      if (/http_(\d+)/.test(m)) {
+        var code = parseInt(RegExp.$1, 10);
+        if (code === 401 || code === 403) return "auth";
+        if (code === 404) return "source_unavailable";
+        if (code === 416) return "range_conflict";
+        if (code === 429 || code >= 500) return "server";
+        return "http";
+      }
+      if (/sha256_mismatch/.test(m)) return "integrity";
+      if (/download_truncated/.test(m)) return "truncated";
+      if (/saf_|ENOSPC|no space|open_dest_failed/i.test(m)) return "storage";
+      if (/Connect|Socket|timeout|Timed out|UnknownHost|ECONN|ENETUNREACH|EHOSTUNREACH|ETIMEDOUT|broken pipe|connection/i.test(m)) return "network";
+      if (/range_mismatch/.test(m)) return "identity";
+      return m ? "error" : "unknown";
+    }
+
+    /* Applique une attente réseau reçue (Master : agrégation ; Storage : echo).
+     * Un fichier `done`/`error` est INTANGIBLE (§4.1 : terminaux absorbants ;
+     * §10 : « Le Storage ne doit jamais convertir un done en waiting_network »). */
+    var applyTransferWaiting = function (msg) {
+      if (!msg || !sameTake(msg)) return false;
+      if (!isStr(msg.sourceDeviceId) || !isStr(msg.storageDeviceId)) return false;
+      var k = key(msg.sourceDeviceId, msg.storageDeviceId);
+      var t = state.transfers[k];
+      if (!t) {
+        t = ensureTransfer(msg.sourceDeviceId, msg.storageDeviceId);
+        if (!Object.keys(t.files).length) return false;
+      }
+      var onlyRel = isStr(msg.rel) ? msg.rel : null;
+      var why = isStr(msg.lastError) ? msg.lastError : (isStr(msg.error) ? msg.error : "");
+      var at = now();
+      var nextAt = isNum(msg.nextAttemptAtMs) ? msg.nextAttemptAtMs : 0;
+      var since = isNum(msg.waitingSinceMs) && msg.waitingSinceMs > 0 ? msg.waitingSinceMs : at;
       var changed = false;
       Object.keys(t.files).forEach(function (rel) {
+        if (onlyRel && rel !== onlyRel) return;
         var f = t.files[rel];
-        if (f.state === PH_DONE || f.state === PH_ERROR) return;
-        f.state = PH_ERROR;
-        f.error = why;
+        if (isTerminalState(f.state)) return;
+        if (f.state === PH_WAITING_NETWORK && !why && !f.error) return;
+        f.state = PH_WAITING_NETWORK;
+        if (why) f.error = why;
+        if (!f.waitingSinceMs) f.waitingSinceMs = since;
+        if (nextAt) f.nextAttemptAtMs = nextAt;
+        f.lastAttemptAtMs = at;
         changed = true;
       });
       if (!changed) return false;
       t.state = computeTransferState(t.files);
+      if (why) t.error = why;
+      t.updatedAtMs = at;
+      log("TRANSFER_WAITING take=" + state.takeNumber + " source=" + msg.sourceDeviceId
+        + " storage=" + msg.storageDeviceId + " cause=" + (isStr(msg.cause) ? msg.cause : waitCauseOf(why))
+        + " nextAttemptInMs=" + (nextAt ? Math.max(0, nextAt - at) : 0));
+      bump();
+      return true;
+    };
+
+    /* Storage : bascule un transfert NON terminal vers `waiting_network` et le
+     * PUBLIE au Master (§10 / Q4). C'est la transition que le watchdog exécute
+     * quand un transfert reste figé : une absence ou une stall n'est PAS une
+     * preuve d'impossibilité (§16-R5), donc jamais `error`.
+     *
+     * Retourne `false` si rien ne change (aucun fichier non terminal). */
+    var markTransferWaiting = function (srcDid, storageDid, reason, nowMs, nextAttemptAtMs) {
+      var t = state.transfers[key(srcDid, storageDid)];
+      if (!t || isTerminalState(t.state)) return false;
+      var why = isStr(reason) ? reason : "stalled";
+      var at = isNum(nowMs) ? nowMs : now();
+      var nextAt = isNum(nextAttemptAtMs) ? nextAttemptAtMs : 0;
+      var rels = [];
+      Object.keys(t.files).forEach(function (rel) {
+        var f = t.files[rel];
+        if (isTerminalState(f.state)) return;
+        f.state = PH_WAITING_NETWORK;
+        f.error = why;
+        if (!f.waitingSinceMs) f.waitingSinceMs = at;
+        f.lastAttemptAtMs = at;
+        if (nextAt) f.nextAttemptAtMs = nextAt;
+        rels.push(rel);
+      });
+      if (!rels.length) return false;
+      t.state = computeTransferState(t.files);
       t.error = why;
-      t.updatedAtMs = isNum(nowMs) ? nowMs : now();
-      log("TRANSFER_STUCK take=" + state.takeNumber + " source=" + srcDid
-        + " storage=" + storageDid + " reason=" + why);
+      t.updatedAtMs = at;
+      log("TRANSFER_WAITING take=" + state.takeNumber + " source=" + srcDid
+        + " storage=" + storageDid + " reason=" + why + " files=" + rels.length
+        + " cause=" + waitCauseOf(why));
       if (isStorage && t.storageDid === self()) {
-        Object.keys(t.files).forEach(function (rel) {
-          var f = t.files[rel];
-          send(K_TRANSFER_RESULT, {
-            sessionId: state.sid, takeNumber: state.takeNumber,
-            sourceDeviceId: srcDid, storageDeviceId: self(), rel: rel,
-            state: PH_ERROR, error: f.error || why, received: f.received, total: f.bytes
-          });
+        var f0 = t.files[rels[0]];
+        send(K_TRANSFER_WAITING, {
+          sessionId: state.sid, takeNumber: state.takeNumber,
+          sourceDeviceId: srcDid, storageDeviceId: self(),
+          state: PH_WAITING_NETWORK, cause: waitCauseOf(why), lastError: why,
+          waitingSinceMs: f0.waitingSinceMs || at,
+          nextAttemptAtMs: f0.nextAttemptAtMs || 0,
+          received: receivedBytes(t.files), total: totalBytes(t.files)
         });
       }
       bump();
       return true;
+    };
+
+    /* Storage : publication explicite d'une attente issue du service (échec
+     * transitoire avéré). Même chemin que le watchdog mais piloté par la
+     * classification d'erreur, avec le backoff déjà calculé. */
+    var reportWaiting = function (sourceDeviceId, info) {
+      if (!isStorage) return null;
+      info = info || {};
+      var k = key(sourceDeviceId, self());
+      var t = state.transfers[k];
+      if (!t) return null;
+      if (!markTransferWaiting(sourceDeviceId, self(),
+          info.lastError || info.error || "network_unreachable", info.nowMs, info.nextAttemptAtMs)) {
+        return null;
+      }
+      return state.transfers[k];
+    };
+
+    /* Storage : restaure l'état RÉCUPÉRABLE d'un Take depuis le journal (§7.3).
+     * Règle d'or : le journal n'a jamais force de `done` — la TAILLE DISQUE fait
+     * autorité. Donc TOUT fichier restauré ré-entre en `waiting_network` (donc
+     * RÉCUPÉRABLE, non terminal), y compris ceux notés `done` : le SHA/size réel
+     * sera revérifié au moment du run. Renvoie le nombre de transferts restaurés. */
+    var restoreFromJournal = function (doc) {
+      if (!isStorage || !doc || !Array.isArray(doc.files)) return 0;
+      if (isNum(doc.takeNumber) && doc.takeNumber !== state.takeNumber) return 0;
+      var bySrc = {};
+      doc.files.forEach(function (jf) {
+        if (!isStr(jf.sourceDeviceId) || !isStr(jf.rel)) return;
+        bySrc[jf.sourceDeviceId] = bySrc[jf.sourceDeviceId] || [];
+        bySrc[jf.sourceDeviceId].push(jf);
+      });
+      var restored = 0;
+      Object.keys(bySrc).forEach(function (srcDid) {
+        var t = ensureTransfer(srcDid, self());
+        bySrc[srcDid].forEach(function (jf) {
+          var f = t.files[jf.rel] || normFile({
+            rel: jf.rel, bytes: jf.expectedBytes, sha256: jf.expectedSha256
+          }) || { rel: jf.rel, segmentIndex: 0, bytes: 0, sha256: "", received: 0, state: PH_WAITING_NETWORK, attempts: 0, error: "", waitingSinceMs: 0, lastAttemptAtMs: 0, nextAttemptAtMs: 0 };
+          f.bytes = isNum(jf.expectedBytes) ? jf.expectedBytes : (f.bytes || 0);
+          f.sha256 = isStr(jf.expectedSha256) ? jf.expectedSha256 : (f.sha256 || "");
+          f.received = isNum(jf.received) ? jf.received : 0;
+          /* JAMAIS terminal d'après le journal : on récupère (§7.3). */
+          f.state = PH_WAITING_NETWORK;
+          f.error = isStr(jf.lastError) ? jf.lastError : "restored";
+          f.waitingSinceMs = isNum(jf.waitingSinceMs) && jf.waitingSinceMs ? jf.waitingSinceMs : now();
+          f.lastAttemptAtMs = isNum(jf.lastAttemptAtMs) ? jf.lastAttemptAtMs : 0;
+          f.nextAttemptAtMs = 0; /* reprise immédiate planifiée par le coordinateur */
+          t.files[jf.rel] = f;
+          restored += 1;
+        });
+        t.state = computeTransferState(t.files);
+        t.updatedAtMs = now();
+      });
+      if (restored) {
+        log("TRANSFER_JOURNAL_RESTORED take=" + state.takeNumber + " storage=" + self() + " files=" + restored);
+        bump();
+      }
+      return restored;
     };
 
     /* Capture : annonce au Master qu'une suppression n'a PAS été confirmée
@@ -490,6 +839,7 @@
         case K_TRANSFER_RESULT: return applyTransferResult(env);
         case K_TRANSFER_DELETE: return applyTransferDeleteRequest(env);
         case K_TRANSFER_DELETE_ACK: return applyDeleteAck(env);
+        case K_TRANSFER_WAITING: return applyTransferWaiting(env);
         default: return false;
       }
     };
@@ -512,12 +862,16 @@
       return msg;
     };
 
-    /* Master : offre le transfert à chaque Storage sélectionné (indépendants). */
-    var offerTransfers = function (sourceDeviceId, storageDids) {
+    /* Master : offre le transfert à chaque Storage sélectionné (indépendants).
+     * `mode:"retry"` = re-demande MANUELLE (bouton Réessayer) : elle réactive les
+     * fichiers en erreur. Toute autre offre est une « ré-offre » de reprise et
+     * préserve les états terminaux (cf. applyTransferOffer). */
+    var offerTransfers = function (sourceDeviceId, storageDids, mode) {
       if (!isMaster) return [];
       var src = state.sources[sourceDeviceId];
       if (!src) return [];
       var files = Object.keys(src.files).map(function (rel) { return src.files[rel]; });
+      var manifestId = src.manifestId || manifestIdOf(src.files, src.host, src.port, src.token);
       var sent = [];
       (storageDids || []).forEach(function (storageDid) {
         if (!isStr(storageDid)) return;
@@ -525,8 +879,10 @@
           sessionId: state.sid, takeNumber: state.takeNumber,
           sourceDeviceId: sourceDeviceId, storageDeviceId: storageDid,
           host: src.host, port: src.port, token: src.token,
+          manifestId: manifestId,
           totalBytes: src.totalBytes, files: files
         };
+        if (mode === "retry") msg.mode = "retry";
         sendTo(storageDid, K_TRANSFER_OFFER, msg);
         /* Le Master enregistre la destination ATTENDUE (barre `pending` sur
          * l'écran 09) : sans cela une destination jamais atteinte serait
@@ -546,6 +902,7 @@
       var f = t.files[rel];
       f.received = Math.min(clampBytes(received), f.bytes);
       f.state = st || PH_TRANSFERRING;
+      clearWaiting(f);
       t.state = computeTransferState(t.files);
       t.updatedAtMs = now();
       var msg = {
@@ -671,12 +1028,14 @@
       PH_VERIFYING: PH_VERIFYING,
       PH_DONE: PH_DONE,
       PH_ERROR: PH_ERROR,
+      PH_WAITING_NETWORK: PH_WAITING_NETWORK,
       K_MEDIA_READY: K_MEDIA_READY,
       K_TRANSFER_OFFER: K_TRANSFER_OFFER,
       K_TRANSFER_PROGRESS: K_TRANSFER_PROGRESS,
       K_TRANSFER_RESULT: K_TRANSFER_RESULT,
       K_TRANSFER_DELETE: K_TRANSFER_DELETE,
       K_TRANSFER_DELETE_ACK: K_TRANSFER_DELETE_ACK,
+      K_TRANSFER_WAITING: K_TRANSFER_WAITING,
       onIncoming: onIncoming,
       announceMedia: announceMedia,
       offerTransfers: offerTransfers,
@@ -689,9 +1048,16 @@
       allDestinationsDone: allDestinationsDone,
       canDeleteLocal: canDeleteLocal,
       isTransferTerminal: isTransferTerminal,
+      isTerminalState: isTerminalState,
       staleTransfers: staleTransfers,
+      waitingTransfers: waitingTransfers,
+      hasPendingTransfers: hasPendingTransfers,
+      hasTerminalTransfers: hasTerminalTransfers,
       rebroadcastTerminalResults: rebroadcastTerminalResults,
-      markTransferStuck: markTransferStuck,
+      rebroadcastWaitingStates: rebroadcastWaitingStates,
+      markTransferWaiting: markTransferWaiting,
+      reportWaiting: reportWaiting,
+      restoreFromJournal: restoreFromJournal,
       reportDeleteFailed: reportDeleteFailed,
       view: view
     };
@@ -703,12 +1069,15 @@
     PH_VERIFYING: PH_VERIFYING,
     PH_DONE: PH_DONE,
     PH_ERROR: PH_ERROR,
+    PH_WAITING_NETWORK: PH_WAITING_NETWORK,
     K_MEDIA_READY: K_MEDIA_READY,
     K_TRANSFER_OFFER: K_TRANSFER_OFFER,
     K_TRANSFER_PROGRESS: K_TRANSFER_PROGRESS,
     K_TRANSFER_RESULT: K_TRANSFER_RESULT,
     K_TRANSFER_DELETE: K_TRANSFER_DELETE,
     K_TRANSFER_DELETE_ACK: K_TRANSFER_DELETE_ACK,
+    K_TRANSFER_WAITING: K_TRANSFER_WAITING,
+    isTerminalState: isTerminalState,
     normFiles: normFiles,
     totalBytes: totalBytes,
     receivedBytes: receivedBytes,

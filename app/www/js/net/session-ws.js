@@ -915,6 +915,7 @@
       case "transfer_result":
       case "transfer_delete":
       case "transfer_delete_ack":
+      case "transfer_waiting":
         handleTransferMessage(env, entry, serverConn);
         break;
       default:

@@ -39,7 +39,8 @@
     staleTimeoutMs: 0,
     staleTimer: null,
     listeners: [],
-    sessionObservers: []
+    sessionObservers: [],
+    netListeners: []
   };
 
   function notifySessionObservers(ev) {
@@ -85,6 +86,15 @@
 
   function notifyChanged() {
     state.listeners.slice().forEach(function (fn) { fn(); });
+  }
+
+  /* J15 / §5 : observateurs de CHANGEMENT RÉSEAU. Le retour du réseau (ou un
+   * changement d'interface) est le meilleur instant pour rejouer les transferts
+   * en attente — sans attendre le prochain scan de secours. */
+  function notifyNetChanged() {
+    state.netListeners.slice().forEach(function (fn) {
+      try { fn(); } catch (e) { emit("NET_LISTENER_ERR " + String((e && e.message) || e)); }
+    });
   }
 
   function emit(line) { console.log(line); }
@@ -300,6 +310,7 @@
         if (ev.reason === "network_change") {
           emit("MDNS_ADVERTISE_STOP deviceId=" + (state.localDid || "?") + " reason=network_change");
           emit("MDNS_ADVERTISE_START deviceId=" + (state.localDid || "?") + " reason=network_change");
+          notifyNetChanged();
         } else {
           emit("MDNS_REANNOUNCE deviceId=" + (ev.deviceId || state.localDid || "?")
             + " deviceName=" + (ev.deviceName || "") + " result=OK");
@@ -318,6 +329,7 @@
         state.ipv4 = ev.ipv4;
         emit("NET_CHANGED networkType=" + ev.networkType + " ipv4=" + (ev.ipv4 || "?"));
         notifyChanged();
+        notifyNetChanged();
         break;
       case "error":
         emit("MDNS_ERROR code=" + (ev.code || "unknown") + " nativeCode=" + (ev.nativeCode || 0)
@@ -465,6 +477,12 @@
     if (typeof fn === "function" && state.listeners.indexOf(fn) < 0) state.listeners.push(fn);
   }
 
+  /* J15 / §5 : abonnement aux changements réseau (retour réseau / bascule
+   * d'interface). Utilisé par le ResumeCoordinator du boot. */
+  function onNetworkChange(fn) {
+    if (typeof fn === "function" && state.netListeners.indexOf(fn) < 0) state.netListeners.push(fn);
+  }
+
   /* Observateur des événements session (J04) — reçoit tous les événements *session* du
    * plugin NSD (sessionServiceUpdated/Found/Lost, sessionAdvertised, …). */
   function onSessionEvent(fn) {
@@ -500,6 +518,7 @@
     table: table,
     status: status,
     onChanged: onChanged,
+    onNetworkChange: onNetworkChange,
     onSessionEvent: onSessionEvent,
     setStaleTimeout: function (ms) { state.staleTimeoutMs = Math.max(0, ms || 0); }
   };

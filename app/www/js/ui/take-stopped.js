@@ -92,6 +92,8 @@
       case "error": return { text: "Erreur", cls: "bg-danger" };
       case "verifying": return { text: "Vérification", cls: "" };
       case "transferring": return { text: "Transfert", cls: "" };
+      /* J15 : attente réseau = NON terminal ; reprise automatique en cours. */
+      case "waiting_network": return { text: "En attente réseau", cls: "bg-warning" };
       default: return { text: "En attente", cls: "" };
     }
   }
@@ -159,11 +161,13 @@
       var anyError = bars.some(function (b) { return b.state === "error"; });
       var allDone = bars.length > 0 && bars.every(function (b) { return b.state === "done"; });
       var anyRun = bars.some(function (b) { return b.state === "transferring" || b.state === "verifying"; });
+      var anyWaiting = bars.some(function (b) { return b.state === "waiting_network"; });
       var anyPending = bars.some(function (b) { return b.state === "pending"; });
       var simple;
       if (anyError) simple = { state: "ERROR", text: "Erreur", cls: "st-error" };
       else if (allDone) simple = { state: "DONE", text: "Terminé", cls: "st-stopped" };
       else if (anyRun) simple = { state: "TRANSFER", text: "Transfert", cls: "st-warning" };
+      else if (anyWaiting) simple = { state: "WAITING_NETWORK", text: "En attente réseau", cls: "st-warning" };
       else if (offline || anyPending) simple = { state: "WAITING", text: "En attente", cls: "st-warning" };
       else simple = { state: "PREPARING", text: "Préparation", cls: "st-warning" };
       out.push({

@@ -66,6 +66,8 @@
     var modelMod = deps.transferModel || function () { return root.MultiCamTransferModel; };
     var serviceMod = deps.transferService || function () { return root.MultiCamTransferService; };
     var takeModel = deps.takeModel || function () { return root.MultiCamTakeModel; };
+    var journalMod = deps.transferJournal || function () { return root.MultiCamTransferJournal; };
+    var discoveryMod = deps.discovery || function () { return root.MultiCamDiscovery; };
     var log = deps.log || function (l) { if (root.console) console.log(l); };
 
     var role = roleFor(cfg);
@@ -330,6 +332,17 @@
         deleteLocal: deleteLocalFiles,
         generateToken: function () {
           return selfDid() ? (selfDid() + "-" + Date.now().toString(36)) : ("mc-" + Date.now().toString(36));
+        },
+        /* J15 : horloge/jitter injectables ; `statDest` donne taille+SHA du
+         * partiel (reconcil. 416) ; `onWaiting` planifie la prochaine séquence. */
+        now: nowMs,
+        rand: deps.rand,
+        onWaiting: function (info) { scheduleResume(e, info); },
+        statDest: function (dest) {
+          var nat = nativeApi();
+          var p = dest && (dest.dest || dest.relPath);
+          if (!nat || !p || typeof nat.sha256 !== "function") return Promise.resolve(null);
+          return Promise.resolve(nat.sha256(p)).then(function (r) { return r || null; }, function () { return null; });
         }
       });
     }
@@ -342,9 +355,29 @@
         e.machine = buildMachine(e);
         e.service = buildService(e);
         log("TRANSFER_BOOT_READY role=" + role + " sid=" + sid + " take=" + takeNumber);
+        /* J15 / §7 : restauration du journal AVANT le watchdog et le coordinateur,
+         * sinon un transfert interrompu serait marqué `stale` avant d'être
+         * simplement repris. La taille disque reste autoritaire. */
+        if (role === "storage") restoreEntryFromJournal(e);
       }
       primary = e;
       return e.service;
+    }
+
+    /* Restaure l'état récupérable d'une entrée depuis le journal, puis planifie
+     * les reprises (le scan de secours reprendra le relais). */
+    function restoreEntryFromJournal(e) {
+      var j = journalFor();
+      if (!j || typeof j.restore !== "function" || typeof e.machine.restoreFromJournal !== "function") return;
+      Promise.resolve(j.restore(e.sid, e.takeNumber, selfDid())).then(function (res) {
+        if (!res || !res.ok || !res.doc) return;
+        var n = e.machine.restoreFromJournal(res.doc);
+        if (n > 0) {
+          log("TRANSFER_JOURNAL_APPLIED sid=" + e.sid + " take=" + e.takeNumber + " files=" + n);
+          notify();
+          resumeScan();
+        }
+      }, function () {});
     }
 
     /* ---------- notification UI ---------- */
@@ -375,8 +408,79 @@
        * la progression en temps réel. Seule la PERSISTANCE de session (qui
        * broadcast à tous les pairs) est coalescée. */
       scheduleTakePersist();
+      scheduleJournalPersist();
       listeners.slice().forEach(function (fn) {
         try { fn(); } catch (e) { log("TRANSFER_NOTIFY_ERROR " + String((e && e.message) || e)); }
+      });
+    }
+
+    /* ---------- journal technique (J15 / §7) ---------- */
+
+    var journal = null;
+    var JOURNAL_COALESCE_MS = 1000;
+    var journalTimer = null;
+
+    function journalFor() {
+      if (journal) return journal;
+      var mod = journalMod();
+      if (!mod || typeof mod.createTransferJournal !== "function") return null;
+      journal = mod.createTransferJournal({ log: log, coalesceMs: JOURNAL_COALESCE_MS, fs: deps.journalFs, setTimeout: deps.setTimeout, clearTimeout: deps.clearTimeout });
+      return journal;
+    }
+
+    /* Sérialise l'état RÉCUPÉRABLE d'un Take (Storage uniquement) et le persiste.
+     * `immediate` pour les transitions terminales (done/error). */
+    function persistJournalFor(e, immediate) {
+      if (role !== "storage" || !e || !e.machine) return;
+      var j = journalFor();
+      var mod = journalMod();
+      if (!j || !mod || typeof mod.buildDoc !== "function") return;
+      var st = (e.machine.state && (typeof e.machine.state === "function" ? e.machine.state() : e.machine.state)) || {};
+      var doc = mod.buildDoc({
+        sessionId: e.sid, takeNumber: e.takeNumber, storageDeviceId: selfDid(),
+        manifestId: st.manifestId || "",
+        transfers: st.transfers || {}, endpoint: {
+          host: serverState.host, port: serverState.port
+        }, nowMs: nowMs()
+      });
+      j.save(doc, !!immediate);
+    }
+
+    function scheduleJournalPersist() {
+      if (role !== "storage" || !primary) return;
+      /* Transitions TERMINALES : écriture immédiate (§7.2) — un crash juste après
+       * un `done` ne doit pas perdre la preuve. Le coalescé reste pour la
+       * progression. */
+      if (typeof primary.machine.hasTerminalTransfers === "function"
+          && primary.machine.hasTerminalTransfers()
+          && typeof primary.machine.hasPendingTransfers === "function"
+          && !primary.machine.hasPendingTransfers()) {
+        persistJournalFor(primary, true);
+        return;
+      }
+      if (journalTimer !== null) return;
+      var setT = deps.setTimeout || (typeof setTimeout !== "undefined" ? setTimeout : null);
+      if (!setT) return;
+      journalTimer = setT(function () {
+        journalTimer = null;
+        persistJournalFor(primary, false);
+      }, JOURNAL_COALESCE_MS);
+      if (journalTimer && typeof journalTimer.unref === "function") journalTimer.unref();
+    }
+
+    /* Force une écriture IMMÉDIATE (état terminal) : flush du coalescé + save. */
+    function flushJournal(immediate) {
+      if (role !== "storage") return Promise.resolve(0);
+      var j = journalFor();
+      var setT = deps.setTimeout || (typeof setTimeout !== "undefined" ? setTimeout : null);
+      if (journalTimer !== null && setT) { /* on laisse le timer courir : il relira l'état */ }
+      var ops = Object.keys(entries).map(function (k) {
+        var e = entries[k];
+        if (!e.machine) return Promise.resolve();
+        return persistJournalFor(e, immediate !== false);
+      });
+      return Promise.all(ops).then(function () {
+        return j ? j.flush() : 0;
       });
     }
 
@@ -400,7 +504,7 @@
         t2.updatedAtMs = Date.now();
         var keys = Object.keys(v.transfers);
         var transfers = v.transfers;
-        var done = 0, error = 0, totalFiles = 0, bytes = 0, totalBytes = 0;
+        var done = 0, error = 0, waiting = 0, totalFiles = 0, bytes = 0, totalBytes = 0;
         keys.forEach(function (k) {
           var tr = transfers[k];
           if (!tr) return;
@@ -410,11 +514,14 @@
           totalBytes += Number(tr.total) || 0;
           if (tr.state === "done") done += 1;
           if (tr.state === "error") error += 1;
+          if (tr.state === "waiting_network") waiting += 1;
         });
+        /* J15 : une attente réseau n'est PAS terminale ; elle s'affiche mais
+         * n'écrase jamais un `done`/`error` déjà acquis. */
         var transferState = "TRANSFERRING";
-        if (error > 0 && done === 0 && keys.length > 0) transferState = "ERROR";
-        else if (error > 0 && done > 0) transferState = "ERROR";
+        if (error > 0) transferState = "ERROR";
         else if (keys.length > 0 && done === keys.length) transferState = "TERMINATED";
+        else if (waiting > 0) transferState = "WAITING_NETWORK";
         var summary = t2.summary ? JSON.parse(JSON.stringify(t2.summary)) : {
           stoppedAtMs: 0, durationMs: 0, stopReason: "", transferState: "", transferError: "",
           transferBytes: 0, transferTotal: 0, transferPercent: 0, transfers: {}
@@ -472,7 +579,153 @@
       notify();
     }
 
-    /* ---------- entrée transport ---------- */
+    /* ---------- ResumeCoordinator (J15 / §5) ----------
+     * Reprend AUTOMATIQUEMENT les transferts en attente réseau. Garanties :
+     *  - UN SEUL run actif par CLÉ `(sid|take|src|rel)` ;
+     *  - file BORNÉE (pas d'explosion mémoire) ;
+     *  - le VERROU est acquis AVANT la planification du délai et libéré en
+     *    `finally` (donc même si le run échoue) ;
+     *  - timers NON accumulatifs : une clé déjà planifiée n'est pas replanifiée ;
+     *  - un échec de reprise repasse en `waiting_network` (jamais terminal). */
+    var resumeLocks = {};   /* "sid|take|src|rel" -> true (run planifié/en cours) */
+    var resumeTimers = {};  /* "sid|take|src|rel" -> timer */
+    var MAX_RESUME_QUEUE = isNum(deps.maxResumeQueue) ? deps.maxResumeQueue : 64;
+
+    function resumeKey(sid, take, src, rel) {
+      return keyOf(sid, take) + "|" + src + "|" + rel;
+    }
+
+    /* Reçoit une notification d'attente du service : planifie la reprise.
+     * `delayMs` = échéance (now + backoff) fournie par `nextAttemptAtMs`. */
+    function scheduleResume(e, info) {
+      if (!e || !info || !info.sourceDeviceId || !info.rel) return;
+      var rk = resumeKey(e.sid, e.takeNumber, info.sourceDeviceId, info.rel);
+      if (resumeLocks[rk]) {
+        log("TRANSFER_RESUME_SKIP src=" + info.sourceDeviceId + " rel=" + info.rel + " reason=already_planned");
+        return;
+      }
+      if (Object.keys(resumeLocks).length >= MAX_RESUME_QUEUE) {
+        log("TRANSFER_RESUME_QUEUE_FULL size=" + Object.keys(resumeLocks).length);
+        return;
+      }
+      /* Verrou AVANT de planifier (empêche les doublons de timers). */
+      resumeLocks[rk] = true;
+      var at = nowMs();
+      var when = isNum(info.nextAttemptAtMs) ? info.nextAttemptAtMs : (at + nextResumeBackoff(e, info));
+      var waitMs = Math.max(0, when - at);
+      var setT = deps.setTimeout || (typeof setTimeout !== "undefined" ? setTimeout : null);
+      if (!setT) { delete resumeLocks[rk]; return; }
+      var timer = setT(function () {
+        delete resumeTimers[rk];
+        try { runResume(e, rk, info); } catch (err) { log("TRANSFER_RESUME_ERR " + String((err && err.message) || err)); }
+        finally { delete resumeLocks[rk]; }
+      }, waitMs);
+      if (timer && typeof timer.unref === "function") timer.unref();
+      resumeTimers[rk] = timer;
+      log("TRANSFER_RESUME_PLANNED src=" + info.sourceDeviceId + " rel=" + info.rel + " inMs=" + waitMs);
+    }
+
+    function nextResumeBackoff(e, info) {
+      var svc = e && e.service;
+      if (svc && typeof svc.nextBackoffMs === "function") {
+        return svc.nextBackoffMs(1);
+      }
+      return 5000;
+    }
+
+    /* Rejoue les fichiers EN ATTENTE d'une source via `storageRun`, avec
+     * `mode:"retry"` (le modèle réactive l'attente sans détruire les terminaux). */
+    function runResume(e, rk, info) {
+      if (!e || !e.service || !e.machine) return;
+      /* Ne pas transférer pendant un RECORDING : on replanifie plus tard, la
+       * pause est légitime (§5). */
+      var svc = startService();
+      if (svc && svc.isRecording && svc.isRecording()) {
+        log("TRANSFER_RESUME_DEFER src=" + info.sourceDeviceId + " rel=" + info.rel + " reason=recording");
+        return;
+      }
+      var offer = buildResumeOffer(e, info.sourceDeviceId, [info.rel]);
+      if (!offer) return;
+      if (typeof e.service.storageRun !== "function") return;
+      log("TRANSFER_RESUME_RUN src=" + info.sourceDeviceId + " rel=" + info.rel + " manifest=" + (offer.manifestId || ""));
+      Promise.resolve(e.service.storageRun(offer)).then(function () {
+        notify();
+      }, function (err) {
+        log("TRANSFER_RESUME_ERR src=" + info.sourceDeviceId + " error=" + String((err && err.message) || err));
+      });
+    }
+
+    /* Construit une offre de reprise (un sous-ensemble de fichiers) à partir des
+     * FAITS connus du Take (endpoint du serveur média partagé, token).
+     *
+     * CONTRAT de `view().transfers` : clés `src|storage`, objets exposant
+     * `sourceDeviceId`/`storageDeviceId`, et `files` = TABLEAU de projections
+     * `{ rel, segmentIndex, bytes, received, sha256, state, error }`. */
+    function buildResumeOffer(e, src, rels) {
+      var v = e.machine.view();
+      var all = (v && v.transfers) || {};
+      var tr = null;
+      var keys = Object.keys(all);
+      for (var i = 0; i < keys.length; i++) {
+        var cand = all[keys[i]];
+        if (cand && cand.sourceDeviceId === src) { tr = cand; break; }
+      }
+      if (!tr) return null;
+      var takeKey = e.sid + "/" + e.takeNumber;
+      var token = serverState.tokens[takeKey] || "";
+      var byRel = {};
+      (tr.files || []).forEach(function (f) { if (f && f.rel) byRel[f.rel] = f; });
+      var files = [];
+      (rels || []).forEach(function (rel) {
+        var f = byRel[rel];
+        if (!f) return;
+        files.push({ rel: rel, bytes: f.bytes, sha256: f.sha256, segmentIndex: f.segmentIndex || 0 });
+      });
+      if (!files.length) return null;
+      return {
+        sessionId: e.sid, takeNumber: e.takeNumber,
+        sourceDeviceId: src, files: files,
+        host: serverState.host, port: serverState.port, token: token,
+        manifestId: tr.manifestId || "", mode: "retry"
+      };
+    }
+
+    /* Scan de SECOURS (§5) : toutes les `RECONCILE_CYCLE_MS`, replanifie toute
+     * attente non verrouillée (le filet de sécurité si un `onWaiting` a été
+     * perdu). Idempotent grâce aux verrous. */
+    function resumeScan() {
+      if (role !== "storage") return 0;
+      var now = nowMs();
+      var planned = 0;
+      Object.keys(entries).forEach(function (k) {
+        var e = entries[k];
+        if (!e.machine || !e.service) return;
+        if (typeof e.machine.waitingTransfers !== "function") return;
+        e.machine.waitingTransfers(now).forEach(function (w) {
+          var rels = (w.rels && w.rels.length) ? w.rels : (w.rel ? [w.rel] : []);
+          rels.forEach(function (rel) {
+            var rk = resumeKey(e.sid, e.takeNumber, w.sourceDeviceId, rel);
+            if (resumeLocks[rk]) return;
+            scheduleResume(e, {
+              sourceDeviceId: w.sourceDeviceId, rel: rel,
+              cause: w.cause, nextAttemptAtMs: now
+            });
+            planned += 1;
+          });
+        });
+      });
+      if (planned) log("TRANSFER_RESUME_SCAN planned=" + planned);
+      return planned;
+    }
+
+    /* Rejoue immédiatement les attentes au retour du réseau (déclenché par la
+     * découverte). Ne fait que PLANIFIER ; un seul run par clé. */
+    function onNetworkChange() {
+      if (role !== "storage") return 0;
+      /* Libère les verrous dont le timer a été annulé (reconnexion) pour rejouer. */
+      return resumeScan();
+    }
+
 
     function onTransferMessage(env) {
       if (!env || !env.sessionId) return Promise.resolve(false);
@@ -506,15 +759,12 @@
     var STUCK_MS = isNum(deps.stuckMs) ? deps.stuckMs : 45000;
     var STUCK_MAX_REOFFERS = isNum(deps.stuckMaxReoffers) ? deps.stuckMaxReoffers : 3;
     var REIDENTIFY_THROTTLE_MS = isNum(deps.reidentifyThrottleMs) ? deps.reidentifyThrottleMs : 10000;
+    var RECONCILE_CYCLE_MS = isNum(deps.reconcileCycleMs) ? deps.reconcileCycleMs : 120000;
     var watchdogTimer = null;
-    var stuckState = {};     /* "sid|take|src|storage" -> { count, baseAt } */
+    var stuckState = {};     /* "sid|take|src|storage" -> { count, baseAt, frozenAt } */
     var lastReidentify = 0;  /* throttling de la réconciliation de maillage */
+    var lastReconcilePurge = 0;
 
-    /* Un pair vient de se (ré)identifier sur une connexion restaurée — miroir de
-     * `resyncCameraState`. Le Master RE-OFFRE un transfert non terminal (l'offre
-     * initiale a pu être perdue pendant la coupure) ; le Storage RE-DIFFUSE ses
-     * issues terminales (le résultat a pu être perdu). Throttlé : le maillage
-     * livre plusieurs évènements par pair, on ne veut pas de tempête (J14-B02). */
     function onPeerIdentified(env) {
       var now = nowMs();
       if (now - lastReidentify < REIDENTIFY_THROTTLE_MS) return 0;
@@ -528,6 +778,9 @@
           if (cameFrom && e.machine.state.sources[cameFrom]) { e.service.masterOffer(cameFrom); n += 1; }
         } else if (role === "storage") {
           n += e.machine.rebroadcastTerminalResults();
+          if (typeof e.machine.rebroadcastWaitingStates === "function") {
+            n += e.machine.rebroadcastWaitingStates();
+          }
         }
       });
       if (n) log("TRANSFER_RESYNC_TRIGGER role=" + role + " peer=" + (cameFrom || "") + " count=" + n);
@@ -535,14 +788,17 @@
     }
 
     /* Reconnexion du transport LOCAL (socket WS rétablie) : le Storage re-diffuse
-     * ses issues terminales. S'il n'y a encore aucun destinataire joignable, la
-     * ré-émission est inoffensive et sera retentée au prochain pair identifié. */
+     * ses issues terminales et ses états d'attente (§10 : « réémission à la
+     * reconnexion réaligne les deux vues »). */
     function onTransportReconnect() {
       if (role !== "storage") return 0;
       var n = 0;
       Object.keys(entries).forEach(function (k) {
         var e = entries[k];
         if (e.machine) n += e.machine.rebroadcastTerminalResults();
+        if (e.machine && typeof e.machine.rebroadcastWaitingStates === "function") {
+          n += e.machine.rebroadcastWaitingStates();
+        }
       });
       if (n) log("TRANSFER_RESYNC_RECONNECT role=" + role + " count=" + n);
       return n;
@@ -562,6 +818,17 @@
       });
       if (recording) return 0;
       var now = isNum(atMs) ? atMs : nowMs();
+      /* Purge cyclique des compteurs gelés (stuckState) toutes les 120 s : un
+       * run qui serait bloqué pendant longtemps peut être ré-essayé à nouveau
+       * sans rester figé dans le gel. */
+      if (now - lastReconcilePurge >= RECONCILE_CYCLE_MS) {
+        lastReconcilePurge = now;
+        stuckState = {};
+        /* Scan de secours du coordinateur de reprise (J15 / §5) : la reprise d'un
+         * transfert en attente ne doit PAS dépendre du seul `onWaiting` (qui peut
+         * être perdu). Idempotent grâce aux verrous par clé. */
+        resumeScan();
+      }
       var acted = 0;
       Object.keys(entries).forEach(function (entryKey) {
         var e = entries[entryKey];
@@ -569,7 +836,16 @@
         e.machine.staleTransfers(STUCK_MS, now).forEach(function (s) {
           if (role === "master") { applyMasterStuck(entryKey, e, s, now); acted += 1; }
           else if (role === "storage") {
-            if (e.machine.markTransferStuck(s.sourceDeviceId, s.storageDeviceId, "stalled", now)) acted += 1;
+            /* J15 : ne pas marquer en ERROR sur simple blocage. Transmettre une
+             * attente réseau : le ResumeCoordinator traitera au retour du réseau.
+             * Le watchdog maintient toutefois la détection d'inaction. */
+            if (typeof e.machine.markTransferWaiting === "function") {
+              e.machine.markTransferWaiting(s.sourceDeviceId, s.storageDeviceId, "stalled", now, 0);
+              acted += 1;
+            } else if (e.machine.markTransferStuck) {
+              e.machine.markTransferStuck(s.sourceDeviceId, s.storageDeviceId, "stalled", now);
+              acted += 1;
+            }
           }
         });
       });
@@ -577,16 +853,21 @@
       return acted;
     }
 
-    /* Master : relance bornée avec backoff, puis marque en échec. Une progression
-     * reçue (updatedAtMs avance) remet le compteur à zéro. */
+    /* Master : relance bornée avec backoff, puis marque en attente réseau (pas en
+     * ERROR). À l'expiration de la séquence, on LOGUE `TRANSFER_RECONCILE_WAIT` et
+     * on GÈLE le compteur (gelé par `frozenAt` + purge cyclique 120 s). */
     function applyMasterStuck(entryKey, e, s, now) {
       var sk = entryKey + "|" + s.sourceDeviceId + "|" + s.storageDeviceId;
-      var st = stuckState[sk] || { count: 0, baseAt: s.updatedAtMs };
-      if (st.count > 0 && s.updatedAtMs > st.baseAt) st = { count: 0, baseAt: s.updatedAtMs };
+      var st = stuckState[sk] || { count: 0, baseAt: s.updatedAtMs, frozenAt: 0 };
+      if (st.frozenAt && (now - st.frozenAt < RECONCILE_CYCLE_MS)) return;
+      if (st.frozenAt) { st.count = 0; st.baseAt = s.updatedAtMs; st.frozenAt = 0; }
+      if (st.count > 0 && s.updatedAtMs > st.baseAt) st = { count: 0, baseAt: s.updatedAtMs, frozenAt: 0 };
       if (st.count >= STUCK_MAX_REOFFERS) {
-        e.machine.markTransferStuck(s.sourceDeviceId, s.storageDeviceId, "stalled", now);
-        delete stuckState[sk];
-        log("TRANSFER_STUCK_FINAL source=" + s.sourceDeviceId + " storage=" + s.storageDeviceId + " staleMs=" + s.staleMs);
+        if (typeof e.machine.markTransferWaiting === "function") {
+          e.machine.markTransferWaiting(s.sourceDeviceId, s.storageDeviceId, "stalled", now, 0);
+        }
+        stuckState[sk] = { count: st.count, baseAt: st.baseAt, frozenAt: now };
+        log("TRANSFER_RECONCILE_WAIT source=" + s.sourceDeviceId + " storage=" + s.storageDeviceId + " staleMs=" + s.staleMs);
         return;
       }
       if (s.staleMs >= STUCK_MS * (st.count + 1)) {
@@ -626,6 +907,11 @@
           onPeerIdentified: onPeerIdentified,
           onTransportReconnect: onTransportReconnect
         });
+      }
+      /* J15 / §5 : le retour du réseau déclenche la reprise des attentes. */
+      var disc = discoveryMod();
+      if (disc && typeof disc.onNetworkChange === "function") {
+        disc.onNetworkChange(function () { onNetworkChange(); });
       }
       startWatchdog();
 
@@ -714,6 +1000,13 @@
       _startWatchdog: startWatchdog,
       _stopWatchdog: stopWatchdog,
       _resumePaused: resumePaused,
+      _resumeScan: resumeScan,
+      _scheduleResume: scheduleResume,
+      _onNetworkChange: onNetworkChange,
+      _persistJournal: persistJournalFor,
+      _flushJournal: flushJournal,
+      _journalFor: journalFor,
+      _restoreEntryFromJournal: restoreEntryFromJournal,
       _maybeCaptureAnnounce: maybeCaptureAnnounce,
       _machine: function () { return primary ? primary.machine : null; },
       _service: function () { return primary ? primary.service : null; }
