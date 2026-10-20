@@ -42,6 +42,12 @@ J16 n'est **pas encore spécifié ni autorisé pour implémentation**. Avant de 
 3. Faire arbitrer le périmètre J16 par le responsable du projet : ne pas choisir une fonctionnalité à sa place.
 4. Préserver les acquis J15 ; éviter les refontes du transfert hors anomalie reproductible.
 
+### Inventaire et proposition J16 (2026-10-20)
+
+- `docs/INVENTAIRE-FONCTIONNEL-J16.md` — inventaire fonctionnel complet (specs `ui/` vs code `app/www/`), classification, écarts. Constat principal : le socle J03→J15 est implémenté ; le seul manque **utilisateur** visible est la consultation des Takes passés (écran 09 archivé / historique 15).
+- `docs/PROPOSITION-PERIMETRE-J16.md` — **proposition non validée** de lots fonctionnels (A : Takes passés ; B : diagnostic exportable ; C : GPS/GPX + orientation/wake-lock ; D : SAF ; E : hygiène optionnelle), en attente d'arbitrage.
+- Écart documentaire relevé : `docs/AVANCEMENT-V1.md` indique encore J12/J13/J14 « en attente » alors que J12 est PASS, J13 clôturé avec réserves et J14 l'est en PARTIAL (voir `docs/INVENTAIRE-FONCTIONNEL-J16.md` §4.2 et §6). Réconciliation proposée, non appliquée à ce stade.
+
 ## Références
 
 - `README.md` : présentation du dépôt.
