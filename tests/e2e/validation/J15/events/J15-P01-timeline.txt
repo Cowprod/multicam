@@ -1,0 +1,9 @@
+### [19:57:03] DEBUT SCENARIO J15-P01
+### [19:57:03] P01 : Take nominal (suppression locale INACTIVÉE pour pouvoir relever le SHA source)
+### [19:57:03] P01 : nouveau Take
+### [19:57:23] P01 : ARM + REC 45s + STOP
+### [19:58:22] P01 : STOP demandé (take=2)
+### [19:58:25] P01 : inventaire SOURCE sur B (take=2)
+### [19:58:26] P01 : attente transfert B→C
+### [19:58:50] P01 : inventaire DESTINATION sur C
+### [19:58:51] FIN SCENARIO J15-P01

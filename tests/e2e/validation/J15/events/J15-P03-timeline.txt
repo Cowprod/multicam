@@ -1,0 +1,17 @@
+### [20:06:09] DEBUT SCENARIO J15-P03
+### [20:06:09] P03 : Take de 120 s puis coupure Wi-Fi C + redémarrage de l'app Storage
+### [20:06:09] P03 : nouveau Take
+### [20:06:30] P03 : ARM + REC 120s + STOP
+### [20:08:44] P03 : STOP demandé (take=4)
+### [20:08:44] P03 : surveillance C jusqu'aux premiers octets transférés
+  WATCH_OK=1 WATCH_BYTES=8045
+[20:08:48] CUT wifi C bytes_at_cut=8045
+### [20:08:49] WIFI_disable c0d8514d7d87
+[20:08:49] WIFI_disable serial=c0d8514d7d87
+### [20:08:59] P03 : journal persistant sur C AVANT redémarrage
+### [20:08:59] P03 : force-stop + relance de l'app sur C (Wi-Fi toujours coupé)
+### [20:09:15] P03 : retour réseau — restauration journal + reprise SANS action utilisateur
+### [20:09:15] WIFI_enable c0d8514d7d87
+[20:09:15] WIFI_enable serial=c0d8514d7d87
+### [20:10:19] P03 : intégrité finale
+### [20:10:20] FIN SCENARIO J15-P03

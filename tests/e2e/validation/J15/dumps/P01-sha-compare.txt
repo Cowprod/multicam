@@ -1,0 +1,2 @@
+videoTmp_1.mp4 sha_src=70367338522b sha_dst=70367338522b SHA_OK SIZE_OK
+COMPARE_OK

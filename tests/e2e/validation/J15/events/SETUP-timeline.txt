@@ -1,0 +1,6 @@
+### [19:44:36] DEBUT SCENARIO SETUP
+### [19:44:36] SETUP-1 : skills + relance
+### [19:44:58] SETUP-2 : session créée sur A
+### [19:45:07] SETUP-3 : B et C rejoignent
+### [19:45:12] SETUP-4 : membres/rôles (B capture, C storage)
+### [19:45:17] FIN SCENARIO SETUP

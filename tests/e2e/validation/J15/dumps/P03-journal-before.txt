@@ -1,0 +1,7 @@
+total 22
+drwx------ 2 u0_a277 u0_a277 3452 2026-10-20 20:08 .
+drwxrwx--x 6 u0_a277 u0_a277 3452 2026-10-20 19:48 ..
+-rw------- 1 u0_a277 u0_a277  511 2026-10-20 19:57 DEBNCYNA_1_ece36247-72e3-4268-a3b7-d0dcf80f4bfa.json
+-rw------- 1 u0_a277 u0_a277  511 2026-10-20 20:00 DEBNCYNA_2_ece36247-72e3-4268-a3b7-d0dcf80f4bfa.json
+-rw------- 1 u0_a277 u0_a277  632 2026-10-20 20:06 DEBNCYNA_3_ece36247-72e3-4268-a3b7-d0dcf80f4bfa.json
+-rw------- 1 u0_a277 u0_a277  666 2026-10-20 20:08 DEBNCYNA_4_ece36247-72e3-4268-a3b7-d0dcf80f4bfa.json

@@ -1,0 +1,14 @@
+### [20:20:27] DEBUT SCENARIO J15-P05
+### [20:20:27] P05 : Take de 120 s — suppression locale à vérifier STRICTEMENT post-réplication
+### [20:20:27] P05 : nouveau Take
+### [20:20:48] P05 : ARM + REC 120s + STOP
+### [20:23:02] P05 : STOP demandé (take=7)
+### [20:23:02] P05 : surveillance C jusqu'aux premiers octets transférés
+  WATCH_OK=1 WATCH_BYTES=1773304
+[20:23:09] CUT wifi C (P05) bytes_at_cut=1773304
+### [20:23:09] WIFI_disable c0d8514d7d87
+[20:23:09] WIFI_disable serial=c0d8514d7d87
+### [20:23:24] P05 : retour réseau → réplication complète → suppression autorisée
+### [20:23:25] WIFI_enable c0d8514d7d87
+[20:23:25] WIFI_enable serial=c0d8514d7d87
+### [20:24:42] FIN SCENARIO J15-P05

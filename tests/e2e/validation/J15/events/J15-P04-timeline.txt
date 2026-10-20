@@ -1,0 +1,19 @@
+### [20:11:59] DEBUT SCENARIO J15-P04
+### [20:11:59] P04 : Take 1 (45 s) — coupure Wi-Fi C pendant son transfert
+### [20:11:59] P04-T1 : nouveau Take
+### [20:12:19] P04-T1 : ARM + REC 90s + STOP
+### [20:14:04] P04-T1 : STOP demandé (take=5)
+### [20:14:04] P04-T1 : surveillance C jusqu'aux premiers octets transférés
+  WATCH_OK=1 WATCH_BYTES=1448
+### [20:14:08] WIFI_disable c0d8514d7d87
+[20:14:08] WIFI_disable serial=c0d8514d7d87
+[20:14:08] CUT wifi C (take1) bytes=1448
+### [20:14:14] P04 : Take 2 ENREGISTRÉ pendant que le Take 1 est en attente réseau
+### [20:14:14] P04-T2 : nouveau Take
+### [20:14:35] P04-T2 : ARM + REC 45s + STOP
+### [20:17:40] P04-T2 : STOP demandé (take=6)
+### [20:17:45] P04 : retour réseau — reprise des DIFFÉRÉS des deux Takes
+### [20:17:45] WIFI_enable c0d8514d7d87
+[20:17:45] WIFI_enable serial=c0d8514d7d87
+### [20:18:50] P04 : intégrité des deux Takes
+### [20:18:51] FIN SCENARIO J15-P04

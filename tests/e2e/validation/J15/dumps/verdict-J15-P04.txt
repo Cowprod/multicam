@@ -1,0 +1,5 @@
+P04_T1_WAITING_OR_DONE=PASS (waiting=2 done=0)
+P04_T2_RECORDED=PASS (take 5 → 6, phase A=STOPPED, source=1 fichier(s))
+P04_T1_RESUMED=PASS
+P04_T2_TRANSFERRED=PASS
+P04_SHA256=PASS (les 2 Takes)

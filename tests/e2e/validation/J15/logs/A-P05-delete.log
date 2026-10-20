@@ -1,0 +1,5 @@
+10-20 20:24:36.490 I/chromium(29676): [INFO:CONSOLE:71] "TRANSFER_RESULT take=7 source=19848326-0070-44cb-8de3-0d0d4ec7eb19 storage=ece36247-72e3-4268-a3b7-d0dcf80f4bfa state=done", source: http://localhost/js/state/transfer-boot.js (71)
+10-20 20:24:36.492 I/chromium(29676): [INFO:CONSOLE:71] "TRANSFER_DELETE_TX sessionId=DEBNCYNA target=19848326-0070-44cb-8de3-0d0d4ec7eb19 sent=1", source: http://localhost/js/net/session-ws.js (71)
+10-20 20:24:36.493 I/chromium(29676): [INFO:CONSOLE:71] "TRANSFER_DELETE take=7 source=19848326-0070-44cb-8de3-0d0d4ec7eb19", source: http://localhost/js/state/transfer-boot.js (71)
+10-20 20:24:36.655 I/chromium(29676): [INFO:CONSOLE:71] "TRANSFER_DELETE_ACK take=7 source=19848326-0070-44cb-8de3-0d0d4ec7eb19", source: http://localhost/js/state/transfer-boot.js (71)
+10-20 20:24:36.673 I/chromium(29676): [INFO:CONSOLE:71] "TRANSFER_DELETE_ACK take=7 source=19848326-0070-44cb-8de3-0d0d4ec7eb19", source: http://localhost/js/state/transfer-boot.js (71)

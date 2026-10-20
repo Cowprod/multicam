@@ -1,0 +1,5 @@
+10-20 20:24:36.204 I/chromium(11763): [INFO:CONSOLE:71] "TRANSFER_HASH take=7 sourceSha256=7d962c0797999fcdc86b6cd935df847bb8ea41f13c4e1c9726cfe9c48f949dc8 storageSha256=7d962c0797999fcdc86b6cd935df847bb8ea41f13c4e1c9726cfe9c48f949dc8", source: http://localhost/js/state/transfer-boot.js (71)
+10-20 20:24:36.205 I/chromium(11763): [INFO:CONSOLE:71] "TRANSFER_RESULT take=7 source=19848326-0070-44cb-8de3-0d0d4ec7eb19 storage=ece36247-72e3-4268-a3b7-d0dcf80f4bfa state=done", source: http://localhost/js/state/transfer-boot.js (71)
+10-20 20:24:36.349 I/chromium(11763): [INFO:CONSOLE:71] "TRANSFER_LOCAL_DELETE_NATIVE files=1 removed=1", source: http://localhost/js/state/transfer-boot.js (71)
+10-20 20:24:36.349 I/chromium(11763): [INFO:CONSOLE:71] "TRANSFER_LOCAL_DELETED take=7 files=1 removed=1", source: http://localhost/js/state/transfer-boot.js (71)
+10-20 20:24:36.358 I/chromium(11763): [INFO:CONSOLE:71] "TRANSFER_DELETE_ACK take=7 source=19848326-0070-44cb-8de3-0d0d4ec7eb19", source: http://localhost/js/state/transfer-boot.js (71)

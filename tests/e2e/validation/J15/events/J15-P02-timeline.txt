@@ -1,0 +1,16 @@
+### [20:00:29] DEBUT SCENARIO J15-P02
+### [20:00:29] P02 : Take de 120 s (fichier assez gros pour interrompre EN cours de transfert)
+### [20:00:29] P02 : nouveau Take
+### [20:00:49] P02 : ARM + REC 120s + STOP
+### [20:03:03] P02 : STOP demandé (take=3)
+### [20:03:03] P02 : surveillance C jusqu'aux premiers octets transférés
+  WATCH_OK=1 WATCH_BYTES=872648
+[20:03:10] CUT wifi C bytes_at_cut=872648
+### [20:03:11] WIFI_disable c0d8514d7d87
+[20:03:11] WIFI_disable serial=c0d8514d7d87
+### [20:03:11] P02 : coupure 30 s — état C pendant la coupure
+### [20:03:43] WIFI_enable c0d8514d7d87
+[20:03:43] WIFI_enable serial=c0d8514d7d87
+### [20:03:43] P02 : retour réseau — attente reprise automatique (sans action utilisateur)
+### [20:04:31] P02 : vérification intégrité finale
+### [20:04:32] FIN SCENARIO J15-P02

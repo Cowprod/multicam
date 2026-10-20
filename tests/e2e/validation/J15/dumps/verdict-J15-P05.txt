@@ -1,0 +1,7 @@
+P05_DELETE_LOCAL_SETTING=PASS (deleteLocalAfterVerifiedReplication=true)
+P05_SOURCE_PRESENT_WHILE_INCOMPLETE=PASS (1 fichier(s) source encore présents)
+P05_STORAGE_INCOMPLETE=PASS
+P05_REPLICATION_COMPLETED=PASS (70s)
+P05_LOCAL_DELETE=PASS (source purgée après confirmation)
+P05_DELETE_AFTER_DONE=PASS (state=done ligne 2 < TRANSFER_LOCAL_DELETED ligne 4)
+P05_SHA256=PASS (source == destination)

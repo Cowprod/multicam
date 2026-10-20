@@ -1,0 +1,2 @@
+# sha256 P01-source-B serial=61d54bba7d91 take=2 date=2026-10-20T17:58:25Z
+/sdcard/Android/data/fr.emmanuel.multicam/files/MultiCam/DEBNCYNA/2/videoTmp_1.mp4 sha256=70367338522b92194fe13231585435575a69046da7851c0671a047927cc13ab5 bytes=117675191
