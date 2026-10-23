@@ -1,6 +1,7 @@
 # MultiCam — Inventaire fonctionnel (préparation J16)
 
-**État : mission d'analyse — proposition non encore validée.**
+**État : inventaire d'analyse — le lot A a été arbitré puis implémenté (J16-A) ; les lots B→E ne sont pas validés.**
+**Mise à jour 2026-10-22 : le lot A (U24/U25) a été ARBITRÉ puis IMPLÉMENTÉ (validation physique PASS 13/13) — voir `docs/J16-A-RESULTS.md`. Les constats de cet inventaire sont conservés tels quels (ils décrivent l'état AVANT J16-A) ; le statut de U24/U25 est mis à jour au §3.A.**
 **Date : 20 octobre 2026.** **Branche : `feat/j11-media-transfer`.**
 **Base documentaire : `bed269e`.** **Base code observée : HEAD `feat/j11-media-transfer`.**
 
@@ -82,8 +83,8 @@ DOM dupliqués.
 | U21 | Suivi de transfert par Capture/Storage (barres, %, Réessayer) | Vérifier la réplication | 09 | implémentée | `js/ui/take-stopped.js` (`barsOf`, retry) ; J11 PASS | transfert | — |
 | U22 | Vue Storage multi-sessions / multi-Takes | Superviser un Storage partagé | 07 (storage) | implémentée | `js/ui/storage-view.js`, `storage-view-model.js` ; J11 PASS | transfert | — |
 | U23 | Reprise automatique des transferts (attente réseau) | Ne jamais perdre un média | 09 / Storage | implémentée | `js/state/transfer-journal.js`, `transfer-boot.js` (ResumeCoordinator) ; **J15 PASS** | réseau | — |
-| U24 | **Consultation d'un Take passé depuis la Session / l'historique** | **Revoir un Take terminé** | 03 → 09 (archivé) ; 15 (`ui/15`) | **partielle (cassée)** | `js/ui/take-stopped.js:389` (`active:false`) vs `rowsOf` (`:149` exige `active`) ; `js/ui/session.js:228`, `js/ui/history.js` | store session | **haute** |
-| U25 | Historique des sessions (écran 15) | Retrouver une session | 15 (`ui/15`) | partielle | `js/ui/history.js` (liste OK ; dépend de U24 pour les Takes) ; `index.html` panneau après `</html>` | U24 | **haute** |
+| U24 | **Consultation d'un Take passé depuis la Session / l'historique** | **Revoir un Take terminé** | 03 → 09 (archivé) ; 15 (`ui/15`) | **implémentée (J16-A, 2026-10-21)** — *état avant J16-A : partielle (cassée)* | **J16-A** : `js/state/take-archive-model.js` (reconstruction pure), `js/ui/take-stopped.js` (`archivedView`, `renderArchived`, `renderFromStore`), faits persistés `summary.stopStates` / `summary.replications` ; 29 tests `app/tests/j16-take-archive.test.js` ; rapport `docs/J16-A-RESULTS.md` | store session | **haute** |
+| U25 | Historique des sessions (écran 15) | Retrouver une session | 15 (`ui/15`) | **implémentée (J16-A)** — *état avant J16-A : partielle* | `js/ui/history.js` (liste OK) ; **panneau replacé dans `</html>`** (J16-A) ; la consultation des Takes dépend désormais de U24, traitée | U24 | **haute** |
 | U26 | Diagnostic device / export / partage | Dépanner à distance | 14 (`ui/14`, décisions §20) | partielle | `js/ui/settings.js` (permissions/switchToSettings OK) ; **pas d'export/partage** dans `app/www` | plugin sharing | moyenne |
 | U27 | GPS / GPX (capture pendant le tournage) | Géolocaliser les rushes | décision §11 | **absente (UI seule)** | réglage Take `gpsProfile` et affichage capacités présents ; **aucun `geolocation`/GPX** dans `app/www/js` | plugin geolocation | moyenne |
 | U28 | Orientation verrouillée / maintien actif pendant REC | Fiabiliser le tournage | décision §13 | **absente** | aucun `screen.orientation`/`insomnia`/`keepAwake` ; caméra native seulement | plugins orientation/insomnia | moyenne |
@@ -115,6 +116,10 @@ SAF) restent des réserves de suivi — voir `docs/SUIVI-PROJET.md`.
 ## 4. Écarts entre spécifications et implémentation
 
 ### 4.1 Écarts utilisateur visibles
+
+> **État au 2026-10-21 :** les écarts **1**, **2** et **4** ont été **corrigés par
+> J16-A** (voir `docs/J16-A-RESULTS.md` §5). Les constats ci-dessous sont
+> conservés : ils décrivent l'état **avant** J16-A. L'écart **3** reste ouvert.
 
 1. **Écran 09 mode archivé inutilisable (U24)** — localisé précisément :
    `take-stopped.js:386-392` construit `vstart = { …, active:false, … }` puis
@@ -172,7 +177,10 @@ SAF) restent des réserves de suivi — voir `docs/SUIVI-PROJET.md`.
 
 ## 5. Fonctionnalités non développées ou signalées dans les rapports
 
-- **U24/U25** — archivage Take + historique : seul manque utilisateur franc.
+- **U24/U25** — archivage Take + historique : **traités par J16-A** (2026-10-21) —
+  seul manque utilisateur franc, désormais levé ; rapport `docs/J16-A-RESULTS.md`.
+  **Validation physique : PASS (13/13)** — campagne sur 3 appareils Android réels
+  (`tests/e2e/validation/J16-A/RESULTS-J16-A-PHYSICAL.md`), 2026-10-22.
 - **U26** — export/partage de diagnostic (décision §20 : « supprimer toute capacité
   de diagnostic serait une régression ») : présent dans le POC, absent de `app/www`.
 - **U27** — GPS/GPX (§11) : réglage et capacités exposés, **aucune acquisition**.
@@ -186,7 +194,9 @@ SAF) restent des réserves de suivi — voir `docs/SUIVI-PROJET.md`.
 
 ## 6. Note de réconciliation proposée pour `docs/AVANCEMENT-V1.md`
 
-> Proposition — à valider par le responsable projet avant application.
+> **Appliquée le 2026-10-21** (J16-A) : le tableau de `docs/AVANCEMENT-V1.md` a été
+> réconcilié avec les sources ci-dessous, sans réécrire l'historique. La ligne J16-A
+> a été ajoutée.
 
 | Jalon | Statut réel (source) |
 |---|---|
@@ -194,7 +204,7 @@ SAF) restent des réserves de suivi — voir `docs/SUIVI-PROJET.md`.
 | J13 | Clôturé avec réserves — 8 PASS / 2 PARTIAL (05, 09) |
 | J14 | Endurance PARTIAL ; correctifs D1/D2/D3 validés (C01/C02) |
 | J15 | PASS (implémentation + physique) — voir `SUIVI-PROJET.md` |
-| J16 | À arbitrer — inventaire fonctionnel (ce document) |
+| J16 | Lot A (U24/U25) implémenté + **validation physique PASS (13/13)** ; lots B→E non commencés |
 
 ---
 
@@ -206,5 +216,6 @@ archivé / écran 15)**, complété par des **éléments transverses différés*
 exportable, GPS/GPX, orientation/wake-lock, SAF complet). Trois anomalies structurelles
 mineures sans impact métier sont confirmées.
 
-Le périmètre J16 est proposé, à titre indicatif, dans
-`docs/PROPOSITION-PERIMETRE-J16.md` — **proposition non validée, à arbitrer**.
+Le périmètre J16 est détaillé dans `docs/PROPOSITION-PERIMETRE-J16.md` — **le lot A
+a été arbitré puis implémenté (J16-A, validé physiquement le 2026-10-22) ; les lots
+B→E restent à arbitrer**.

@@ -1,0 +1,6 @@
+10-22 08:59:31.154 I/chromium(19052): [INFO:CONSOLE:570] "SCREEN09_OPEN sessionId=PT63EPGF take=3 captures=1 incidents=0", source: http://localhost/js/ui/take-stopped.js (570)
+10-22 08:59:49.468 I/chromium(19052): [INFO:CONSOLE:564] "SCREEN09_OPEN_ARCHIVED sessionId=PT63EPGF take=3", source: http://localhost/js/ui/take-stopped.js (564)
+10-22 08:59:49.480 I/chromium(19052): [INFO:CONSOLE:542] "SCREEN09_ARCHIVED sessionId=PT63EPGF take=3 captures=1 state=done unavailable=0", source: http://localhost/js/ui/take-stopped.js (542)
+10-22 08:59:53.558 I/chromium(19052): [INFO:CONSOLE:510] "SCREEN09_ARCHIVED_BACK sessionId=PT63EPGF", source: http://localhost/js/ui/take-stopped.js (510)
+10-22 09:00:02.352 I/chromium(19052): [INFO:CONSOLE:564] "SCREEN09_OPEN_ARCHIVED sessionId=PT63EPGF take=3", source: http://localhost/js/ui/take-stopped.js (564)
+10-22 09:00:02.353 I/chromium(19052): [INFO:CONSOLE:542] "SCREEN09_ARCHIVED sessionId=PT63EPGF take=3 captures=1 state=done unavailable=0", source: http://localhost/js/ui/take-stopped.js (542)

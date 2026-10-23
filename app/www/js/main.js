@@ -307,6 +307,13 @@
     });
   }
 
+  /* J16-A : le panneau 09 affiche-t-il une ARCHIVE (consultation d'un Take
+   * passé) plutôt que la vue vivante du Take courant ? */
+  function isArchivedTakeStopped() {
+    var s = global.MultiCamTakeStoppedScreen;
+    return !!(s && typeof s.isArchived === "function" && s.isArchived());
+  }
+
   /* Fin de plan (annulation, refus, STOP local) : on revient à l'écran ARM
    * depuis le panneau 07. Sans ce rattrapage, l'utilisateur resterait sur une vue
    * de countdown à l'arrêt d'un plan. Le service reste maître de l'état. */
@@ -329,8 +336,11 @@
     }
     /* J10 : plan réellement terminé (abort / nouvelle session) alors qu'on est
      * sur le panneau 09 → retour ARM. Un simple STOP laisse `active=true`, donc
-     * c'est bien une fin de plan, jamais un arrêt, qui déclenche ce cas. */
-    if (current === "take-stopped") {
+     * c'est bien une fin de plan, jamais un arrêt, qui déclenche ce cas.
+     * J16-A : si le panneau 09 est en mode ARCHIVÉ (consultation d'un Take
+     * passé), on NE redirige PAS : l'opérateur consulte un enregistrement
+     * terminé, il n'est pas en train de tourner. */
+    if (current === "take-stopped" && !isArchivedTakeStopped()) {
       console.log("NAV_AUTO reason=plan_ended target=arm from=take-stopped"
         + " sessionId=" + ((v && v.sid) || ""));
       showPanel("arm", { sid: (v && v.sid) || null });

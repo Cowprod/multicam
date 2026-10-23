@@ -1,0 +1,3 @@
+### [09:06:30] DEBUT SCENARIO J16A-LEGACY
+### [09:06:30] LEGACY : consultation d'un Take ANCIEN (ZFMYZRAS take 1) — rétrocompatibilité
+### [09:06:42] FIN SCENARIO J16A-LEGACY

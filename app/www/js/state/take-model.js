@@ -190,7 +190,90 @@
     return map;
   }
 
-  /* Assainit un bloc résumé global Take (J12). */
+  /* J16-A — état d'ARRÊT d'une Capture (par Capture).
+   *
+   * FAITS PUBLICS par Capture : la Capture a publié son `stop_state` (STOPPED,
+   * deltaMs = écart contre son top local, path du média). C'est ce que le
+   * protocole J10 diffuse et ce que l'écran 09 affiche en direct.
+   *
+   * Ces faits étaient perdus à l'arrêt : seuls lesvivants (start-model) les
+   * connaissaient. Ils sont désormais PERSISTÉS dans le résumé du Take pour
+   * que la consultation d'un Take passé (mode archivé) puisse les afficher.
+   * Aucun changement de protocole : on ne fait que conserver ce qui existait
+   * déjà dans le message. */
+  function sanitizeStopState(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    return {
+      deviceId: typeof raw.deviceId === "string" ? raw.deviceId : "",
+      state: typeof raw.state === "string" && raw.state ? raw.state : "STOPPED",
+      stopId: typeof raw.stopId === "string" ? raw.stopId : "",
+      actualMs: isNum(raw.actualMs) ? raw.actualMs : null,
+      localTargetMs: isNum(raw.localTargetMs) ? raw.localTargetMs : null,
+      deltaMs: isNum(raw.deltaMs) ? raw.deltaMs : null,
+      path: typeof raw.path === "string" ? raw.path : "",
+      reason: typeof raw.reason === "string" ? raw.reason : "",
+      receivedAtMs: isNum(raw.receivedAtMs) && raw.receivedAtMs > 0 ? raw.receivedAtMs : 0
+    };
+  }
+
+  function sanitizeStopStateMap(raw) {
+    var map = {};
+    if (!raw || typeof raw !== "object") return map;
+    Object.keys(raw).forEach(function (k) {
+      if (!k) return;
+      var s = sanitizeStopState(raw[k]);
+      if (s) map[k] = s;
+    });
+    return map;
+  }
+
+  /* J16-A — état d'une RÉPLICATION Capture → Storage (par couple).
+   *
+   * Une réplication est le couple (Capture source, Storage destination) : c'est
+   * l'unité de vérité de l'écran 09 (« une barre par Storage attendu »). L'état
+   * GLOBAL d'un transfert (`summary.transferState`) ne dit RIEN du sort d'un
+   * couple précis : il est donc INTERDIT de l'utiliser pour dériver l'état
+   * d'une barre. On conserve ici l'état du couple, tel que rapporté par le
+   * modèle de transfert.
+   *
+   * Clé = "<sourceDeviceId>|<storageDeviceId>". */
+  function sanitizeReplication(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    var src = typeof raw.sourceDeviceId === "string" ? raw.sourceDeviceId : "";
+    var sto = typeof raw.storageDeviceId === "string" ? raw.storageDeviceId : "";
+    if (!src || !sto) return null;
+    return {
+      sourceDeviceId: src,
+      storageDeviceId: sto,
+      state: typeof raw.state === "string" && raw.state ? raw.state : "pending",
+      error: typeof raw.error === "string" ? raw.error : "",
+      bytes: isNum(raw.bytes) && raw.bytes >= 0 ? raw.bytes : 0,
+      total: isNum(raw.total) && raw.total >= 0 ? raw.total : 0,
+      percent: isNum(raw.percent) && raw.percent >= 0 ? Math.min(100, Math.round(raw.percent)) : 0,
+      updatedAtMs: isNum(raw.updatedAtMs) && raw.updatedAtMs > 0 ? raw.updatedAtMs : 0
+    };
+  }
+
+  function sanitizeReplicationMap(raw) {
+    var map = {};
+    if (!raw || typeof raw !== "object") return map;
+    Object.keys(raw).forEach(function (k) {
+      if (!k) return;
+      var r = sanitizeReplication(raw[k]);
+      if (r) map[k] = r;
+    });
+    return map;
+  }
+
+  /* Assainit un bloc résumé global Take (J12).
+   *
+   * J16-A — deux champs ADDITIFS, tous deux facultatifs et vides par défaut :
+   *   - `stopStates`   : état d'arrêt PAR CAPTURE (clé = deviceId Capture) ;
+   *   - `replications` : état PAR COUPLE Capture → Storage (clé = "src|sto").
+   *
+   * RÉTROCOMPATIBILITÉ : un Take antérieur à J16-A (résumé sans ces champs)
+   * est assaini en `{}` — il n'est jamais rejeté, jamais réécrit, et sa
+   * lecture archived signalera explicitement l'information manquante. */
   function sanitizeTakeSummary(raw) {
     if (!raw || typeof raw !== "object") return null;
     var s = {
@@ -202,7 +285,9 @@
       transferBytes: isNum(raw.transferBytes) && raw.transferBytes >= 0 ? raw.transferBytes : 0,
       transferTotal: isNum(raw.transferTotal) && raw.transferTotal >= 0 ? raw.transferTotal : 0,
       transferPercent: isNum(raw.transferPercent) && raw.transferPercent >= 0 ? Math.min(100, Math.round(raw.transferPercent)) : 0,
-      transfers: sanitizeTransferSummaryMap(raw.transfers)
+      transfers: sanitizeTransferSummaryMap(raw.transfers),
+      stopStates: sanitizeStopStateMap(raw.stopStates),
+      replications: sanitizeReplicationMap(raw.replications)
     };
     return s;
   }
@@ -746,6 +831,11 @@
     sanitizeOverrides: sanitizeOverrides,
     sanitizeTake: sanitizeTake,
     sanitizeTakes: sanitizeTakes,
+    sanitizeTakeSummary: sanitizeTakeSummary,
+    sanitizeStopState: sanitizeStopState,
+    sanitizeStopStateMap: sanitizeStopStateMap,
+    sanitizeReplication: sanitizeReplication,
+    sanitizeReplicationMap: sanitizeReplicationMap,
     cloneTake: cloneTake,
     createFirstTake: createFirstTake,
     createNextTake: createNextTake,

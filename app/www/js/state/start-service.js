@@ -597,10 +597,59 @@
   }
 
    var lastPersistedStopKey = "";
+  /* J16-A — signature des états d'arrêt déjà persistés (cf. `persistStopIfNeeded`). */
+  var lastPersistedStopSig = null;
 
   var stopPersistHooks = [];
   function registerStopPersistHook(fn) {
     if (typeof fn === "function" && stopPersistHooks.indexOf(fn) < 0) stopPersistHooks.push(fn);
+  }
+
+  /* J16-A — signature DÉTERMINISTE des états d'arrêt connus : elle ne change
+   * que si un FAIT nouveau est apparu (une Capture de plus a confirmé). Elle
+   * sert de garde-fou d'écriture : on ne réécrit le résumé que lorsqu'il y a
+   * réellement du nouveau. */
+  function stopStatesSignature(states) {
+    if (!states || typeof states !== "object") return "";
+    var dids = Object.keys(states).sort();
+    return dids.map(function (did) {
+      var st = states[did] || {};
+      return did + ":" + (st.state || "") + ":" + (isNum(st.actualMs) ? st.actualMs : "") + ":" + (isNum(st.deltaMs) ? st.deltaMs : "");
+    }).join(";");
+  }
+
+  /* J16-A — états d'arrêt PAR CAPTURE, normalisés pour la persistance.
+   * L'assainissement est celui du modèle de Take (source unique de vérité) ;
+   * à défaut, une copie minimale mais HONNête (aucune valeur inventée). */
+  function stopStatesOf(states, prevSummary) {
+    var tm = global.MultiCamTakeModel;
+    var out;
+    if (tm && typeof tm.sanitizeStopStateMap === "function") {
+      out = tm.sanitizeStopStateMap(states || {});
+    } else {
+      out = {};
+      Object.keys(states || {}).forEach(function (did) {
+        var st = states[did];
+        if (!st || typeof st !== "object") return;
+        out[did] = {
+          deviceId: typeof st.deviceId === "string" ? st.deviceId : did,
+          state: typeof st.state === "string" && st.state ? st.state : "STOPPED",
+          stopId: typeof st.stopId === "string" ? st.stopId : "",
+          actualMs: isNum(st.actualMs) ? st.actualMs : null,
+          localTargetMs: isNum(st.localTargetMs) ? st.localTargetMs : null,
+          deltaMs: isNum(st.deltaMs) ? st.deltaMs : null,
+          path: typeof st.path === "string" ? st.path : "",
+          reason: typeof st.reason === "string" ? st.reason : "",
+          receivedAtMs: isNum(st.receivedAtMs) && st.receivedAtMs > 0 ? st.receivedAtMs : 0
+        };
+      });
+    }
+    /* Un état déjà persisté et toujours connu n'est jamais perdu. */
+    var prev = (prevSummary && prevSummary.stopStates) || {};
+    Object.keys(prev).forEach(function (did) {
+      if (!out[did] && prev[did]) out[did] = prev[did];
+    });
+    return out;
   }
   function triggerStopPersist(v) {
     try {
@@ -656,7 +705,15 @@
        return Promise.resolve(null);
      }
      var key = sid + "|" + takeNum + "|" + stopId;
-     if (key === lastPersistedStopKey) return Promise.resolve(null);
+     /* J16-A — signature des états d'arrêt CONNUS. Le garde-fou historique
+      * (clé sid|take|stopId) empêche d'écrire le même arrêt mille fois ; la
+      * signature autorise en revanche UNE réécriture par confirmation
+      * supplémentaire (une Capture qui confirme APRÈS l'arrêt tardif). Le
+      * nombre d'écritures reste BORNÉ par le nombre de Captures du Take —
+      * ce n'est pas une source d'orage réseau (cf. J14-B02 : l'orage venait
+      * de la PROGRESSION de transfert, pas de l'arrêt). */
+     var stopSig = stopStatesSignature(v.stopStates);
+     if (key === lastPersistedStopKey && stopSig === lastPersistedStopSig) return Promise.resolve(null);
      var storeApi = store();
      var wsApi = ws();
      if (!storeApi || typeof storeApi.get !== "function" || !wsApi || typeof wsApi.upsertTake !== "function") return Promise.resolve(null);
@@ -683,25 +740,33 @@
          takeNum = take.takeNumber;
        }
        if (!take) return null;
-       lastPersistedStopKey = key;
+        lastPersistedStopKey = key;
+        lastPersistedStopSig = stopSig;
        var tm = global.MultiCamTakeModel;
        var t2 = tm ? JSON.parse(JSON.stringify(take)) : JSON.parse(JSON.stringify(take));
        var wantStatus = tm && tm.STATUS_TERMINATED ? tm.STATUS_TERMINATED : "TERMINATED";
        if (t2.status !== wantStatus)        if (t2.status !== wantStatus && t2.status !== "TERMINATED") t2.status = wantStatus;
        t2.updatedByDeviceId = selfDid() || t2.updatedByDeviceId || "";
        t2.updatedAtMs = nowMs();
-       var summary = {
-         stoppedAtMs: (v.localStopInfo && (isNum(v.localStopInfo.stopAtMs) || isNum(v.localStopInfo.actualMs))) ? (v.localStopInfo.stopAtMs || v.localStopInfo.actualMs)
-           : (v.stop && (isNum(v.stop.stopAtMs) || isNum(v.stop.actualMs))) ? (v.stop.stopAtMs || v.stop.actualMs) : nowMs(),
-         durationMs: isNum(v.stopDurationMs) ? v.stopDurationMs : (isNum(v.recElapsedMs) ? v.recElapsedMs : 0),
-         stopReason: (v.stop && v.stop.reason) || "",
-         transferState: (t2.summary && t2.summary.transferState) || "",
-         transferError: (t2.summary && t2.summary.transferError) || "",
-         transferBytes: (t2.summary && t2.summary.transferBytes) || 0,
-         transferTotal: (t2.summary && t2.summary.transferTotal) || 0,
-         transferPercent: (t2.summary && t2.summary.transferPercent) || 0,
-         transfers: (t2.summary && t2.summary.transfers) ? JSON.parse(JSON.stringify(t2.summary.transfers)) : {}
-       };
+        var summary = {
+          stoppedAtMs: (v.localStopInfo && (isNum(v.localStopInfo.stopAtMs) || isNum(v.localStopInfo.actualMs))) ? (v.localStopInfo.stopAtMs || v.localStopInfo.actualMs)
+            : (v.stop && (isNum(v.stop.stopAtMs) || isNum(v.stop.actualMs))) ? (v.stop.stopAtMs || v.stop.actualMs) : nowMs(),
+          durationMs: isNum(v.stopDurationMs) ? v.stopDurationMs : (isNum(v.recElapsedMs) ? v.recElapsedMs : 0),
+          stopReason: (v.stop && v.stop.reason) || "",
+          transferState: (t2.summary && t2.summary.transferState) || "",
+          transferError: (t2.summary && t2.summary.transferError) || "",
+          transferBytes: (t2.summary && t2.summary.transferBytes) || 0,
+          transferTotal: (t2.summary && t2.summary.transferTotal) || 0,
+          transferPercent: (t2.summary && t2.summary.transferPercent) || 0,
+          transfers: (t2.summary && t2.summary.transfers) ? JSON.parse(JSON.stringify(t2.summary.transfers)) : {},
+          /* J16-A — les faits d'arrêt PAR CAPTURE sont conservés (ils étaient
+           * perdus : seuls les vivants les connaissaient). C'est ce qui permet
+           * d'afficher l'état final d'une Capture sur un Take PASSÉ. */
+          stopStates: stopStatesOf(v.stopStates, t2.summary),
+          /* J16-A — les faits de RÉPLICATION (couple Capture → Storage) sont
+           * conservés tels quels : l'arrêt ne doit jamais les effacer. */
+          replications: (t2.summary && t2.summary.replications) ? JSON.parse(JSON.stringify(t2.summary.replications)) : {}
+        };
        var hasStopStates = v.stopStates && Object.keys(v.stopStates).length;
        if (hasStopStates && Object.keys(summary.transfers).length === 0) {
          Object.keys(v.stopStates).forEach(function (did) {

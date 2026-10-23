@@ -1,11 +1,13 @@
 # MultiCam — Proposition de périmètre J16
 
-> ## ⚠️ PROPOSITION NON VALIDÉE
-> Ce document est une **proposition de travail**. Il ne décide pas du périmètre J16.
-> Le périmètre doit être **arbitré par le responsable du projet** avant toute
-> implémentation. Aucun lot ci-dessous n'est autorisé en l'état. Aucune ligne de
-> code ne doit être écrite sur la base de ce document sans validation explicite.
-> J16 n'est **pas** une nouvelle campagne générale de corrections techniques.
+> ## ⚠️ ARBITRAGE PARTIEL — lot A autorisé, lots B→E non validés
+> Ce document est une **proposition de travail**. Il ne décide pas seul du périmètre
+> J16. **Le lot A a été arbitré puis implémenté et validé physiquement** (voir
+> `docs/J16-A-RESULTS.md` et
+> `tests/e2e/validation/J16-A/RESULTS-J16-A-PHYSICAL.md`) ; **les lots B à E ne sont
+> pas validés** : aucune ligne de code ne doit être écrite sur la base de ce document
+> sans validation explicite. J16 n'est **pas** une nouvelle campagne générale de
+> corrections techniques.
 
 **Date : 20 octobre 2026.** **Branche : `feat/j11-media-transfer`.**
 **Inventaire de référence : `docs/INVENTAIRE-FONCTIONNEL-J16.md`.**

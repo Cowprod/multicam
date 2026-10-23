@@ -484,6 +484,48 @@
       });
     }
 
+    /* J16-A — projection PERSISTABLE de l'état des réplications.
+     *
+     * `transfers` : vue du modèle de transfert (clé "src|storage"). On en
+     * retient un état par COUPLE, ce qui est l'unité affichée par l'écran 09
+     * (« une barre par Storage attendu ») et l'unité qui permet de rouvrir un
+     * Take passé sans rien déduire d'un état global.
+     *
+     * `prev` : réplications déjà persistées. L'horodatage n'est rafraîchi que
+     * si le FAIT a changé (état/octets/pourcentage/erreur) : inutile de faire
+     * diverger deux Masters sur une simple estampille. */
+    function replicationsOf(transfers, prev) {
+      var out = {};
+      var old = prev || {};
+      Object.keys(transfers || {}).forEach(function (k) {
+        var tr = transfers[k];
+        if (!tr || !tr.sourceDeviceId || !tr.storageDeviceId) return;
+        var bytes = Number(tr.bytes) || 0;
+        var total = Number(tr.total) || 0;
+        var percent = Number(tr.percent) || 0;
+        var state = tr.state || "pending";
+        var error = tr.error || "";
+        var before = old[k];
+        var same = before
+          && before.state === state
+          && before.error === error
+          && before.bytes === bytes
+          && before.total === total
+          && before.percent === percent;
+        out[k] = {
+          sourceDeviceId: tr.sourceDeviceId,
+          storageDeviceId: tr.storageDeviceId,
+          state: state,
+          error: error,
+          bytes: bytes,
+          total: total,
+          percent: percent,
+          updatedAtMs: same ? before.updatedAtMs : Date.now()
+        };
+      });
+      return out;
+    }
+
     function updateTakeFromTransfers() {
       var wsApi = ws();
       var storeApi = sessionStore();
@@ -524,13 +566,23 @@
         else if (waiting > 0) transferState = "WAITING_NETWORK";
         var summary = t2.summary ? JSON.parse(JSON.stringify(t2.summary)) : {
           stoppedAtMs: 0, durationMs: 0, stopReason: "", transferState: "", transferError: "",
-          transferBytes: 0, transferTotal: 0, transferPercent: 0, transfers: {}
+          transferBytes: 0, transferTotal: 0, transferPercent: 0, transfers: {},
+          stopStates: {}, replications: {}
         };
         summary.transferState = transferState;
         summary.transferBytes = bytes;
         summary.transferTotal = totalBytes || bytes;
         summary.transferPercent = (totalBytes > 0) ? Math.round((bytes / totalBytes) * 100) : (keys.length > 0 ? (done * 100 / keys.length) : 0);
         if (transferState === "ERROR" && error > 0) summary.transferError = "transfer_error";
+        /* J16-A — l'état de CHAQUE réplication (couple Capture → Storage) est
+         * conservé, pas seulement l'état GLOBAL agrégé. C'est indispensable
+         * pour rouvrir un Take passé : l'état global ne dit pas quel Storage a
+         * reçu quoi. On ne modifie RIEN au transfert lui-même — on ne fait que
+         * conserver ce que le modèle de transfert connaît déjà. */
+        summary.replications = replicationsOf(transfers, summary.replications);
+        /* Les faits d'arrêt (par Capture) écrits par le service START sont
+         * conservés : la fin des transferts ne doit jamais les effacer. */
+        if (!summary.stopStates) summary.stopStates = {};
         if (t2.status !== takeMod.STATUS_TERMINATED) {
           if (transferState === "TERMINATED") t2.status = takeMod.STATUS_TERMINATED;
           else if (transferState === "ERROR") t2.status = takeMod.STATUS_ERROR;

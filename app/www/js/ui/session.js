@@ -73,7 +73,7 @@
     var s = state.session;
     if (!s) return;
     var closed = s.state === "closed";
-    byId("sessionName").textContent = s.name;
+    byId("sessionNameLabel").textContent = s.name;
 
     var badge = byId("sessionBadge");
     badge.textContent = closed ? "FERMÉE" : "OUVERTE";

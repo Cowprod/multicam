@@ -58,6 +58,9 @@
 .ts-row-state.st-stopped { background: rgba(25, 135, 84, .28); }
 .ts-row-state.st-warning { background: rgba(255, 193, 7, .2); }
 .ts-row-state.st-error { background: rgba(232, 73, 96, .3); }
+/* J16-A : information indisponible (archive) — neutre, jamais un avertissement
+   ni un succès : on ne fabrique pas de statut. */
+.ts-row-state.st-unknown { background: rgba(255, 255, 255, .08); opacity: .8; }
 
 .ts-row-delta {
   font-size: .72rem;

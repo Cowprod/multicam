@@ -1,0 +1,4 @@
+LEGACY_OPENED=PASS
+LEGACY_CAPTURE_READABLE=PASS (la Capture est identifiée)
+LEGACY_REPLICATION_NOT_INVENTED=PASS (l'état de réplication inconnu est signalé Indisponible)
+LEGACY_UNAVAILABLE_EXPLICIT=PASS (information manquante signalée)

@@ -1,0 +1,10 @@
+### [08:56:31] DEBUT SCENARIO J16A-P01
+### [08:56:31] P01 : Take nominal 30 s
+### [08:56:31] P01 : nouveau Take
+### [08:56:42] P01 : ARM + REC 30s + STOP
+### [08:59:30] P01 : STOP demandé (take=3)
+### [08:59:46] P01 : faits PERSISTÉS dans le résumé du Take
+### [08:59:46] P01 : consultation ARCHIVÉE depuis l'écran 03 (session)
+### [08:59:53] P01 : retour à la session
+### [08:59:55] P01 : consultation ARCHIVÉE depuis l'écran 15 (historique)
+### [09:00:06] FIN SCENARIO J16A-P01

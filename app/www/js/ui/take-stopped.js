@@ -94,6 +94,10 @@
       case "transferring": return { text: "Transfert", cls: "" };
       /* J15 : attente réseau = NON terminal ; reprise automatique en cours. */
       case "waiting_network": return { text: "En attente réseau", cls: "bg-warning" };
+      /* J16-A : l'état GLOBAL d'un transfert ne prouve JAMAIS l'état d'un
+       * couple Capture → Storage. Une destination sans donnée est donc
+       * « indisponible », jamais « terminée ». */
+      case "unknown": return { text: "Indisponible", cls: "" };
       default: return { text: "En attente", cls: "" };
     }
   }
@@ -138,7 +142,7 @@
     return out;
   }
 
-  var state = { sid: null, bound: false };
+  var state = { sid: null, bound: false, archived: false, projection: null };
 
   /* Lignes PURES : une ligne = { deviceId, name, state, stateText, stateClass,
    * deltaText, path, offline, bars }. L'état est DÉRIVÉ des réplications (README
@@ -214,7 +218,9 @@
       takeStateText: ts.text,
       takeStateClass: ts.cls,
       rows: rows,
-      empty: rows.length === 0
+      empty: rows.length === 0,
+      archived: false,
+      unavailable: []
     };
   }
 
@@ -315,8 +321,126 @@
     paintBars(node, row);
   }
 
+  /* ---------- J16-A : mode ARCHIVÉ (consultation d'un Take précédent) ---------- */
+
+  /* État d'une Capture ARCHIVÉE → libellé + classe.
+   * Les six premiers états sont EXACTEMENT ceux du mode direct : l'écran parle
+   * la même langue en direct et en archive. Les trois derniers disent ce qui
+   * est connu et ce qui ne l'est pas. */
+  function archivedRowState(state) {
+    switch (state) {
+      case "ERROR": return { text: "Erreur", cls: "st-error" };
+      case "DONE": return { text: "Terminé", cls: "st-stopped" };
+      case "TRANSFER": return { text: "Transfert", cls: "st-warning" };
+      case "WAITING_NETWORK": return { text: "En attente réseau", cls: "st-warning" };
+      case "WAITING": return { text: "En attente", cls: "st-warning" };
+      /* La Capture est arrêtée mais l'état de réplication n'est pas documenté. */
+      case "RECORDED": return { text: "Enregistré", cls: "st-stopped" };
+      /* Une partie des destinations est documentée, l'autre non. */
+      case "PARTIAL": return { text: "Réplication partielle", cls: "st-warning" };
+      default: return { text: "Information indisponible", cls: "st-unknown" };
+    }
+  }
+
+  /* État global d'un Take ARCHIVÉ → libellé + classe. */
+  function archivedTakeState(state) {
+    switch (state) {
+      case "error": return { text: "Erreur", cls: "text-danger" };
+      case "done": return { text: "Terminé", cls: "text-success" };
+      case "running": return { text: "Transferts en cours", cls: "text-warning" };
+      case "waiting": return { text: "En attente de réplication", cls: "text-warning" };
+      case "partial": return { text: "Réplication partielle", cls: "text-warning" };
+      case "none": return { text: "Aucune Capture", cls: "text-secondary" };
+      default: return { text: "Information indisponible", cls: "text-secondary" };
+    }
+  }
+
+  /* Projection ARCHIVÉE : transforme les FAITS reconstruits (module pur
+   * `state/take-archive-model.js`) en lignes d'AFFICHAGE. La FORME du
+   * résultat est celle de `view()` : le DOM est donc identique.
+   *
+   * Deux différences assumées avec le mode direct :
+   *  - le bouton « Réessayer » n'a AUCUN sens en archive (le transfert est
+   *    terminé ou inconnu) : il n'est jamais proposé ;
+   *  - une Capture sans confirmation d'arrêt affiche « aucune confirmation »
+   *    (et non « en attente de … ») : en archive, une attente n'a pas de sens. */
+  function archivedView(arch) {
+    arch = arch || {};
+    var rows = (arch.rows || []).map(function (r) {
+      var st = archivedRowState(r.state);
+      var bars = (r.destinations || []).map(function (d) {
+        var bs = barState(d.state);
+        var meta;
+        if (d.state === "unknown") {
+          meta = "Information de réplication indisponible";
+        } else if (d.state === "done") {
+          meta = fmtBytes(d.bytes) + " / " + fmtBytes(d.total) + " · Terminé";
+        } else if (d.state === "error") {
+          meta = fmtBytes(d.bytes) + " / " + fmtBytes(d.total) + " · interrompu à " + d.percent + " %";
+        } else if (d.state === "pending") {
+          meta = "0 / " + fmtBytes(d.total);
+        } else {
+          meta = fmtBytes(d.bytes) + " / " + fmtBytes(d.total) + " · " + d.percent + " %";
+        }
+        return {
+          storageDeviceId: d.storageDeviceId,
+          name: d.name,
+          state: d.state,
+          stateText: bs.text,
+          barClass: bs.cls,
+          percent: d.state === "done" ? 100 : d.percent,
+          meta: meta,
+          retry: false
+        };
+      });
+      return {
+        deviceId: r.deviceId,
+        name: r.name,
+        state: r.state,
+        stateText: st.text,
+        stateClass: st.cls,
+        deltaText: (r.deltaMs === null || r.deltaMs === undefined) ? "—" : fmtDelta(r.deltaMs),
+        path: r.path || "",
+        incident: false,
+        offline: !r.stopKnown,
+        offlineText: r.stopKnown ? "" : ("Aucune confirmation d'arrêt reçue pour " + r.name),
+        bars: bars
+      };
+    });
+    var ts = archivedTakeState(arch.state);
+    return {
+      sessionName: arch.sessionName || "",
+      takeLabel: arch.takeNumber ? "Take " + String(arch.takeNumber).padStart(3, "0") : "Take —",
+      durationText: arch.durationKnown ? hms(arch.durationMs) : "—",
+      takeStateText: ts.text,
+      takeStateClass: ts.cls,
+      rows: rows,
+      empty: rows.length === 0,
+      archived: true,
+      unavailable: arch.unavailable || []
+    };
+  }
+
+  function renderArchived(arch) {
+    return paintProjection(archivedView(arch));
+  }
+
   function render(v) {
-    var pv = view(v);
+    /* J16-A — un Take ARCHIVÉ est un fait FIGÉ. Les vues VIVANTES (START,
+     * service de transfert) sont re-rendues à chaque révision par le routeur
+     * (main.js) : en mode archivé, elles doivent être IGNORÉES, sinon l'écran
+     * afficherait le Take courant à la place du Take consulté. */
+    if (state.archived) return state.projection;
+    return paintProjection(view(v));
+  }
+
+  /* J16-A — projection DOM à partir d'une VUE de panneau.
+   *
+   * `render()` (mode direct) et `renderArchived()` (mode archivé) convergent
+   * ici : le DOM est le même, seule la PROVENANCE des faits change. Le mode
+   * direct reste inchangé — il continue de passer par `view(v)`. */
+  function paintProjection(pv) {
+    state.projection = pv;
     var sX = byId("tsSession");
     if (sX) sX.textContent = pv.sessionName || "—";
     var tX = byId("tsTake");
@@ -328,6 +452,19 @@
     }
     var dX = byId("tsDuration");
     if (dX) dX.textContent = pv.durationText;
+    /* J16-A : bandeau des informations indisponibles (mode archivé seul). */
+    var noteX = byId("tsArchiveNote");
+    if (noteX) {
+      var note = (pv.unavailable && pv.unavailable.length) ? pv.unavailable.join(" ") : "";
+      if (noteX.textContent !== note) noteX.textContent = note;
+      noteX.classList.toggle("d-none", !note);
+    }
+    /* J16-A : en archive, « Préparer le Take suivant » n'a aucun sens (le Take
+     * est passé) : c'est un « Retour à la session » qui est proposé. */
+    var backX = byId("tsBack");
+    if (backX) backX.classList.toggle("d-none", !pv.archived);
+    var doneX = byId("tsDone");
+    if (doneX) doneX.classList.toggle("d-none", !!pv.archived);
     var list = byId("tsList");
     if (!list) return pv;
 
@@ -367,32 +504,54 @@
         global.MultiCamNav.show("take", { sid: state.sid });
       }
     });
+    /* J16-A : en archive, on revient à la session consultée. */
+    var back = byId("tsBack");
+    if (back) back.addEventListener("click", function () {
+      console.log("SCREEN09_ARCHIVED_BACK sessionId=" + (state.sid || "—"));
+      if (global.MultiCamNav && typeof global.MultiCamNav.show === "function") {
+        global.MultiCamNav.show("session", { sid: state.sid });
+      }
+    });
   }
 
+  /* J16-A — consultation d'un Take PRÉCÉDENT.
+   *
+   * Les données viennent du STORE (faits persistés) et sont reconstruites par
+   * le module pur `state/take-archive-model.js`. Le mode direct n'est PAS
+   * concerné : cette fonction ne lit ni le service START ni le service de
+   * transfert (ce sont des sources VIVANTES, vides pour un Take passé). */
   function renderFromStore(sid, takeNumber) {
     try {
       var store = global.MultiCamSessionStore;
-      if (!store || typeof store.get !== "function") return;
-      store.get(sid).then(function (s) {
-        if (!s) return;
+      if (!store || typeof store.get !== "function") return Promise.resolve(null);
+      return Promise.resolve(store.get(sid)).then(function (s) {
+        if (!s) return null;
         var takes = s.takes || [];
         var t = null;
         for (var i = 0; i < takes.length; i++) {
           if (takes[i] && takes[i].takeNumber === takeNumber) { t = takes[i]; break; }
         }
-        if (!t) return;
-        var dom = byId("tsSession") && global.document ? global.document : null;
-        if (!dom) return;
-        var vstart = {
-          sid: sid,
-          takeNumber: takeNumber,
-          active: false,
-          stopStates: (t.summary && t.summary.transfers) || {},
-          localStopInfo: { stopAtMs: t.summary && t.summary.stoppedAtMs }
-        };
-        render(vstart);
+        if (!t) return null;
+        var model = global.MultiCamTakeArchiveModel;
+        if (!model || typeof model.reconstruct !== "function") {
+          console.log("SCREEN09_ARCHIVED_UNAVAILABLE reason=archive_model_missing sessionId=" + (sid || "—"));
+          return null;
+        }
+        var arch = model.reconstruct({ take: t, session: s });
+        var pv = renderArchived(arch);
+        console.log("SCREEN09_ARCHIVED sessionId=" + (sid || "—") + " take=" + takeNumber
+          + " captures=" + pv.rows.length
+          + " state=" + arch.state
+          + " unavailable=" + (arch.unavailable ? arch.unavailable.length : 0));
+        return pv;
+      }).catch(function (e) {
+        console.log("SCREEN09_ARCHIVED_ERR " + String((e && e.message) || e));
+        return null;
       });
-    } catch (e) {}
+    } catch (e) {
+      console.log("SCREEN09_ARCHIVED_ERR " + String((e && e.message) || e));
+      return Promise.resolve(null);
+    }
   }
 
   function show(cfg, params) {
@@ -400,10 +559,12 @@
     state.sid = params.sid || state.sid;
     bind();
     if (params.archived === "1" && params.takeNumber) {
-      renderFromStore(params.sid || state.sid, params.takeNumber);
+      state.archived = true;
+      var p = renderFromStore(params.sid || state.sid, params.takeNumber);
       console.log("SCREEN09_OPEN_ARCHIVED sessionId=" + (params.sid || state.sid) + " take=" + params.takeNumber);
-      return;
+      return p;
     }
+    state.archived = false;
     var v = global.MultiCamStartService ? global.MultiCamStartService.view() : null;
     var pv = render(v);
     console.log("SCREEN09_OPEN sessionId=" + (state.sid || "—")
@@ -418,6 +579,13 @@
     render: render,
     view: view,
     rowsOf: rowsOf,
+    /* J16-A : projection archivée (données persistées → lignes d'affichage). */
+    archivedView: archivedView,
+    renderArchived: renderArchived,
+    /* J16-A : l'écran sait-il qu'il consulte une archive ? Le routeur (main.js)
+     * s'en sert pour ne PAS rediriger vers ARM à la fin d'un plan : l'opérateur
+     * consulte un Take passé, il n'est pas en train de tourner. */
+    isArchived: function () { return !!state.archived; },
     _nodes: NODES
   };
 })(window);

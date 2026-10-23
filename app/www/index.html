@@ -139,7 +139,7 @@
 <div class="card glass rounded-4 mb-3">
   <div class="card-body p-3">
     <div id="sessionNameRow" class="d-flex align-items-center gap-2">
-      <div class="fw-semibold fs-5 flex-grow-1 text-truncate" id="sessionName">…</div>
+      <div class="fw-semibold fs-5 flex-grow-1 text-truncate" id="sessionNameLabel">…</div>
       <button id="renameButton" class="btn btn-outline-light glass icon d-none" type="button" aria-label="Renommer"><i class="fa-solid fa-pen"></i></button>
     </div>
     <div id="sessionNameForm" class="d-flex gap-2 d-none mt-2">
@@ -600,9 +600,19 @@
   <div class="ts-grid-label small text-uppercase muted px-1">
     <span>Captures</span>
   </div>
+
+  <!-- J16-A : informations indisponibles (mode archivé). Masqué en mode direct,
+       où tout ce qui est affiché est un fait vivant. -->
+  <div id="tsArchiveNote" class="alert alert-secondary py-2 px-3 small d-none"></div>
+
   <div class="ts-list card glass strong rounded-4" id="tsList"></div>
 
   <div class="d-grid gap-2 mt-3">
+    <!-- J16-A : visible UNIQUEMENT en mode archivé (consultation d'un Take
+         passé) : on revient à la session consultée. -->
+    <button id="tsBack" class="btn btn-outline-light glass d-none" type="button">
+      <i class="fa-solid fa-arrow-left me-2"></i>Retour à la session
+    </button>
     <button id="tsDone" class="btn btn-primary mainbtn" type="button">
       <i class="fa-solid fa-forward me-2"></i>Préparer le Take suivant
     </button>
@@ -850,6 +860,8 @@
 <!-- Vue détaillée : ouverte par live.js, refermée par le backdrop / × / Échap. -->
 <script src="js/ui/live-detail.js"></script>
 <script src="js/ui/countdown.js"></script>
+<!-- J16-A : reconstruction des données ARCHIVÉES d'un Take (module pur). -->
+<script src="js/state/take-archive-model.js"></script>
 <!-- Écran 09 minimal (J10) : panneau « Take arrêté » après un STOP global. -->
 <script src="js/ui/take-stopped.js"></script>
 <!-- Vue Storage 07 (J11) : projection pure puis rendu DOM multi-session/Take. -->
@@ -857,9 +869,10 @@
 <script src="js/ui/storage-view.js"></script>
 <script src="js/ui/settings.js"></script>
 <script src="js/main.js"></script>
-</body>
-</html>
-<!-- ============ Écran 15 — Historique ============ -->
+<!-- ============ Écran 15 — Historique ============
+     J16-A : ce panneau était placé APRÈS </html> (le navigateur le ramenait
+     dans le body, mais la structure du document était invalide). Il est
+     désormais dans le flux normal du document. -->
 <section id="panel-history" class="screen">
 <header class="d-flex align-items-center gap-3 mb-3">
   <button id="historyBack" class="btn btn-outline-light glass icon" type="button" aria-label="Retour"><i class="fa-solid fa-arrow-left"></i></button>
@@ -869,17 +882,6 @@
   <div id="historyList" class="vstack gap-2"></div>
 </section>
 </section>
-
 <script src="js/ui/history.js"></script>
-
-
-
-<div id="nextTakeCard" class="card glass strong rounded-4 mt-3">
-  <div class="card-body p-3 d-flex align-items-center gap-2">
-    <div class="flex-grow-1">
-      <div class="small text-uppercase muted">Prochain Take</div>
-      <div class="fw-semibold" id="nextTakeLabel">—</div>
-    </div>
-    <button id="nextTakePrepare" class="btn btn-primary" type="button">Préparer Take</button>
-  </div>
-</div>
+</body>
+</html>
