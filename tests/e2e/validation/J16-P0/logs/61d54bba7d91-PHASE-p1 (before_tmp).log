@@ -1,0 +1,4 @@
+10-25 17:18:00.849 I/chromium(21651): [INFO:CONSOLE:47] "SESSION_STORE_SAVE sessionId=899GJ2SM storage=file state=open bak=1", source: http://localhost/js/state/session-store.js (47)
+10-25 17:18:00.952 I/chromium(21651): [INFO:CONSOLE:47] "SESSION_STORE_SAVE sessionId=899GJ2SM storage=file state=open bak=1", source: http://localhost/js/state/session-store.js (47)
+10-25 17:18:01.059 I/chromium(21651): [INFO:CONSOLE:47] "SESSION_STORE_SAVE sessionId=899GJ2SM storage=file state=open bak=1", source: http://localhost/js/state/session-store.js (47)
+10-25 17:18:01.165 I/chromium(21651): [INFO:CONSOLE:47] "SESSION_STORE_SAVE sessionId=899GJ2SM storage=file state=open bak=1", source: http://localhost/js/state/session-store.js (47)

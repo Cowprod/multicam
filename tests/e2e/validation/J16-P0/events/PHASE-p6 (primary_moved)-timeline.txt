@@ -1,0 +1,9 @@
+### [08:43:12] DEBUT SCENARIO PHASE-p6 (primary_moved)
+### [08:43:12] PHASE-p6 : snapshot disque AVANT armation
+### [08:43:13] PHASE-p6 : armation (stage=primary_moved delay=4000ms)
+### [08:43:13] PHASE-p6 : force-stop au cœur de la phase
+### [08:43:16] PHASE-p6 : snapshot disque APRÈS kill (app morte — aucune contamination WS)
+### [08:43:16] PHASE-p6 : relance + récupération
+### [08:43:25] PHASE-p6 : vérifications APRÈS relance
+### [08:43:26] PHASE-p6 : reprise des écritures (sauvegarde ordinaire de consolidation)
+### [08:43:26] FIN SCENARIO PHASE-p6 (primary_moved)

@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "9BQCCPJ2",
+  "name": "Regie P0-165021 #V8",
+  "nameUpdatedMs": 1792944000314,
+  "nameByDeviceId": "",
+  "pin": "2420",
+  "state": "open",
+  "stateUpdatedMs": 1792943423897,
+  "stateByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+  "createdAtMs": 1792943423897,
+  "updatedAtMs": 1792944007048,
+  "masters": [
+    {
+      "deviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "deviceName": "J16P0-A-Master",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1792943423897
+    },
+    {
+      "deviceId": "19848326-0070-44cb-8de3-0d0d4ec7eb19",
+      "deviceName": "J16A-B-Capture",
+      "endpoint": "192.168.92.76:45102",
+      "joinedAtMs": 1792943431547
+    },
+    {
+      "deviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa",
+      "deviceName": "J16P0-C-Storage",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1792943434016
+    }
+  ],
+  "members": [
+    {
+      "deviceId": "19848326-0070-44cb-8de3-0d0d4ec7eb19",
+      "deviceName": "J16P0-B-Capture",
+      "endpoint": "",
+      "enabledSkills": [
+        "capture"
+      ],
+      "sessionRoles": [
+        "capture"
+      ],
+      "addedAtMs": 1792943436906,
+      "addedByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "roleUpdatedMs": 1792943436906,
+      "roleByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1792943420541,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 32592023552,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1792944001664,
+        "updatedAtMs": 1792944001665,
+        "updatedByDeviceId": "19848326-0070-44cb-8de3-0d0d4ec7eb19"
+      }
+    },
+    {
+      "deviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa",
+      "deviceName": "J16P0-C-Storage",
+      "endpoint": "",
+      "enabledSkills": [
+        "storage"
+      ],
+      "sessionRoles": [
+        "storage"
+      ],
+      "addedAtMs": 1792943436989,
+      "addedByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "roleUpdatedMs": 1792943436989,
+      "roleByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1792943420814,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 11276365824,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1792944007190,
+        "updatedAtMs": 1792944007048,
+        "updatedByDeviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa"
+      }
+    }
+  ],
+  "removedMembers": {},
+  "takes": [
+    {
+      "takeNumber": 1,
+      "status": "TERMINATED",
+      "captures": [
+        "19848326-0070-44cb-8de3-0d0d4ec7eb19"
+      ],
+      "storages": [
+        "ece36247-72e3-4268-a3b7-d0dcf80f4bfa"
+      ],
+      "settings": {
+        "video": {
+          "resolution": "FHD",
+          "quality": "HIGH",
+          "camera": "REAR",
+          "orientation": "LANDSCAPE"
+        },
+        "audio": true,
+        "gpsProfile": "NORMAL",
+        "countdownSeconds": 5,
+        "transferAuto": true,
+        "deleteLocalAfterVerifiedReplication": true
+      },
+      "captureOverrides": {},
+      "createdAtMs": 1792943544668,
+      "updatedAtMs": 1792943587345,
+      "updatedByDeviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa",
+      "summary": {
+        "stoppedAtMs": 1792943580008,
+        "durationMs": 18461,
+        "stopReason": "P0-base",
+        "transferState": "TERMINATED",
+        "transferError": "",
+        "transferBytes": 41910357,
+        "transferTotal": 41910357,
+        "transferPercent": 100,
+        "transfers": {
+          "ece36247-72e3-4268-a3b7-d0dcf80f4bfa": {
+            "state": "STOPPED",
+            "bytes": 0,
+            "total": 0,
+            "percent": 0,
+            "error": "",
+            "startedAtMs": 0,
+            "updatedAtMs": 1792943580008,
+            "completedAtMs": 1792943580008
+          }
+        },
+        "stopStates": {
+          "ece36247-72e3-4268-a3b7-d0dcf80f4bfa": {
+            "deviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa",
+            "state": "STOPPED",
+            "stopId": "9BQCCPJ2#1#1#1#stop",
+            "actualMs": 1792943580008,
+            "localTargetMs": null,
+            "deltaMs": null,
+            "path": "",
+            "reason": "P0-base",
+            "receivedAtMs": 0
+          },
+          "9d714526-9cb5-4e66-a5ab-9886a6117dfa": {
+            "deviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+            "state": "STOPPED",
+            "stopId": "9BQCCPJ2#1#1#1#stop",
+            "actualMs": 1792943580008,
+            "localTargetMs": null,
+            "deltaMs": null,
+            "path": "",
+            "reason": "P0-base",
+            "receivedAtMs": 1792943580278
+          },
+          "19848326-0070-44cb-8de3-0d0d4ec7eb19": {
+            "deviceId": "19848326-0070-44cb-8de3-0d0d4ec7eb19",
+            "state": "STOPPED",
+            "stopId": "9BQCCPJ2#1#1#1#stop",
+            "actualMs": 1792943580434,
+            "localTargetMs": 1792943579968,
+            "deltaMs": 466,
+            "path": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_1.mp4",
+            "reason": "P0-base",
+            "receivedAtMs": 1792943580756
+          }
+        },
+        "replications": {
+          "19848326-0070-44cb-8de3-0d0d4ec7eb19|ece36247-72e3-4268-a3b7-d0dcf80f4bfa": {
+            "sourceDeviceId": "19848326-0070-44cb-8de3-0d0d4ec7eb19",
+            "storageDeviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa",
+            "state": "done",
+            "error": "",
+            "bytes": 41910357,
+            "total": 41910357,
+            "percent": 100,
+            "updatedAtMs": 1792943587345
+          }
+        }
+      }
+    }
+  ]
+}

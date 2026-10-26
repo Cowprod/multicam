@@ -9,5 +9,7 @@ Architecture, protocoles réseau, modèle Session/Take, transferts, stockage et 
 - [Validation J15 — campagne physique](../tests/e2e/validation/J15/RESULTS-J15-PHYSICAL.md)
 - [J16-A — Consultation des Takes passés (mode archivé de l'écran 09)](J16-A-RESULTS.md)
 - [J16-A — Validation physique (campagne sur 3 appareils)](../tests/e2e/validation/J16-A/RESULTS-J16-A-PHYSICAL.md)
+- [J16-P0 — Persistance sûre des sessions](J16-P0-RESULTS.md)
+- [J16-P0 — Validation physique (campagne ciblée)](../tests/e2e/validation/J16-P0/RESULTS-J16-P0-PHYSICAL.md)
 - [Inventaire fonctionnel J16](INVENTAIRE-FONCTIONNEL-J16.md)
 - [Proposition de périmètre J16 (lot A arbitré et implémenté, lots B→E en attente)](PROPOSITION-PERIMETRE-J16.md)

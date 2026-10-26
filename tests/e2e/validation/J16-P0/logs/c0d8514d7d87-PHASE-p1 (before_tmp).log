@@ -1,0 +1,3 @@
+10-25 17:18:00.911 I/chromium(10101): [INFO:CONSOLE:47] "SESSION_STORE_SAVE sessionId=899GJ2SM storage=file state=open bak=1", source: http://localhost/js/state/session-store.js (47)
+10-25 17:18:01.017 I/chromium(10101): [INFO:CONSOLE:47] "SESSION_STORE_SAVE sessionId=899GJ2SM storage=file state=open bak=1", source: http://localhost/js/state/session-store.js (47)
+10-25 17:18:01.034 I/chromium(10101): [INFO:CONSOLE:71] "SYNC_BROADCAST sessionId=899GJ2SM tag=telemetry_update peers=4 did=ece36247-72e3-4268-a3b7-d0dcf80f4bfa", source: http://localhost/js/net/session-ws.js (71)

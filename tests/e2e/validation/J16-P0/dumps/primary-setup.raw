@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "sessionId": "899GJ2SM",
+  "name": "Regie P0-171220",
+  "nameUpdatedMs": 1792944752624,
+  "nameByDeviceId": "",
+  "pin": "2076",
+  "state": "open",
+  "stateUpdatedMs": 1792944742779,
+  "stateByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+  "createdAtMs": 1792944742779,
+  "updatedAtMs": 1792944755498,
+  "masters": [
+    {
+      "deviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "deviceName": "J16P0-A-Master",
+      "endpoint": "192.168.92.57:45102",
+      "joinedAtMs": 1792944742779
+    },
+    {
+      "deviceId": "19848326-0070-44cb-8de3-0d0d4ec7eb19",
+      "deviceName": "J16P0-B-Capture",
+      "endpoint": "192.168.92.76:45102",
+      "joinedAtMs": 1792944749970
+    },
+    {
+      "deviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa",
+      "deviceName": "J16P0-C-Storage",
+      "endpoint": "192.168.92.192:45102",
+      "joinedAtMs": 1792944752417
+    }
+  ],
+  "members": [
+    {
+      "deviceId": "19848326-0070-44cb-8de3-0d0d4ec7eb19",
+      "deviceName": "J16P0-B-Capture",
+      "endpoint": "",
+      "enabledSkills": [
+        "capture"
+      ],
+      "sessionRoles": [
+        "capture"
+      ],
+      "addedAtMs": 1792944755254,
+      "addedByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "roleUpdatedMs": 1792944755254,
+      "roleByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "telemetry": null
+    },
+    {
+      "deviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa",
+      "deviceName": "J16P0-C-Storage",
+      "endpoint": "",
+      "enabledSkills": [
+        "storage"
+      ],
+      "sessionRoles": [
+        "storage"
+      ],
+      "addedAtMs": 1792944754988,
+      "addedByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "roleUpdatedMs": 1792944754988,
+      "roleByDeviceId": "9d714526-9cb5-4e66-a5ab-9886a6117dfa",
+      "telemetry": {
+        "capabilities": {
+          "source": "fixture",
+          "probedAtMs": 1792944739552,
+          "model": "24075RP89G",
+          "manufacturer": "Xiaomi",
+          "sdk": 36,
+          "audioMic": true,
+          "gpsFeature": false,
+          "orientationModes": [
+            "LANDSCAPE",
+            "PORTRAIT"
+          ],
+          "cameras": {
+            "rear": [
+              "FHD",
+              "HD"
+            ],
+            "front": [
+              "FHD",
+              "HD"
+            ]
+          },
+          "unknown": false
+        },
+        "batteryLevel": 100,
+        "batteryCharging": true,
+        "freeBytes": 11260420096,
+        "totalBytes": 51391725568,
+        "netType": "wifi",
+        "recording": false,
+        "atMs": 1792944755497,
+        "updatedAtMs": 1792944755498,
+        "updatedByDeviceId": "ece36247-72e3-4268-a3b7-d0dcf80f4bfa"
+      }
+    }
+  ],
+  "removedMembers": {},
+  "takes": []
+}

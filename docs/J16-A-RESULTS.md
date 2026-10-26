@@ -229,6 +229,16 @@ laisse l'ancien fichier intact. **Ce schéma existe déjà dans le dépôt** :
 
 **Décision attendue :** ouvrir un jalon dédié (P0 persistance) — hors du lot A.
 
+> **Suite donnée (2026-10-26) — jalon J16-P0.** Le correctif est implémenté et
+> validé : écriture `<sid>.json.tmp` relue et comparée octet par octet, version
+> précédente conservée en `<sid>.json.bak`, récupération déterministe
+> `tmp > primary > bak`, aucune version fabriquée. 530 tests PASS / 0 FAIL,
+> validation physique ciblée PASS (kill pendant la rotation, reprise
+> `source=tmp action=promoted`). Voir `docs/J16-P0-RESULTS.md` et
+> `tests/e2e/validation/J16-P0/RESULTS-J16-P0-PHYSICAL.md`. Le fichier
+> `DEBNCYNA.json` de 0 octet est toujours présent sur l'appareil A et est
+> désormais **rejeté sans fabrication** (`SESSION_RECOVER_NONE`).
+
 ## 7. Traçabilité
 
 | Élément | Emplacement |

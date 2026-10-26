@@ -1,6 +1,6 @@
 # MultiCam — Suivi du projet
 
-Dernière mise à jour : 2026-10-22. Branche de travail : `feat/j11-media-transfer`.
+Dernière mise à jour : 2026-10-26. Branche de travail : `feat/j11-media-transfer`.
 
 ## État validé
 
@@ -9,6 +9,8 @@ Dernière mise à jour : 2026-10-22. Branche de travail : `feat/j11-media-transf
 - **J15 validation physique : PASS sur le périmètre testé** — commit `9d4d2886645e0a3021e70fa26ce49d501fc661bf`. Trois appareils Android réels : A Master, B Capture, C Storage ; 5 scénarios, 30 critères PASS / 0 FAIL / 0 BLOCKED, 7 Takes avec SHA-256 source/destination identiques. Rapport et preuves : `tests/e2e/validation/J15/RESULTS-J15-PHYSICAL.md`.
 - **J16-A implémentation : terminé** — 500 tests PASS / 0 FAIL (471 antérieurs + 29 J16-A). Consultation des Takes passés (mode archivé de l'écran 09) depuis la session (03) et l'historique (15). Rapport : `docs/J16-A-RESULTS.md`.
 - **J16-A validation physique : PASS (13/13)** — 3 appareils Android réels (A Master, B Capture, C Storage), session `PT63EPGF`, 3 Takes enregistrés puis consultés en archive ; faits d'arrêt et états de réplication persistés et relus ; consultation identique depuis l'écran 03 et l'écran 15 ; Take antérieur à J16-A affiché sans information inventée. Rapport et preuves : `tests/e2e/validation/J16-A/RESULTS-J16-A-PHYSICAL.md`.
+- **J16-P0 implémentation : terminé** — **530 tests PASS / 0 FAIL** (500 antérieurs + 30 J16-P0). Écriture sûre du manifeste de session (`tmp` relu et vérifié, version précédente conservée en `bak`), récupération déterministe `tmp > primary > bak`, suppression sans résurrection, métadonnées de Take conservées. Rapport : `docs/J16-P0-RESULTS.md`.
+- **J16-P0 validation physique : ciblée PASS** — 3 appareils Android réels ; SETUP et BASE PASS, **P6 PASS** (kill pendant la rotation : primaire absent, `bak` + `tmp` valides, reprise `source=tmp action=promoted`, `stopStates=3` et `replications=1` intacts). Le fichier de l'incident `DEBNCYNA.json` (0 octet) est rejeté et conservé, sans fabrication. P1 = défaut de **harnais** corrigé, non rejoué ; P2–P5, P7 et DELETE non exécutées. Rapport et preuves : `tests/e2e/validation/J16-P0/RESULTS-J16-P0-PHYSICAL.md`.
 
 ### Capacités démontrées en J15
 
@@ -75,17 +77,41 @@ commencés.
 - **Anomalie P0 hors périmètre** : l'écriture du manifeste de session n'est pas
   atomique (`session-store.js` : `truncate(0)` puis `write`) — un arrêt de
   l'application pendant l'écriture laisse un fichier de session **vide**
-  (constaté le 2026-10-22 sur l'appareil A). Correctif à arbitrer dans un jalon
-  dédié ; voir `docs/J16-A-RESULTS.md` §6.1.
+  (constaté le 2026-10-22 sur l'appareil A). **Corrigée par J16-P0** (voir
+  `docs/J16-P0-RESULTS.md`) ; le fichier de l'incident reste sur l'appareil A et
+  est rejeté sans fabrication.
 - `docs/AVANCEMENT-V1.md` a été réconcilié (J12/J13/J14/J15 + ligne J16-A).
+
+### Correctif P0 de persistance — J16-P0 (2026-10-26)
+
+- **Périmètre réduit autorisé** : écriture sûre, récupération `tmp`/`bak`,
+  conservation des métadonnées de Take, absence de régression. Aucune refonte du
+  protocole de transfert, de J15 ni des fonctions métier.
+- **Écriture** : `<sid>.json.tmp` écrit puis **relu et comparé octet par octet**,
+  version précédente conservée en `<sid>.json.bak`, puis `moveTo` vers le
+  primaire. L'atomicité de `moveTo` n'est pas supposée (fallback copie Android).
+- **Récupération** : politique déterministe `tmp valide > primaire valide >
+  backup valide` ; sinon rien n'est fabriqué. Échec de matérialisation →
+  écritures refusées jusqu'au prochain démarrage (`degraded`), source intacte.
+- **Suppression** : tombstone synchrone, purge `primary`/`tmp`/`bak`, aucune
+  résurrection.
+- **Validation physique** : SETUP, BASE et **P6 PASS** sur 3 appareils réels ;
+  une seule fenêtre de panne rejouée par choix de périmètre. P1 = faux négatif
+  du harnais (parsing CDP), corrigé ; non rejoué → **BLOCKED** comme preuve
+  physique. P2–P5/P7/DELETE non exécutées, couvertes par les tests unitaires.
+- **Rapports** : `docs/J16-P0-RESULTS.md`,
+  `tests/e2e/validation/J16-P0/RESULTS-J16-P0-PHYSICAL.md`.
 
 ## Références
 
 - `README.md` : présentation du dépôt.
 - `docs/README.md` : entrée documentation technique.
 - `docs/J16-A-RESULTS.md` : rapport d'implémentation J16-A (consultation des Takes passés).
+- `docs/J16-P0-RESULTS.md` : rapport d'implémentation J16-P0 (persistance sûre des sessions).
+- `tests/e2e/validation/J16-P0/RESULTS-J16-P0-PHYSICAL.md` : protocole, verdicts et preuves physiques J16-P0.
 - `tests/e2e/validation/J16-A/RESULTS-J16-A-PHYSICAL.md` : protocole, verdicts et preuves physiques J16-A.
 - `tests/e2e/validation/J15/RESULTS-J15-IMPLEMENTATION.md` : résultats automatisés.
 - `tests/e2e/validation/J15/RESULTS-J15-PHYSICAL.md` : protocole, chronologies, limites et preuves physiques.
 - `tests/e2e/j16a-campaign.sh` : reproduction de la campagne J16-A.
+- `tests/e2e/j16p0-campaign.sh` : reproduction de la campagne J16-P0 (harnais corrigé).
 - `tests/e2e/j15-campaign.sh` : reproduction de la campagne J15.

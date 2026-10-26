@@ -1,0 +1,14 @@
+### [16:50:04] DEBUT SCENARIO SETUP-J16P0
+### [16:50:04] SETUP-1 : skills + relance A/B/C (test devices seulement)
+### [16:50:21] SETUP-2 : session de TEST créée sur A
+### [16:50:31] SETUP-3 : B et C rejoignent
+### [16:50:36] SETUP-4 : membres/rôles (B capture, C storage)
+### [16:50:37] SETUP-5 : état disque initial du manifeste
+### [16:50:37] FIN SCENARIO SETUP-J16P0
+### [17:11:54] DEBUT SCENARIO SETUP-J16P0
+### [17:11:54] SETUP-1 : skills + relance A/B/C (test devices seulement)
+### [17:12:20] SETUP-2 : session de TEST créée sur A
+### [17:12:29] SETUP-3 : B et C rejoignent
+### [17:12:34] SETUP-4 : membres/rôles (B capture, C storage)
+### [17:12:35] SETUP-5 : état disque initial du manifeste
+### [17:12:36] FIN SCENARIO SETUP-J16P0

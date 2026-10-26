@@ -1,0 +1,3 @@
+BASE_STOP_STATES=PASS (stopStates=3)
+BASE_REPLICATIONS=PASS (replications=1)
+BASE_ROTATION=PASS (primaire=6855 bytes, bak=6855 bytes — 2 versions valides)

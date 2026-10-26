@@ -1,0 +1,10 @@
+### [16:52:24] DEBUT SCENARIO BASE-J16P0
+### [16:52:24] BASE-1 : Take 20 s nominal (ARM → REC → STOP → transferts)
+### [16:54:36] BASE-2 : résumé Take 1 (stopStates + replications attendus)
+### [16:54:36] BASE-3 : sauvegardes normales successives #V1 → #V2 (rotation)
+### [16:54:39] FIN SCENARIO BASE-J16P0
+### [17:14:07] DEBUT SCENARIO BASE-J16P0
+### [17:14:07] BASE-1 : Take 20 s nominal (ARM → REC → STOP)
+### [17:16:15] BASE-2 : résumé Take 1 (stopStates + replications attendus)
+### [17:16:15] BASE-3 : sauvegardes normales successives (rotation primaire→bak)
+### [17:16:19] FIN SCENARIO BASE-J16P0

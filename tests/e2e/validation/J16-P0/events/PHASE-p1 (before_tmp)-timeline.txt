@@ -1,0 +1,4 @@
+### [17:18:01] DEBUT SCENARIO PHASE-p1 (before_tmp)
+### [17:18:01] PHASE-p1 : snapshot disque AVANT armation
+### [17:18:01] PHASE-p1 : armation (stage=before_tmp delay=6000ms)
+### [17:18:01] FIN SCENARIO PHASE-p1 (before_tmp)

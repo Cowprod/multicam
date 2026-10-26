@@ -1,0 +1,7 @@
+P1_PRESHA_PRIMARY=
+P1_PRESHA_BAK=89ad456bad17df13
+P1_ARMED=FAIL ({\"armed\":true,\"stage\":\"before_tmp\",\"delayMs\":6000,\"len\":6855,\"sha\":\"2a87179b926e60c92b3cde16dd20791156d175b6b835e95a9cf0ee6c4bed815e\",\"updatedAtMs\":1792945081453})
+P1_STORE_SERVED={"name":"Regie P0-171220","pin":"unchanged","state":"open","members":2,"takes":1,"stopStates":3,"replications":1,"sid":"ok"}
+P1_STORE_DATA_INTACT=PASS
+P1_STOPSTATES_SURVIVED=PASS
+P1_REPLICATIONS_SURVIVED=PASS
