@@ -916,6 +916,11 @@
       case "transfer_delete":
       case "transfer_delete_ack":
       case "transfer_waiting":
+      /* J17-A : catalogue média d'un Take archivé. Transport PUR : le WS ne
+       * liste aucun fichier et ne connaît aucun chemin ; il remet l'enveloppe
+       * au pont transfert, qui vérifie l'autorisation et répond. */
+      case "media_catalogue_request":
+      case "media_catalogue_reply":
         handleTransferMessage(env, entry, serverConn);
         break;
       default:

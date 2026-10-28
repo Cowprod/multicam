@@ -63,7 +63,51 @@ public class MultiCamTransfer extends CordovaPlugin {
             cordova.getThreadPool().execute(() -> doRemove(path, callbackContext));
             return true;
         }
+        if ("list".equals(action)) {
+            final String path = args.getString(0);
+            cordova.getThreadPool().execute(() -> doList(path, callbackContext));
+            return true;
+        }
         return false;
+    }
+
+    /* -------------------------------------------------------------------- list */
+
+    /* J17-A — listing read-only des fichiers RÉGULIERS d'un dossier.
+     *
+     * Sert au catalogue média d'un Take archivé : le Storage vérifie ce qui
+     * existe réellement sur son disque au lieu de croire un journal. Aucune
+     * donnée média ne traverse le bridge (noms + tailles uniquement), aucun
+     * chemin n'est accepté depuis le réseau (l'appelant JS construit le dossier
+     * à partir de la session et du Take VALIDÉS localement). */
+    private void doList(String path, CallbackContext cb) {
+        try {
+            File dir = new File(stripScheme(path));
+            if (!dir.exists()) { cb.error("list_missing_dir"); return; }
+            if (!dir.isDirectory()) { cb.error("list_not_dir"); return; }
+            JSONArray entries = new JSONArray();
+            File[] children = dir.listFiles();
+            if (children != null) {
+                java.util.Arrays.sort(children, (a, b) -> a.getName().compareTo(b.getName()));
+                for (File c : children) {
+                    if (!c.isFile()) continue;
+                    JSONObject o = new JSONObject();
+                    o.put("name", c.getName());
+                    o.put("bytes", c.length());
+                    o.put("dir", false);
+                    entries.put(o);
+                }
+            }
+            JSONObject res = new JSONObject();
+            res.put("path", dir.getAbsolutePath());
+            res.put("entries", entries);
+            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE list path=" + dir.getAbsolutePath()
+                    + " files=" + entries.length());
+            cb.success(res);
+        } catch (Exception e) {
+            android.util.Log.e(LOGTAG, "TRANSFER_NATIVE list error " + e);
+            cb.error("list_failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
     }
 
     /* ------------------------------------------------------------------ remove */

@@ -54,6 +54,7 @@
   }
 
   function isNum(v) { return typeof v === "number" && isFinite(v); }
+  function isStr(v) { return typeof v === "string" && v.length > 0; }
 
   function createTransferBoot(deps) {
     deps = deps || {};
@@ -68,6 +69,7 @@
     var takeModel = deps.takeModel || function () { return root.MultiCamTakeModel; };
     var journalMod = deps.transferJournal || function () { return root.MultiCamTransferJournal; };
     var discoveryMod = deps.discovery || function () { return root.MultiCamDiscovery; };
+    var catalogueMod = deps.catalogueModel || function () { return root.MultiCamMediaCatalogueModel; };
     var log = deps.log || function (l) { if (root.console) console.log(l); };
 
     var role = roleFor(cfg);
@@ -301,10 +303,14 @@
         log: log,
         server: serverState,
         take: function () {
+          var t = e.take || {};
           return {
             sessionId: e.sid,
             takeNumber: e.takeNumber,
-            storages: (e.take && e.take.storages) || []
+            storages: t.storages || [],
+            captures: t.captures || [],
+            status: t.status || "",
+            summary: t.summary || {}
           };
         },
         settings: function () {
@@ -317,8 +323,23 @@
         paths: {
           mediaRoot: mediaRoot, destFor: destFor,
           listSegments: listSegments, stageSegments: stageSegments,
-          listSegmentsFor: listSegmentsFor, hasTake: hasTake
+          listSegmentsFor: listSegmentsFor, hasTake: hasTake,
+          /* J17-A : lecture seule du dossier d'une Capture source. Le listing
+           * natif accepte un chemin absolu nu (comme remove/sha256) — le HTML5
+           * File API résout mal ces chemins sur stockage externe. */
+          listDir: function (dir) {
+            var nat = nativeApi();
+            if (!nat || typeof nat.listDir !== "function") return Promise.reject(new Error("list_unavailable"));
+            return Promise.resolve(nat.listDir(dir)).then(function (r) {
+              return (r && Array.isArray(r.entries)) ? r.entries : [];
+            });
+          }
         },
+        /* J17-A : le serveur média ne peut servir que des chemins réels. En
+         * mode SAF les fichiers vivent dans une arborescence DocumentFile :
+         * on le dit explicitement au lieu de fabriquer un catalogue vide. */
+        storageMode: function () { return (cfg.storage && cfg.storage.mode) || "path"; },
+        catalogueModel: function () { return catalogueMod(); },
         /* Backoff entre tentatives : absorb les coupures réseau transitoires
          * sans saturer (J14-C01 / D2). */
         delay: function (attempt) {
@@ -807,8 +828,210 @@
     }
 
 
-    function onTransferMessage(env) {
+    /* ---------- J17-A : catalogue média (Master ↔ Storage) ---------- */
+
+    /* Dernier catalogue CONNU par Storage, jamais effacé par une absence :
+     * une entrée `pending` conserve `reply` (historique) et l'état `offline`
+     * est calculé à la lecture depuis `connectedPeers`. */
+    var catalogueEntries = {}; /* "sid|take|storage" -> { state, reply, requestId, requestedAtMs } */
+
+    function catalogueKey(sid, take, sto) {
+      return keyOf(sid, take) + "|" + sto;
+    }
+
+    /* Autorisation : seul un MASTER DE LA SESSION peut demander un catalogue.
+     * La liste vient du modèle de session persisté, jamais de l'IP. */
+    function isMasterOf(sid, did) {
+      var store = sessionStore();
+      if (!store || typeof store.get !== "function" || !sid || !did) return Promise.resolve(false);
+      return Promise.resolve(store.get(sid)).then(function (s) {
+        var ms = (s && s.masters) || [];
+        for (var i = 0; i < ms.length; i++) {
+          if (ms[i] && ms[i].deviceId === did) return true;
+        }
+        return false;
+      }, function () { return false; });
+    }
+
+    /* STORAGE : répond au Master avec un catalogue issu du DISQUE réel. */
+    function onMediaCatalogueRequest(env, reply) {
+      if (role !== "storage") return Promise.resolve(false);
+      var sid = env.sessionId;
+      var takeNumber = isNum(env.takeNumber) ? env.takeNumber : -1;
+      if (!sid || takeNumber < 0) return Promise.resolve(false);
+      return isMasterOf(sid, env.from).then(function (ok) {
+        if (!ok) {
+          log("MEDIA_CATALOGUE_DENY sessionId=" + sid + " take=" + takeNumber
+            + " from=" + (env.from || "?") + " reason=not_master");
+          return false;
+        }
+        return loadEntry(sid, takeNumber).then(function (t) {
+          if (!t) {
+            sendCatalogueReply(reply, env, { ok: false, reason: "unknown_take", takeNumber: takeNumber });
+            return false;
+          }
+          if ((t.storages || []).indexOf(selfDid()) < 0) {
+            sendCatalogueReply(reply, env, { ok: false, reason: "not_selected", takeNumber: takeNumber });
+            log("MEDIA_CATALOGUE_DENY sessionId=" + sid + " take=" + takeNumber + " reason=not_selected");
+            return false;
+          }
+          return ensureFor(sid, takeNumber).storageCatalogue({
+            sessionId: sid, takeNumber: takeNumber, sources: t.captures || []
+          }).then(function (cat) {
+            var extra = {
+              takeNumber: takeNumber,
+              requestId: env.requestId || "",
+              ok: !!cat.ok,
+              reason: cat.reason || "",
+              endpoint: cat.endpoint || null,
+              token: cat.token || "",
+              sources: cat.sources || []
+            };
+            sendCatalogueReply(reply, env, extra);
+            log("MEDIA_CATALOGUE_SERVED sessionId=" + sid + " take=" + takeNumber
+              + " from=" + (env.from || "?") + " ok=" + (cat.ok ? 1 : 0)
+              + " reason=" + (cat.reason || "—"));
+            return !!cat.ok;
+          });
+        });
+      });
+    }
+
+    function sendCatalogueReply(reply, env, extra) {
+      if (typeof reply !== "function") {
+        log("MEDIA_CATALOGUE_REPLY_DROP take=" + (extra && extra.takeNumber) + " reason=no_transport");
+        return;
+      }
+      extra = extra || {};
+      if (env && env.requestId && !extra.requestId) extra.requestId = env.requestId;
+      reply("media_catalogue_reply", extra);
+    }
+
+    /* MASTER : enregistre la réponse d'un Storage SÉLECTIONNÉ pour ce Take. */
+    function onMediaCatalogueReply(env) {
+      if (role !== "master") return Promise.resolve(false);
+      var sid = env.sessionId;
+      var takeNumber = isNum(env.takeNumber) ? env.takeNumber : -1;
+      var sto = env.from || "";
+      if (!sid || takeNumber < 0 || !sto) return Promise.resolve(false);
+      return loadEntry(sid, takeNumber).then(function (t) {
+        if (!t) return false;
+        if ((t.storages || []).indexOf(sto) < 0) {
+          log("MEDIA_CATALOGUE_IGNORE sessionId=" + sid + " take=" + takeNumber
+            + " from=" + sto + " reason=not_selected");
+          return false;
+        }
+        var k = catalogueKey(sid, takeNumber, sto);
+        var prev = catalogueEntries[k] || {};
+        /* Une réponse d'une requête ANTÉRIEURE ne doit pas écraser la plus
+         * récente : on ne compare que si les deux requestId sont connus. */
+        if (env.requestId && prev.requestId && env.requestId !== prev.requestId) {
+          log("MEDIA_CATALOGUE_IGNORE sessionId=" + sid + " take=" + takeNumber
+            + " from=" + sto + " reason=stale_request");
+          return false;
+        }
+        var ok = env.ok !== false;
+        catalogueEntries[k] = {
+          state: ok ? "ready" : "error",
+          reply: {
+            ok: ok,
+            reason: env.reason || "",
+            endpoint: env.endpoint || null,
+            token: env.token || "",
+            sources: Array.isArray(env.sources) ? env.sources : [],
+            atMs: nowMs()
+          },
+          requestId: prev.requestId || env.requestId || "",
+          requestedAtMs: prev.requestedAtMs || 0
+        };
+        var n = 0;
+        catalogueEntries[k].reply.sources.forEach(function (s) {
+          n += (s && Array.isArray(s.files)) ? s.files.length : 0;
+        });
+        log("MEDIA_CATALOGUE_REPLY sessionId=" + sid + " take=" + takeNumber
+          + " storage=" + sto + " ok=" + (ok ? 1 : 0) + " reason=" + (env.reason || "—")
+          + " files=" + n);
+        notify();
+        return true;
+      });
+    }
+
+    /* MASTER : demande le catalogue à CHAQUE Storage sélectionné du Take.
+     * Aucune requête pour un Take non arrêté : le Storage refuserait, et une
+     * lecture pendant REC serait un défaut. */
+    function requestCatalogue(sid, takeNumber) {
+      if (role !== "master") return Promise.resolve(false);
+      return loadEntry(sid, takeNumber).then(function (t) {
+        if (!t) return false;
+        var cm = catalogueMod();
+        if (cm && typeof cm.takeStopped === "function" && !cm.takeStopped(t)) {
+          log("MEDIA_CATALOGUE_SKIP sessionId=" + sid + " take=" + takeNumber + " reason=take_not_stopped");
+          return false;
+        }
+        var storages = (t.storages || []).filter(function (d) { return isStr(d); });
+        if (!storages.length) {
+          log("MEDIA_CATALOGUE_SKIP sessionId=" + sid + " take=" + takeNumber + " reason=no_storage");
+          return false;
+        }
+        var reqId = "mc-" + nowMs().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+        storages.forEach(function (sto) {
+          var k = catalogueKey(sid, takeNumber, sto);
+          var prev = catalogueEntries[k] || {};
+          /* On GARDE la dernière réponse connue : une absence de réponse ne
+           * doit jamais effacer l'historique du Take. */
+          catalogueEntries[k] = {
+            state: "pending",
+            reply: prev.reply || null,
+            requestId: reqId,
+            requestedAtMs: nowMs()
+          };
+          sendToWs(sto, "media_catalogue_request", {
+            sessionId: sid, takeNumber: takeNumber, requestId: reqId
+          });
+          log("MEDIA_CATALOGUE_REQUEST sessionId=" + sid + " take=" + takeNumber
+            + " storage=" + sto + " requestId=" + reqId);
+        });
+        notify();
+        return true;
+      });
+    }
+
+    /* MASTER : modèle de consultation du Take (aucune I/O média). */
+    function catalogueFor(sid, takeNumber) {
+      return loadEntry(sid, takeNumber).then(function (t) {
+        if (!t) return null;
+        return Promise.resolve(sessionStore().get(sid)).then(function (session) {
+          var peers = {};
+          var w = ws();
+          if (w && typeof w.connectedPeers === "function") {
+            try { peers = w.connectedPeers(sid) || {}; } catch (e) { peers = {}; }
+          }
+          var cats = {};
+          var requested = {};
+          (t.storages || []).forEach(function (sto) {
+            var e = catalogueEntries[catalogueKey(sid, takeNumber, sto)];
+            if (!e) return;
+            if (e.reply) cats[sto] = e.reply;
+            if (e.state === "pending") requested[sto] = true;
+          });
+          var online = {};
+          (t.storages || []).forEach(function (sto) { online[sto] = !!peers[sto]; });
+          var cm = catalogueMod();
+          if (!cm || typeof cm.buildView !== "function") return null;
+          return cm.buildView({
+            take: t, session: session || {}, online: online,
+            catalogues: cats, requested: requested
+          });
+        });
+      });
+    }
+
+    function onTransferMessage(env, reply) {
       if (!env || !env.sessionId) return Promise.resolve(false);
+      /* J17-A : deux kinds ADDITIFS, routés avant le cycle J15 (ils ne
+       * modifient aucun état de transfert). */
+      if (env.kind === "media_catalogue_request") return onMediaCatalogueRequest(env, reply);
+      if (env.kind === "media_catalogue_reply") return onMediaCatalogueReply(env);
       var take = isNum(env.takeNumber) ? env.takeNumber
         : ((primary && primary.sid === env.sessionId) ? primary.takeNumber : 0);
       /* J15 (§7.1) : une offre porte l'ENDPOINT du serveur média (host/port/token).
@@ -1067,6 +1290,9 @@
       viewFor: viewFor,
       views: views,
       retry: retry,
+      /* J17-A : consultation des originaux archivés sur les Storages. */
+      requestCatalogue: requestCatalogue,
+      catalogueFor: catalogueFor,
       stopServerIfIdle: stopServerIfIdle,
       role: function () { return role; },
       onChange: function (fn) { if (typeof fn === "function" && listeners.indexOf(fn) < 0) listeners.push(fn); },

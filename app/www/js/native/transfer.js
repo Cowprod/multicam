@@ -102,6 +102,16 @@
       });
     },
 
+    /* J17-A — listing read-only d'un dossier média. Rend `{path, entries}` ;
+     * les entrées sont des fichiers réguliers `{name, bytes, dir:false}`. */
+    listDir: function (path) {
+      return new Promise(function (resolve, reject) {
+        var t = transfer();
+        if (!t || typeof t.list !== "function") { reject(new Error("list_unavailable")); return; }
+        t.list(path, resolve, function (err) { reject(new Error("list_failed: " + err)); });
+      });
+    },
+
     /* GET reprenable. `onProgress({received,total})`. */
     download: function (opts, onProgress) {
       return new Promise(function (resolve, reject) {

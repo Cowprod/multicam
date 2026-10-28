@@ -23,6 +23,12 @@ var MultiCamTransfer = {
     exec(success, error, 'MultiCamTransfer', 'remove', [path]);
   },
 
+  /* J17-A — listing read-only d'un dossier. `success({path, entries:[{name,
+   * bytes, dir}]})`. Seuls les fichiers RÉGULIERS sont listés. */
+  list: function (path, success, error) {
+    exec(success, error, 'MultiCamTransfer', 'list', [path]);
+  },
+
   /* GET HTTP reprenable vers un fichier ou une arborescence SAF.
    * opts = { url, token, dest?, treeUri?, relPath?, offset?, expectedBytes? }
    * onProgress({received,total}) appelé périodiquement ;

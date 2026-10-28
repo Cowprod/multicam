@@ -93,6 +93,12 @@
     /* J15 : vérification d'identité optionnelle sur l'offset (reprise après 416).
      * Rend `{ bytes, sha256 }` du fichier destination, ou `null` si indisponible. */
     var statDest = deps.statDest || function () { return Promise.resolve(null); };
+    /* J17-A : catalogue média à la demande. `listDir` est une I/O injectée
+     * (listing natif read-only) ; `storageMode` vaut "path" ou "saf" ; le
+     * modèle pur fournit l'arrêt du Take et la validation des `rel`. */
+    var listDir = deps.listDir || paths.listDir || null;
+    var storageMode = deps.storageMode || function () { return "path"; };
+    var catalogueModel = deps.catalogueModel || function () { return root.MultiCamMediaCatalogueModel; };
 
     /* MultiCam D-SERVE: serveur média UNIQUE, partagé au niveau boot entre les
      * Takes. `deps.server` est injecté par la couche boot ; à défaut on crée un
@@ -180,6 +186,121 @@
       server.port = 0;
       server.tokens = {};
       return native.serveStop();
+    };
+
+    /* ------------------------------------------------------------------ J17-A */
+
+    /* Enregistre (ou ré-enregistre) l'autorisation d'un Take sur le serveur
+     * média PARTAGÉ : racine média + token PROPRE au Take. Idempotent : le token
+     * d'un Take ne change pas, et CorHttpd écrase la même entrée. Aucun second
+     * serveur n'est démarré — celui de la Capture/Storage est réutilisé. */
+    var ensureTakeGrant = function (sid, takeNumber, root) {
+      if (!isStr(sid) || !isNum(takeNumber) || takeNumber < 0 || !isStr(root)) {
+        return Promise.reject(new Error("grant_invalid"));
+      }
+      var key = serverKey(sid, takeNumber);
+      var tkToken = server.tokens[key] || (server.tokens[key] = generateToken());
+      return ensureServer(root).then(function (sv) {
+        return Promise.resolve(native.serveRegister({
+          sessionId: sid, takeNumber: takeNumber, root: root, token: tkToken
+        })).then(function () {
+          return { url: sv.url, host: sv.host, port: sv.port, token: tkToken };
+        });
+      });
+    };
+
+    /* J17-A — catalogue média d'un Take côté STORAGE.
+     *
+     * Le Storage est la SEULE source de vérité sur ce qui existe réellement
+     * chez lui : on liste le disque (`<racine>/<sourceDeviceId>/…`) au lieu de
+     * croire un journal ou un état global. Le catalogue ne contient QUE des
+     * `rel` relatifs, des tailles, l'endpoint LAN et le token du Take : jamais
+     * un chemin absolu.
+     *
+     * Refus explicites (jamais de disponibilité inventée) :
+     *   - role ≠ storage          → not_storage
+     *   - Take non arrêté         → take_not_stopped
+     *   - mode SAF (non servable) → saf_unsupported
+     *   - racine/listing absent   → no_media_root / list_unavailable
+     */
+    var storageCatalogue = function (opts) {
+      opts = opts || {};
+      if (role !== "storage") return Promise.resolve({ ok: false, reason: "not_storage" });
+      var tk = take();
+      var sid = isStr(opts.sessionId) ? opts.sessionId : tk.sessionId;
+      var takeNumber = isNum(opts.takeNumber) ? opts.takeNumber : tk.takeNumber;
+      if (!isStr(sid) || !isNum(takeNumber) || takeNumber < 0) {
+        return Promise.resolve({ ok: false, reason: "malformed" });
+      }
+      if (storageMode() !== "path") return Promise.resolve({ ok: false, reason: "saf_unsupported" });
+      var cm = catalogueModel();
+      if (cm && typeof cm.takeStopped === "function" && !cm.takeStopped(tk)) {
+        return Promise.resolve({ ok: false, reason: "take_not_stopped" });
+      }
+      var root = (typeof paths.mediaRoot === "function") ? paths.mediaRoot(sid, takeNumber) : "";
+      if (!isStr(root)) return Promise.resolve({ ok: false, reason: "no_media_root" });
+      if (typeof listDir !== "function") return Promise.resolve({ ok: false, reason: "list_unavailable" });
+
+      var reps = (tk.summary && tk.summary.replications) || {};
+      var selfDid = self();
+      var sources = [];
+      (Array.isArray(opts.sources) ? opts.sources : []).forEach(function (d) {
+        if (!isStr(d) || d === selfDid) return;
+        var safe = cm ? cm.safeSegment(d) : d;
+        if (!safe || sources.indexOf(safe) >= 0) return;
+        sources.push(safe);
+      });
+
+      function listSource(src) {
+        var dir = root.replace(/\/$/, "") + "/" + src;
+        var pair = reps[src + "|" + selfDid] || null;
+        return Promise.resolve(listDir(dir)).then(function (entries) {
+          var files = [];
+          (Array.isArray(entries) ? entries : []).forEach(function (e) {
+            if (!e || e.dir === true || !isStr(e.name)) return;
+            var rel = cm ? cm.sanitizeRel(e.name) : e.name;
+            if (!rel) return;
+            files.push({ rel: rel, bytes: isNum(e.bytes) && e.bytes >= 0 ? e.bytes : 0 });
+          });
+          files.sort(function (a, b) { return a.rel < b.rel ? -1 : (a.rel > b.rel ? 1 : 0); });
+          return {
+            sourceDeviceId: src,
+            replicationState: pair && isStr(pair.state) ? pair.state : "",
+            total: pair && isNum(pair.total) ? pair.total : 0,
+            files: files
+          };
+        }, function (e) {
+          var msg = String((e && e.message) || e);
+          /* Dossier ABSENT = aucun fichier (fait). Tout autre échec (droits,
+           * I/O) est une ERREUR de listing : on ne prétend pas que les
+           * fichiers manquent. */
+          if (/list_missing_dir|list_not_dir/.test(msg)) {
+            return { sourceDeviceId: src, replicationState: "", total: 0, files: [] };
+          }
+          log("MEDIA_CATALOGUE_LIST_ERROR src=" + src + " error=" + msg);
+          return { sourceDeviceId: src, replicationState: "", total: 0, files: [], error: "listing_failed" };
+        });
+      }
+
+      return ensureTakeGrant(sid, takeNumber, root).then(function (ep) {
+        return Promise.all(sources.map(listSource)).then(function (rows) {
+          var nFiles = 0;
+          rows.forEach(function (r) { nFiles += r.files.length; });
+          log("MEDIA_CATALOGUE_LISTED take=" + takeNumber + " sources=" + rows.length + " files=" + nFiles);
+          return {
+            ok: true,
+            sessionId: sid,
+            takeNumber: takeNumber,
+            endpoint: { host: ep.host, port: ep.port },
+            token: ep.token,
+            sources: rows,
+            listedAtMs: now()
+          };
+        });
+      }).catch(function (e) {
+        log("MEDIA_CATALOGUE_ERROR take=" + takeNumber + " error=" + String((e && e.message) || e));
+        return { ok: false, reason: "serve_unavailable" };
+      });
     };
 
     /* Suppression locale demandée par le Master : on supprime d'abord, on
@@ -579,6 +700,8 @@
     return {
       captureAnnounce: captureAnnounce,
       serveStop: serveStop,
+      ensureTakeGrant: ensureTakeGrant,
+      storageCatalogue: storageCatalogue,
       masterOffer: masterOffer,
       maybeRequestDelete: maybeRequestDelete,
       storageRun: storageRun,
