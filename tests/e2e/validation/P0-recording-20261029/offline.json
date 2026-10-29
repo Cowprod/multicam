@@ -1,0 +1,138 @@
+{
+  "start": {
+    "active": true,
+    "phase": "COUNTDOWN",
+    "sid": "ZWASE4WD",
+    "sessionName": "Timer",
+    "takeNumber": 6,
+    "armCycleId": "ZWASE4WD#6#1",
+    "startPlanId": "ZWASE4WD#6#1#4",
+    "leader": true,
+    "isMaster": true,
+    "isCapture": false,
+    "isStorage": false,
+    "countdownSeconds": 5,
+    "showCountdown": true,
+    "offsetMs": 0,
+    "offsetKnown": true,
+    "countdownResolved": true,
+    "targetStartMs": 1793291704647,
+    "localTopMs": 1793291704647,
+    "remainingMs": 4996,
+    "digit": 5,
+    "excluded": false,
+    "excludeMessage": "",
+    "peers": {},
+    "peerStates": 0,
+    "startableCaptures": 3,
+    "recStartedAtMs": 0,
+    "recElapsedMs": 0,
+    "lastStart": null,
+    "showEmergencyStop": false,
+    "localStoppedTake": false,
+    "localStartedTake": false,
+    "stoppedTakeNumber": 5,
+    "stop": null,
+    "stopId": "",
+    "stopActive": false,
+    "stopExecuted": false,
+    "stopError": "",
+    "stopStates": {},
+    "stopIncidents": {},
+    "stopIncidentDids": [],
+    "localStopInfo": null,
+    "stopDurationMs": 0,
+    "selfDid": "fba6a797-a36b-4d01-9a5a-10c4ab95b4e0",
+    "rev": 261
+  },
+  "61d54bba7d91": {
+    "before": {
+      "available": true,
+      "facing": "REAR",
+      "cameraId": 0,
+      "defaultCameraId": 0,
+      "numberOfCameras": 2,
+      "hasCamera": true,
+      "recording": true,
+      "recordFilePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4"
+    },
+    "emergency": false,
+    "after": {
+      "available": true,
+      "facing": "REAR",
+      "cameraId": 0,
+      "defaultCameraId": 0,
+      "numberOfCameras": 2,
+      "hasCamera": true,
+      "recording": false,
+      "recordFilePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4"
+    },
+    "local": {
+      "stopId": "",
+      "actualMs": 1793291715968,
+      "localTargetMs": null,
+      "deltaMs": null,
+      "path": "/data/user/0/fr.emmanuel.multicam/files/recordings/MultiCam_1793291715970_d7ab83d8-4221-4bfc-a99e-60ebaaf90fb0.mp4"
+    }
+  },
+  "62614ac67d91": {
+    "before": {
+      "available": true,
+      "facing": "REAR",
+      "cameraId": 0,
+      "defaultCameraId": 0,
+      "numberOfCameras": 2,
+      "hasCamera": true,
+      "recording": true,
+      "recordFilePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4"
+    },
+    "emergency": true,
+    "after": {
+      "available": true,
+      "facing": "REAR",
+      "cameraId": 0,
+      "defaultCameraId": 0,
+      "numberOfCameras": 2,
+      "hasCamera": true,
+      "recording": false,
+      "recordFilePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4"
+    },
+    "local": {
+      "stopId": "",
+      "actualMs": 1793291718214,
+      "localTargetMs": null,
+      "deltaMs": null,
+      "path": "/data/user/0/fr.emmanuel.multicam/files/recordings/MultiCam_1793291718215_c115a3cc-722b-414b-81a8-f7ce0f09086e.mp4"
+    }
+  },
+  "c0d8514d7d87": {
+    "before": {
+      "available": true,
+      "facing": "REAR",
+      "cameraId": 0,
+      "defaultCameraId": 0,
+      "numberOfCameras": 2,
+      "hasCamera": true,
+      "recording": true,
+      "recordFilePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4"
+    },
+    "emergency": true,
+    "after": {
+      "available": true,
+      "facing": "REAR",
+      "cameraId": 0,
+      "defaultCameraId": 0,
+      "numberOfCameras": 2,
+      "hasCamera": true,
+      "recording": false,
+      "recordFilePath": "/data/user/0/fr.emmanuel.multicam/cache/videoTmp_3.mp4"
+    },
+    "local": {
+      "stopId": "",
+      "actualMs": 1793291719857,
+      "localTargetMs": null,
+      "deltaMs": null,
+      "path": "/data/user/0/fr.emmanuel.multicam/files/recordings/MultiCam_1793291719860_be05204c-9d35-45a0-a81c-0b81646ea264.mp4"
+    }
+  }
+}

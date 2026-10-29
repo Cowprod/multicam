@@ -1,0 +1,86 @@
+[
+  {
+    "serial": "61d54bba7d91",
+    "deviceId": "2680fa70-4c4e-43f3-a2c7-a17a4d3c8852",
+    "source": "/sdcard/DCIM/Camera/MultiCam_1793291579285_d73f1fbc-7a55-4716-b044-53f9a75aa999.mp4",
+    "storage": "/sdcard/DCIM/Camera/MultiCam/ZWASE4WD/5/2680fa70-4c4e-43f3-a2c7-a17a4d3c8852/MultiCam_1793291579285_d73f1fbc-7a55-4716-b044-53f9a75aa999.mp4",
+    "sha256": "f2112fc6f9f0cb64e020d2cc06ccce4f3084d00b9afe013817a8d873d2d64a54",
+    "bytes": 30669312,
+    "match": true,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "12.352000",
+        "size": "30669312"
+      }
+    },
+    "decode": "PASS"
+  },
+  {
+    "serial": "62614ac67d91",
+    "deviceId": "d97e7fe1-7e6e-4458-91ff-6ee86853711d",
+    "source": "/sdcard/DCIM/Camera/MultiCam_1793291579569_32896f06-f920-4458-8578-ba83284d7975.mp4",
+    "storage": "/sdcard/DCIM/Camera/MultiCam/ZWASE4WD/5/d97e7fe1-7e6e-4458-91ff-6ee86853711d/MultiCam_1793291579569_32896f06-f920-4458-8578-ba83284d7975.mp4",
+    "sha256": "93901c1f7d3af9e3cb2af2070c53eef475218aa92915c4f21d6590b0c5dbd801",
+    "bytes": 30646271,
+    "match": true,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "12.330667",
+        "size": "30646271"
+      }
+    },
+    "decode": "PASS"
+  },
+  {
+    "serial": "c0d8514d7d87",
+    "deviceId": "d3931516-14e0-4ae2-84a9-5034c998b939",
+    "source": "/sdcard/DCIM/MultiCam_1793291579036_59b173bb-e6e7-435f-a255-3ae7058d4637.mp4",
+    "storage": "/sdcard/DCIM/Camera/MultiCam/ZWASE4WD/5/d3931516-14e0-4ae2-84a9-5034c998b939/MultiCam_1793291579036_59b173bb-e6e7-435f-a255-3ae7058d4637.mp4",
+    "sha256": "1d6e5a548a043357c4426638e4886f94d377a9a60474ff1e57666b930ecfd90a",
+    "bytes": 30501217,
+    "match": true,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "12.266667",
+        "size": "30501217"
+      }
+    },
+    "decode": "PASS"
+  }
+]

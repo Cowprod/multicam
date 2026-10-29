@@ -1,0 +1,82 @@
+{
+  "takeNumber": 5,
+  "status": "TERMINATED",
+  "summary": {
+    "stoppedAtMs": 1793291579034,
+    "durationMs": 13952,
+    "stopReason": "P0_P1_hardware_qualification",
+    "transferState": "TERMINATED",
+    "transferError": "",
+    "transferBytes": 91816800,
+    "transferTotal": 91816800,
+    "transferPercent": 100,
+    "transfers": {
+      "fba6a797-a36b-4d01-9a5a-10c4ab95b4e0": {
+        "state": "STOPPED",
+        "bytes": 0,
+        "total": 0,
+        "percent": 0,
+        "error": "",
+        "startedAtMs": 0,
+        "updatedAtMs": 1793291578561,
+        "completedAtMs": 1793291578561
+      }
+    },
+    "stopStates": {
+      "fba6a797-a36b-4d01-9a5a-10c4ab95b4e0": {
+        "deviceId": "fba6a797-a36b-4d01-9a5a-10c4ab95b4e0",
+        "state": "STOPPED",
+        "stopId": "ZWASE4WD#5#1#3#stop",
+        "actualMs": 1793291578561,
+        "localTargetMs": null,
+        "deltaMs": null,
+        "path": "",
+        "reason": "P0_P1_hardware_qualification",
+        "receivedAtMs": 1793291578657
+      },
+      "d3931516-14e0-4ae2-84a9-5034c998b939": {
+        "deviceId": "d3931516-14e0-4ae2-84a9-5034c998b939",
+        "state": "STOPPED",
+        "stopId": "ZWASE4WD#5#1#3#stop",
+        "actualMs": 1793291579034,
+        "localTargetMs": 1793291578633,
+        "deltaMs": 401,
+        "path": "/data/user/0/fr.emmanuel.multicam/files/recordings/MultiCam_1793291579036_59b173bb-e6e7-435f-a255-3ae7058d4637.mp4",
+        "reason": "P0_P1_hardware_qualification",
+        "receivedAtMs": 0
+      }
+    },
+    "replications": {
+      "2680fa70-4c4e-43f3-a2c7-a17a4d3c8852|190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2": {
+        "sourceDeviceId": "2680fa70-4c4e-43f3-a2c7-a17a4d3c8852",
+        "storageDeviceId": "190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2",
+        "state": "done",
+        "error": "",
+        "bytes": 30669312,
+        "total": 30669312,
+        "percent": 100,
+        "updatedAtMs": 1793291743741
+      },
+      "d3931516-14e0-4ae2-84a9-5034c998b939|190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2": {
+        "sourceDeviceId": "d3931516-14e0-4ae2-84a9-5034c998b939",
+        "storageDeviceId": "190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2",
+        "state": "done",
+        "error": "",
+        "bytes": 30501217,
+        "total": 30501217,
+        "percent": 100,
+        "updatedAtMs": 1793291743741
+      },
+      "d97e7fe1-7e6e-4458-91ff-6ee86853711d|190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2": {
+        "sourceDeviceId": "d97e7fe1-7e6e-4458-91ff-6ee86853711d",
+        "storageDeviceId": "190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2",
+        "state": "done",
+        "error": "",
+        "bytes": 30646271,
+        "total": 30646271,
+        "percent": 100,
+        "updatedAtMs": 1793291743741
+      }
+    }
+  }
+}
