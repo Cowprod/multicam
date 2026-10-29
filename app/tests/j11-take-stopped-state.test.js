@@ -121,12 +121,17 @@ module.exports.register = function (h) {
       assert.deepStrictEqual(retries, [CAP]);
     });
 
-    it("B5. « Préparer le Take suivant » est disponible et renvoie à l'écran 05, même en erreur", () => {
-      const { screen, nav, dom } = env(h, {
+    it("B5. « Préparer le Take suivant » crée un Take puis ouvre la préparation, même en erreur", async () => {
+      const { e, screen, nav, dom } = env(h, {
         transferView: { transfers: { [CAP + "|" + STO2]: transfer({ storageDeviceId: STO2, state: "error", bytes: 5, total: 10, percent: 50 }) } }
       });
+      let created = 0;
+      e.MultiCamSessionStore = { get: () => Promise.resolve({ sessionId: "S1", takes: [{ status: "TERMINATED" }] }) };
+      e.MultiCamSessionWs = { newTake: () => { created++; return Promise.resolve(); } };
       screen.show({ deviceId: "mst" }, { sid: "S1" });
       dom.byId["tsDone"].dispatchEvent({ type: "click" });
+      await h.flush(10);
+      assert.strictEqual(created, 1);
       assert.strictEqual(nav.length, 1, "un seul changement d'écran");
       assert.strictEqual(nav[0].n, "take");
       assert.strictEqual(nav[0].p.sid, "S1");

@@ -32,7 +32,7 @@
 
   function am() { return global.MultiCamArmModel; }
 
-  var state = { sid: null, bound: false, openDetail: {} };
+  var state = { sid: null, bound: false, starting: false, openDetail: {} };
   var lastRev = -1;
 
   var SKILL_ICON = { capture: "fa-video", storage: "fa-hard-drive" };
@@ -114,7 +114,7 @@
     });
 
     var rec = byId("armRec");
-    rec.disabled = !view.recEligible;
+    rec.disabled = state.starting || !view.recEligible;
     rec.classList.toggle("btn-danger", view.recEligible);
 
     updateIncidentModal(view);
@@ -207,7 +207,6 @@
       var v = global.MultiCamArmService.view();
       console.log("REC_ELIGIBLE sessionId=" + v.sid + " take=" + v.takeNumber
         + " armCycleId=" + v.armCycleId + " via=incident_continue");
-      closeIncidentModal();
       triggerStart("incident_continue");
     });
     byId("armIncidentCancel").addEventListener("click", closeIncidentModal);
@@ -222,13 +221,28 @@
    * motif exact (clock_stale, camera_prepare_failed, plan_active…) et on ne
    * quitte PAS l'écran ARM, car aucun plan n'a été créé. Le panneau 07 est
    * ensuite choisi par le routeur global (main.js), pas ici. */
+  function setStartError(message) {
+    ["armStartError", "armIncidentError"].forEach(function (id) {
+      var node = byId(id);
+      if (!node) return;
+      node.textContent = message;
+      node.classList.toggle("d-none", !message);
+    });
+  }
+
   function triggerStart(origin) {
     var start = global.MultiCamStartService;
     if (!start) {
       console.log("SCREEN06_REC_KO reason=service_unavailable");
       return;
     }
-    start.requestStart(state.sid).then(function (v) {
+    if (state.starting) return;
+    state.starting = true;
+    setStartError("");
+    byId("armRec").disabled = true;
+    byId("armIncidentContinue").disabled = true;
+    Promise.resolve().then(function () { return start.requestStart(state.sid); }).then(function (v) {
+      closeIncidentModal();
       console.log("SCREEN06_REC_STARTED origin=" + origin + " sessionId=" + state.sid
         + " startPlanId=" + (v && v.startPlanId) + " take=" + (v && v.takeNumber)
         + " countdown=" + (v && v.countdownSeconds));
@@ -236,6 +250,16 @@
       console.log("SCREEN06_REC_KO origin=" + origin + " sessionId=" + state.sid
         + " reason=" + String((err && err.message) || err)
         + " userMessage=" + String((err && err.userMessage) || "—"));
+      var reason = String((err && err.message) || err);
+      var message = reason === "local_stopped_take"
+        ? "Ce Take est déjà arrêté. Revenez à la préparation et créez le Take suivant."
+        : ((err && err.userMessage) || "L'enregistrement n'a pas démarré. Revenez à la préparation puis réessayez.");
+      setStartError(message);
+    }).then(function () {
+      state.starting = false;
+      byId("armIncidentContinue").disabled = false;
+      lastRev = -1;
+      render(global.MultiCamArmService.view());
     });
   }
 
@@ -247,6 +271,7 @@
     }
     byId("deviceNameArm").textContent = cfg.deviceName;
     state.sid = sid;
+    setStartError("");
     bind();
     lastRev = -1;
 

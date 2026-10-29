@@ -365,6 +365,7 @@
 
 <!-- Dock REC fixe (maquette 06) -->
 <div id="armRecDock" class="rec-dock">
+  <div id="armStartError" class="alert alert-danger d-none" role="alert"></div>
   <button id="armRec" class="btn btn-outline-danger rec-btn" type="button" aria-label="Déclencher l'enregistrement (R.E.C.)" disabled>
     <i class="fa-solid fa-circle record-dot"></i>
     <span id="armRecLabel">R.E.C.</span>
@@ -383,6 +384,7 @@
       </div>
       <div class="small muted mb-2" id="armIncidentIntro">Certains devices sont encore en armement, en alerte ou en erreur.</div>
       <div id="armIncidentList" class="vstack gap-2"></div>
+      <div id="armIncidentError" class="alert alert-danger d-none mt-2" role="alert"></div>
       <div class="d-grid gap-2 mt-3">
         <button id="armIncidentContinue" class="btn btn-danger mainbtn" type="button"><i class="fa-solid fa-video me-2"></i>Continuer REC</button>
         <button id="armIncidentCancel" class="btn btn-outline-light" type="button">Annuler</button>
@@ -613,6 +615,7 @@
     <button id="tsBack" class="btn btn-outline-light glass d-none" type="button">
       <i class="fa-solid fa-arrow-left me-2"></i>Retour à la session
     </button>
+    <div id="tsNextError" class="alert alert-danger d-none" role="alert"></div>
     <button id="tsDone" class="btn btn-primary mainbtn" type="button">
       <i class="fa-solid fa-forward me-2"></i>Préparer le Take suivant
     </button>

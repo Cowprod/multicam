@@ -242,14 +242,15 @@
     renderSettings(take, isClosed);
 
     /* ARM : ≥1 Capture suffit (le Storage n'affecte que le transfert). */
-    var arm = take && take.captures && take.captures.length >= 1;
+    var preparing = take && take.status === "PREPARATION";
+    var arm = preparing && take.captures && take.captures.length >= 1;
     var armBtn = byId("tkArm");
     armBtn.disabled = isClosed || !arm;
     armBtn.classList.toggle("disabled", isClosed || !arm);
     armBtn.classList.toggle("disabled-arm", isClosed || !arm);
     byId("tkArmHint").textContent = isClosed
       ? "Session fermée."
-      : (arm ? "Prêt. ARM lance l'écran d'armement (J07)." : "Sélectionne au moins une Capture.");
+      : (!preparing ? "Ce Take est déjà lancé ou arrêté. Créez un nouveau Take." : (arm ? "Prêt. ARM lance l'écran d'armement (J07)." : "Sélectionne au moins une Capture."));
   }
 
   function telemetryLine(m) {

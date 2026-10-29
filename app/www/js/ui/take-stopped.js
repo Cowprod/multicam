@@ -1,7 +1,8 @@
 /* MultiCam — écran « Take arrêté » (J10, panneau minimal du STOP global).
  *
- * AFFICHAGE UNIQUEMENT. Ce panneau ne décide rien : il projette la vue du
- * service START (start-service → start-model) après un STOP coordonné. Chaque
+ * Ce panneau projette la vue du
+ * service START (start-service → start-model) après un STOP coordonné. Le bouton
+ * suivant crée une préparation via l’API de session, sans relancer un Take clos. Chaque
  * ligne de Capture reflète les FAITS du protocole J10 :
  *
  *   - `stopStates[did]`    → la Capture a publié son stop_state (STOPPED,
@@ -496,13 +497,34 @@
     state.bound = true;
     var done = byId("tsDone");
     if (done) done.addEventListener("click", function () {
-      /* README 09 §7 : « Préparer le Take suivant » renvoie TOUJOURS vers la
-       * préparation (écran 05), même transferts en cours / Capture hors ligne /
-       * réplication en erreur — jamais bloqué par la finalisation. */
-      console.log("SCREEN09_NEXT_TAKE sessionId=" + (state.sid || "—"));
-      if (global.MultiCamNav && typeof global.MultiCamNav.show === "function") {
+      // Read fresh session data: a stopped Take cannot be recorded again.
+      // Re-enter an existing preparation, otherwise create the next Take once.
+      if (done.disabled) return;
+      done.disabled = true;
+      var errorEl = byId("tsNextError");
+      if (errorEl) { errorEl.textContent = ""; errorEl.classList.add("d-none"); }
+      Promise.resolve().then(function () {
+        var store = global.MultiCamSessionStore;
+        var ws = global.MultiCamSessionWs;
+        if (!store || !store.get || !ws || !ws.newTake) throw new Error("service_unavailable");
+        return store.get(state.sid).then(function (session) {
+          if (!session) throw new Error("session_not_found");
+          var takes = session.takes || [];
+          var latest = takes[takes.length - 1];
+          if (latest && latest.status === "PREPARATION") return;
+          if (latest && latest.status === "IN_PROGRESS") throw new Error("recording_in_progress");
+          return ws.newTake(session);
+        });
+      }).then(function () {
+        console.log("SCREEN09_NEXT_TAKE sessionId=" + (state.sid || "—"));
         global.MultiCamNav.show("take", { sid: state.sid });
-      }
+      }).catch(function (error) {
+        console.log("SCREEN09_NEXT_TAKE_KO reason=" + String(error.message || error));
+        if (errorEl) {
+          errorEl.textContent = "Impossible de préparer le Take suivant. Réessayez.";
+          errorEl.classList.remove("d-none");
+        }
+      }).then(function () { done.disabled = false; });
     });
     /* J16-A : en archive, on revient à la session consultée. */
     var back = byId("tsBack");
