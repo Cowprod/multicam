@@ -83,6 +83,7 @@
     preparePromise: null,  /* préparation en cours, partagée par tous les appelants */
     recording: false,      /* startRecordVideo a été appelé et n'a pas été arrêté */
     videoPath: "",         /* chemin renvoyé par stopRecordVideo (prise J09) */
+    exports: {},           /* publication locale séparée du STOP natif */
     /* ---------- J09-08b2 : arrêt NON CONFIRMÉ ----------
      *
      * Un `stopRecordVideo` en erreur ne prouve pas que le recorder s'est arrêté.
@@ -503,18 +504,28 @@
         }
         var cfg = global.MultiCamConfig && global.MultiCamConfig.get ? global.MultiCamConfig.get() : {};
         var storage = cfg.storage || {};
-        global.cordova.exec(function (saved) {
-          state.videoPath = saved.path;
-          log("CAMERA_LOCAL_SAVED path=" + saved.path + " uri=" + (saved.publicUri || "—")
-            + " bytes=" + saved.bytes + " exported=" + (saved.exported ? 1 : 0)
-            + " error=" + (saved.exportError || "—"));
-          resolve({ atMs: atMs, path: saved.path, publicUri: saved.publicUri || "",
-            exported: saved.exported, exportError: saved.exportError || "", detail: "stopRecordVideo_ok" });
-        }, function (error) {
+        // Native STOP has already finalized this MP4. Publication of multi-GB
+        // files must not hold the recorder state or the STOP acknowledgement.
+        state.exports[originalPath] = { state: "saving", source: originalPath };
+        try {
+          global.cordova.exec(function (saved) {
+            state.exports[originalPath] = {
+              state: saved.exported ? "saved" : "error", source: originalPath,
+              path: saved.path, publicUri: saved.publicUri || "", bytes: saved.bytes,
+              error: saved.exportError || ""
+            };
+            log("CAMERA_LOCAL_SAVED path=" + saved.path + " uri=" + (saved.publicUri || "—")
+              + " bytes=" + saved.bytes + " exported=" + (saved.exported ? 1 : 0)
+              + " error=" + (saved.exportError || "—"));
+          }, function (error) {
+            state.exports[originalPath] = { state: "error", source: originalPath, error: String(error) };
+            log("CAMERA_LOCAL_SAVE_ERROR source=" + originalPath + " error=" + String(error));
+          }, "MultiCamSaf", "saveVideo", [originalPath, storage.mode === "saf" ? (storage.treeUri || "") : ""]);
+        } catch (error) {
+          state.exports[originalPath] = { state: "error", source: originalPath, error: String(error) };
           log("CAMERA_LOCAL_SAVE_ERROR source=" + originalPath + " error=" + String(error));
-          // STOP succeeded: preserve and report the actual source for recovery.
-          resolve({ atMs: atMs, path: originalPath, exported: false, exportError: String(error), detail: "stopRecordVideo_ok" });
-        }, "MultiCamSaf", "saveVideo", [originalPath, storage.mode === "saf" ? (storage.treeUri || "") : ""]);
+        }
+        resolve({ atMs: atMs, path: originalPath, exporting: true, detail: "stopRecordVideo_ok" });
       }, function (e) {
         var raw = String(e);
         state.lastError = raw;
@@ -1021,6 +1032,7 @@
       preparing: state.preparing,
       recording: state.recording,
       videoPath: state.videoPath,
+      exports: JSON.parse(JSON.stringify(state.exports)),
       preparedFor: state.preparedFor,
       lastError: state.lastError,
       starts: state.counter,

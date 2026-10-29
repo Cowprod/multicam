@@ -411,13 +411,13 @@
 
     /* ------------------------------------------------------------------ master */
 
-    var masterOffer = function (sourceDeviceId) {
+    var masterOffer = function (sourceDeviceId, mode) {
       var tk = take();
       var st = settings();
-      if (!st.transferAuto) { log("TRANSFER_OFFER_SKIP reason=manual source=" + sourceDeviceId); return []; }
+      if (!st.transferAuto && mode !== "retry") { log("TRANSFER_OFFER_SKIP reason=manual source=" + sourceDeviceId); return []; }
       var storages = (tk.storages || []).filter(function (d) { return d && d !== sourceDeviceId; });
       if (!storages.length) { log("TRANSFER_OFFER_SKIP reason=no_storage source=" + sourceDeviceId); return []; }
-      return model.offerTransfers(sourceDeviceId, storages);
+      return model.offerTransfers(sourceDeviceId, storages, mode);
     };
 
     var maybeRequestDelete = function (sourceDeviceId) {

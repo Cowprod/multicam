@@ -12,7 +12,7 @@ var MultiCamTransfer = {
     exec(success, error, 'MultiCamTransfer', 'sha256', [path]);
   },
 
-  /* Déplace un fichier local vers une destination absolue (dossiers créés,
+  /* Copie un fichier local vers une destination absolue, source conservée (dossiers créés,
    * destination remplacée). `success({dest, bytes})`. */
   stage: function (src, dest, success, error) {
     exec(success, error, 'MultiCamTransfer', 'stage', [src, dest]);

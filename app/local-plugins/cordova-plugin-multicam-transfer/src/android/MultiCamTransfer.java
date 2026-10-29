@@ -139,12 +139,8 @@ public class MultiCamTransfer extends CordovaPlugin {
 
     /* ------------------------------------------------------------------- stage */
 
-    /* Déplace (ou copie) un fichier local vers une destination absolue, en
-     * créant les dossiers parents. Utilisé par la Capture pour STAGER le
-     * segment enregistré dans le cache interne vers l'arborescence média
-     * `MultiCam/<sid>/<take>/` servie en HTTP. Idempotent : une destination
-     * existante est remplacée. `renameTo` échoue à travers les systèmes de
-     * fichiers (cache interne → stockage externe) : repli copie+suppression. */
+    /* Copy into the HTTP staging tree. Keep the finalized source: its public
+     * SAF export can be reading it concurrently, and retries must retain it. */
     private void doStage(String src, String dest, CallbackContext cb) {
         try {
             File s = new File(stripScheme(src));
@@ -152,15 +148,18 @@ public class MultiCamTransfer extends CordovaPlugin {
             if (!s.exists()) { cb.error("stage_missing_src"); return; }
             File parent = d.getParentFile();
             if (parent != null && !parent.exists()) parent.mkdirs();
-            if (d.exists() && !d.delete()) { cb.error("stage_delete_dest_failed"); return; }
-            if (!s.renameTo(d)) {
-                try (InputStream in = new FileInputStream(s); OutputStream out = new FileOutputStream(d)) {
-                    byte[] buf = new byte[BUF];
-                    int n;
-                    while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
-                }
-                s.delete();
+            if (s.getCanonicalPath().equals(d.getCanonicalPath())) {
+                JSONObject existing = new JSONObject();
+                existing.put("dest", d.getAbsolutePath()); existing.put("bytes", d.length());
+                cb.success(existing); return;
             }
+            if (d.exists() && !d.delete()) { cb.error("stage_delete_dest_failed"); return; }
+            try (InputStream in = new FileInputStream(s); OutputStream out = new FileOutputStream(d)) {
+                byte[] buf = new byte[BUF];
+                int n;
+                while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            }
+            if (d.length() != s.length()) throw new java.io.IOException("stage_size_mismatch");
             JSONObject res = new JSONObject();
             res.put("dest", d.getAbsolutePath());
             res.put("bytes", d.length());
@@ -411,16 +410,18 @@ public class MultiCamTransfer extends CordovaPlugin {
         }
     }
 
-    private static DocumentFile ensureDirs(Context ctx, DocumentFile root, String sub) {
+    private static synchronized DocumentFile ensureDirs(Context ctx, DocumentFile root, String sub) {
         DocumentFile cur = root;
         if (sub == null || sub.length() == 0) return cur;
         for (String part : sub.split("/")) {
             if (part.length() == 0) continue;
             DocumentFile next = cur.findFile(part);
-            if (next == null || !next.isDirectory()) {
+            if (next == null) {
                 next = cur.createDirectory(part);
+                // A provider or another process may have created it meanwhile.
+                if (next == null) next = cur.findFile(part);
             }
-            if (next == null) return null;
+            if (next == null || !next.isDirectory()) return null;
             cur = next;
         }
         return cur;

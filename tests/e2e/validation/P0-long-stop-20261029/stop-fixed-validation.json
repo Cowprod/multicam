@@ -1,0 +1,108 @@
+{
+  "dialogs": 0,
+  "previousTake": 2,
+  "incidentOpened": true,
+  "recording": {
+    "take": 2,
+    "peers": {
+      "d3931516-14e0-4ae2-84a9-5034c998b939": {
+        "state": "STARTED",
+        "message": ""
+      },
+      "2680fa70-4c4e-43f3-a2c7-a17a4d3c8852": {
+        "state": "STARTED",
+        "message": ""
+      },
+      "d97e7fe1-7e6e-4458-91ff-6ee86853711d": {
+        "state": "STARTED",
+        "message": ""
+      }
+    },
+    "phase": "REC",
+    "images": [
+      {
+        "width": 1339,
+        "height": 752
+      },
+      {
+        "width": 1339,
+        "height": 752
+      },
+      {
+        "width": 1339,
+        "height": 752
+      }
+    ],
+    "error": ""
+  },
+  "globalStopAckMs": 1120,
+  "stopped": {
+    "take": 2,
+    "phase": "STOPPED",
+    "states": {
+      "fba6a797-a36b-4d01-9a5a-10c4ab95b4e0": {
+        "deviceId": "fba6a797-a36b-4d01-9a5a-10c4ab95b4e0",
+        "state": "STOPPED",
+        "stopId": "ZNDBPUEH#2#2#3#stop",
+        "actualMs": 1793297783625,
+        "localTargetMs": null,
+        "deltaMs": null,
+        "path": "",
+        "reason": "master_stop"
+      },
+      "190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2": {
+        "deviceId": "190bbe4a-f2ce-46ed-ba96-f6b54a36f6c2",
+        "state": "STOPPED",
+        "stopId": "ZNDBPUEH#2#2#3#stop",
+        "actualMs": 1793297783624,
+        "localTargetMs": null,
+        "deltaMs": null,
+        "path": "",
+        "reason": "master_stop",
+        "receivedAtMs": 1793297783843
+      },
+      "d3931516-14e0-4ae2-84a9-5034c998b939": {
+        "deviceId": "d3931516-14e0-4ae2-84a9-5034c998b939",
+        "state": "STOPPED",
+        "stopId": "ZNDBPUEH#2#2#3#stop",
+        "actualMs": 1793297784080,
+        "localTargetMs": 1793297783691.5,
+        "deltaMs": 388.5,
+        "path": "/data/user/0/fr.emmanuel.multicam/files/recordings/videoTmp_1.mp4",
+        "reason": "master_stop",
+        "receivedAtMs": 1793297784028
+      },
+      "d97e7fe1-7e6e-4458-91ff-6ee86853711d": {
+        "deviceId": "d97e7fe1-7e6e-4458-91ff-6ee86853711d",
+        "state": "STOPPED",
+        "stopId": "ZNDBPUEH#2#2#3#stop",
+        "actualMs": 1793297784628,
+        "localTargetMs": 1793297784195,
+        "deltaMs": 433,
+        "path": "/data/user/0/fr.emmanuel.multicam/files/recordings/videoTmp.mp4",
+        "reason": "master_stop",
+        "receivedAtMs": 1793297784103
+      },
+      "2680fa70-4c4e-43f3-a2c7-a17a4d3c8852": {
+        "deviceId": "2680fa70-4c4e-43f3-a2c7-a17a4d3c8852",
+        "state": "STOPPED",
+        "stopId": "ZNDBPUEH#2#2#3#stop",
+        "actualMs": 1793297784415,
+        "localTargetMs": 1793297783904.5,
+        "deltaMs": 510.5,
+        "path": "/data/user/0/fr.emmanuel.multicam/files/recordings/videoTmp.mp4",
+        "reason": "master_stop",
+        "receivedAtMs": 1793297784149
+      }
+    }
+  },
+  "next": {
+    "take": 3,
+    "status": "PREPARATION"
+  },
+  "screen": {
+    "take": "Take 003",
+    "armDisabled": false,
+    "nextError": ""
+  }
+}

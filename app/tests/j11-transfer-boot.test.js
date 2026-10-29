@@ -112,6 +112,21 @@ module.exports.register = function (h) {
 
   describe("J11 boot — rôles, assemblage, déclencheurs", function () {
 
+    it("Réessayer transmet le mode manuel même si le transfert automatique est désactivé", async () => {
+      const { boot, ws } = makeBoot({
+        cfg: { enabledSkills: ["controller"] },
+        start: { self: "mst-1" },
+        takes: { [SID]: [{ takeNumber: 1, captures: [CAP], storages: [STO1], settings: { transferAuto: false } }] }
+      });
+      boot.bind();
+      await boot._onTransferMessage(mediaReady(SID, 1, CAP));
+      assert.strictEqual(ws.out.sendTo.filter(m => m.kind === "transfer_offer").length, 0);
+      boot.retry(CAP);
+      const offers = ws.out.sendTo.filter(m => m.kind === "transfer_offer");
+      assert.strictEqual(offers.length, 1);
+      assert.strictEqual(offers[0].extra.mode, "retry");
+    });
+
     it("B1. roleFor : priorité controller > capture > storage", () => {
       assert.strictEqual(Boot.roleFor({ enabledSkills: ["controller", "capture"] }), "master");
       assert.strictEqual(Boot.roleFor({ enabledSkills: ["capture"] }), "capture");

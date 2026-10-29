@@ -38,10 +38,16 @@ public class MultiCamSaf extends CordovaPlugin {
                 java.io.File dir = new java.io.File(cordova.getActivity().getFilesDir(), "recordings");
                 if (!dir.isDirectory() && !dir.mkdirs()) throw new Exception("mkdir_failed");
                 String name = "MultiCam_" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID() + ".mp4";
-                java.io.File durable = new java.io.File(dir, name);
-                try (java.io.InputStream in = new java.io.FileInputStream(src);
-                     OutputStream out = new java.io.FileOutputStream(durable)) { copyVideo(in, out); }
-                if (durable.length() != src.length()) throw new Exception("local_copy_size_mismatch");
+                // New recordings already live in the durable directory.
+                // Keep the copy fallback for files produced by older builds.
+                java.io.File durable = src;
+                if (!src.getCanonicalFile().getParentFile().equals(dir.getCanonicalFile())) {
+                    durable = new java.io.File(dir, name);
+                    try (java.io.InputStream in = new java.io.FileInputStream(src);
+                         OutputStream out = new java.io.FileOutputStream(durable)) { copyVideo(in, out); }
+                    if (durable.length() != src.length()) throw new Exception("local_copy_size_mismatch");
+                }
+                android.util.Log.i("MultiCamSaf", "VIDEO_DURABLE_READY path=" + durable + " reused=" + durable.equals(src) + " bytes=" + durable.length());
                 result.put("path", durable.getAbsolutePath());
                 result.put("bytes", durable.length());
                 ContentResolver resolver = cordova.getActivity().getContentResolver();

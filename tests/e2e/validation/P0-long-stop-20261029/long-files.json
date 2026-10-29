@@ -1,0 +1,98 @@
+[
+  {
+    "deviceId": "d97e7fe1-7e6e-4458-91ff-6ee86853711d",
+    "file": "MultiCam_1793296348430_9557874e-1b13-48b9-a10a-691e261e89f4.mp4",
+    "probeExit": 0,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "2291.200000",
+        "size": "5710438420"
+      }
+    },
+    "startDecodeExit": 0,
+    "endDecodeExit": 0,
+    "serial": "62614ac67d91",
+    "name": "Cam 01",
+    "source": "/sdcard/DCIM/Camera/MultiCam_1793296348430_9557874e-1b13-48b9-a10a-691e261e89f4.mp4",
+    "storage": "/sdcard/DCIM/Camera/MultiCam/ZNDBPUEH/1/d97e7fe1-7e6e-4458-91ff-6ee86853711d/MultiCam_1793296348430_9557874e-1b13-48b9-a10a-691e261e89f4.mp4",
+    "sha256": "e175db98749d02bef78a378dddbd5830a749ca6b65f88b68d366031066d0c9de",
+    "transferState": "done",
+    "receivedBytes": 5710438420
+  },
+  {
+    "deviceId": "d3931516-14e0-4ae2-84a9-5034c998b939",
+    "file": "MultiCam_1793296348134_fef38173-9cf0-49b5-b0ea-7d3bfbd0bd83.mp4",
+    "probeExit": 0,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "2291.392000",
+        "size": "5711040996"
+      }
+    },
+    "startDecodeExit": 0,
+    "endDecodeExit": 0,
+    "serial": "c0d8514d7d87",
+    "name": "Cam 02",
+    "source": "/sdcard/DCIM/MultiCam_1793296348134_fef38173-9cf0-49b5-b0ea-7d3bfbd0bd83.mp4",
+    "storage": "/sdcard/DCIM/Camera/MultiCam/ZNDBPUEH/1/d3931516-14e0-4ae2-84a9-5034c998b939/MultiCam_1793296348134_fef38173-9cf0-49b5-b0ea-7d3bfbd0bd83.mp4",
+    "sha256": "abb6627566fb4ef0dec5a9836855ca979c94eba26ef842da4d01ee1c6c27582c",
+    "transferState": "done",
+    "receivedBytes": 5711040996
+  },
+  {
+    "deviceId": "2680fa70-4c4e-43f3-a2c7-a17a4d3c8852",
+    "file": "MultiCam_1793296348113_073b483f-490f-4991-bf4f-67309d287f1a.mp4",
+    "probeExit": 0,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "2291.290333",
+        "size": "5710692111"
+      }
+    },
+    "startDecodeExit": 0,
+    "endDecodeExit": 0,
+    "serial": "61d54bba7d91",
+    "name": "Cam 03",
+    "source": "/sdcard/DCIM/Camera/MultiCam_1793296348113_073b483f-490f-4991-bf4f-67309d287f1a.mp4",
+    "storage": "/sdcard/DCIM/Camera/MultiCam/ZNDBPUEH/1/2680fa70-4c4e-43f3-a2c7-a17a4d3c8852/MultiCam_1793296348113_073b483f-490f-4991-bf4f-67309d287f1a.mp4",
+    "sha256": "4df5fee16411f70b9668dec53eafea7e9d5c8e2f18058f6ea24f1299382b7e2c",
+    "transferState": "done",
+    "receivedBytes": 5710692111
+  }
+]

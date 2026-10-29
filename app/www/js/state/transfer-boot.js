@@ -163,14 +163,11 @@
       return [{ rel: baseName(path), segmentIndex: 0, path: path }];
     }
 
-    /* STAGING : la Capture écrit dans le cache interne
-     * (`cache/videoTmp_N.mp4`, cf. CameraPreview.java) alors que le serveur
-     * média sert `MultiCam/<sid>/<take>/`. On déplace donc chaque segment vers
-     * son emplacement définitif AVANT le calcul SHA-256 et le démarrage du
-     * serveur — sinon le serveur répond 500 (dossier inexistant). Le map
-     * `stagedMap` rend l'opération idempotente : un même (sid,take,rel) n'est
-     * déplacé qu'une fois, et la suppression locale ultérieure retrouve la
-     * cible même si la source a disparu. */
+    /* STAGING : le recorder écrit directement dans files/recordings, et
+     * le serveur média sert MultiCam/<sid>/<take>/. Une copie est préparée
+     * avant le hash et le serveur. La source est conservée : sa publication
+     * SAF peut être en cours simultanément. stagedMap rend cette copie
+     * idempotente et identifie la cible servie pour la politique de rétention. */
     var stagedMap = {}; /* "sid|take|rel" -> chemin stagé */
 
     function stageSegments(sid, take) {
@@ -1265,7 +1262,7 @@
     /* Réessai manuel : ré-émet l'offre du Master pour une source donnée. */
     function retry(sourceDeviceId) {
       if (role !== "master" || !primary || !primary.service) return [];
-      return primary.service.masterOffer(sourceDeviceId);
+      return primary.service.masterOffer(sourceDeviceId, "retry");
     }
 
     /* MultiCam D-SERVE: arrête le serveur média partagé UNIQUEMENT s'il ne reste

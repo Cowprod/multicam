@@ -10,7 +10,8 @@ module.exports = function (context) {
     '../tests/poc/capture-profile-selection/patch/apply_capture_profile_patch.py',
     'camera-patches/apply_capture_capabilities_patch.py',
     'camera-patches/apply_video_permission_patch.py',
-    'camera-patches/apply_camera_switch_patch.py'
+    'camera-patches/apply_camera_switch_patch.py',
+    'camera-patches/apply_recording_path_patch.py'
   ];
   for (const script of scripts) {
     execFileSync('python3', [path.resolve(root, script), root], { cwd: root, stdio: 'inherit' });
