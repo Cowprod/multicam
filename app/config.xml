@@ -10,6 +10,7 @@
     <!-- J04 — trafic cleartext Android requis par ws:// LAN, déclaré de façon
          versionnée (hook after_prepare idempotent) — décision 30.10. -->
     <hook type="after_prepare" src="hooks/after_prepare/010-enable-cleartext.js" />
+    <hook type="after_prepare" src="hooks/after_prepare/020-camera-patches.js" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="AndroidXEnabled" value="true" />
     <preference name="android-targetSdkVersion" value="36" />

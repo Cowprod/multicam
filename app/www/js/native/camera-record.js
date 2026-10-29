@@ -496,7 +496,25 @@
         state.stopUnconfirmed = false;
         log("CAMERA_REC_STOP_OK atMs=" + atMs + " path=" + (state.videoPath || "—")
           + " previewKept=" + (state.prepared ? 1 : 0));
-        resolve({ atMs: atMs, path: state.videoPath, detail: "stopRecordVideo_ok" });
+        var originalPath = state.videoPath;
+        if (!global.cordova || typeof global.cordova.exec !== "function") {
+          resolve({ atMs: atMs, path: originalPath, detail: "stopRecordVideo_ok", exported: false });
+          return;
+        }
+        var cfg = global.MultiCamConfig && global.MultiCamConfig.get ? global.MultiCamConfig.get() : {};
+        var storage = cfg.storage || {};
+        global.cordova.exec(function (saved) {
+          state.videoPath = saved.path;
+          log("CAMERA_LOCAL_SAVED path=" + saved.path + " uri=" + (saved.publicUri || "—")
+            + " bytes=" + saved.bytes + " exported=" + (saved.exported ? 1 : 0)
+            + " error=" + (saved.exportError || "—"));
+          resolve({ atMs: atMs, path: saved.path, publicUri: saved.publicUri || "",
+            exported: saved.exported, exportError: saved.exportError || "", detail: "stopRecordVideo_ok" });
+        }, function (error) {
+          log("CAMERA_LOCAL_SAVE_ERROR source=" + originalPath + " error=" + String(error));
+          // STOP succeeded: preserve and report the actual source for recovery.
+          resolve({ atMs: atMs, path: originalPath, exported: false, exportError: String(error), detail: "stopRecordVideo_ok" });
+        }, "MultiCamSaf", "saveVideo", [originalPath, storage.mode === "saf" ? (storage.treeUri || "") : ""]);
       }, function (e) {
         var raw = String(e);
         state.lastError = raw;

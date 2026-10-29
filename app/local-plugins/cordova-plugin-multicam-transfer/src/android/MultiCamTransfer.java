@@ -252,6 +252,7 @@ public class MultiCamTransfer extends CordovaPlugin {
             cb.error("download_missing_dest"); return;
         }
 
+        Uri savedDocument = null;
         HttpURLConnection conn = null;
         OutputStream out = null;
         InputStream in = null;
@@ -308,7 +309,8 @@ public class MultiCamTransfer extends CordovaPlugin {
                 if (exist != null) exist.delete();
                 DocumentFile file = parent.createFile("application/octet-stream", name);
                 if (file == null) { cb.error("saf_create_failed"); return; }
-                out = ctx.getContentResolver().openOutputStream(file.getUri(), "w");
+                savedDocument = file.getUri();
+                out = ctx.getContentResolver().openOutputStream(savedDocument, "w");
             } else {
                 File f = new File(dest);
                 File parent = f.getParentFile();
@@ -358,15 +360,31 @@ public class MultiCamTransfer extends CordovaPlugin {
                 return;
             }
 
-            String sha = (treeUri.length() > 0)
-                    ? "saf_unverified"  /* SAF : hash calculé côté appelant si besoin */
-                    : sha256OfFile(dest);
+            // Verify the stored bytes, reopening the SAF document after close.
+            // A digest of the network stream alone would not verify persistence.
+            String sha;
+            if (savedDocument != null) {
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                long storedBytes = 0;
+                try (InputStream stored = cordova.getActivity().getContentResolver().openInputStream(savedDocument)) {
+                    if (stored == null) throw new java.io.IOException("saf_readback_failed");
+                    while ((n = stored.read(buf)) != -1) {
+                        md.update(buf, 0, n);
+                        storedBytes += n;
+                    }
+                }
+                if (storedBytes != written) throw new java.io.IOException("saf_stored_size_mismatch");
+                sha = toHex(md.digest());
+            } else {
+                sha = sha256OfFile(dest);
+            }
 
             JSONObject res = new JSONObject();
             res.put("done", true);
             res.put("received", written);
             res.put("total", total);
             res.put("sha256", sha);
+            if (savedDocument != null) res.put("uri", savedDocument.toString());
             android.util.Log.i(LOGTAG, "TRANSFER_NATIVE download done received=" + written + " total=" + total + " sha256=" + sha);
             cb.success(res);
         } catch (Exception e) {

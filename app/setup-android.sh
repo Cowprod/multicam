@@ -62,36 +62,9 @@ mkdir -p "$CAMERA_PLATFORM_DIR"
 cp plugins/cordova-plugin-camera-preview/src/android/CameraPreview.java "$CAMERA_PLATFORM_DIR/CameraPreview.java"
 cp plugins/cordova-plugin-camera-preview/src/android/CameraActivity.java "$CAMERA_PLATFORM_DIR/CameraActivity.java"
 
-# LE WRAPPER JS, AUTREMENT.
-#
-# `cordova prepare` ne rafraichi pas platform_www/, donc le CameraPreview.js
-# embarque peut avoir ete construit AVANT le patch : il lui manquera alors
-# `switchCameraTo` et `getCameraState`.
-#
-# On ne recopie PAS le fichier depuis plugins/ : Cordova ENVELOPPE chaque
-# www de plugin dans `cordova.define("id.nom", function(require, exports,
-# module) { ... })` au moment de l'installation, et une copie brute ne l'est
-# pas. Resultat d'une telle copie, mesure sur les deux devices :
-#   "Uncaught ReferenceError: require is not defined" (CameraPreview.js:1)
-#   -> deviceready ne part plus -> l'application ne demarre plus.
-# Un wrapper casse vaut bien pire qu'un wrapper incomplet.
-#
-# Le completement est donc assure par l'application elle-meme :
-# `camera-record.js` installe `installSwitchShim()`, qui redefinit ces deux
-# methodes en `cordova.exec` quand elles manquent, et qui les appelle avant
-# tout usage. C'est un chemin teste et c'est celui qui a ete valide sur device
-# (bascule REAR<->FRONT confirmee par relecture native). Le Java, lui, DOIT
-# etre recopie — c'est lui qui porte l'implementation.
-#
-# On constate donc l'ecart plutot que de le laisser passer en silence.
-CAMERA_WWW_DEST="platforms/android/platform_www/plugins/cordova-plugin-camera-preview/www"
-for marker in switchCameraTo getCameraState; do
-  if grep -q "$marker" "$CAMERA_WWW_DEST/CameraPreview.js" 2>/dev/null; then
-    echo "Wrapper JS camera : $marker present (build recent)"
-  else
-    echo "Wrapper JS camera : $marker absent — l'application utilisera son shim cordova.exec"
-  fi
-done
+# Le hook after_prepare versionne reapplique les patchs natifs et reconstruit
+# les wrappers JS avec cordova.define dans platform_www/ ET assets/www/.
+# Ainsi un simple cordova build ne peut plus embarquer le plugin upstream nu.
 
 # Plugins locaux MultiCam (sources prises depuis app/local-plugins).
 add_local_plugin() {

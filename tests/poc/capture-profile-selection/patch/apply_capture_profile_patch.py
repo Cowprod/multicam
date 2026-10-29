@@ -163,14 +163,19 @@ p.write_text(s, encoding='utf-8')
 # ------------------------------------------------------------------- CameraPreview
 p = files['preview']; backup(p); s = p.read_text(encoding='utf-8')
 
+# Android org.json may stringify JSONObject.NULL as "null" in optString.
+# Migrate already-patched plugins too; absent/null means automatic profile.
+s = s.replace('this.execArgs.optString(5, null)', '(this.execArgs.isNull(5) ? null : this.execArgs.getString(5))')
+s = s.replace('args.optString(5, null)', '(args.isNull(5) ? null : args.getString(5))')
+
 s = replace_once(s,
     'return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), callbackContext);',
-    'return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), args.optString(5, null), callbackContext);',
+    'return startRecordVideo(args.getString(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getBoolean(4), (args.isNull(5) ? null : args.getString(5)), callbackContext);',
     'execute -> startRecordVideo + camcorderProfile')
 
 s = replace_once(s,
     'startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4),  this.execCallback);',
-    'startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4), this.execArgs.optString(5, null), this.execCallback);',
+    'startRecordVideo(this.execArgs.getString(0), this.execArgs.getInt(1), this.execArgs.getInt(2), this.execArgs.getInt(3), this.execArgs.getBoolean(4), (this.execArgs.isNull(5) ? null : this.execArgs.getString(5)), this.execCallback);',
     'onRequestPermissionResult -> startRecordVideo + camcorderProfile')
 
 s = replace_once(s,

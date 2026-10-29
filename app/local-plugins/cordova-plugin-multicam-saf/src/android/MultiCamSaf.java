@@ -24,8 +24,76 @@ public class MultiCamSaf extends CordovaPlugin {
         if ("testWrite".equals(action)) { testWrite(args.getString(0), callbackContext); return true; }
         if ("listPersisted".equals(action)) { listPersisted(callbackContext); return true; }
         if ("getTreeName".equals(action)) { getTreeName(args.getString(0), callbackContext); return true; }
+        if ("saveVideo".equals(action)) { saveVideo(args.getString(0), args.optString(1, ""), callbackContext); return true; }
         return false;
     }
+
+    // Retain a durable local source before publishing. Never remove a recording.
+    private void saveVideo(final String source, final String tree, final CallbackContext cb) {
+        cordova.getThreadPool().execute(() -> {
+            JSONObject result = new JSONObject();
+            try {
+                java.io.File src = new java.io.File(source.replaceFirst("^file://", ""));
+                if (!src.isFile() || src.length() == 0) throw new Exception("empty_or_missing_video");
+                java.io.File dir = new java.io.File(cordova.getActivity().getFilesDir(), "recordings");
+                if (!dir.isDirectory() && !dir.mkdirs()) throw new Exception("mkdir_failed");
+                String name = "MultiCam_" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID() + ".mp4";
+                java.io.File durable = new java.io.File(dir, name);
+                try (java.io.InputStream in = new java.io.FileInputStream(src);
+                     OutputStream out = new java.io.FileOutputStream(durable)) { copyVideo(in, out); }
+                if (durable.length() != src.length()) throw new Exception("local_copy_size_mismatch");
+                result.put("path", durable.getAbsolutePath());
+                result.put("bytes", durable.length());
+                ContentResolver resolver = cordova.getActivity().getContentResolver();
+                try {
+                    Uri dest;
+                    if (!tree.isEmpty()) {
+                        Uri t = Uri.parse(tree);
+                        Uri parent = DocumentsContract.buildDocumentUriUsingTree(t, DocumentsContract.getTreeDocumentId(t));
+                        dest = DocumentsContract.createDocument(resolver, parent, "video/mp4", name);
+                    } else {
+                        android.content.ContentValues values = new android.content.ContentValues();
+                        values.put(android.provider.MediaStore.Video.Media.DISPLAY_NAME, name);
+                        values.put(android.provider.MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+                        values.put(android.provider.MediaStore.Video.Media.RELATIVE_PATH, "DCIM/MultiCam");
+                        values.put(android.provider.MediaStore.Video.Media.IS_PENDING, 1);
+                        dest = resolver.insert(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+                    }
+                    if (dest == null) throw new Exception("create_video_failed");
+                    try (java.io.InputStream in = new java.io.FileInputStream(durable);
+                         OutputStream out = resolver.openOutputStream(dest, "w")) {
+                        if (out == null) throw new Exception("open_video_failed");
+                        copyVideo(in, out);
+                    }
+                    try (android.os.ParcelFileDescriptor fd = resolver.openFileDescriptor(dest, "r")) {
+                        if (fd == null || fd.getStatSize() != durable.length()) throw new Exception("published_size_mismatch");
+                    }
+                    if (tree.isEmpty()) {
+                        android.content.ContentValues ready = new android.content.ContentValues();
+                        ready.put(android.provider.MediaStore.Video.Media.IS_PENDING, 0);
+                        resolver.update(dest, ready, null, null);
+                    }
+                    result.put("publicUri", dest.toString());
+                    result.put("exported", true);
+                    android.util.Log.i("MultiCamSaf", "VIDEO_LOCAL_SAVED path=" + durable + " uri=" + dest + " bytes=" + durable.length());
+                } catch (Exception exportError) {
+                    result.put("exported", false);
+                    result.put("exportError", exportError.toString());
+                    android.util.Log.e("MultiCamSaf", "VIDEO_PUBLIC_SAVE_FAILED local=" + durable, exportError);
+                }
+                cb.success(result);
+            } catch (Exception e) {
+                android.util.Log.e("MultiCamSaf", "VIDEO_LOCAL_SAVE_FAILED source=" + source, e);
+                cb.error("save_video_failed: " + e.toString());
+            }
+        });
+    }
+    private static void copyVideo(java.io.InputStream in, OutputStream out) throws java.io.IOException {
+        byte[] buf = new byte[128 * 1024]; int count;
+        while ((count = in.read(buf)) != -1) out.write(buf, 0, count);
+        out.flush();
+    }
+
     private void chooseDirectory(CallbackContext callbackContext) {
         pendingChoose = callbackContext;
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
