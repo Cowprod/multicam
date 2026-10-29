@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MultiCam portable recording metadata",
+  "description": "Sidecar metadata for later editing; unknown values remain null; measured and estimated timestamps must be distinguished.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "sessionId",
+    "takeNumber",
+    "generatedAtUtc",
+    "captures"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "takeNumber": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "generatedAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "captures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "deviceId",
+          "media"
+        ],
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "clockOffsetMs": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "clockUncertaintyMs": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "recordStartUtc": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "recordStopUtc": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "recordStartMonotonicMs": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "recordStopMonotonicMs": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "relativePath",
+                "bytes",
+                "sha256"
+              ],
+              "properties": {
+                "relativePath": {
+                  "type": "string"
+                },
+                "bytes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "sha256": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[0-9a-fA-F]{64}$"
+                },
+                "durationMs": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "codec": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "width": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "height": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "frameRate": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "utc",
+                "source"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "utc": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "source": {
+                  "enum": [
+                    "measured",
+                    "estimated",
+                    "unknown"
+                  ]
+                },
+                "deltaMs": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
