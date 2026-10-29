@@ -58,6 +58,11 @@ body.camera-preview-active .vig{background:linear-gradient(to bottom,rgba(0,0,0,
 .screenmodal.show{display:flex}
 .screenmodal .modal-backdrop{position:fixed;inset:0;z-index:1;background:rgba(0,0,0,.55)}
 .screenmodal .modal-dialog{position:relative;width:100%;max-width:520px;z-index:2;pointer-events:auto}
+/* Android landscape: keep incident actions reachable without scrolling ARM behind. */
+#armIncidentModal{overflow:hidden;overscroll-behavior:contain}
+#armIncidentModal .modal-dialog{max-height:calc(100dvh - 32px);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden}
+#armIncidentModal .card-body{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+
 .member-role-option{font-size:.8rem;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.35rem .7rem;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none}
 .member-role-option input{accent-color:#45d483}
 .member-role-option.checked{border-color:var(--m,#ffb45b);color:#fff;background:rgba(255,255,255,.16)}
