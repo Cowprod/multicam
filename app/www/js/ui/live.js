@@ -550,7 +550,9 @@
 
   function renderStopControls(v) {
     var btn = byId("liveStopBtn");
-    var visible = stopVisible(v);
+    /* The mosaic view omits active/isMaster: use the authoritative START view. */
+    var startView = global.MultiCamStartService ? global.MultiCamStartService.view() : null;
+    var visible = stopVisible(startView);
     if (btn) btn.classList.toggle("d-none", !visible);
     if (!visible && stopModal.open) closeStopModal();
   }
