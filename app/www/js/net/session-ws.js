@@ -97,6 +97,7 @@
       var ma = aMem[j], mb = bMem[j];
       if (ma.deviceId !== mb.deviceId) return false;
       if (ma.deviceName !== mb.deviceName) return false;
+      if ((ma.endpoint || "") !== (mb.endpoint || "")) return false;
       if ((ma.enabledSkills || []).join(",") !== (mb.enabledSkills || []).join(",")) return false;
       if ((ma.sessionRoles || []).join(",") !== (mb.sessionRoles || []).join(",")) return false;
       if (ma.addedAtMs !== mb.addedAtMs) return false;
@@ -212,9 +213,88 @@
         if (typeof ip === "string" && ip && ip.indexOf(":") < 0 && ip.indexOf(" ") < 0) {
           _ipCache = ip;
           refreshSelfEndpoint();
+          reconcileNetwork();
         }
       }).catch(function () {});
     } catch (e) {}
+  }
+
+  var networkBound = false;
+  var networkRefresh = null;
+  var networkDirty = false;
+  var peerDialed = {};
+  var lastPublishedEndpoint = "";
+
+  // DNS-SD resolves a stable deviceId to the CURRENT transport address.
+  // Never change membership/roles or revive a closed session during discovery.
+  function reconcileNetwork() {
+    if (networkRefresh) { networkDirty = true; return networkRefresh; }
+    var d = global.MultiCamDiscovery;
+    var db = store();
+    if (!d || !db || !db.list || !db.save) return Promise.resolve();
+    var ds = d.status && d.status();
+    if (ds && ds.ipv4) _ipCache = ds.ipv4;
+    var own = refreshSelfEndpoint();
+    if (own && own !== lastPublishedEndpoint) {
+      lastPublishedEndpoint = own;
+      state.txtRepublished = false;
+      republishDeviceTxt();
+    }
+    var peers = (d.table ? d.table() : []).filter(function (p) { return p.state === "online"; });
+    networkRefresh = db.list().then(function (sessions) {
+      return Promise.all(sessions.filter(function (s) { return s.state === "open"; }).map(function (s) {
+        var copy = JSON.parse(JSON.stringify(s));
+        var people = (copy.masters || []).concat(copy.members || []);
+        var changed = false;
+        people.forEach(function (member) {
+          var endpoint = member.deviceId === state.localDid ? own : "";
+          var peer = peers.filter(function (p) { return p.deviceId === member.deviceId; })[0];
+          if (peer) {
+            var ep = parseEndpoint(peer.wsEndpoint);
+            var resolved = parseEndpoint(peer.endpoint);
+            // The TXT may still contain the previous IP. Its port is useful;
+            // the host from the actual mDNS resolution is authoritative.
+            if (ep && resolved) endpoint = resolved.host + ":" + ep.port;
+          }
+          if (!endpoint) return;
+          if (member.endpoint !== endpoint) { member.endpoint = endpoint; changed = true; }
+        });
+        var saved = changed ? db.save(copy) : Promise.resolve(copy);
+        return saved.then(function () {
+          people.forEach(function (member) {
+            if (member.deviceId === state.localDid) return;
+            var peer = peers.filter(function (p) { return p.deviceId === member.deviceId; })[0];
+            if (!peer) return;
+            var ep = parseEndpoint(member.endpoint);
+            if (!ep) return;
+            var key = member.deviceId + "|" + member.endpoint;
+            if (peerDialed[key]) return;
+            peerDialed[key] = true;
+            emit("WS_PEER_REDISCOVERED did=" + member.deviceId + " endpoint=" + member.endpoint);
+            connectTo(ep.host, ep.port).then(function (socket) {
+              sendOn(socket, envelope("sync_please", copy.sessionId, {wantResync: true}));
+            }).catch(function (e) { emit("WS_REDISCOVERY_DIAL_ERROR did=" + member.deviceId + " err=" + String(e)); });
+          });
+        });
+      }));
+    }).catch(function (e) { emit("WS_NETWORK_REFRESH_ERROR err=" + String(e)); }).then(function () {
+      networkRefresh = null;
+      if (networkDirty) { networkDirty = false; return reconcileNetwork(); }
+    });
+    return networkRefresh;
+  }
+
+  function bindNetwork() {
+    if (networkBound) return;
+    var d = global.MultiCamDiscovery;
+    if (!d) return;
+    networkBound = true;
+    if (d.onChanged) d.onChanged(reconcileNetwork);
+    if (d.onNetworkChange) d.onNetworkChange(function () {
+      peerDialed = {};
+      reconcileNetwork();
+    });
+    reconcileNetwork();
   }
 
   function refreshSelfEndpoint() {
@@ -2569,6 +2649,7 @@ store().get(env.sessionId).then(function (local) {
     state.localName = cfgv.deviceName;
     warmIpCache();
     bindLifecycle();
+    bindNetwork();
   }
 
   global.MultiCamSessionWs = {

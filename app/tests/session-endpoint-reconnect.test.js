@@ -227,6 +227,26 @@ function register(h) {
         "l'ancien endpoint n'étant plus référencé par une session ouverte, la boucle ne tourne pas indéfiniment dessus");
     });
 
+    it("la redécouverte automatique change l'IP sans réajouter le membre", async () => {
+      const e = makeEnv(); env = e;
+      const s0 = await e.ws.createSession("Tournage", {});
+      await addDiscoveredMember(e, s0, EP_C1);
+      let changed;
+      e.MultiCamDiscovery = {
+        status: () => ({ipv4: "10.0.0.1"}),
+        table: () => [{deviceId: C_DID, state: "online", endpoint: "192.168.92.76:45101", wsEndpoint: EP_C1}],
+        onChanged: fn => {changed = fn;}, onNetworkChange() {}
+      };
+      e.ws.bind({deviceId: A_DID, deviceName: "Regie"});
+      await flush(); await flush(); await flush();
+      const updated = await e.store.get(s0.sessionId);
+      eq(memberOf(updated, C_DID).endpoint, "192.168.92.76:45102", "host résolu actuel + port WS annoncé");
+      eq(updated.members.filter(m => m.deviceId === C_DID).length, 1, "identité conservée");
+      yes(e.wsSockets.some(s => s.url === "ws://192.168.92.76:45102"), "reconnexion automatique vers la nouvelle IP");
+      const count = e.wsSockets.length; changed(); await flush(); await flush();
+      eq(e.wsSockets.length, count, "pas de deuxième socket pour la même adresse");
+    });
+
     it("D3.4. session fermée : closed wins, aucune reconnexion ne la ressuscite", async () => {
       const e = makeEnv(); env = e;
       const s0 = await e.ws.createSession("Tournage", {});

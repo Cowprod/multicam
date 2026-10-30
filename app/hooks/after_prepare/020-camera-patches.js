@@ -25,6 +25,13 @@ module.exports = function (context) {
     if (!fs.existsSync(target)) throw new Error('Camera plugin JS missing: ' + target);
     fs.writeFileSync(target, wrapped);
   }
+  for (const file of ['CorHttpd.java']) {
+    const source = path.join(root, 'local-plugins/cordova-plugin-multicam-httpd/src/android', file);
+    for (const target of [path.join(root, 'plugins/cordova-plugin-multicam-httpd/src/android', file), path.join(root, 'platforms/android/app/src/main/java/com/rjfun/cordova/httpd', file)]) {
+      if (!fs.existsSync(target)) throw new Error('HTTP plugin missing: ' + target);
+      fs.copyFileSync(source, target);
+    }
+  }
   // Local plugin edits must also reach the Java sources Gradle compiles.
   for (const [plugin, file, packageDir] of [
     ['cordova-plugin-multicam-saf', 'MultiCamSaf.java', 'saf'],

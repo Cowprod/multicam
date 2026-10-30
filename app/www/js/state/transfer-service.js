@@ -145,7 +145,14 @@
       return Promise.resolve(p).then(function (segs) { return segs || []; });
     }
 
+    var cachedManifest = null;
+    var announcePending = null;
     var captureAnnounce = function () {
+      if (announcePending) return announcePending;
+      announcePending = announceCapture().then(function (r) { announcePending = null; return r; }, function (e) { announcePending = null; throw e; });
+      return announcePending;
+    };
+    function announceCapture() {
       if (role !== "capture") return Promise.resolve(null);
       var tk = take();
       return segmentList().then(function (segs) {
@@ -153,16 +160,21 @@
         var key = serverKey(tk.sessionId, tk.takeNumber);
         var tkToken = server.tokens[key] || (server.tokens[key] = generateToken());
         var root = paths.mediaRoot(tk.sessionId, tk.takeNumber);
-        return Promise.all(segs.map(function (s) {
+        var signatures = segs.map(function (s) { return s.rel + ":" + s.path; }).join("|");
+        return (cachedManifest && cachedManifest.signatures === signatures ? Promise.resolve(cachedManifest.files) : Promise.all(segs.map(function (s) {
           return native.sha256(s.path).then(function (r) {
             return { rel: s.rel, segmentIndex: s.segmentIndex || 0, bytes: r.bytes, sha256: r.sha256 };
           });
-        })).then(function (files) {
+        }))).then(function (files) {
+          cachedManifest = {signatures: signatures, files: files};
           return ensureServer(root).then(function (sv) {
+            var local = deps.localHost && deps.localHost();
+            if (local) { sv.host = local; sv.url = "http://" + local + ":" + sv.port; }
             return native.serveRegister({
               sessionId: tk.sessionId,
               takeNumber: tk.takeNumber,
               root: root,
+              files: segs,
               token: tkToken
             }).then(function () {
               log("TRANSFER_SERVE url=" + sv.url + " take=" + tk.takeNumber + " files=" + files.length);
@@ -455,6 +467,10 @@
         var chain = Promise.resolve();
         files.forEach(function (f) {
           chain = chain.then(function () {
+            var tr = model.state && model.state.transfers && model.state.transfers[offer.sourceDeviceId + "|" + self()];
+            var current = tr && tr.files && tr.files[f.rel];
+            if (current && (current.state === model.PH_DONE || current.state === model.PH_ERROR)) return null;
+            if (current) f = Object.assign({}, f, {received: current.received, waitingSinceMs: current.waitingSinceMs, lastAttemptAtMs: current.lastAttemptAtMs});
             if (isRecording()) {
               log("TRANSFER_PAUSE take=" + tkTake + " reason=recording file=" + f.rel);
               return null; /* le service sera relancé après le Take */
@@ -583,8 +599,11 @@
            * propre gestion d'échec (sinon une reprise échouée ne serait jamais
            * re-classifiée). */
           return native.download(opts, function (p) {
-            model.reportFileProgress(offer.sourceDeviceId, f.rel, p.received);
+            model.reportFileProgress(offer.sourceDeviceId, f.rel, p.received, p.verifying ? model.PH_VERIFYING : undefined);
           }).then(function (res) {
+            if (f.sha256 && String(res.sha256 || "").toLowerCase() !== String(f.sha256).toLowerCase()) {
+              throw new Error("sha256_mismatch");
+            }
             model.reportResult(offer.sourceDeviceId, f.rel, model.PH_DONE, {
               bytes: res.received, sha256Destination: res.sha256
             });
@@ -606,6 +625,7 @@
                     return true;
                   });
                 }
+                forceRestart = true;
                 if (attempt < MAX_ATTEMPTS) return delay(attempt).then(run);
                 sequence += 1;
                 reportWaiting(offer, f, "range_conflict", "download_failed: " + msg, sequence);

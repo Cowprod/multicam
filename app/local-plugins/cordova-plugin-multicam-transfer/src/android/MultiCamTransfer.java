@@ -47,6 +47,11 @@ public class MultiCamTransfer extends CordovaPlugin {
             cordova.getThreadPool().execute(() -> doSha256(path, callbackContext));
             return true;
         }
+        if ("statDest".equals(action)) {
+            final JSONObject opts = args.getJSONObject(0);
+            cordova.getThreadPool().execute(() -> doStatDest(opts, callbackContext));
+            return true;
+        }
         if ("download".equals(action)) {
             final JSONObject opts = args.getJSONObject(0);
             cordova.getThreadPool().execute(() -> doDownload(opts, callbackContext));
@@ -208,6 +213,50 @@ public class MultiCamTransfer extends CordovaPlugin {
         return sb.toString();
     }
 
+    private DocumentFile destinationDocument(JSONObject o, boolean createParents) {
+        Context ctx = cordova.getActivity().getApplicationContext();
+        DocumentFile dir = DocumentFile.fromTreeUri(ctx, Uri.parse(o.optString("treeUri")));
+        String rel = o.optString("relPath", "");
+        if (dir == null || rel.isEmpty()) return null;
+        String[] parts = rel.split("/");
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.isEmpty() || part.equals(".") || part.equals("..") || part.contains("\\")) return null;
+            if (i == parts.length - 1) return dir.findFile(part);
+            DocumentFile next = dir.findFile(part);
+            if (next == null && createParents) next = dir.createDirectory(part);
+            if (next == null || !next.isDirectory()) return null;
+            dir = next;
+        }
+        return null;
+    }
+
+    private void doStatDest(JSONObject o, CallbackContext cb) {
+        try {
+            if (o.optString("treeUri", "").isEmpty()) { doSha256(o.optString("dest"), cb); return; }
+            DocumentFile file = destinationDocument(o, false);
+            if (file == null) { cb.error("stat_missing_dest"); return; }
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            long bytes = 0;
+            byte[] buf = new byte[BUF];
+            try (InputStream in = cordova.getActivity().getContentResolver().openInputStream(file.getUri())) {
+                if (in == null) throw new java.io.IOException("saf_read_failed");
+                int n;
+                while ((n = in.read(buf)) != -1) { md.update(buf, 0, n); bytes += n; }
+            }
+            JSONObject result = new JSONObject();
+            result.put("bytes", bytes); result.put("sha256", toHex(md.digest()));
+            cb.success(result);
+        } catch (Exception e) { cb.error("stat_dest_failed: " + e); }
+    }
+
+    private void progress(CallbackContext cb, long received, long total, boolean verifying) throws JSONException {
+        JSONObject p = new JSONObject();
+        p.put("progress", true); p.put("received", received); p.put("total", total); p.put("verifying", verifying);
+        PluginResult pr = new PluginResult(PluginResult.Status.OK, p);
+        pr.setKeepCallback(true); cb.sendPluginResult(pr);
+    }
+
     /* ---------------------------------------------------------------- download */
 
     private void doDownload(JSONObject o, CallbackContext cb) {
@@ -236,14 +285,12 @@ public class MultiCamTransfer extends CordovaPlugin {
             }
         }
 
-        /* J15 (§4/§16) : en mode SAF, le fichier de destination est RECRÉÉ
-         * (delete + create) à chaque écriture — une reprise d'OCTETS est donc
-         * impossible (elle écrirait à la suite d'un fichier tronqué, produisant
-         * un SHA faux SILENCIEUX). On repart TOUJOURS de zéro : c'est une reprise
-         * du TRAVAIL, pas des octets. */
+        // SAF on-device length is authoritative, just like an ordinary file.
+        // Do not delete or truncate the partial before an HTTP response is validated.
         if (treeUri.length() > 0 && offset > 0) {
-            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE saf_restart_from_zero requested=" + offset);
-            offset = 0;
+            DocumentFile partial = destinationDocument(o, false);
+            offset = partial != null ? partial.length() : 0L;
+            android.util.Log.i(LOGTAG, "TRANSFER_NATIVE saf_resume offset=" + offset);
         }
 
         if (url.length() == 0) { cb.error("download_missing_url"); return; }
@@ -279,7 +326,7 @@ public class MultiCamTransfer extends CordovaPlugin {
                  * celle attendue (fichier incohérent, taille plausible). */
                 String cr = conn.getHeaderField("Content-Range");
                 long start = parseContentRangeStart(cr);
-                if (offset > 0 && start >= 0 && start != offset) {
+                if (start != offset) {
                     android.util.Log.e(LOGTAG, "TRANSFER_NATIVE range_mismatch requested=" + offset
                             + " contentRange=" + cr);
                     cb.error("download_range_mismatch: requested=" + offset + " got=" + cr);
@@ -305,11 +352,20 @@ public class MultiCamTransfer extends CordovaPlugin {
                 DocumentFile parent = ensureDirs(ctx, dir, sub);
                 if (parent == null) { cb.error("saf_mkdir_failed"); return; }
                 DocumentFile exist = parent.findFile(name);
-                if (exist != null) exist.delete();
-                DocumentFile file = parent.createFile("application/octet-stream", name);
+                DocumentFile file = exist;
+                if (offset <= 0) {
+                    if (exist != null && !exist.delete()) { cb.error("saf_delete_failed"); return; }
+                    file = parent.createFile("video/mp4", name);
+                }
                 if (file == null) { cb.error("saf_create_failed"); return; }
                 savedDocument = file.getUri();
-                out = ctx.getContentResolver().openOutputStream(savedDocument, "w");
+                android.os.ParcelFileDescriptor fd = ctx.getContentResolver().openFileDescriptor(savedDocument, "rw");
+                if (fd == null) { cb.error("saf_open_failed"); return; }
+                java.io.FileOutputStream stream = new android.os.ParcelFileDescriptor.AutoCloseOutputStream(fd);
+                out = stream;
+                // A provider which cannot seek fails explicitly and retains the partial.
+                stream.getChannel().position(offset);
+                stream.getChannel().truncate(offset);
             } else {
                 File f = new File(dest);
                 File parent = f.getParentFile();
@@ -362,6 +418,7 @@ public class MultiCamTransfer extends CordovaPlugin {
             // Verify the stored bytes, reopening the SAF document after close.
             // A digest of the network stream alone would not verify persistence.
             String sha;
+            progress(cb, written, total, true);
             if (savedDocument != null) {
                 MessageDigest md = MessageDigest.getInstance("SHA-256");
                 long storedBytes = 0;
@@ -370,6 +427,10 @@ public class MultiCamTransfer extends CordovaPlugin {
                     while ((n = stored.read(buf)) != -1) {
                         md.update(buf, 0, n);
                         storedBytes += n;
+                        long at = System.currentTimeMillis();
+                        if (at - lastProgress >= PROGRESS_EVERY_MS) {
+                            lastProgress = at; progress(cb, written, total, true);
+                        }
                     }
                 }
                 if (storedBytes != written) throw new java.io.IOException("saf_stored_size_mismatch");

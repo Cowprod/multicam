@@ -56,6 +56,7 @@
           sessionId: opts.sessionId,
           takeNumber: opts.takeNumber,
           root: opts.root,
+          files: opts.files,
           token: opts.token || ""
         }, resolve, function (err) { reject(new Error("serve_register_failed: " + err)); });
       });
@@ -71,6 +72,12 @@
           sessionId: opts.sessionId,
           takeNumber: opts.takeNumber
         }, resolve, function (err) { reject(new Error("serve_unregister_failed: " + err)); });
+      });
+    },
+
+    statDest: function (opts) {
+      return new Promise(function (resolve, reject) {
+        global.cordova.exec(resolve, reject, "MultiCamTransfer", "statDest", [opts || {}]);
       });
     },
 

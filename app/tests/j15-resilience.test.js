@@ -883,7 +883,7 @@ module.exports.register = function (h) {
       ctx.boot._ensureFor(SID, TAKE);
       const e = ctx.boot._entries()[SID + "|" + TAKE];
       /* Transfert en attente SANS passer par une offre (donc endpoint inconnu). */
-      e.machine.onIncoming(offerMsg());
+      e.machine.onIncoming(Object.assign(offerMsg(), {host: "", port: 0, token: ""}));
       e.machine.markTransferWaiting(CAP, STO1, "network", 1000, 0);
       let runs = 0;
       e.service.storageRun = () => { runs += 1; return Promise.resolve(); };

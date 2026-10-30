@@ -170,9 +170,61 @@
      * idempotente et identifie la cible servie pour la politique de rétention. */
     var stagedMap = {}; /* "sid|take|rel" -> chemin stagé */
 
+    var sourceIndex = {};
+    var SOURCE_INDEX_KEY = "multicam.local-recordings.v1";
+    try { sourceIndex = JSON.parse(root.localStorage && root.localStorage.getItem(SOURCE_INDEX_KEY) || "{}"); } catch (e) {}
+
+    function rememberSegments(sid, take, segs) {
+      if (!segs.length) return segs;
+      sourceIndex[keyOf(sid, take)] = segs;
+      try { if (root.localStorage) root.localStorage.setItem(SOURCE_INDEX_KEY, JSON.stringify(sourceIndex)); }
+      catch (e) { log("TRANSFER_SOURCE_INDEX_ERROR " + String(e)); }
+      return segs;
+    }
+
+    function privateRecordingsDir() {
+      if (deps.privateRecordingsDir) return deps.privateRecordingsDir;
+      var data = root.cordova && root.cordova.file && root.cordova.file.dataDirectory;
+      return data ? data.replace(/^file:\/\//, "").replace(/\/$/, "") + "/recordings" : "";
+    }
+
+    function localSegments(sid, take) {
+      var indexed = sourceIndex[keyOf(sid, take)];
+      if (indexed && indexed.length) return Promise.resolve(indexed);
+      var e = entries[keyOf(sid, take)];
+      var summary = e && e.take && e.take.summary;
+      var info = summary && summary.stopStates && summary.stopStates[selfDid()];
+      if (info && info.path) return Promise.resolve(rememberSegments(sid, take, [{rel: baseName(info.path), segmentIndex: 0, path: info.path}]));
+      var svc = startService(), view = svc && svc.view && svc.view();
+      var segs = view && view.sid === sid && view.takeNumber === take ? listSegments() : [];
+      if (segs.length) return Promise.resolve(rememberSegments(sid, take, segs));
+      // Migration of recordings made before the local index: the existing
+      // per-take staging tree proves the relative name. Prefer its complete
+      // private original when a failed staging copy left an incomplete file.
+      var dir = privateRecordingsDir(), media = mediaRoot(sid, take), nat = nativeApi();
+      if (!dir || !media || !nat || !nat.listDir) return Promise.resolve([]);
+      var reps = summary && summary.replications || {};
+      var totals = Object.keys(reps).filter(function (k) { return reps[k].sourceDeviceId === selfDid(); }).map(function (k) { return reps[k].total; });
+      var expected = totals.filter(function (n) { return n > 0; })[0] || 0;
+      if (!expected) return Promise.resolve([]);
+      return Promise.all([nat.listDir(media), nat.listDir(dir)]).then(function (lists) {
+        var staged = lists[0].entries || [], originals = lists[1].entries || [];
+        if (staged.length !== 1) return []; // Multi-segment migrations require their index.
+        var name = staged[0].name;
+        if (!name || name.indexOf("/") >= 0 || !/\.mp4$/i.test(name)) return [];
+        var original = originals.filter(function (f) { return !f.dir && f.name === name && f.bytes === expected; })[0];
+        if (!original) return [];
+        log("TRANSFER_SOURCE_INDEX_RECOVERED sid=" + sid + " take=" + take + " rel=" + name + " bytes=" + expected);
+        return rememberSegments(sid, take, [{rel: name, segmentIndex: 0, path: dir + "/" + name}]);
+      }).catch(function () { return []; });
+    }
+
     function stageSegments(sid, take) {
-      var segs = listSegments();
-      if (!segs.length) return Promise.resolve([]);
+      return localSegments(sid, take).then(function (segs) {
+      if (!segs.length) return [];
+      // Finalized private recordings are served through an exact allowlist.
+      // Keep them out of stagedMap: automatic staging cleanup must not delete them.
+      if (segs.every(function (s) { return /\/files\/recordings\//.test(s.path); })) return segs;
       var root = mediaRoot(sid, take);
       if (!root) return Promise.resolve(segs);
       var nat = nativeApi();
@@ -197,6 +249,7 @@
           return s;
         });
       }));
+      });
     }
 
     /* Segments STAGÉS d'un Take précis (identifié par session+Take), indépendants
@@ -299,6 +352,11 @@
         self: selfDid,
         log: log,
         server: serverState,
+        localHost: function () {
+          var d = discoveryMod();
+          var ds = d && d.status && d.status();
+          return ds && ds.ipv4 || "";
+        },
         take: function () {
           var t = e.take || {};
           return {
@@ -358,6 +416,7 @@
         onWaiting: function (info) { scheduleResume(e, info); },
         statDest: function (dest) {
           var nat = nativeApi();
+          if (nat && typeof nat.statDest === "function") return nat.statDest(dest).catch(function () { return null; });
           var p = dest && (dest.dest || dest.relPath);
           if (!nat || !p || typeof nat.sha256 !== "function") return Promise.resolve(null);
           return Promise.resolve(nat.sha256(p)).then(function (r) { return r || null; }, function () { return null; });
@@ -376,7 +435,7 @@
         /* J15 / §7 : restauration du journal AVANT le watchdog et le coordinateur,
          * sinon un transfert interrompu serait marqué `stale` avant d'être
          * simplement repris. La taille disque reste autoritaire. */
-        if (role === "storage") restoreEntryFromJournal(e);
+        if (role === "storage") e.restoring = restoreEntryFromJournal(e);
       }
       primary = e;
       return e.service;
@@ -387,7 +446,7 @@
     function restoreEntryFromJournal(e) {
       var j = journalFor();
       if (!j || typeof j.restore !== "function" || typeof e.machine.restoreFromJournal !== "function") return;
-      Promise.resolve(j.restore(e.sid, e.takeNumber, selfDid())).then(function (res) {
+      return Promise.resolve(j.restore(e.sid, e.takeNumber, selfDid())).then(function (res) {
         if (!res || !res.ok || !res.doc) return;
         var n = e.machine.restoreFromJournal(res.doc);
         if (n > 0) {
@@ -524,6 +583,12 @@
         var state = tr.state || "pending";
         var error = tr.error || "";
         var before = old[k];
+        // A newly assembled observer may know the pair before its manifest.
+        // That absence must never replace previously persisted size/progress.
+        if (before && before.total > 0 && total === 0 && (!tr.files || !tr.files.length)) {
+          out[k] = before;
+          return;
+        }
         var same = before
           && before.state === state
           && before.error === error
@@ -643,7 +708,7 @@
         delete pausedOffers[pk];
         var take = isNum(offer.takeNumber) ? offer.takeNumber : 0;
         Promise.resolve(loadEntry(offer.sessionId, take)).then(function () {
-          ensureFor(offer.sessionId, take).storageRun(offer);
+          onTransferMessage(offer);
         });
       });
       notify();
@@ -761,8 +826,9 @@
         if (cand && cand.sourceDeviceId === src) { tr = cand; break; }
       }
       if (!tr) return null;
-      var takeKey = e.sid + "/" + e.takeNumber;
-      var token = serverState.tokens[takeKey] || "";
+      var endpoint = e.machine.state && e.machine.state.offers && e.machine.state.offers[src];
+      if (!endpoint) return null;
+      var token = endpoint.token || "";
       var byRel = {};
       (tr.files || []).forEach(function (f) { if (f && f.rel) byRel[f.rel] = f; });
       var files = [];
@@ -776,11 +842,11 @@
        * réseau), l'offre est INEXPLOITABLE : on rend `null` pour NE PAS lancer un
        * téléchargement voué à l'échec. Le transfert reste récupérable et sera
        * repris à la prochaine annonce (déclencheur réseau / scan de secours). */
-      if (!serverState.host || !serverState.port || !token) return null;
+      if (!endpoint.host || !endpoint.port || !token) return null;
       return {
         sessionId: e.sid, takeNumber: e.takeNumber,
         sourceDeviceId: src, files: files,
-        host: serverState.host, port: serverState.port, token: token,
+        host: endpoint.host, port: endpoint.port, token: token,
         manifestId: tr.manifestId || "", mode: "retry"
       };
     }
@@ -818,7 +884,36 @@
 
     /* Rejoue immédiatement les attentes au retour du réseau (déclenché par la
      * découverte). Ne fait que PLANIFIER ; un seul run par clé. */
+    var captureRefresh = {};
+    function refreshCaptureMedia(force) {
+      if (role !== "capture") return Promise.resolve();
+      var svc = startService();
+      if (svc && svc.isRecording && svc.isRecording()) return Promise.resolve();
+      var store = sessionStore();
+      if (!store || typeof store.list !== "function") return Promise.resolve();
+      return store.list().then(function (sessions) {
+        var tasks = [];
+        sessions.filter(function (s) { return s.state === "open"; }).forEach(function (s) {
+          (s.takes || []).forEach(function (t) {
+            var info = t.summary && t.summary.stopStates && t.summary.stopStates[selfDid()];
+            var indexed = sourceIndex[keyOf(s.sessionId, t.takeNumber)];
+            var stopped = info && info.state === "STOPPED" || ["STOPPED", "TERMINATED", "COMPLETED", "ERROR"].indexOf(t.status) >= 0;
+            if ((t.captures || []).indexOf(selfDid()) < 0 || (!indexed && !stopped)) return;
+            var key = keyOf(s.sessionId, t.takeNumber);
+            var prev = captureRefresh[key];
+            if (prev && (prev.pending || (!force && nowMs() - prev.at < 10000))) return;
+            var slot = captureRefresh[key] = {pending: true, at: nowMs()};
+            tasks.push(loadEntry(s.sessionId, t.takeNumber).then(function () {
+              return ensureFor(s.sessionId, t.takeNumber).captureAnnounce();
+            }).then(function () { slot.pending = false; }, function () { slot.pending = false; }));
+          });
+        });
+        return Promise.all(tasks);
+      }).catch(function (e) { log("TRANSFER_REFRESH_ERROR " + String(e)); });
+    }
+
     function onNetworkChange() {
+      refreshCaptureMedia();
       if (role !== "storage") return 0;
       /* Libère les verrous dont le timer a été annulé (reconnexion) pour rejouer. */
       return resumeScan();
@@ -1035,9 +1130,6 @@
        * On le mémorise pour que la reprise automatique puisse le réutiliser plus
        * tard, même après un redémarrage où la mémoire vive est perdue. */
       if (role === "storage" && env.kind === "transfer_offer") {
-        if (env.host) serverState.host = env.host;
-        if (isNum(env.port) || env.port) serverState.port = env.port;
-        if (env.token) serverState.tokens[env.sessionId + "/" + take] = env.token;
         var svc = startService();
         if (svc && svc.isRecording && svc.isRecording()) {
           pausedOffers[keyOf(env.sessionId, take) + "|" + env.sourceDeviceId] = env;
@@ -1045,8 +1137,16 @@
           return Promise.resolve(false);
         }
       }
-      return loadEntry(env.sessionId, take).then(function () {
-        return ensureFor(env.sessionId, take).handle(env);
+      return loadEntry(env.sessionId, take).then(function (tk) {
+        if (role === "storage" && env.kind === "media_ready") {
+          if (!tk || (tk.captures || []).indexOf(env.deviceId) < 0 || (tk.storages || []).indexOf(selfDid()) < 0
+              || (env.from && env.from !== env.deviceId) || (tk.settings && tk.settings.transferAuto === false)) return false;
+          var offer = Object.assign({}, env, {kind: "transfer_offer", sourceDeviceId: env.deviceId, storageDeviceId: selfDid()});
+          return onTransferMessage(offer);
+        }
+        var service = ensureFor(env.sessionId, take);
+        var entry = entries[keyOf(env.sessionId, take)];
+        return Promise.resolve(entry.restoring).then(function () { return service.handle(env); });
       }).then(function (ok) {
         notify();
         return ok;
@@ -1068,8 +1168,14 @@
     var lastReidentify = 0;  /* throttling de la réconciliation de maillage */
     var lastReconcilePurge = 0;
 
+    var capturePeerRefresh = {};
     function onPeerIdentified(env) {
+      var peer = env && (env.from || env.deviceId) || "";
       var now = nowMs();
+      if (!capturePeerRefresh[peer] || now - capturePeerRefresh[peer] >= REIDENTIFY_THROTTLE_MS) {
+        capturePeerRefresh[peer] = now;
+        refreshCaptureMedia(true);
+      }
       if (now - lastReidentify < REIDENTIFY_THROTTLE_MS) return 0;
       lastReidentify = now;
       var cameFrom = env && (env.from || env.deviceId);
@@ -1094,6 +1200,7 @@
      * ses issues terminales et ses états d'attente (§10 : « réémission à la
      * reconnexion réaligne les deux vues »). */
     function onTransportReconnect() {
+      refreshCaptureMedia(true);
       if (role !== "storage") return 0;
       var n = 0;
       Object.keys(entries).forEach(function (k) {
@@ -1217,6 +1324,7 @@
         disc.onNetworkChange(function () { onNetworkChange(); });
       }
       startWatchdog();
+      refreshCaptureMedia();
 
       var svc = startService();
       if (svc && typeof svc.onView === "function") {

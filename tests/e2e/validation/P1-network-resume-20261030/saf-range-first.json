@@ -1,0 +1,1 @@
+{"id":1,"result":{"result":{"type":"object","value":{"expectedInterruption":"Error: download_failed: download_failed: ProtocolException: unexpected end of stream","partial":{"bytes":262144,"sha256":"484e1f1731aa5edb0b82ed3a596a9cbd667aa35d59565079e06a99dc3ad0fe3d"}}}}}

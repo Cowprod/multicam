@@ -69,7 +69,8 @@ public class CorHttpd extends CordovaPlugin {
 	static final class Grant {
 		final AndroidFile root;
 		final String token;
-		Grant(AndroidFile root, String token) { this.root = root; this.token = token; }
+        final Map<String, String> files;
+        Grant(AndroidFile root, String token, Map<String, String> files) { this.root = root; this.token = token; this.files = files; }
 	}
 
 	private static String grantKey(String sessionId, int takeNumber) {
@@ -285,7 +286,20 @@ public class CorHttpd extends CordovaPlugin {
 			Log.w(LOGTAG, "registerTake: paramètres invalides sid=" + sid + " take=" + take);
 			return new PluginResult(Status.ERROR, "invalid_grant");
 		}
-		grants.put(grantKey(sid, take), new Grant(new AndroidFile(root), tk));
+        Map<String, String> mapped = null;
+        JSONArray list = o.optJSONArray("files");
+        if (list != null) {
+            mapped = new java.util.HashMap<String, String>();
+            for (int i = 0; i < list.length(); i++) {
+                JSONObject item = list.optJSONObject(i);
+                if (item == null || !TakeRouterImpl.safeRel(item.optString("rel", ""))) return new PluginResult(Status.ERROR, "invalid_file_grant");
+                java.io.File file = new java.io.File(item.optString("path", ""));
+                if (!file.isAbsolute() || !file.isFile() || !file.canRead()) return new PluginResult(Status.ERROR, "missing_grant_file");
+                mapped.put(item.optString("rel"), file.getAbsolutePath());
+            }
+            mapped = java.util.Collections.unmodifiableMap(mapped);
+        }
+        grants.put(grantKey(sid, take), new Grant(new AndroidFile(root), tk, mapped));
 		Log.w(LOGTAG, "registerTake sid=" + sid + " take=" + take + " root=" + root + " grants=" + grants.size());
 		return new PluginResult(Status.OK);
     }
@@ -371,6 +385,12 @@ public class CorHttpd extends CordovaPlugin {
     			Log.w(LOGTAG, "REJECT token mismatch uri=" + uri);
     			return nano.new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: invalid token.");
     		}
+            if (g.files != null) {
+                String path = g.files.get(rel);
+                if (path == null) return nano.new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "File not granted.");
+                java.io.File file = new java.io.File(path);
+                return nano.serveFile("/" + file.getName(), header, new AndroidFile(file.getParent()), false);
+            }
     		return nano.serveFile("/" + rel, header, g.root, false);
     	}
 
