@@ -1,7 +1,6 @@
-/* MultiCam -> caseRouter Storage: opt-in HMAC v1 peer proof.
+/* MultiCam -> caseRouter Storage: opt-in mutual HMAC v1 authentication.
  * No PIN fallback and no persistence of the 256-bit pairing secret.
- * A successful return means PROOF SENT, not server acceptance (the current
- * server protocol has no auth-success acknowledgement).
+ * A successful result requires a cryptographically verified server ACK.
  */
 (function (root, factory) {
   if (typeof module !== "undefined" && module.exports) module.exports = factory();
@@ -34,7 +33,7 @@
     for (var i = 0; i < bytes.length; i++) raw += String.fromCharCode(bytes[i]);
     return btoa(raw).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   }
-  async function proof(pairingCode, sid, masterDid, storageDid, nonce, cryptoProvider) {
+  async function hmacProof(pairingCode, sid, masterDid, storageDid, nonce, cryptoProvider, domain) {
     var key = decode32(pairingCode);
     if (!key || !decode32(nonce) || !safeId(sid) || !safeId(masterDid)
         || !safeId(storageDid) || masterDid === storageDid)
@@ -42,7 +41,7 @@
     var provider = cryptoProvider || (typeof crypto !== "undefined" ? crypto : null);
     if (!provider || !provider.subtle || typeof TextEncoder === "undefined")
       throw new Error("secure_crypto_unavailable");
-    var message = "multicam-storage/ws-auth/v1\n" + sid + "\n" + masterDid
+    var message = domain + "\n" + sid + "\n" + masterDid
       + "\n" + storageDid + "\n" + nonce;
     var imported = await provider.subtle.importKey(
       "raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
@@ -50,6 +49,21 @@
     return encode32(await provider.subtle.sign(
       { name: "HMAC" }, imported, new TextEncoder().encode(message)
     ));
+  }
+  function proof(code, sid, master, storage, nonce, cryptoProvider) {
+    return hmacProof(code, sid, master, storage, nonce, cryptoProvider,
+      "multicam-storage/ws-auth/v1");
+  }
+  function acceptProof(code, sid, master, storage, nonce, cryptoProvider) {
+    return hmacProof(code, sid, master, storage, nonce, cryptoProvider,
+      "multicam-storage/ws-auth/accept/v1");
+  }
+  function equalProof(a, b) {
+    if (typeof a !== "string" || typeof b !== "string" ||
+        a.length !== 43 || b.length !== 43) return false;
+    var difference = 0;
+    for (var i = 0; i < a.length; i++) difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return difference === 0;
   }
   // Called on a dedicated, already OPEN storage WebSocket, never on the
   // multiplexed J04/J05 session WebSocket. No UI or key store is implied.
@@ -65,6 +79,8 @@
       return Promise.reject(new Error("invalid_storage_auth_parameters"));
     return new Promise(function (resolve, reject) {
       var done = false;
+      var phase = "challenge";
+      var serverNonce = null;
       var timer;
       function cleanup() {
         clearTimeout(timer);
@@ -77,29 +93,52 @@
         done = true;
         cleanup();
         if (error) reject(new Error(error));
-        else resolve({ state: "proof_sent", authenticated: false });
+        else resolve({ state: "authenticated", authenticated: true });
       }
       function onClose() { finish("storage_auth_connection_closed"); }
       async function onMessage(event) {
         if (done) return;
-        var challenge;
-        try { challenge = JSON.parse(event.data); }
-        catch (e) { finish("invalid_storage_auth_challenge"); return; }
-        if (!challenge || challenge.v !== 1
-            || challenge.kind !== "storage_auth_challenge"
-            || challenge.from !== storage || challenge.to !== master
-            || challenge.sessionId !== sid || !decode32(challenge.nonce)) {
-          finish("invalid_storage_auth_challenge");
+        var message;
+        try { message = JSON.parse(event.data); }
+        catch (e) { finish("invalid_storage_auth_response"); return; }
+        if (phase === "challenge") {
+          if (!message || message.v !== 1
+              || message.kind !== "storage_auth_challenge"
+              || message.from !== storage || message.to !== master
+              || message.sessionId !== sid || !decode32(message.nonce)) {
+            finish("invalid_storage_auth_challenge");
+            return;
+          }
+          phase = "computing";
+          serverNonce = message.nonce;
+          try {
+            var answer = await proof(code, sid, master, storage,
+              serverNonce, options.cryptoProvider);
+            if (done) return;
+            phase = "ack";
+            ws.send(JSON.stringify({ v: 1, kind: "storage_auth_proof",
+              from: master, to: storage, sessionId: sid, proof: answer }));
+          } catch (e) { finish("storage_auth_proof_failed"); }
           return;
         }
+        if (phase !== "ack" || !message || message.v !== 1
+            || message.kind !== "storage_auth_ok"
+            || message.from !== storage || message.to !== master
+            || message.sessionId !== sid || !decode32(message.proof)) {
+          finish("invalid_storage_auth_ack");
+          return;
+        }
+        phase = "verifying";
         try {
-          var answer = await proof(code, sid, master, storage,
-            challenge.nonce, options.cryptoProvider);
+          var expected = await acceptProof(code, sid, master, storage,
+            serverNonce, options.cryptoProvider);
           if (done) return;
-          ws.send(JSON.stringify({ v: 1, kind: "storage_auth_proof",
-            from: master, to: storage, sessionId: sid, proof: answer }));
+          if (!equalProof(message.proof, expected)) {
+            finish("invalid_storage_auth_ack");
+            return;
+          }
           finish(null);
-        } catch (e) { finish("storage_auth_proof_failed"); }
+        } catch (e) { finish("storage_auth_ack_verification_failed"); }
       }
       ws.addEventListener("message", onMessage);
       ws.addEventListener("close", onClose);
@@ -111,5 +150,5 @@
       } catch (e) { finish("storage_auth_send_failed"); }
     });
   }
-  return { proof: proof, sendProof: sendProof };
+  return { proof: proof, acceptProof: acceptProof, sendProof: sendProof };
 });
