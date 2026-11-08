@@ -828,6 +828,8 @@
 <!-- J09-06 : le store est lu par net/session-ws.js (à CHAQUE télémétrie reçue)
      et par le panneau 08 — il doit donc exister avant les deux. -->
 <script src="js/state/telemetry-store.js"></script>
+<!-- Opt-in Storage HMAC peer protocol; no key persisted or session auto-dialled. -->
+<script src="js/net/storage-auth-client.js"></script>
 <script src="js/net/session-ws.js"></script>
 <!-- Service de collecte (Capture) : publie via session-ws, seuils lus dans
      session-model — chargé après les deux, jamais avant. -->
