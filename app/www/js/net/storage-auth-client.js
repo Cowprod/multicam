@@ -11,7 +11,7 @@
   var SEGMENT = /^[A-Za-z0-9_.-]+$/;
   var CODE = /^[A-Za-z0-9_-]{43}$/;
   function safeId(s) {
-    return typeof s === "string" && s !== "." && s !== ".."
+    return typeof s === "string" && s.charAt(0) !== "."
       && s.length > 0 && s.length <= 128 && SEGMENT.test(s);
   }
   function decode32(encoded) {
