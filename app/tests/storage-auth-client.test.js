@@ -6,12 +6,17 @@ const client = require("../www/js/net/storage-auth-client.js");
 const key = "paWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaU";
 const nonce = "bm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm4";
 const vector = "cejdYt7wIg8v9K8bq3KDeOj_Liydzxslrgj9OBOld6s";
+const acceptVector = "_zd4NjnZXYGoz8ZYH_S_2n-5pegZ_2_oL5pivwJffBI";
 
 class Socket {
   constructor() { this.readyState = 1; this.out = []; this.listeners = {}; }
   addEventListener(name, fn) { (this.listeners[name] ||= new Set()).add(fn); }
   removeEventListener(name, fn) { if (this.listeners[name]) this.listeners[name].delete(fn); }
-  send(payload) { this.out.push(JSON.parse(payload)); }
+  send(payload) {
+    const message = JSON.parse(payload);
+    this.out.push(message);
+    if (this.onSend) this.onSend(message);
+  }
   fire(name, data) { for (const fn of [...(this.listeners[name] || [])]) fn({ data }); }
   listenerCount() { return Object.values(this.listeners).reduce((n, s) => n + s.size, 0); }
 }
@@ -20,11 +25,18 @@ const opts = () => ({ sessionId: "session-1", masterDeviceId: "master-1",
   storageDeviceId: "storage-1", pairingCode: key, cryptoProvider: webcrypto });
 const challenge = () => ({ v: 1, kind: "storage_auth_challenge",
   from: "storage-1", to: "master-1", sessionId: "session-1", nonce });
+const ack = () => ({ v: 1, kind: "storage_auth_ok",
+  from: "storage-1", to: "master-1", sessionId: "session-1", proof: acceptVector });
 
 exports.register = function (h) {
   h.describe("caseRouter Storage v1 HMAC client (interop)", function () {
     h.it("matches a PHP hash_hmac SHA-256 transcript byte-for-byte", async function () {
       assert.equal(await client.proof(key, "session-1", "master-1", "storage-1", nonce, webcrypto), vector);
+    });
+    h.it("matches PHP's domain-separated server acceptance transcript", async function () {
+      assert.equal(await client.acceptProof(key, "session-1", "master-1",
+        "storage-1", nonce, webcrypto), acceptVector);
+      assert.notEqual(acceptVector, vector);
     });
     h.it("binds the challenge to each peer/session identity", async function () {
       const alternate = await client.proof(key, "session-2", "master-1", "storage-1", nonce, webcrypto);
@@ -36,16 +48,61 @@ exports.register = function (h) {
       await assert.rejects(client.proof(key, "session-1", "master-1", "storage-1", nonce.slice(0, -1) + "B", webcrypto), /invalid_storage_auth_parameters/);
       await assert.rejects(client.proof(key, "../outside", "master-1", "storage-1", nonce, webcrypto), /invalid_storage_auth_parameters/);
     });
-    h.it("sends hello then proof on a dedicated WS without claiming authenticated", async function () {
+    h.it("waits for an authenticated HMAC ACK after hello and proof", async function () {
       const ws = new Socket();
+      ws.onSend = message => {
+        if (message.kind === "storage_auth_proof")
+          ws.fire("message", JSON.stringify(ack()));
+      };
       const pending = client.sendProof(ws, opts());
       assert.deepEqual(ws.out[0], { v: 1, kind: "storage_auth_hello",
         from: "master-1", to: "storage-1", sessionId: "session-1" });
       ws.fire("message", JSON.stringify(challenge()));
       const completed = await pending;
-      assert.deepEqual(completed, { state: "proof_sent", authenticated: false });
+      assert.deepEqual(completed, { state: "authenticated", authenticated: true });
       assert.deepEqual(ws.out[1], { v: 1, kind: "storage_auth_proof", from: "master-1",
         to: "storage-1", sessionId: "session-1", proof: vector });
+      assert.equal(ws.listenerCount(), 0);
+    });
+    h.it("rejects forged acceptance HMAC even after a valid challenge", async function () {
+      const ws = new Socket();
+      ws.onSend = message => {
+        if (message.kind === "storage_auth_proof") {
+          const forged = ack();
+          forged.proof = vector;
+          ws.fire("message", JSON.stringify(forged));
+        }
+      };
+      const pending = client.sendProof(ws, opts());
+      ws.fire("message", JSON.stringify(challenge()));
+      await assert.rejects(pending, /invalid_storage_auth_ack/);
+      assert.equal(ws.listenerCount(), 0);
+    });
+    h.it("rejects an ACK claiming another Master and a closed socket without ACK", async function () {
+      const ws = new Socket();
+      ws.onSend = message => {
+        if (message.kind === "storage_auth_proof") {
+          const forged = ack(); forged.to = "master-2";
+          ws.fire("message", JSON.stringify(forged));
+        }
+      };
+      const pending = client.sendProof(ws, opts());
+      ws.fire("message", JSON.stringify(challenge()));
+      await assert.rejects(pending, /invalid_storage_auth_ack/);
+      const closed = new Socket();
+      closed.onSend = message => {
+        if (message.kind === "storage_auth_proof") closed.fire("close");
+      };
+      const waiting = client.sendProof(closed, opts());
+      closed.fire("message", JSON.stringify(challenge()));
+      await assert.rejects(waiting, /storage_auth_connection_closed/);
+      assert.equal(closed.listenerCount(), 0);
+    });
+    h.it("rejects unsolicited ACK before server challenge", async function () {
+      const ws = new Socket();
+      const pending = client.sendProof(ws, opts());
+      ws.fire("message", JSON.stringify(ack()));
+      await assert.rejects(pending, /invalid_storage_auth_challenge/);
       assert.equal(ws.listenerCount(), 0);
     });
     h.it("rejects forged challenge identity and closes event listeners", async function () {
