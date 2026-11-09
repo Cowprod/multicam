@@ -73,6 +73,8 @@
     var s = state.session;
     if (!s) return;
     var closed = s.state === "closed";
+    if ((closed || !(s.masters || []).some(function (m) { return m.deviceId === selfDid(); }))
+        && global.MultiCamStoragePairing) global.MultiCamStoragePairing.hide();
     byId("sessionNameLabel").textContent = s.name;
 
     var badge = byId("sessionBadge");
