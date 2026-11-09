@@ -52,6 +52,8 @@
       if (el) el.classList.toggle("active", p === name);
     });
     current = name;
+    if (name !== "session" && global.MultiCamStoragePairing)
+      global.MultiCamStoragePairing.hide();
     switch (name) {
       case "create":
         global.MultiCamSessionCreate.show(appCfg, { mode: "create" });
@@ -68,6 +70,10 @@
         break;
       case "session":
         global.MultiCamSessionScreen.show(appCfg, params || {});
+        if (global.MultiCamStoragePairing) {
+          global.MultiCamStoragePairing.show(appCfg, (params || {}).sid,
+            global.MultiCamSessionStore);
+        }
         break;
       case "take":
         global.MultiCamTakeScreen.show(appCfg, params || {});
