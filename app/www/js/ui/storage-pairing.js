@@ -102,7 +102,7 @@
   }
 
   // Screen 03 only: never copy an app PIN into the HMAC field or localStorage.
-  var link = null, mounted = false, lastSid = "";
+  var link = null, mounted = false, lastSid = "", viewGeneration = 0;
   function el(id) { return document.getElementById(id); }
   var labels = {
     idle: "Non connecté", disconnected: "Déconnecté",
@@ -112,6 +112,7 @@
     failed: "Connexion ou authentification refusée"
   };
   function hide() {
+    ++viewGeneration;
     lastSid = "";
     if (link) link.stop();
     if (typeof document !== "undefined") {
@@ -152,9 +153,9 @@
     hide();
     mount();
     if (!cfg || !validId(sid) || !store || typeof store.get !== "function") return;
-    var requested = sid;
+    var ticket = viewGeneration;
     store.get(sid).then(function (session) {
-      if (requested !== sid || !session || session.state !== "open"
+      if (ticket !== viewGeneration || !session || session.state !== "open"
           || !(session.masters || []).some(function (m) { return m.deviceId === cfg.deviceId; }))
         return;
       var panel = el("storagePairCard");
