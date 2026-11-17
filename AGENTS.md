@@ -99,3 +99,8 @@ Source priority (from `MULTICAM_DECISIONS_REFERENCE.md` §28):
 | Only runnable code | `tests/plugin-lab/` |
 | SAF plugin | `tests/plugin-lab/local-plugins/cordova-plugin-multicam-saf/` |
 | UI specs | `ui/NN-screen-name/` (10 validated screens) |
+
+
+## Shared Cowprod development and CI policy
+
+Read https://github.com/Cowprod/referenciel/blob/main/DEVELOPPEMENT_AGENTS_CI.md before making changes. Batch related changes into a coherent pass; run intermediate tests locally; avoid repeated small pushes and redundant GitHub Actions runs. Preserve all mandatory tests and security checks. Keep commits logically scoped, and report local/CI validations and exceptions. Existing MultiCam-specific instructions above take precedence for project safety and release constraints.
