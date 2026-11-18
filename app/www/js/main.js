@@ -52,9 +52,15 @@
       if (el) el.classList.toggle("active", p === name);
     });
     current = name;
+    if (global.MultiCamDiscoveryPreviewService)
+      global.MultiCamDiscoveryPreviewService.setHomeVisible(name === "home");
+    if (name !== "home" && global.MultiCamHomePreview) global.MultiCamHomePreview.close();
     if (name !== "session" && global.MultiCamStoragePairing)
       global.MultiCamStoragePairing.hide();
     switch (name) {
+      case "home":
+        if (appCfg && global.MultiCamHome) global.MultiCamHome.render(appCfg);
+        break;
       case "create":
         global.MultiCamSessionCreate.show(appCfg, { mode: "create" });
         break;
@@ -591,6 +597,12 @@
 
       global.MultiCamHome.render(cfg);
       global.MultiCamHome.bind();
+      /* Un seul chemin de decouverte pre-session, actif sur Accueil uniquement.
+       * Camera/PixelCopy proviennent toujours des services existants. */
+      if (global.MultiCamDiscoveryPreviewService) {
+        global.MultiCamDiscoveryPreviewService.bind(cfg);
+        global.MultiCamDiscoveryPreviewService.setHomeVisible(true);
+      }
       bindBackButtons();
       bindStartService();
 
