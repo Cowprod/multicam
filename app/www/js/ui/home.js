@@ -116,10 +116,7 @@
         var host = inst ? inst.host : "";
         var port = inst ? inst.port : 0;
         var endpoint = (host && port) ? escapeURI(host) + ":" + port : "";
-        var previewCard = preview && p.enabledSkills.indexOf("capture") >= 0
-        ? preview.cardMarkup(p.deviceId) : "";
-      return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
-        + previewCard
+        return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
           + '<i class="fa-solid fa-sliders fs-4"></i>'
           + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(e.name) + "</div>"
           + '<div class="small muted">' + (endpoint ? esc(endpoint) : "détection en cours…")
@@ -173,7 +170,10 @@
         var meta = global.MultiCamConfig.skillMeta[s] || { icon: "fa-question", label: s };
         return '<span class="cap"><i class="fa-solid ' + meta.icon + ' me-1"></i>' + meta.label + "</span>";
       }).join("") || '<span class="cap off">aucune skill active</span>';
+      var previewCard = preview && p.enabledSkills.indexOf("capture") >= 0
+        ? preview.cardMarkup(p.deviceId) : "";
       return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
+        + previewCard
         + '<i class="fa-solid fa-mobile-screen fs-4"></i>'
         + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(p.name) + "</div>"
         + '<div class="small muted">' + (p.endpoint ? esc(p.endpoint) : "…") + "</div>"
