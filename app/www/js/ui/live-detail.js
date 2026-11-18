@@ -767,19 +767,36 @@
     });
     var st = byId("ldState");
     if (st) { st.textContent = "Hors session"; st.className = "tile-state st-stopped"; }
-    [["ldSkillVideo", "capture", "Capture"], ["ldSkillAudio", "audio", "Audio"], ["ldSkillGps", "gps", "GPS"]]
-      .forEach(function (entry) {
-        var el = byId(entry[0]); if (!el) return;
-        var enabled = (peer.enabledSkills || []).indexOf(entry[1]) >= 0;
-        el.className = "modal-icon " + (enabled ? "on" : "off");
-        el.title = entry[2] + (enabled ? " : capacité annoncée (activité non vérifiée)" : " : capacité non annoncée");
-        el.setAttribute("aria-label", el.title);
-      });
+    var telemetry = global.MultiCamSessionScreen && global.MultiCamSessionScreen.telemetryForDevice
+      ? global.MultiCamSessionScreen.telemetryForDevice(peer.deviceId) : null;
+    var caps = telemetry && telemetry.capabilities;
+    var cameraKnown = caps && caps.cameras &&
+      ((caps.cameras.rear || []).length || (caps.cameras.front || []).length);
+    var indicators = [
+      ["ldSkillVideo", "Caméra", caps ? !!cameraKnown : null],
+      ["ldSkillAudio", "Microphone", caps && typeof caps.audioMic === "boolean" ? caps.audioMic : null],
+      ["ldSkillGps", "GPS matériel", caps && typeof caps.gpsFeature === "boolean" ? caps.gpsFeature : null]
+    ];
+    indicators.forEach(function (entry) {
+      var el = byId(entry[0]); if (!el) return;
+      var available = entry[2];
+      el.className = "modal-icon " + (available === true ? "on" : "off");
+      if (available === null) el.className += " unknown";
+      el.title = entry[1] + (available === true ? " : disponible selon télémétrie"
+        : available === false ? " : indisponible selon télémétrie"
+        : " : télémétrie indisponible");
+      el.setAttribute("aria-label", el.title);
+    });
         setText("ldName", peer.name || peer.deviceId);
     setText("ldPreviewAge", "hors session");
     setText("ldTelemetryAge", "aucune télémétrie de session");
     var net = byId("ldNetwork");
-    if (net) net.textContent = "";
+    if (net) {
+      var endpoint = peer.wsEndpoint || peer.endpoint || "";
+      net.textContent = endpoint ? "IP : " + endpoint.replace(/^ws:\/\//, "").split(":")[0] : "";
+      net.title = endpoint ? "Endpoint réseau : " + endpoint : "Adresse IP non annoncée";
+      net.className = "ld-peer-ip small muted";
+    }
     var image = byId("ldImage"), noimg = byId("ldNoImg");
     if (image) image.removeAttribute("src");
     if (noimg) noimg.classList.remove("d-none");
