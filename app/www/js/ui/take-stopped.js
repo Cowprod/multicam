@@ -582,6 +582,7 @@
     bind();
     if (params.archived === "1" && params.takeNumber) {
       state.archived = true;
+      if (global.MultiCamFramingPreviews) global.MultiCamFramingPreviews.hide("stopped");
       var p = renderFromStore(params.sid || state.sid, params.takeNumber);
       console.log("SCREEN09_OPEN_ARCHIVED sessionId=" + (params.sid || state.sid) + " take=" + params.takeNumber);
       return p;
