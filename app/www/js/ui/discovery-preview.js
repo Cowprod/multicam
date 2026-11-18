@@ -35,16 +35,7 @@
         label.textContent = peers[did] ? "En attente du flux" : "Hors ligne";
       }
     });
-    var modal = document.getElementById("discovery-preview-modal");
-    if (modal && modal.style.display !== "none") {
-      var did = modal.getAttribute("data-did"), f = live(did), img = modal.querySelector("img");
-      img.style.display = f ? "block" : "none";
-      if (f && img.getAttribute("data-seq") !== String(f.seq)) {
-        img.src = "data:image/jpeg;base64," + f.jpegBase64;
-        img.setAttribute("data-seq", String(f.seq));
-      }
-      modal.querySelector(".discovery-preview-message").textContent = f ? "" : "Flux indisponible";
-    }
+    if (global.MultiCamLiveDetail && global.MultiCamLiveDetail.isOpen()) global.MultiCamLiveDetail.refresh();
   }
   function refresh(list) {
     var next = Object.create(null);
@@ -68,36 +59,21 @@
     paint();
     return true;
   }
-  function close() {
-    var modal = document.getElementById("discovery-preview-modal");
-    if (modal) { modal.style.display = "none"; modal.setAttribute("aria-hidden", "true"); }
-  }
   function bind() {
     if (bound) return;
     bound = true;
-    var modal = document.createElement("div");
-    modal.id = "discovery-preview-modal";
-    modal.setAttribute("role", "dialog");
-    modal.setAttribute("aria-modal", "true");
-    modal.setAttribute("aria-hidden", "true");
-    modal.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.96);padding:24px;text-align:center;color:white";
-    modal.innerHTML = '<button type="button" class="btn btn-light discovery-preview-close" style="position:absolute;right:20px;top:20px">Fermer</button>' +
-      '<img alt="Preview caméra agrandie" style="max-width:100%;max-height:85vh;object-fit:contain">' +
-      '<p class="discovery-preview-message mt-3"></p>';
-    document.body.appendChild(modal);
     document.addEventListener("click", function (ev) {
       var btn = ev.target.closest && ev.target.closest("[data-preview-did]");
-      if (btn && peers[btn.getAttribute("data-preview-did")]) {
-        modal.setAttribute("data-did", btn.getAttribute("data-preview-did"));
-        modal.style.display = "block";
-        modal.setAttribute("aria-hidden", "false");
-        paint();
-      } else if (ev.target.closest && ev.target.closest(".discovery-preview-close")) close();
+      if (!btn) return;
+      var did = btn.getAttribute("data-preview-did");
+      if (!peers[did]) return;
+      var peer = global.MultiCamNet && global.MultiCamNet.peers().filter(function (p) {
+        return safeId(p.deviceId) === did;
+      })[0];
+      if (peer && global.MultiCamLiveDetail && global.MultiCamLiveDetail.openDiscovered)
+        global.MultiCamLiveDetail.openDiscovered(peer, live);
     });
-    document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
-    document.addEventListener("visibilitychange", function () { if (document.hidden) close(); });
     setInterval(paint, 1000);
-    /* Transport pre-session must explicitly call onFrame; no session WS bypass. */
   }
   global.MultiCamDiscoveryPreviewUI = { bind: bind, refresh: refresh, cardMarkup: cardMarkup, onFrame: onFrame };
 })(window);
