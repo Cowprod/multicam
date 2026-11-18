@@ -144,15 +144,18 @@
         var editBtn = row.isMember
           ? '<button class="btn btn-outline-light glass icon member-edit" data-device="' + esc(row.deviceId) + '" type="button" aria-label="Modifier les rôles"><i class="fa-solid fa-pen"></i></button>'
           : "";
-        return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
-          + '<i class="fa-solid fa-mobile-screen fs-4"></i>'
-          + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(row.name) + "</div>"
-          + '<div class="small muted">' + esc(statusTxt) + "</div>"
-          + (badges ? '<div class="d-flex flex-wrap gap-1 mt-1">' + badges + "</div>" : "")
-          + "</div>"
-          + '<span class="' + (row.online ? "dot" : "dot off") + '"></span>'
-          + editBtn
-          + "</div></article>";
+        var preview = global.MultiCamDiscoveryPreviewUI;
+        var hasCapture = row.enabled.indexOf("capture") >= 0 || row.roles.indexOf("capture") >= 0;
+        var media = preview && hasCapture && !row.self
+          ? preview.cardMarkup(row.deviceId)
+          : '<div class="discovery-preview-placeholder"><i class="fa-solid fa-mobile-screen"></i></div>';
+        return '<article class="live-tile discovery-device-card session-device-card">'
+          + media
+          + '<div class="tile-info"><div class="tile-name">' + esc(row.name) + '</div>'
+          + '<div class="discovery-skills">' + badges + '</div>'
+          + '<span class="tile-state">' + esc(statusTxt) + '</span></div>'
+          + (editBtn ? '<div class="session-tile-actions">' + editBtn + '</div>' : '')
+          + '</article>';
       }).join("");
     }
 
@@ -193,13 +196,16 @@
       return;
     }
     listEl.innerHTML = available.map(function (p) {
-      return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
-        + '<i class="fa-solid fa-mobile-screen-button fs-4"></i>'
-        + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(humanName(p)) + "</div>"
-        + '<div class="small muted">' + esc(displaySkills(p).join(" · ")) + "</div>"
-        + "</div>"
-        + '<button class="btn btn-sm btn-primary member-add" data-device="' + esc(p.deviceId) + '" type="button"><i class="fa-solid fa-plus me-1"></i>Ajouter</button>'
-        + "</div></article>";
+      var preview = global.MultiCamDiscoveryPreviewUI;
+      var media = preview && displaySkills(p).indexOf("capture") >= 0
+        ? preview.cardMarkup(p.deviceId)
+        : '<div class="discovery-preview-placeholder"><i class="fa-solid fa-mobile-screen"></i></div>';
+      return '<article class="live-tile discovery-device-card session-device-card">'
+        + media
+        + '<div class="tile-info"><div class="tile-name">' + esc(humanName(p)) + '</div>'
+        + '<div class="discovery-skills">' + esc(displaySkills(p).join(" · ")) + '</div></div>'
+        + '<div class="session-tile-actions"><button class="btn btn-sm btn-primary member-add" data-device="' + esc(p.deviceId) + '" type="button"><i class="fa-solid fa-plus me-1"></i>Ajouter</button></div>'
+        + '</article>';
     }).join("");
   }
 
