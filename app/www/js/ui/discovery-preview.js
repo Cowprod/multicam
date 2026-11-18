@@ -17,9 +17,9 @@
     return best && Date.now() - best.receivedAt < MAX_AGE_MS ? best : null;
   }
   function cardMarkup(did) {
-    return '<button type="button" class="discovery-preview border-0 p-0 rounded-3 overflow-hidden position-relative" ' +
+    return '<button type="button" class="discovery-preview tile-media border-0 p-0 overflow-hidden position-relative" ' +
       'data-preview-did="' + safeId(did) + '" aria-label="Agrandir la caméra" ' +
-      'style="width:144px;min-width:144px;aspect-ratio:16/9;background:#111827;color:white">' +
+      'style="width:100%;aspect-ratio:16/9;background:#111827;color:white">' +
       '<img alt="" style="width:100%;height:100%;object-fit:contain;display:none">' +
       '<span class="discovery-preview-status small">En attente du flux</span></button>';
   }
