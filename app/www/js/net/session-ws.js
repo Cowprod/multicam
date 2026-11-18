@@ -975,6 +975,12 @@
       case "stop_state":
         handleStartMessage(env, entry, serverConn);
         break;
+      case "discovery_preview_request":
+        handleDiscoveryPreviewRequest(env, entry, serverConn);
+        break;
+      case "discovery_preview_frame":
+        handleDiscoveryPreviewFrame(env, entry);
+        break;
       case "preview_frame":
         handlePreviewFrame(env, entry);
         break;
@@ -1034,6 +1040,39 @@
    * `sendOn()` (socket fermé, ou `send()` qui lève) : c'est le SEUL signal de
    * backpressure dont on dispose, et c'est à l'appelant de décider du DROP.
    */
+  /* Reuses the established WS transport, with no fabricated session.
+   * The preview bridge decides whether a discovered requester is authorized.
+   * Never store JPEG data in the socket layer. */
+  function handleDiscoveryPreviewRequest(env, entry, serverConn) {
+    var bridge = state.previewBridge;
+    if (!bridge || typeof bridge.onDiscoveryPreviewRequest !== "function") return false;
+    if (!env.from || !entry || !serverConn && !entry.ws) return false;
+    var reply = function (frame) {
+      if (!frame || typeof frame.jpegBase64 !== "string") return false;
+      var response = envelope("discovery_preview_frame", "", {
+        deviceId: localDid(), to: env.from, seq: frame.seq,
+        capturedAt: frame.capturedAt || nowMs(), mime: "image/jpeg",
+        jpegBase64: frame.jpegBase64
+      });
+      return serverConn ? sendServer(serverConn.uuid, response) : sendOn(entry.ws, response);
+    };
+    try { return bridge.onDiscoveryPreviewRequest(env, entry, reply); }
+    catch (e) { emit("DISCOVERY_PREVIEW_REQUEST_ERROR " + e); return false; }
+  }
+  function handleDiscoveryPreviewFrame(env, entry) {
+    if (env.to !== localDid() || !env.from || !entry) return false;
+    var bridge = state.previewBridge;
+    if (!bridge || typeof bridge.onDiscoveryPreviewFrame !== "function") return false;
+    try { return bridge.onDiscoveryPreviewFrame(env, entry); }
+    catch (e) { emit("DISCOVERY_PREVIEW_FRAME_ERROR " + e); return false; }
+  }
+  function requestDiscoveryPreview(host, port, deviceId) {
+    if (!host || !port || !deviceId || deviceId === localDid()) return Promise.resolve(false);
+    return connectTo(host, port).then(function (ws) {
+      return sendOn(ws, envelope("discovery_preview_request", "", { to: deviceId }));
+    });
+  }
+
   function handlePreviewFrame(env, entry) {
     var bridge = state.previewBridge;
     if (!bridge || typeof bridge.onPreviewFrame !== "function") {
@@ -2685,6 +2724,7 @@ store().get(env.sessionId).then(function (local) {
       state.startBridge = bridge || null;
     },
     sendPreviewFrame: sendPreviewFrame,
+    requestDiscoveryPreview: requestDiscoveryPreview,
     setPreviewBridge: function (bridge) {
       state.previewBridge = bridge || null;
     },
