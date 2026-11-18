@@ -67,6 +67,24 @@
     });
   }
 
+  /* Preserve live <img> nodes across liveness refreshes and the 5s tick.
+   * Only replace cards when their actual markup changes. */
+  function renderTileList(id, html) {
+    var el = byId(id);
+    if (!el) return;
+    if (el.__tileMarkup === html) return;
+    el.__tileMarkup = html;
+    el.innerHTML = html;
+  }
+
+  function telemetryForDevice(did) {
+    var s = state.session;
+    if (!s) return null;
+    var members = (s.members || []).concat(s.masters || []);
+    var member = members.filter(function (m) { return m.deviceId === did; })[0];
+    return member && member.telemetry ? member.telemetry : null;
+  }
+
   /* ---------- rendu ---------- */
 
   function render() {
@@ -132,9 +150,9 @@
 
     byId("membersCount").textContent = String(allRows.length);
     if (!allRows.length) {
-      byId("membersList").innerHTML = '<div class="empty-state">Aucun device dans la session</div>';
+      renderTileList("membersList", '<div class="empty-state">Aucun device dans la session</div>');
     } else {
-      byId("membersList").innerHTML = allRows.map(function (row) {
+      renderTileList("membersList", allRows.map(function (row) {
         var statusTxt = row.self ? "Cet appareil" : (row.online ? "Connecté" : "Déconnecté");
         var badges = "";
         if (row.isMaster) badges += '<span class="cap">Master</span>';
@@ -156,7 +174,7 @@
           + '<span class="tile-state">' + esc(statusTxt) + '</span></div>'
           + (editBtn ? '<div class="session-tile-actions">' + editBtn + '</div>' : '')
           + '</article>';
-      }).join("");
+      }).join(""));
     }
 
     renderAvailable(closed);
@@ -174,7 +192,7 @@
     var countEl = byId("availableCount");
     if (!listEl) return;
     if (closed) {
-      listEl.innerHTML = "";
+      renderTileList("availableList", "");
       countEl.textContent = "0";
       return;
     }
@@ -192,10 +210,10 @@
     });
     countEl.textContent = String(available.length);
     if (!available.length) {
-      listEl.innerHTML = '<div class="empty-state">Aucun device disponible sur le LAN</div>';
+      renderTileList("availableList", '<div class="empty-state">Aucun device disponible sur le LAN</div>');
       return;
     }
-    listEl.innerHTML = available.map(function (p) {
+    renderTileList("availableList", available.map(function (p) {
       var preview = global.MultiCamDiscoveryPreviewUI;
       var media = preview && displaySkills(p).indexOf("capture") >= 0
         ? preview.cardMarkup(p.deviceId)
@@ -206,7 +224,7 @@
         + '<div class="discovery-skills">' + esc(displaySkills(p).join(" · ")) + '</div></div>'
         + '<div class="session-tile-actions"><button class="btn btn-sm btn-primary member-add" data-device="' + esc(p.deviceId) + '" type="button"><i class="fa-solid fa-plus me-1"></i>Ajouter</button></div>'
         + '</article>';
-    }).join("");
+    }).join(""));
   }
 
 
@@ -541,6 +559,7 @@
   }
 
   global.MultiCamSessionScreen = {
-    show: function (cfg, params) { ensureReactive(cfg); show(cfg, params); }
+    show: function (cfg, params) { ensureReactive(cfg); show(cfg, params); },
+    telemetryForDevice: telemetryForDevice
   };
 })(window);
