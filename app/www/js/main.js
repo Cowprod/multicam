@@ -580,6 +580,15 @@
         console.log("PREVIEW_TRANSPORT_UNAVAILABLE reason=module_absent");
       }
 
+      /* Previews de cadrage des Captures: demarrage lie a la session,
+       * independant des plans REC et de l'ecran affiche. */
+      if (global.MultiCamPreviewFramingService) {
+        global.MultiCamPreviewFramingService.bind(cfg);
+      }
+      if (global.MultiCamFramingPreviews) {
+        global.MultiCamFramingPreviews.bind(cfg);
+      }
+
       global.MultiCamHome.render(cfg);
       global.MultiCamHome.bind();
       bindBackButtons();
