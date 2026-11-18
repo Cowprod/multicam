@@ -468,6 +468,39 @@
     }
   }
 
+  var discoveryLastReply = Object.create(null);
+  function discoveryPeer(did) {
+    var net = global.MultiCamNet;
+    var peers = net && net.peers ? net.peers() : [];
+    return peers.filter(function (p) {
+      return p.deviceId === did && p.state !== "offline" &&
+        (p.enabledSkills || []).indexOf("capture") >= 0;
+    })[0] || null;
+  }
+  function discoveryRequest(env, entry, reply) {
+    if (!env || env.to !== S.deviceId || !discoveryPeer(env.from)) return false;
+    var now = Date.now(), prev = discoveryLastReply[env.from] || 0;
+    if (now - prev < 900) return false;
+    discoveryLastReply[env.from] = now;
+    var smp = sampler();
+    if (!smp) return false;
+    var v = smp.view && smp.view();
+    /* Reuse sampler; never restart or disturb an active session sampler. */
+    if (!v || !v.running) {
+      var cam = global.MultiCamCameraRecord;
+      if (!cam || !cam.view || !cam.view().prepared) return false;
+      smp.start({ sessionId: "", previewOnly: true, intervalMs: 1500, reason: "discovery" });
+    }
+    var snap = smp.peek && smp.peek();
+    if (!snap || !snap.base64) return false;
+    return reply({ seq: snap.seq, jpegBase64: snap.base64, capturedAt: snap.completedAt });
+  }
+  function discoveryFrame(env) {
+    if (!discoveryPeer(env.from)) return false;
+    var box = inbox();
+    return !!(box && box.acceptDiscovered && box.acceptDiscovered(env));
+  }
+
   function bind() {
     if (S.bound) return Promise.resolve(view());
     S.bound = true;
@@ -485,7 +518,9 @@
           var box = inbox();
           if (!box) return null;
           return box.accept(e);
-        }
+        },
+        onDiscoveryPreviewRequest: discoveryRequest,
+        onDiscoveryPreviewFrame: discoveryFrame
       });
     }
     var smp = sampler();
