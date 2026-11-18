@@ -11,6 +11,7 @@
 <link href="css/settings.css" rel="stylesheet">
 <link href="css/countdown.css" rel="stylesheet">
 <link href="css/live.css" rel="stylesheet">
+<link href="css/framing.css" rel="stylesheet">
 <link href="css/take-stopped.css" rel="stylesheet">
 <link href="css/storage-view.css" rel="stylesheet">
 </head>
@@ -379,6 +380,10 @@
   </div>
 </header>
 <section id="armArea" class="flex-grow-1">
+  <section id="armFraming" class="framing-section d-none" aria-label="Cadrage des captures avant enregistrement">
+    <div class="framing-heading">Cadrages avant REC</div>
+    <div id="armFramingGrid" class="framing-grid"></div>
+  </section>
   <div id="armList" class="vstack gap-2"></div>
   <div class="empty-state d-none mt-3" id="armEmpty">Aucun device sélectionné dans ce Take. Retour à l'écran Préparer le Take.</div>
 </section>
@@ -618,6 +623,11 @@
       </div>
     </div>
   </div>
+
+  <section id="tsFraming" class="framing-section d-none" aria-label="Previews après arrêt du Take">
+    <div class="framing-heading">Cadrages après STOP</div>
+    <div id="tsFramingGrid" class="framing-grid"></div>
+  </section>
 
   <div class="ts-grid-label small text-uppercase muted px-1">
     <span>Captures</span>
@@ -863,6 +873,7 @@
 <script src="js/state/preview-sampler.js"></script>
 <script src="js/state/preview-inbox.js"></script>
 <script src="js/state/preview-transport.js"></script>
+<script src="js/state/preview-framing-service.js"></script>
 <!-- J09-07 : modèle pur d'abord, puis la frontière native, puis le service qui
      les orchestre. L'ordre est une dépendance réelle : le service valide avec le
      modèle et appelle la frontière, donc il ne peut pas précéder l'un des deux. -->
@@ -882,6 +893,7 @@
 <script src="js/ui/storage-pairing.js"></script>
 <script src="js/ui/session.js"></script>
 <script src="js/ui/take.js"></script>
+<script src="js/ui/framing-previews.js"></script>
 <script src="js/ui/arm.js"></script>
 <script src="js/ui/live.js"></script>
 <!-- Vue détaillée : ouverte par live.js, refermée par le backdrop / × / Échap. -->
