@@ -170,3 +170,16 @@
 .discovery-device-card .discovery-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .discovery-device-card .discovery-preview-status{position:relative;z-index:1}
 @media(max-width:480px){.discovery-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* One overlay treatment for REC and pre-session discovery tiles. */
+.live-tile{isolation:isolate}
+.live-tile .tile-info{position:absolute;z-index:2;left:0;right:0;bottom:0;min-height:2.2rem;padding:.4rem .55rem;display:flex;align-items:center;gap:.35rem;background:linear-gradient(transparent,rgba(0,0,0,.75));pointer-events:none}
+.live-tile .tile-name,.live-tile .tile-state,.live-tile .status-icons{color:#fff;text-shadow:0 1px 3px #000}
+.discovery-device-card{border:0!important;box-shadow:none!important}
+.discovery-device-card .discovery-preview{display:flex!important;position:relative;width:100%!important;min-width:0!important;aspect-ratio:16/9;align-items:center;justify-content:center;background:#111827}
+.discovery-device-card .discovery-preview-placeholder{display:flex;width:100%;aspect-ratio:16/9;align-items:center;justify-content:center;background:#111827}
+.discovery-device-card .discovery-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.discovery-device-card .discovery-skills{display:flex;gap:.2rem;flex-wrap:wrap;justify-content:flex-end;max-width:52%}
+.discovery-device-card .discovery-skills .cap{font-size:.6rem;padding:.1rem .3rem;background:rgba(0,0,0,.55);border-radius:6px;white-space:nowrap}
+.discovery-device-card .tile-state{font-size:.58rem;padding:.15rem .25rem}
+.discovery-grid{gap:.5rem}
