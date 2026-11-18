@@ -750,6 +750,9 @@
     if (!peer || !peer.deviceId) return null;
     var modal = byId("liveDetailModal");
     if (!modal) return null;
+    /* The detail shell belongs to REC in markup, but must also be visible
+       from home/session: move the single existing modal to document.body. */
+    if (modal.parentNode !== global.document.body) global.document.body.appendChild(modal);
     DISCOVERY = { peer: peer, previewProvider: previewProvider };
     OPEN.deviceId = peer.deviceId;
     bindClose();
