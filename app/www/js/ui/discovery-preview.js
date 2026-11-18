@@ -14,16 +14,35 @@
     var best = inbox.latest("__discovery__", did);
     return best && Date.now() - best.receivedAt < MAX_AGE_MS ? best : null;
   }
+  function telemetry(did) {
+    var screen = global.MultiCamSessionScreen;
+    return screen && screen.telemetryForDevice ? screen.telemetryForDevice(did) : null;
+  }
+  function pct(n) { return Math.max(0, Math.min(100, Math.round(n))); }
+  function updateGauges(el, did) {
+    var t = telemetry(did), host = el.querySelector(".discovery-health");
+    if (!host) return;
+    var battery = t && Number.isFinite(t.batteryLevel) ? pct(t.batteryLevel) : null;
+    var disk = t && Number.isFinite(t.freeBytes) && Number.isFinite(t.totalBytes) && t.totalBytes > 0
+      ? pct(100 * t.freeBytes / t.totalBytes) : null;
+    var key = String(battery) + "/" + String(disk) + "/" + !!(t && t.batteryCharging);
+    if (host.getAttribute("data-health") === key) return;
+    host.setAttribute("data-health", key);
+    host.innerHTML = (battery === null ? "" : '<span title="Batterie : ' + battery + '%" class="discovery-health-item"><i class="fa-solid fa-battery-half"></i> ' + battery + '%<b class="discovery-health-bar"><i style="width:' + battery + '%"></i></b></span>')
+      + (disk === null ? "" : '<span title="Stockage libre : ' + disk + '%" class="discovery-health-item"><i class="fa-solid fa-hard-drive"></i> ' + disk + '%<b class="discovery-health-bar"><i style="width:' + disk + '%"></i></b></span>');
+  }
   function cardMarkup(did) {
     return '<button type="button" class="discovery-preview tile-media border-0 p-0 overflow-hidden position-relative" ' +
       'data-preview-did="' + safeId(did) + '" aria-label="Agrandir la caméra" ' +
       'style="width:100%;aspect-ratio:16/9;background:#111827;color:white">' +
       '<img alt="" style="width:100%;height:100%;object-fit:contain;display:none">' +
-      '<span class="discovery-preview-status small">En attente du flux</span></button>';
+      '<span class="discovery-preview-status small">En attente du flux</span>' +
+      '<span class="discovery-health" aria-label="Batterie et stockage"></span></button>';
   }
   function paint() {
     document.querySelectorAll(".discovery-preview").forEach(function (el) {
       var did = el.getAttribute("data-preview-did"), f = live(did);
+      updateGauges(el, did);
       var img = el.querySelector("img"), label = el.querySelector("span");
       if (f) {
         if (img.getAttribute("data-seq") !== String(f.seq)) {
