@@ -145,6 +145,7 @@
     armBridge: null,       /* J07 : pont ARM (arm-service), voit pas de logique ARM ici */
     startBridge: null,     /* J08 : pont START (start-service) — idem, zéro logique ici */
     previewBridge: null,  /* J09 : pont PREVIEW (preview-inbox) — idem, zéro logique ici */
+    discoveryPreviewBridge: null, /* JPEG avant session : canal borne, sans Take */
     cameraBridge: null,  /* J09-07 : pont CAMERA (camera-switch-service) — idem */
     transferBridge: null /* J11 : pont TRANSFERT (transfer-service) — idem */
   };
@@ -978,6 +979,12 @@
       case "preview_frame":
         handlePreviewFrame(env, entry);
         break;
+      case "discovery_preview_request":
+        handleDiscoveryPreviewRequest(env, entry, serverConn);
+        break;
+      case "discovery_preview_frame":
+        handleDiscoveryPreviewFrame(env, entry);
+        break;
       case "camera_switch_request":
         handleCameraSwitchRequest(env, entry, serverConn);
         break;
@@ -1007,6 +1014,55 @@
         emit("WS_DROP kind=" + env.kind + " v=" + env.v + " reason=unknown_kind from=" + (env.from || "?"));
         break;
     }
+  }
+
+  /* Decouverte AVANT session : requete ciblee et reponse sur le meme socket.
+   * Jamais de sessionId fabrique, de broadcast, de chemin ni de commande REC.
+   * Le service dedie effectue la validation de l'annonce mDNS et du role. */
+  function handleDiscoveryPreviewRequest(env, entry, serverConn) {
+    var bridge = state.discoveryPreviewBridge;
+    if (!serverConn || !bridge || typeof bridge.onRequest !== "function") return;
+    try {
+      bridge.onRequest(env, entry, function (payload) {
+        return sendReply(entry, serverConn, "discovery_preview_frame", null, payload);
+      });
+    } catch (e) { emit("DISCOVERY_PREVIEW_RX_ERROR kind=request err=" + String(e)); }
+  }
+
+  function handleDiscoveryPreviewFrame(env, entry) {
+    var bridge = state.discoveryPreviewBridge;
+    if (!bridge || typeof bridge.onFrame !== "function") return;
+    try { bridge.onFrame(env, entry); }
+    catch (e) { emit("DISCOVERY_PREVIEW_RX_ERROR kind=frame err=" + String(e)); }
+  }
+
+  function discoveryEndpoint(peer) {
+    if (!peer || !peer.lastResolveMs || nowMs() - peer.lastResolveMs > 120000 ||
+        !Array.isArray(peer.enabledSkills) || peer.enabledSkills.indexOf("capture") < 0) return null;
+    var parts = /^([0-9.]+):([0-9]{2,5})$/.exec(peer.wsEndpoint || "");
+    if (!parts) return null;
+    var a = parts[1].split(".").map(Number), port = Number(parts[2]);
+    if (a.length !== 4 || a.some(function (v) { return !Number.isInteger(v) || v < 0 || v > 255; }) ||
+        port < 1024 || port > 65535) return null;
+    /* Ne jamais dialer une URL fournie par l'appelant : seulement l'endpoint
+     * IPv4 prive publie par NSD (pas de DNS, schéma, chemin ni IP publique). */
+    if (!(a[0] === 10 || (a[0] === 172 && a[1] >= 16 && a[1] <= 31) ||
+          (a[0] === 192 && a[1] === 168) || (a[0] === 169 && a[1] === 254))) return null;
+    if (/^[0-9.]+$/.test(peer.host || "") && peer.host !== parts[1]) return null;
+    return { host: parts[1], port: port };
+  }
+
+  function requestDiscoveryPreview(deviceId, requestId) {
+    if (typeof deviceId !== "string" || !/^[0-9a-f]{32}$/.test(requestId || "") ||
+        !state.foreground || !cfg() || !cfg().enabledSkills ||
+        cfg().enabledSkills.indexOf("controller") < 0) return Promise.resolve(false);
+    var discovered = global.MultiCamNet && global.MultiCamNet.peers ? global.MultiCamNet.peers() : [];
+    var peer = discovered.filter(function (p) { return p.deviceId === deviceId; })[0];
+    var endpoint = discoveryEndpoint(peer);
+    if (!endpoint) return Promise.resolve(false);
+    return connectTo(endpoint.host, endpoint.port).then(function (socket) {
+      return sendOn(socket, envelope("discovery_preview_request", null, { requestId: requestId }));
+    }).catch(function () { return false; });
   }
 
   /* ---------- J09 : transport des previews JPEG ----------
@@ -2685,6 +2741,8 @@ store().get(env.sessionId).then(function (local) {
       state.startBridge = bridge || null;
     },
     sendPreviewFrame: sendPreviewFrame,
+    requestDiscoveryPreview: requestDiscoveryPreview,
+    setDiscoveryPreviewBridge: function (bridge) { state.discoveryPreviewBridge = bridge || null; },
     setPreviewBridge: function (bridge) {
       state.previewBridge = bridge || null;
     },
