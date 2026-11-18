@@ -116,69 +116,15 @@
         var host = inst ? inst.host : "";
         var port = inst ? inst.port : 0;
         var endpoint = (host && port) ? escapeURI(host) + ":" + port : "";
-        return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
-          + '<i class="fa-solid fa-sliders fs-4"></i>'
-          + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(e.name) + "</div>"
-          + '<div class="small muted">' + (endpoint ? esc(endpoint) : "détection en cours…")
-          + " · " + ann.length + " Master(s)</div></div>"
-          + '<button type="button" class="btn btn-outline-light glass session-join"'
-          + ' data-sid="' + esc(e.sessionId) + '"'
-          + ' data-name="' + esc(e.name) + '"'
-          + ' data-host="' + esc(host) + '"'
-          + ' data-port="' + String(port) + '">Rejoindre</button>'
-          + "</div></article>";
-      }).join("");
-      bindJoinButtons();
-    });
-  }
-
-  function bindJoinButtons() {
-    var btns = document.querySelectorAll(".session-join");
-    Array.prototype.forEach.call(btns, function (b) {
-      b.addEventListener("click", function () {
-        global.MultiCamNav.show("join", {
-          mode: "join",
-          sid: b.getAttribute("data-sid"),
-          name: b.getAttribute("data-name"),
-          host: b.getAttribute("data-host"),
-          port: b.getAttribute("data-port")
-        });
-      });
-    });
-  }
-
-  function escapeURI(s) { return s; }
-
-  function setLanCount(n) {
-    var c = byId("lanCount");
-    if (c) c.textContent = String(n);
-  }
-
-  function renderDevices() {
-    var list = byId("devicesList");
-    var count = byId("devicesCount");
-    if (!list) return;
-    var peers = global.MultiCamNet.peers();
-    if (count) count.textContent = String(peers.length);
-    if (!peers.length) {
-      list.innerHTML = emptyState("Aucun périphérique détecté sur le réseau");
-      return;
-    }
-    var preview = global.MultiCamDiscoveryPreviewUI;
-    list.innerHTML = peers.map(function (p) {
-      var caps = p.enabledSkills.map(function (s) {
-        var meta = global.MultiCamConfig.skillMeta[s] || { icon: "fa-question", label: s };
-        return '<span class="cap"><i class="fa-solid ' + meta.icon + ' me-1"></i>' + meta.label + "</span>";
-      }).join("") || '<span class="cap off">aucune skill active</span>';
-      var previewCard = preview && p.enabledSkills.indexOf("capture") >= 0
-        ? preview.cardMarkup(p.deviceId) : "";
-      return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
-        + previewCard
-        + '<i class="fa-solid fa-mobile-screen fs-4"></i>'
-        + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(p.name) + "</div>"
-        + '<div class="small muted">' + (p.endpoint ? esc(p.endpoint) : "…") + "</div>"
-        + '<div class="d-flex flex-wrap gap-1 mt-1">' + caps + "</div></div>"
-        + '<span class="dot" title="En ligne"></span></div></article>';
+        return '<article class="card glass rounded-4 discovery-device-card">'
+        + '<div class="card-body p-2">'
+        + (previewCard || '<div class="discovery-preview-placeholder"><i class="fa-solid fa-mobile-screen"></i></div>')
+        + '<div class="d-flex align-items-start gap-2 px-1 pt-2">'
+        + '<i class="fa-solid fa-mobile-screen muted mt-1"></i>'
+        + '<div class="flex-grow-1 overflow-hidden"><div class="fw-semibold text-truncate">' + esc(p.name) + '</div>'
+        + '<div class="small muted text-truncate">' + (p.endpoint ? esc(p.endpoint) : "…") + '</div>'
+        + '<div class="d-flex flex-wrap gap-1 mt-1">' + caps + '</div></div>'
+        + '<span class="dot mt-2" title="En ligne"></span></div></div></article>';
     }).join("");
     if (preview) preview.refresh(peers);
   }
