@@ -9,11 +9,9 @@
   function live(did) {
     var inbox = global.MultiCamPreviewInbox;
     if (!inbox || !inbox.view || !inbox.latest) return null;
-    var sessions = inbox.view().sessions || [], best = null;
-    sessions.forEach(function (s) {
-      var f = inbox.latest(s.sessionId, did);
-      if (f && (!best || f.receivedAt > best.receivedAt)) best = f;
-    });
+    /* Discovery tiles consume only the discovery namespace. Session/REC
+     * frames belong to their own consumers and must not replace this feed. */
+    var best = inbox.latest("__discovery__", did);
     return best && Date.now() - best.receivedAt < MAX_AGE_MS ? best : null;
   }
   function cardMarkup(did) {
@@ -72,14 +70,33 @@
     /* Poll only visible Capture peers. The existing WS stack owns sockets,
      * and the existing sampler owns camera capture. */
     var pending = Object.create(null);
+    function visibleDiscoveryTiles() {
+      var ids = Object.create(null);
+      document.querySelectorAll("[data-preview-did]").forEach(function (el) {
+        var n = el, active = false;
+        while (n && n !== document.body) {
+          if (n.classList && n.classList.contains("screen")) {
+            active = n.classList.contains("active");
+            break;
+          }
+          n = n.parentNode;
+        }
+        if (active) ids[el.getAttribute("data-preview-did")] = true;
+      });
+      return ids;
+    }
     function requestFrames() {
       if (document.hidden) return;
+      /* The REC screen uses its existing session transport; never run the
+       * discovery poller there. Session/home tiles share this one poller. */
+      var visible = visibleDiscoveryTiles();
+      if (!Object.keys(visible).length) return;
       var ws = global.MultiCamSessionWs;
       if (!ws || !ws.requestDiscoveryPreview) return;
       var list = global.MultiCamNet && global.MultiCamNet.peers ? global.MultiCamNet.peers() : [];
       list.forEach(function (p) {
         var did = safeId(p.deviceId);
-        if (!peers[did] || pending[did]) return;
+        if (!peers[did] || !visible[did] || pending[did]) return;
         var ep = p.wsEndpoint || "";
         var match = /^(?:ws:\/\/)?([^:/]+):(\d+)$/.exec(ep);
         if (!match) return;
