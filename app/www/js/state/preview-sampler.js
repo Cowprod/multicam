@@ -86,6 +86,7 @@
     running: false,
     bound: false,
     foreground: true,
+    previewOnly: false,
     sessionId: "",
     takeNumber: "",
     startPlanId: "",
@@ -181,8 +182,11 @@
     var cam = camera();
     if (!cam || typeof cam.view !== "function") return { ok: false, reason: "recorder_unavailable" };
     var v = cam.view();
-    if (!v || !v.recording) return { ok: false, reason: "not_recording" };
-    if (!v.prepared) return { ok: false, reason: "preview_inactive" };
+    if (!v || !v.prepared) return { ok: false, reason: "preview_inactive" };
+    /* Cadrage avant REC : autorise PixelCopy sur une preview deja preparee,
+     * sans demarrer MediaRecorder. Le mode REC conserve sa garde historique. */
+    if (!v.recording && !S.previewOnly) return { ok: false, reason: "not_recording" };
+    if (!v.recording && !isForeground()) return { ok: false, reason: "background" };
     if (!pixelcopy()) return { ok: false, reason: "pixelcopy_unavailable" };
     if (!isForeground() && !v.prepared) return { ok: false, reason: "background" };
     return { ok: true, reason: "" };
@@ -343,15 +347,18 @@
     opts = opts || {};
     var sid = opts.sessionId || "";
     var take = (opts.takeNumber == null) ? "" : String(opts.takeNumber);
+    var previewOnly = opts.previewOnly === true;
 
-    if (S.running && S.sessionId === sid && S.takeNumber === take) {
+    if (S.running && S.sessionId === sid && S.takeNumber === take && S.previewOnly === previewOnly) {
       log("PREVIEW_CAPTURE_START " + ctx() + " status=SKIPPED reason=already_running");
       return false;
     }
     if (S.running) stop("restart:" + (opts.reason || "new_take"));
 
+    S.previewOnly = previewOnly;
     var g = gate();
     if (!g.ok) {
+      S.previewOnly = false;
       log("PREVIEW_CAPTURE_START sessionId=" + (sid || "—") + " take=" + (take || "—")
         + " status=REFUSED reason=" + g.reason);
       return false;
@@ -439,6 +446,7 @@
     var runMs = S.running && S.startedAtMs ? (nowMs() - S.startedAtMs) : 0;
     return {
       running: S.running,
+      previewOnly: S.previewOnly,
       inFlight: S.inFlight,
       sessionId: S.sessionId,
       takeNumber: S.takeNumber,
