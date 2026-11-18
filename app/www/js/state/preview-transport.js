@@ -468,7 +468,7 @@
     }
   }
 
-  var discoveryLastReply = Object.create(null);
+  var discoveryLastReply = Object.create(null), discoveryIdleTimer = null;
   function discoveryPeer(did) {
     var net = global.MultiCamNet;
     var peers = net && net.peers ? net.peers() : [];
@@ -491,6 +491,13 @@
       if (!cam || !cam.view || !cam.view().prepared) return false;
       smp.start({ sessionId: "", previewOnly: true, intervalMs: 1500, reason: "discovery" });
     }
+    if (discoveryIdleTimer) clearTimeout(discoveryIdleTimer);
+    discoveryIdleTimer = setTimeout(function () {
+      var state = smp.view && smp.view();
+      if (state && state.running && state.previewOnly && !state.sessionId)
+        smp.stop("discovery_idle");
+      discoveryIdleTimer = null;
+    }, 6000);
     var snap = smp.peek && smp.peek();
     if (!snap || !snap.base64) return false;
     return reply({ seq: snap.seq, jpegBase64: snap.base64, capturedAt: snap.completedAt });
