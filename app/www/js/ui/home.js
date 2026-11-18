@@ -116,7 +116,10 @@
         var host = inst ? inst.host : "";
         var port = inst ? inst.port : 0;
         var endpoint = (host && port) ? escapeURI(host) + ":" + port : "";
-        return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
+        var previewCard = preview && p.enabledSkills.indexOf("capture") >= 0
+        ? preview.cardMarkup(p.deviceId) : "";
+      return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
+        + previewCard
           + '<i class="fa-solid fa-sliders fs-4"></i>'
           + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(e.name) + "</div>"
           + '<div class="small muted">' + (endpoint ? esc(endpoint) : "détection en cours…")
@@ -164,6 +167,7 @@
       list.innerHTML = emptyState("Aucun périphérique détecté sur le réseau");
       return;
     }
+    var preview = global.MultiCamDiscoveryPreviewUI;
     list.innerHTML = peers.map(function (p) {
       var caps = p.enabledSkills.map(function (s) {
         var meta = global.MultiCamConfig.skillMeta[s] || { icon: "fa-question", label: s };
@@ -176,6 +180,7 @@
         + '<div class="d-flex flex-wrap gap-1 mt-1">' + caps + "</div></div>"
         + '<span class="dot" title="En ligne"></span></div></article>';
     }).join("");
+    if (preview) preview.refresh(peers);
   }
 
   function renderHome(cfg) {
@@ -255,6 +260,7 @@
     render: renderHome,
     bind: function () {
       bindMenu(); bindRefresh(); bindStubs();
+      if (global.MultiCamDiscoveryPreviewUI) global.MultiCamDiscoveryPreviewUI.bind();
       if (global.MultiCamDiscovery && global.MultiCamDiscovery.onChanged) {
         global.MultiCamDiscovery.onChanged(function () {
           renderDevices();
