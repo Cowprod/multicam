@@ -172,15 +172,13 @@
       }).join("") || '<span class="cap off">aucune skill active</span>';
       var previewCard = preview && p.enabledSkills.indexOf("capture") >= 0
         ? preview.cardMarkup(p.deviceId) : "";
-      return '<article class="card glass rounded-4 discovery-device-card">'
-        + '<div class="card-body p-2">'
+      return '<article class="live-tile discovery-device-card">'
         + (previewCard || '<div class="discovery-preview-placeholder"><i class="fa-solid fa-mobile-screen"></i></div>')
-        + '<div class="d-flex align-items-start gap-2 px-1 pt-2">'
-        + '<i class="fa-solid fa-mobile-screen muted mt-1"></i>'
-        + '<div class="flex-grow-1 overflow-hidden"><div class="fw-semibold text-truncate">' + esc(p.name) + '</div>'
-        + '<div class="small muted text-truncate">' + (p.endpoint ? esc(p.endpoint) : "…") + '</div>'
-        + '<div class="d-flex flex-wrap gap-1 mt-1">' + caps + '</div></div>'
-        + '<span class="dot mt-2" title="En ligne"></span></div></div></article>';
+        + '<div class="tile-info">'
+        + '<div class="tile-name">' + esc(p.name) + '</div>'
+        + '<div class="discovery-skills">' + caps + '</div>'
+        + '<span class="tile-state st-connected" title="Appareil détecté"><i class="fa-solid fa-circle text-success"></i></span>'
+        + '</div></article>';
     }).join("");
     if (preview) preview.refresh(peers);
   }
