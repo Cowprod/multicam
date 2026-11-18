@@ -2,12 +2,19 @@
  * No synthetic imagery and no session/REC side effects. */
 (function (global) {
   "use strict";
-  var frames = Object.create(null), peers = Object.create(null), bound = false;
-  var MAX_AGE_MS = 4000, MAX_JPEG_B64 = 350000;
+  var peers = Object.create(null), bound = false;
+  var MAX_AGE_MS = 5000;
   function safeId(id) { return String(id || "").replace(/[^a-zA-Z0-9_-]/g, "_"); }
+  /* Shared inbox is the only frame store, including the full-size detail. */
   function live(did) {
-    var f = frames[did];
-    return f && Date.now() - f.at < MAX_AGE_MS ? f : null;
+    var inbox = global.MultiCamPreviewInbox;
+    if (!inbox || !inbox.view || !inbox.latest) return null;
+    var sessions = inbox.view().sessions || [], best = null;
+    sessions.forEach(function (s) {
+      var f = inbox.latest(s.sessionId, did);
+      if (f && (!best || f.receivedAt > best.receivedAt)) best = f;
+    });
+    return best && Date.now() - best.receivedAt < MAX_AGE_MS ? best : null;
   }
   function cardMarkup(did) {
     return '<button type="button" class="discovery-preview border-0 p-0 rounded-3 overflow-hidden position-relative" ' +
@@ -44,20 +51,7 @@
         next[safeId(p.deviceId)] = true;
     });
     peers = next;
-    Object.keys(frames).forEach(function (id) { if (!peers[id]) delete frames[id]; });
     paint();
-  }
-  function onFrame(frame) {
-    if (!frame || frame.mime !== "image/jpeg" || typeof frame.jpegBase64 !== "string" ||
-        !frame.jpegBase64.length || frame.jpegBase64.length > MAX_JPEG_B64 ||
-        !Number.isFinite(frame.seq)) return false;
-    var did = safeId(frame.deviceId);
-    if (!peers[did]) return false;
-    var prev = frames[did];
-    if (prev && frame.seq <= prev.seq && Date.now() - prev.at < MAX_AGE_MS) return false;
-    frames[did] = { jpegBase64: frame.jpegBase64, seq: frame.seq, at: Date.now() };
-    paint();
-    return true;
   }
   function bind() {
     if (bound) return;
@@ -73,7 +67,9 @@
       if (peer && global.MultiCamLiveDetail && global.MultiCamLiveDetail.openDiscovered)
         global.MultiCamLiveDetail.openDiscovered(peer, live);
     });
+    if (global.MultiCamPreviewInbox && global.MultiCamPreviewInbox.onFrame)
+      global.MultiCamPreviewInbox.onFrame(paint);
     setInterval(paint, 1000);
   }
-  global.MultiCamDiscoveryPreviewUI = { bind: bind, refresh: refresh, cardMarkup: cardMarkup, onFrame: onFrame };
+  global.MultiCamDiscoveryPreviewUI = { bind: bind, refresh: refresh, cardMarkup: cardMarkup };
 })(window);
