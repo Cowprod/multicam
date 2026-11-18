@@ -162,6 +162,7 @@
     if (count) count.textContent = String(peers.length);
     if (!peers.length) {
       list.innerHTML = emptyState("Aucun périphérique détecté sur le réseau");
+      if (global.MultiCamHomePreview) global.MultiCamHomePreview.refresh();
       return;
     }
     list.innerHTML = peers.map(function (p) {
@@ -169,13 +170,19 @@
         var meta = global.MultiCamConfig.skillMeta[s] || { icon: "fa-question", label: s };
         return '<span class="cap"><i class="fa-solid ' + meta.icon + ' me-1"></i>' + meta.label + "</span>";
       }).join("") || '<span class="cap off">aucune skill active</span>';
+      var preview = p.enabledSkills.indexOf("capture") >= 0
+        ? '<button type="button" class="discovery-preview-button" data-discovery-preview="' + esc(p.deviceId)
+          + '" aria-label="Agrandir le cadrage de ' + esc(p.name) + '" disabled>'
+          + '<img alt="" class="discovery-preview-img d-none"><span class="discovery-preview-wait">En attente de preview</span></button>'
+        : "";
       return '<article class="card glass rounded-4"><div class="card-body p-3 d-flex align-items-center gap-3">'
         + '<i class="fa-solid fa-mobile-screen fs-4"></i>'
         + '<div class="flex-grow-1"><div class="fw-semibold text-truncate">' + esc(p.name) + "</div>"
         + '<div class="small muted">' + (p.endpoint ? esc(p.endpoint) : "…") + "</div>"
         + '<div class="d-flex flex-wrap gap-1 mt-1">' + caps + "</div></div>"
-        + '<span class="dot" title="En ligne"></span></div></article>';
+        + preview + '<span class="dot" title="En ligne"></span></div></article>';
     }).join("");
+    if (global.MultiCamHomePreview) global.MultiCamHomePreview.refresh();
   }
 
   function renderHome(cfg) {
@@ -255,6 +262,7 @@
     render: renderHome,
     bind: function () {
       bindMenu(); bindRefresh(); bindStubs();
+      if (global.MultiCamHomePreview) global.MultiCamHomePreview.bind();
       if (global.MultiCamDiscovery && global.MultiCamDiscovery.onChanged) {
         global.MultiCamDiscovery.onChanged(function () {
           renderDevices();
