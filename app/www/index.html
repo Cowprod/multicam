@@ -841,6 +841,21 @@
 </div>
 </div>
 
+<!-- Preview LAN avant session : seulement des JPEG recus, jamais de video de test. -->
+<div id="discoveryPreviewModal" class="discovery-preview-modal d-none" role="dialog"
+     aria-modal="true" aria-label="Agrandissement de la preview de decouverte">
+  <header class="discovery-preview-toolbar">
+    <button type="button" id="discoveryPreviewBack" class="btn btn-outline-light">
+      <i class="fa-solid fa-arrow-left me-2"></i>Retour
+    </button>
+    <span id="discoveryPreviewTitle" class="fw-semibold text-truncate"></span>
+  </header>
+  <div class="discovery-preview-stage">
+    <img id="discoveryPreviewLarge" class="d-none" alt="Preview JPEG actuelle">
+    <span id="discoveryPreviewMessage" class="small muted">En attente de preview</span>
+  </div>
+</div>
+
 <script src="cordova.js"></script>
 <script src="js/state/config.js"></script>
 <script src="js/native/device.js"></script>
@@ -874,6 +889,7 @@
 <script src="js/state/preview-inbox.js"></script>
 <script src="js/state/preview-transport.js"></script>
 <script src="js/state/preview-framing-service.js"></script>
+<script src="js/state/discovery-preview-service.js"></script>
 <!-- J09-07 : modèle pur d'abord, puis la frontière native, puis le service qui
      les orchestre. L'ordre est une dépendance réelle : le service valide avec le
      modèle et appelle la frontière, donc il ne peut pas précéder l'un des deux. -->
@@ -887,6 +903,7 @@
 <script src="js/state/media-catalogue-model.js"></script>
 <script src="js/state/transfer-service.js"></script>
 <script src="js/state/transfer-boot.js"></script>
+<script src="js/ui/home-preview.js"></script>
 <script src="js/ui/home.js"></script>
 <script src="js/ui/session-create.js"></script>
 <script src="js/ui/names.js"></script>
