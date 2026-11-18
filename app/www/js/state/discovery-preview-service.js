@@ -30,7 +30,7 @@
     var c = config(); return !!(c && Array.isArray(c.enabledSkills) && c.enabledSkills.indexOf("capture") >= 0);
   }
   function ipv4(remote) {
-    var m = /(?:^|[^0-9])((?:[0-9]{1,3}\\.){3}[0-9]{1,3})(?:$|[^0-9])/.exec(String(remote || ""));
+    var m = /(?:^|[^0-9])((?:[0-9]{1,3}\.){3}[0-9]{1,3})(?:$|[^0-9])/.exec(String(remote || ""));
     if (!m) return "";
     return m[1].split(".").every(function (v) { return Number(v) <= 255; }) ? m[1] : "";
   }
