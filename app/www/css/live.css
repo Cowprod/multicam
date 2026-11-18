@@ -189,3 +189,27 @@
 .session-tile-actions{position:absolute;z-index:4;top:.4rem;right:.4rem}
 .session-tile-actions .btn{background:rgba(12,18,28,.82);backdrop-filter:blur(4px)}
 .session-device-card .discovery-skills{font-size:.65rem;color:#fff;text-shadow:0 1px 3px #000}
+
+/* Compact detail: usable in landscape, no vertical overflow beyond viewport. */
+.ld-modal .modal-dialog{width:min(94vw,900px);max-width:900px;max-height:calc(100dvh - 1rem);overflow-y:auto;margin:.5rem auto}
+.ld-modal .modal-dialog>.card-body{position:relative;padding:.55rem!important}
+.ld-modal .ld-head{position:absolute;z-index:5;top:.75rem;left:.75rem;right:.75rem;width:auto;pointer-events:none;align-items:flex-start}
+.ld-modal .ld-head .ld-name{padding:.25rem .45rem;border-radius:.5rem;background:rgba(0,0,0,.65);color:#fff;max-width:60%}
+.ld-modal .ld-head .ld-name .small:first-child{display:none}
+.ld-modal .ld-head #ldClose{pointer-events:auto;margin-left:auto}
+.ld-modal .ld-head #ldState{background:rgba(0,0,0,.65);color:#fff}
+.ld-modal .ld-preview{aspect-ratio:16/9;max-height:calc(100dvh - 6.5rem);margin-bottom:.35rem!important}
+.ld-modal .ld-meta{margin-bottom:0!important}
+.ld-modal.ld-discovery .ld-preview{max-height:calc(100dvh - 5.5rem)}
+.ld-modal.ld-discovery .ld-meta{display:none}
+.ld-modal.ld-discovery #ldRecorder:empty,.ld-modal.ld-discovery #ldBattery:empty,.ld-modal.ld-discovery #ldStorage:empty,.ld-modal.ld-discovery #ldNetwork:empty{display:none}
+.ld-modal.ld-discovery .ld-preview+.d-flex{position:absolute;bottom:.85rem;left:.85rem;z-index:5;padding:.25rem .45rem;border-radius:.5rem;background:rgba(0,0,0,.7);margin:0!important;gap:.4rem!important}
+.ld-modal.ld-discovery .modal-icon{background:rgba(255,255,255,.12)}
+.ld-modal.ld-discovery .modal-icon.on{color:#34d399}
+.ld-modal.ld-discovery .modal-icon.off{color:#a4acb8;opacity:.6}
+@media (orientation:landscape) and (max-height:650px){
+ .ld-modal .modal-dialog{max-height:calc(100dvh - .5rem);margin:.25rem auto}
+ .ld-modal .ld-preview{max-height:calc(100dvh - 4.75rem)}
+ .ld-modal.ld-discovery .ld-preview{max-height:calc(100dvh - 2rem)}
+ .ld-modal .ld-head .ld-name{font-size:.85rem}
+}
