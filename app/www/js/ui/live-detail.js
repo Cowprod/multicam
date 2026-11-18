@@ -790,6 +790,17 @@
         setText("ldName", peer.name || peer.deviceId);
     setText("ldPreviewAge", "hors session");
     setText("ldTelemetryAge", "aucune télémétrie de session");
+    var bat = byId("ldBattery"), sto = byId("ldStorage");
+    if (bat) {
+      bat.textContent = telemetry && Number.isFinite(telemetry.batteryLevel)
+        ? "Batterie " + Math.round(telemetry.batteryLevel) + "%" + (telemetry.batteryCharging ? " · charge" : "")
+        : "Batterie : non mesurée";
+    }
+    if (sto) {
+      sto.textContent = telemetry && Number.isFinite(telemetry.freeBytes)
+        ? "Libre " + fmtBytes(telemetry.freeBytes) + (Number.isFinite(telemetry.totalBytes) ? " / " + fmtBytes(telemetry.totalBytes) : "")
+        : "Stockage : non mesuré";
+    }
     var net = byId("ldNetwork");
     if (net) {
       var endpoint = peer.wsEndpoint || peer.endpoint || "";
