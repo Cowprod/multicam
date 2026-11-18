@@ -271,6 +271,8 @@
     }
     byId("deviceNameArm").textContent = cfg.deviceName;
     state.sid = sid;
+    /* Cadrage possible pendant l'ARM, sans lancer MediaRecorder. */
+    if (global.MultiCamFramingPreviews) global.MultiCamFramingPreviews.open("arm", sid);
     setStartError("");
     bind();
     lastRev = -1;
