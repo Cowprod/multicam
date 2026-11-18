@@ -590,6 +590,9 @@
     state.archived = false;
     var v = global.MultiCamStartService ? global.MultiCamStartService.view() : null;
     var pv = render(v);
+    if (global.MultiCamFramingPreviews) {
+      global.MultiCamFramingPreviews.open("stopped", state.sid, v && v.takeNumber);
+    }
     console.log("SCREEN09_OPEN sessionId=" + (state.sid || "—")
       + " take=" + (v && v.takeNumber)
       + " captures=" + pv.rows.length
