@@ -69,7 +69,27 @@
     });
     if (global.MultiCamPreviewInbox && global.MultiCamPreviewInbox.onFrame)
       global.MultiCamPreviewInbox.onFrame(paint);
-    setInterval(paint, 1000);
+    /* Poll only visible Capture peers. The existing WS stack owns sockets,
+     * and the existing sampler owns camera capture. */
+    var pending = Object.create(null);
+    function requestFrames() {
+      if (document.hidden) return;
+      var ws = global.MultiCamSessionWs;
+      if (!ws || !ws.requestDiscoveryPreview) return;
+      var list = global.MultiCamNet && global.MultiCamNet.peers ? global.MultiCamNet.peers() : [];
+      list.forEach(function (p) {
+        var did = safeId(p.deviceId);
+        if (!peers[did] || pending[did]) return;
+        var ep = p.wsEndpoint || "";
+        var match = /^(?:ws:\/\/)?([^:/]+):(\d+)$/.exec(ep);
+        if (!match) return;
+        pending[did] = true;
+        Promise.resolve(ws.requestDiscoveryPreview(match[1], Number(match[2]), p.deviceId))
+          .catch(function () {}).then(function () { delete pending[did]; });
+      });
+    }
+    setInterval(function () { paint(); requestFrames(); }, 1500);
+    requestFrames();
   }
   global.MultiCamDiscoveryPreviewUI = { bind: bind, refresh: refresh, cardMarkup: cardMarkup };
 })(window);
