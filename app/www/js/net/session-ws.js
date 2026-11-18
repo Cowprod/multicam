@@ -1037,7 +1037,7 @@
   }
 
   function discoveryEndpoint(peer) {
-    if (!peer || !peer.lastResolveMs || nowMs() - peer.lastResolveMs > 120000 ||
+    if (!peer || !peer.lastResolveMs || peer.state !== "online" ||
         !Array.isArray(peer.enabledSkills) || peer.enabledSkills.indexOf("capture") < 0) return null;
     var parts = /^([0-9.]+):([0-9]{2,5})$/.exec(peer.wsEndpoint || "");
     if (!parts) return null;
