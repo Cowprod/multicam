@@ -183,3 +183,9 @@
 .discovery-device-card .discovery-skills .cap{font-size:.6rem;padding:.1rem .3rem;background:rgba(0,0,0,.55);border-radius:6px;white-space:nowrap}
 .discovery-device-card .tile-state{font-size:.58rem;padding:.15rem .25rem}
 .discovery-grid{gap:.5rem}
+
+/* Session uses the exact same media/overlay layout as discovery and REC. */
+.session-device-card{position:relative}
+.session-tile-actions{position:absolute;z-index:4;top:.4rem;right:.4rem}
+.session-tile-actions .btn{background:rgba(12,18,28,.82);backdrop-filter:blur(4px)}
+.session-device-card .discovery-skills{font-size:.65rem;color:#fff;text-shadow:0 1px 3px #000}
