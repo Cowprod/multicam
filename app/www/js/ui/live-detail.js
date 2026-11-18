@@ -756,11 +756,30 @@
     DISCOVERY = { peer: peer, previewProvider: previewProvider };
     OPEN.deviceId = peer.deviceId;
     bindClose();
-    setText("ldName", peer.name || peer.deviceId);
+    modal.classList.add("ld-discovery");
+    setText("ldRecorder", "");
+    setText("ldBattery", "");
+    setText("ldStorage", "");
+    setText("ldCamState", "");
+    setText("ldCamNote", "");
+    ["ldCamBox", "ldIncidents"].forEach(function (id) {
+      var el = byId(id); if (el) el.classList.add("d-none");
+    });
+    var st = byId("ldState");
+    if (st) { st.textContent = "Hors session"; st.className = "tile-state st-stopped"; }
+    [["ldSkillVideo", "capture", "Capture"], ["ldSkillAudio", "audio", "Audio"], ["ldSkillGps", "gps", "GPS"]]
+      .forEach(function (entry) {
+        var el = byId(entry[0]); if (!el) return;
+        var enabled = (peer.enabledSkills || []).indexOf(entry[1]) >= 0;
+        el.className = "modal-icon " + (enabled ? "on" : "off");
+        el.title = entry[2] + (enabled ? " : capacité annoncée (activité non vérifiée)" : " : capacité non annoncée");
+        el.setAttribute("aria-label", el.title);
+      });
+        setText("ldName", peer.name || peer.deviceId);
     setText("ldPreviewAge", "hors session");
     setText("ldTelemetryAge", "aucune télémétrie de session");
     var net = byId("ldNetwork");
-    if (net) net.textContent = peer.state === "online" ? "Découvert sur le réseau" : "Hors ligne";
+    if (net) net.textContent = "";
     var image = byId("ldImage"), noimg = byId("ldNoImg");
     if (image) image.removeAttribute("src");
     if (noimg) noimg.classList.remove("d-none");
@@ -786,6 +805,9 @@
 
   function open(deviceId) {
     DISCOVERY = null;
+    var existingModal = byId("liveDetailModal");
+    if (existingModal) existingModal.classList.remove("ld-discovery");
+    ["ldCamBox", "ldIncidents"].forEach(function (id) { var el = byId(id); if (el) el.classList.remove("d-none"); });
     var d = current.call(null);
     OPEN.deviceId = deviceId;
     var slot = slotOf(deviceId);
