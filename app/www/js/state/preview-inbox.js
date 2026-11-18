@@ -166,6 +166,29 @@
     }
   }
 
+  /* Dedicated namespace for discovered peers; same latest-frame inbox and
+   * onFrame subscribers, but never impersonates an authorized session. */
+  function acceptDiscovered(env) {
+    if (!env || !env.from || env.to !== S.deviceId ||
+        env.mime !== "image/jpeg" || typeof env.jpegBase64 !== "string" ||
+        !env.jpegBase64.length || env.jpegBase64.length > 350000 ||
+        !Number.isFinite(env.seq)) return false;
+    var peers = global.MultiCamNet && global.MultiCamNet.peers ? global.MultiCamNet.peers() : [];
+    if (!peers.some(function (p) { return p.deviceId === env.from && p.state !== "offline"; })) return false;
+    var sid = "__discovery__";
+    var prev = latest(sid, env.from);
+    if (prev && env.seq <= prev.seq && nowMs() - prev.receivedAt < 5000) return false;
+    var frame = {
+      sessionId: sid, deviceId: env.from, seq: env.seq, mime: "image/jpeg",
+      jpegBase64: env.jpegBase64, capturedAt: env.capturedAt || 0, receivedAt: nowMs()
+    };
+    storeOf(sid)[env.from] = frame;
+    S.stats.received++;
+    S.stats.lastReceivedAtMs = frame.receivedAt;
+    emitFrame(frame);
+    return true;
+  }
+
   function latest(sessionId, deviceId) {
     var byDev = S.frames[sessionId];
     if (!byDev) return null;
@@ -247,6 +270,7 @@
   global.MultiCamPreviewInbox = {
     bind: bind,
     accept: accept,
+    acceptDiscovered: acceptDiscovered,
     latest: latest,
     deviceCount: deviceCount,
     deviceIds: deviceIds,
