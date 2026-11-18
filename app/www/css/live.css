@@ -213,3 +213,10 @@
  .ld-modal.ld-discovery .ld-preview{max-height:calc(100dvh - 2rem)}
  .ld-modal .ld-head .ld-name{font-size:.85rem}
 }
+
+/* Small health overlays, shared by home and session previews. */
+.discovery-preview .discovery-health{position:absolute;z-index:3;top:.3rem;right:.35rem;display:flex;gap:.35rem;pointer-events:none}
+.discovery-health-item{display:inline-flex;align-items:center;gap:.22rem;padding:.15rem .3rem;border-radius:.35rem;background:rgba(0,0,0,.65);color:#fff;font-size:.68rem;white-space:nowrap}
+.discovery-health-bar{display:inline-block;width:18px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden}
+.discovery-health-bar>i{display:block;height:100%;background:#34d399}
+.ld-modal.ld-discovery #ldBattery,.ld-modal.ld-discovery #ldStorage{font-size:.72rem;white-space:nowrap;color:#fff}
