@@ -396,9 +396,10 @@
       + " status=OK intervalMs=" + S.intervalMs + " quality=" + S.quality
       + " atMs=" + S.startedAtMs);
 
-    /* Première image immédiate (le premier frame du REC n'a pas à attendre
-     * un intervalle), puis cadence ancrée. */
-    capture();
+    /* Une demande de vignette pre-session peut avoir un PixelCopy natif en vol.
+     * Ne jamais ouvrir une seconde capture concurrente au passage en REC. */
+    if (!S.inFlight) capture();
+    else log("PREVIEW_CAPTURE_SKIP " + ctx() + " reason=discovery_in_flight");
     scheduleNext();
     emit("start", { sessionId: sid, takeNumber: take, startPlanId: S.startPlanId, atMs: S.startedAtMs });
     emit("change", view());
@@ -469,6 +470,48 @@
     };
   }
 
+  /* Snapshot PRE-SESSION : PixelCopy existant, une seule demande, AUCUNE boucle
+   * de sampling supplementaire et AUCUN changement de l'etat REC / Take.
+   * Concurrence partagee avec le sampler via S.inFlight (une camera = un job).
+   * Lorsqu'une session echantillonne deja, reutiliser uniquement une frame
+   * reellement recente, jamais declencher un deuxieme PixelCopy. */
+  function discoverySnapshot() {
+    var cv = camera() && camera().view ? camera().view() : null;
+    var pv = previewService() && previewService().view ? previewService().view() : null;
+    if (!cv || !cv.prepared || !pv || !pv.foreground || !pv.captureEnabled)
+      return Promise.resolve(null);
+    if (S.running) {
+      var cached = S.last;
+      return Promise.resolve(cached && cached.base64 && nowMs() - cached.completedAt <= 2000
+        ? { base64: cached.base64, bytes: cached.bytes, capturedAt: cached.completedAt } : null);
+    }
+    if (S.inFlight) return Promise.resolve(null);
+    var cp = pixelcopy();
+    if (!cp) return Promise.resolve(null);
+    S.inFlight = true;
+    return new Promise(function (resolve) {
+      var settled = false;
+      var timeout = setTimeout(function () { finish(null); }, 1500);
+      function finish(img) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        S.inFlight = false;
+        resolve(img);
+      }
+      try {
+        cp.capturePreviewSurface({ quality: 35 }, function (raw) {
+          if (settled) return;
+          var b64 = normalize(raw), bytes = base64Bytes(b64);
+          /* 128 KiB max. Au-dela, abandon plutot que diffuser une grosse image. */
+          if (!b64 || bytes <= 0 || bytes > 131072 || b64.length > 174768)
+            return finish(null);
+          finish({ base64: b64, bytes: bytes, capturedAt: nowMs() });
+        }, function () { finish(null); });
+      } catch (e) { finish(null); }
+    });
+  }
+
   /* Sonde locale : la DERNIÈRE image réussie, ou null. Une seule image en
    * mémoire, jamais une archive — c'est le point d'entrée de la future mission
    * de transport, et le moyen d'extraire des échantillons en validation. */
@@ -517,6 +560,7 @@
     sync: sync,
     view: view,
     peek: peek,
+    discoverySnapshot: discoverySnapshot,
     reset: reset,
     gate: gate,
     onEvent: function (fn) {
