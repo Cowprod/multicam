@@ -743,7 +743,46 @@
 
   /* Ouvre la modal sur CE device. Si la vignette n'existe plus (changement de
    * Take pendant l'appui), on ne montre rien plutôt qu'un détail vide. */
+  /* Pre-session device detail uses the SAME existing modal shell as session detail.
+   * It does not fabricate a session slot, telemetry or recording state. */
+  var DISCOVERY = null;
+  function openDiscovered(peer, previewProvider) {
+    if (!peer || !peer.deviceId) return null;
+    var modal = byId("liveDetailModal");
+    if (!modal) return null;
+    DISCOVERY = { peer: peer, previewProvider: previewProvider };
+    OPEN.deviceId = peer.deviceId;
+    bindClose();
+    setText("ldName", peer.name || peer.deviceId);
+    setText("ldPreviewAge", "hors session");
+    setText("ldTelemetryAge", "aucune télémétrie de session");
+    var net = byId("ldNetwork");
+    if (net) net.textContent = peer.state === "online" ? "Découvert sur le réseau" : "Hors ligne";
+    var image = byId("ldImage"), noimg = byId("ldNoImg");
+    if (image) image.removeAttribute("src");
+    if (noimg) noimg.classList.remove("d-none");
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    refreshDiscovered();
+    return peer;
+  }
+  function refreshDiscovered() {
+    if (!DISCOVERY) return null;
+    var frame = typeof DISCOVERY.previewProvider === "function"
+      ? DISCOVERY.previewProvider(DISCOVERY.peer.deviceId) : null;
+    var img = byId("ldImage"), noimg = byId("ldNoImg");
+    var src = frame && frame.jpegBase64 ? "data:image/jpeg;base64," + frame.jpegBase64 : "";
+    if (img && img.getAttribute("src") !== src) {
+      if (src) img.setAttribute("src", src);
+      else img.removeAttribute("src");
+    }
+    if (noimg) noimg.classList.toggle("d-none", !!src);
+    setText("ldPreviewAge", src ? "image reçue" : "en attente du flux");
+    return frame;
+  }
+
   function open(deviceId) {
+    DISCOVERY = null;
     var d = current.call(null);
     OPEN.deviceId = deviceId;
     var slot = slotOf(deviceId);
@@ -766,6 +805,7 @@
   }
 
   function close() {
+    DISCOVERY = null;
     OPEN.deviceId = null;
     var modal = byId("liveDetailModal");
     if (modal) {
@@ -780,6 +820,7 @@
    * à 5 Hz par le flux START, donc la modal suit le MÊME rythme (pas de second
    * setInterval). Fermer la modal ne change rien au REC. */
   function refresh() {
+    if (DISCOVERY) return refreshDiscovered();
     if (!isOpen()) return null;
     var slot = slotOf(OPEN.deviceId);
     if (!slot) { close(); return null; }
@@ -832,6 +873,7 @@
     setTakeProvider: setTakeProvider,
     currentTake: currentTake,
     open: open,
+    openDiscovered: openDiscovered,
     close: close,
     isOpen: isOpen,
     refresh: refresh,
