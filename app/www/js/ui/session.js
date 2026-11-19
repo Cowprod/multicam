@@ -164,7 +164,7 @@
           : "";
         var preview = global.MultiCamDiscoveryPreviewUI;
         var hasCapture = row.enabled.indexOf("capture") >= 0 || row.roles.indexOf("capture") >= 0;
-        var media = preview && hasCapture && !row.self
+        var media = preview && !row.self
           ? preview.cardMarkup(row.deviceId)
           : '<div class="discovery-preview-placeholder"><i class="fa-solid fa-mobile-screen"></i></div>';
         return '<article class="live-tile discovery-device-card session-device-card">'
@@ -215,8 +215,7 @@
     }
     renderTileList("availableList", available.map(function (p) {
       var preview = global.MultiCamDiscoveryPreviewUI;
-      var media = preview && displaySkills(p).indexOf("capture") >= 0
-        ? preview.cardMarkup(p.deviceId)
+      var media = preview ? preview.cardMarkup(p.deviceId)
         : '<div class="discovery-preview-placeholder"><i class="fa-solid fa-mobile-screen"></i></div>';
       return '<article class="live-tile discovery-device-card session-device-card">'
         + media
