@@ -212,6 +212,11 @@
       var svc = startService(), view = svc && svc.view && svc.view();
       var segs = view && view.sid === sid && view.takeNumber === take ? listSegments() : [];
       if (segs.length) return Promise.resolve(rememberSegments(sid, take, segs));
+      log("TRANSFER_SOURCE_MISSING sid=" + sid + " take=" + take
+        + " indexed=" + !!(indexed && indexed.length)
+        + " stopState=" + !!(info && info.path)
+        + " currentView=" + !!(view && view.sid === sid && view.takeNumber === take)
+        + " localStopped=" + !!(view && view.localStoppedTake));
       // Migration of recordings made before the local index: the existing
       // per-take staging tree proves the relative name. Prefer its complete
       // private original when a failed staging copy left an incomplete file.
