@@ -123,6 +123,21 @@ public class MultiCamTransfer extends CordovaPlugin {
      * rend un verdict réel. */
     private void doRemove(String path, CallbackContext cb) {
         try {
+            if (path.startsWith("content://")) {
+                android.net.Uri uri = android.net.Uri.parse(path);
+                boolean existed = true;
+                try (android.os.ParcelFileDescriptor fd = cordova.getActivity().getContentResolver().openFileDescriptor(uri, "r")) {
+                    if (fd == null) existed = false;
+                } catch (java.io.FileNotFoundException missing) { existed = false; }
+                boolean removed = existed && android.provider.DocumentsContract.deleteDocument(
+                    cordova.getActivity().getContentResolver(), uri);
+                JSONObject result = new JSONObject();
+                result.put("removed", removed);
+                result.put("existed", existed);
+                result.put("path", path);
+                cb.success(result);
+                return;
+            }
             File f = new File(stripScheme(path));
             boolean existed = f.exists();
             boolean removed = existed && f.delete();
@@ -181,10 +196,17 @@ public class MultiCamTransfer extends CordovaPlugin {
 
     private void doSha256(String path, CallbackContext cb) {
         try {
-            String sha = sha256OfFile(path);
+            String sha = path.startsWith("content://") ? sha256OfUri(path) : sha256OfFile(path);
             JSONObject out = new JSONObject();
             out.put("sha256", sha);
-            out.put("bytes", new File(stripScheme(path)).length());
+            if (path.startsWith("content://")) {
+                try (android.os.ParcelFileDescriptor fd = cordova.getActivity().getContentResolver().openFileDescriptor(android.net.Uri.parse(path), "r")) {
+                    if (fd == null) throw new java.io.FileNotFoundException(path);
+                    out.put("bytes", fd.getStatSize());
+                }
+            } else {
+                out.put("bytes", new File(stripScheme(path)).length());
+            }
             cb.success(out);
         } catch (Exception e) {
             cb.error("sha256_failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -195,6 +217,17 @@ public class MultiCamTransfer extends CordovaPlugin {
         if (path == null) return "";
         if (path.startsWith("file://")) return Uri.parse(path).getPath();
         return path;
+    }
+
+    private String sha256OfUri(String path) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        try (InputStream in = cordova.getActivity().getContentResolver().openInputStream(Uri.parse(path))) {
+            if (in == null) throw new java.io.FileNotFoundException(path);
+            byte[] buf = new byte[BUF];
+            int n;
+            while ((n = in.read(buf)) > 0) md.update(buf, 0, n);
+        }
+        return toHex(md.digest());
     }
 
     private static String sha256OfFile(String path) throws Exception {
