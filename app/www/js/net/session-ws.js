@@ -1050,9 +1050,14 @@
     var reply = function (frame) {
       if (!frame || (typeof frame.jpegBase64 !== "string" && !frame.telemetry)) return false;
       var response = envelope("discovery_preview_frame", "", {
-        deviceId: localDid(), to: env.from, seq: frame.seq,
+        schemaVersion: 2, deviceId: localDid(), to: env.from,
+        seq: Number.isFinite(frame.seq) ? frame.seq : nowMs(),
         capturedAt: frame.capturedAt || nowMs(), mime: "image/jpeg",
-        jpegBase64: frame.jpegBase64 || "", telemetry: frame.telemetry || null
+        jpegBase64: frame.jpegBase64 || "",
+        image: frame.jpegBase64 ? { mime: "image/jpeg",
+          capturedAtMs: frame.capturedAt || nowMs(), jpegBase64: frame.jpegBase64 } : null,
+        telemetryVersion: frame.telemetry && frame.telemetry.atMs || 0,
+        telemetry: frame.telemetry || null
       });
       return serverConn ? sendServer(serverConn.uuid, response) : sendOn(entry.ws, response);
     };
