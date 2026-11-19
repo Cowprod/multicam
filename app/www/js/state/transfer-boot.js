@@ -151,7 +151,7 @@
       var index = ids.indexOf(sourceDeviceId);
       /* Unknown sources must never overwrite an existing camera file. */
       var camera = index >= 0 ? "Cam_" + ("00" + (index + 1)).slice(-2) + ".mp4" : "";
-      if (!camera || !/^[^\\\\/]+\\.mp4$/i.test(String(rel || ""))) return {};
+      if (!camera || !String(rel || "").toLowerCase().endsWith(".mp4")) return {};
       var safeSid = String(sid || "").replace(/[^a-zA-Z0-9_-]/g, "_");
       if (!safeSid) return {};
       var relFull = "MultiCam/" + safeSid + "/Take_" + ("000" + Number(take || 0)).slice(-3) + "/" + camera;
