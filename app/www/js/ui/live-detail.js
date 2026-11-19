@@ -794,7 +794,8 @@
         if (rear && front) {
           var cameraState = global.MultiCamCameraSwitchService;
           var view = cameraState && cameraState.view ? cameraState.view(peer.deviceId) : null;
-          var active = view && view.activeCamera;
+          var active = (telemetry && telemetry.cameraSwitchResult &&
+            telemetry.cameraSwitchResult.activeCamera) || (view && view.activeCamera);
           var target = active === "front" ? "rear" : "front";
           var btn = documentCreate("button", "btn btn-sm btn-secondary");
           btn.type = "button";
