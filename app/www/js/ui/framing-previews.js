@@ -35,6 +35,12 @@
   function paintFrame(did, f) {
     var node = S.nodes[did];
     if (!node || !f || !f.jpegBase64) return;
+    /* Reuse the shared device projection without altering the Take-scoped inbox. */
+    var projected = global.MultiCamDeviceMedia && global.MultiCamDeviceMedia.project({
+      deviceId: did, hasCamera: true, connected: true,
+      frame: { jpegBase64: f.jpegBase64, receivedAt: typeof f.receivedAt === "number" ? f.receivedAt : Date.now() }
+    });
+    if (projected && !projected.image) return;
     if (node.seq === f.seq && node.take === f.takeNumber) return;
     node.seq = f.seq;
     node.take = f.takeNumber;
