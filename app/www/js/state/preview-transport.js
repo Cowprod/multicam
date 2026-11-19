@@ -469,12 +469,15 @@
   }
 
   var discoveryLastReply = Object.create(null), discoveryIdleTimer = null;
+  var discoveryTelemetry = Object.create(null);
+  global.MultiCamDiscoveryTelemetry = {
+    get: function (did) { return discoveryTelemetry[did] || null; }
+  };
   function discoveryPeer(did) {
     var net = global.MultiCamNet;
     var peers = net && net.peers ? net.peers() : [];
     return peers.filter(function (p) {
-      return p.deviceId === did && p.state !== "offline" &&
-        (p.enabledSkills || []).indexOf("capture") >= 0;
+      return p.deviceId === did && p.state !== "offline";
     })[0] || null;
   }
   function discoveryRequest(env, entry, reply) {
@@ -483,12 +486,17 @@
     if (now - prev < 900) return false;
     discoveryLastReply[env.from] = now;
     var smp = sampler();
-    if (!smp) return false;
+    var hasCamera = !!(global.MultiCamCaptureCapabilities &&
+      global.MultiCamCaptureCapabilities.capabilitiesFor);
+    var tsvc = global.MultiCamTelemetryService;
+    var measured = tsvc && tsvc.discoverySnapshot ? tsvc.discoverySnapshot() : Promise.resolve(null);
+    if (!smp) return measured.then(function (t) { return t ? reply({telemetry:t}) : false; });
     var v = smp.view && smp.view();
     /* Reuse sampler; never restart or disturb an active session sampler. */
     if (!v || !v.running) {
       var cam = global.MultiCamCameraRecord;
-      if (!cam || !cam.view || !cam.view().prepared) return false;
+      if (!cam || !cam.view || !cam.view().prepared)
+        return measured.then(function (t) { return t ? reply({telemetry:t}) : false; });
       smp.start({ sessionId: "", previewOnly: true, intervalMs: 1500, reason: "discovery" });
     }
     if (discoveryIdleTimer) clearTimeout(discoveryIdleTimer);
@@ -499,12 +507,18 @@
       discoveryIdleTimer = null;
     }, 6000);
     var snap = smp.peek && smp.peek();
-    if (!snap || !snap.base64) return false;
-    return reply({ seq: snap.seq, jpegBase64: snap.base64, capturedAt: snap.completedAt });
+    return measured.then(function (t) {
+      if (!snap || !snap.base64) return t ? reply({telemetry:t}) : false;
+      return reply({ seq: snap.seq, jpegBase64: snap.base64,
+        capturedAt: snap.completedAt, telemetry: t });
+    });
   }
   function discoveryFrame(env) {
     if (!discoveryPeer(env.from)) return false;
+    if (env.telemetry && typeof env.telemetry === "object")
+      discoveryTelemetry[env.from] = env.telemetry;
     var box = inbox();
+    if (!env.jpegBase64) return !!env.telemetry;
     return !!(box && box.acceptDiscovered && box.acceptDiscovered(env));
   }
 
