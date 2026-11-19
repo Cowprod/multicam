@@ -211,6 +211,27 @@ module.exports.register = function (h) {
       assert.strictEqual(pv2.storage.networkText, "");
     });
 
+    it("A9b. Takes actifs ouverts, complets fermés et erreurs ouvertes avec icônes", () => {
+      const sessions = [session(S1, "S", [
+        take(1, ["cap-1"], [SELF]), take(2, ["cap-1"], [SELF]),
+        take(3, ["cap-1"], [SELF])
+      ], 3)];
+      const transfersFor = transfersMap({
+        [S1 + "|1"]: tview({ ["cap-1|" + SELF]: transfer("cap-1", SELF, { state: "transferring", bytes: 5, total: 10 }) }),
+        [S1 + "|2"]: tview({ ["cap-1|" + SELF]: transfer("cap-1", SELF, { state: "done", bytes: 10, total: 10 }) }),
+        [S1 + "|3"]: tview({ ["cap-1|" + SELF]: transfer("cap-1", SELF, { state: "error" }) })
+      });
+      const takes = build({ sessions, transfersFor }).sessions[0].takes;
+      const byNumber = Object.fromEntries(takes.map((t) => [t.takeNumber, t]));
+      assert.strictEqual(byNumber[1].open, true);
+      assert.strictEqual(byNumber[2].open, false);
+      assert.strictEqual(byNumber[2].statusIcon, "fa-check-circle text-success");
+      assert.strictEqual(byNumber[3].open, true);
+      assert.strictEqual(byNumber[3].statusIcon, "fa-exclamation-circle text-danger");
+      const manuallyOpened = build({ sessions, transfersFor, collapsed: { [S1 + "|2"]: false } }).sessions[0].takes;
+      assert.strictEqual(manuallyOpened.find((t) => t.takeNumber === 2).open, true);
+    });
+
     it("A10. rendu DOM : sessions → Takes → devices peints dans #stSessions", () => {
       const e = h.createEnv({});
       const dom = h.fakeDom(["stDeviceName", "stFree", "stNetwork", "stSessions"]);
