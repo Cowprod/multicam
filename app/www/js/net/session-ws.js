@@ -1048,11 +1048,11 @@
     if (!bridge || typeof bridge.onDiscoveryPreviewRequest !== "function") return false;
     if (!env.from || !entry || !serverConn && !entry.ws) return false;
     var reply = function (frame) {
-      if (!frame || typeof frame.jpegBase64 !== "string") return false;
+      if (!frame || (typeof frame.jpegBase64 !== "string" && !frame.telemetry)) return false;
       var response = envelope("discovery_preview_frame", "", {
         deviceId: localDid(), to: env.from, seq: frame.seq,
         capturedAt: frame.capturedAt || nowMs(), mime: "image/jpeg",
-        jpegBase64: frame.jpegBase64
+        jpegBase64: frame.jpegBase64 || "", telemetry: frame.telemetry || null
       });
       return serverConn ? sendServer(serverConn.uuid, response) : sendOn(entry.ws, response);
     };
