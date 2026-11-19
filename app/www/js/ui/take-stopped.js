@@ -234,6 +234,9 @@
     root.dataset.deviceId = row.deviceId;
     var name = el("div", "ts-row-name");
     var meta = el("div", "ts-row-meta");
+    var verified = el("i", "fa-solid fa-check-circle text-success d-none");
+    verified.title = "Tous les transferts de cette Capture sont confirmés";
+    verified.setAttribute("aria-label", verified.title);
     var stateEl = el("span", "ts-row-state");
     stateEl.dataset.state = row.state;
     var delta = el("span", "ts-row-delta");
@@ -241,6 +244,7 @@
     var offline = el("div", "ts-row-offline alert alert-secondary py-2 px-3 small");
     offline.classList.add("d-none");
     meta.appendChild(stateEl);
+    meta.appendChild(verified);
     meta.appendChild(delta);
     root.appendChild(name);
     root.appendChild(meta);
@@ -248,7 +252,7 @@
     root.appendChild(offline);
     var bars = el("div", "ts-bars");
     root.appendChild(bars);
-    return { root: root, name: name, state: stateEl, delta: delta, path: path, offline: offline, bars: bars, barsMap: {} };
+    return { root: root, name: name, state: stateEl, verified: verified, delta: delta, path: path, offline: offline, bars: bars, barsMap: {} };
   }
 
   function makeBar(srcDid, bar) {
@@ -312,6 +316,9 @@
     if (node.state.className !== cls) node.state.className = cls;
     if (node.state.dataset.state !== row.state) node.state.dataset.state = row.state;
     if (node.state.textContent !== row.stateText) node.state.textContent = row.stateText;
+    if (node.verified) node.verified.classList.toggle("d-none",
+      !(row.state === "DONE" && row.bars && row.bars.length > 0 &&
+        row.bars.every(function (bar) { return bar.state === "done"; })));
     var delta = "écart " + row.deltaText;
     if (node.delta.textContent !== delta) node.delta.textContent = delta;
     if (node.path.textContent !== row.path) node.path.textContent = row.path;
