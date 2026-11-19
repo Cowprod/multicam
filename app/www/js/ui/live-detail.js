@@ -778,14 +778,17 @@
       if (camActions) {
         camActions.textContent = "";
         if (rear && front) {
-          ["rear", "front"].forEach(function (camera) {
-            var btn = documentCreate("button", "btn btn-sm btn-secondary");
-            btn.type = "button";
-            btn.setAttribute("data-camera", camera);
-            btn.appendChild(mkIcon(camera === "front" ? "fa-face-smile" : "fa-video"));
-            btn.appendChild(textNode(camera === "front" ? " Avant" : " Arrière"));
-            camActions.appendChild(btn);
-          });
+          var cameraState = global.MultiCamCameraSwitchService;
+          var view = cameraState && cameraState.view ? cameraState.view(peer.deviceId) : null;
+          var active = view && view.activeCamera;
+          var target = active === "front" ? "rear" : "front";
+          var btn = documentCreate("button", "btn btn-sm btn-secondary");
+          btn.type = "button";
+          btn.setAttribute("data-camera", target);
+          btn.title = "Basculer vers la caméra " + (target === "front" ? "avant" : "arrière");
+          btn.appendChild(mkIcon("fa-camera-rotate"));
+          btn.appendChild(textNode(" Changer de caméra"));
+          camActions.appendChild(btn);
         }
       }
       setText("ldCamState", rear && front ? "Caméras avant et arrière disponibles" :
@@ -793,6 +796,12 @@
       setText("ldCamNote", rear && front ? "Sélectionner la caméra à activer." : "");
       setText("ldTelemetryAge", telemetry && Number.isFinite(telemetry.atMs)
         ? fmtAge(Math.max(0, Date.now() - telemetry.atMs)) : "aucune télémétrie reçue");
+      var pos = telemetry && telemetry.position;
+      var gpsText = pos && Number.isFinite(pos.latitude) && Number.isFinite(pos.longitude)
+        ? "GPS : " + pos.latitude.toFixed(6) + ", " + pos.longitude.toFixed(6)
+          + (Number.isFinite(pos.accuracyMeters) ? " (±" + Math.round(pos.accuracyMeters) + " m)" : "")
+        : "GPS : position non mesurée";
+      setText("ldRecorder", gpsText);
       var bat = byId("ldBattery"), sto = byId("ldStorage");
       if (bat) {
         bat.textContent = telemetry && Number.isFinite(telemetry.batteryLevel)
