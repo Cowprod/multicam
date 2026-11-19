@@ -5,3 +5,5 @@ plugins/
 *.aab
 .DS_Store
 package-lock.json
+.multicam-build-number
+www/js/build-info.js
