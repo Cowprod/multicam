@@ -63,7 +63,7 @@
   }
 
   function stateStyle(state) {
-    if (state === "done") return "text-success";
+    if (state === "done" || state === "TERMINATED") return "text-success";
     if (state === "error") return "text-danger";
     if (state === "verifying") return "text-info";
     if (state === "transferring") return "text-warning";
@@ -72,7 +72,7 @@
   }
 
   function stateText(state) {
-    if (state === "done") return "Reçu · vérifié";
+    if (state === "done" || state === "TERMINATED") return "Reçu · vérifié";
     if (state === "error") return "Erreur";
     if (state === "verifying") return "Vérification";
     if (state === "transferring") return "Transfert";
@@ -131,7 +131,7 @@
     out.state = transfer.state;
     out.stateText = stateText(transfer.state);
     out.stateClass = stateStyle(transfer.state);
-    out.received = transfer.state === "done";
+    out.received = transfer.state === "done" || transfer.state === "TERMINATED";
     out.sizeKnown = known;
     out.bytes = bytes; out.total = total; out.percent = pct;
     /* Progression QUALITATIVE avant taille connue, puis octets + %. */
