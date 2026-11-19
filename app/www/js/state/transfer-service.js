@@ -542,6 +542,14 @@
       var sequence = 0;
       var integrityRetryDone = false;
       var dest = paths.destFor ? paths.destFor(offer.sessionId || take().sessionId, tkTake, offer.sourceDeviceId, f.rel) : {};
+    /* Zero full-file staging: a Storage must write into its selected SAF tree.
+     * Refuse legacy private-path fallback instead of silently duplicating large MP4s. */
+    if (!dest || !dest.treeUri || !dest.relPath) {
+      model.reportResult(offer.sourceDeviceId, f.rel, model.PH_ERROR,
+        { error: "storage_saf_directory_required" });
+      log("TRANSFER_FILE_FATAL file=" + f.rel + " cause=storage_saf_directory_required");
+      return Promise.resolve(false);
+    }
 
       function terminal(msg, cause) {
         model.reportResult(offer.sourceDeviceId, f.rel, model.PH_ERROR,
