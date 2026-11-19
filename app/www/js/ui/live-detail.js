@@ -749,6 +749,8 @@
   function paintDiscoveryTelemetry(peer) {
       var telemetry = global.MultiCamSessionScreen && global.MultiCamSessionScreen.telemetryForDevice
         ? global.MultiCamSessionScreen.telemetryForDevice(peer.deviceId) : null;
+      var discovered = global.MultiCamDiscoveryTelemetry;
+      telemetry = (discovered && discovered.get && discovered.get(peer.deviceId)) || telemetry;
       var caps = telemetry && telemetry.capabilities;
       var cameraKnown = caps && caps.cameras &&
         ((caps.cameras.rear || []).length || (caps.cameras.front || []).length);
@@ -769,7 +771,8 @@
       });
           setText("ldName", peer.name || peer.deviceId);
       setText("ldPreviewAge", (peer.enabledSkills || []).indexOf("capture") >= 0 ? "hors session" : "Pas de caméra");
-      setText("ldTelemetryAge", "aucune télémétrie de session");
+      setText("ldTelemetryAge", telemetry && Number.isFinite(telemetry.atMs)
+        ? fmtAge(Math.max(0, Date.now() - telemetry.atMs)) : "aucune télémétrie reçue");
       var bat = byId("ldBattery"), sto = byId("ldStorage");
       if (bat) {
         bat.textContent = telemetry && Number.isFinite(telemetry.batteryLevel)
