@@ -796,7 +796,7 @@
           var view = cameraState && cameraState.view ? cameraState.view(peer.deviceId) : null;
           var active = (telemetry && telemetry.cameraSwitchResult &&
             telemetry.cameraSwitchResult.activeCamera) || (view && view.activeCamera);
-          var target = active === "front" ? "rear" : "front";
+          var target = String(active || "").toLowerCase() === "front" ? "rear" : "front";
           var btn = documentCreate("button", "btn btn-sm btn-secondary");
           btn.type = "button";
           btn.setAttribute("data-camera", target);
