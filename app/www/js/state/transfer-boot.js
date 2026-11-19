@@ -1353,7 +1353,7 @@
           if (!(svc.isRecording && svc.isRecording())) resumePaused();
         });
       }
-      log("TRANSFER_BOOT_ARMED role=" + role);
+      log("TRANSFER_BOOT_ARMED role=" + role + " enabledSkills=" + JSON.stringify((cfg && cfg.enabledSkills) || []) + " deviceId=" + selfDid());
     }
 
     /* ---------- API UI ---------- */
