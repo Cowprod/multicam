@@ -503,6 +503,15 @@
     };
   }
 
+  /* On-demand discovery snapshot: reuse native measurements, without creating
+   * a second collector or requiring membership in an open session. */
+  function discoverySnapshot() {
+    if (!S.bound) return Promise.resolve(null);
+    S.recording = measureRecording();
+    return Promise.all([capsProbe(), measureSpace(false), measureNet(false)])
+      .then(function () { return buildSnapshot(); });
+  }
+
   function reset() {
     stop();
     S.bound = false;
@@ -526,6 +535,7 @@
     start: start,
     stop: stop,
     collectNow: collectNowIfRunning,
+    discoverySnapshot: discoverySnapshot,
     onRecordingChanged: onRecordingChanged,
     view: view,
     reset: reset,
