@@ -41,7 +41,7 @@ def replace_once(text, old, new, label):
     if new in text:
         print('DEJA OK:', label)
         return text
-    if old not in text and label in ('execute -> startRecordVideo + camcorderProfile', 'onRequestPermissionResult -> startRecordVideo + camcorderProfile', 'startRecordVideo signature + camcorderProfile', 'JS wrapper + camcorderProfile') and ('args.optString(6, "")' in text or 'this.execArgs.optString(6, "")' in text or 'final String safTreeUri' in text or 'opts.safTreeUri' in text):
+    if old not in text and label in ('execute -> startRecordVideo + camcorderProfile', 'onRequestPermissionResult -> startRecordVideo + camcorderProfile', 'startRecordVideo signature + camcorderProfile', 'fragment.startRecord + camcorderProfile', 'JS wrapper + camcorderProfile') and ('args.optString(6, "")' in text or 'this.execArgs.optString(6, "")' in text or 'final String safTreeUri' in text or 'fragment.startRecord(target,' in text or 'opts.safTreeUri' in text):
         print('DEJA OK: direct SAF supersedes', label)
         return text
     if old not in text:
