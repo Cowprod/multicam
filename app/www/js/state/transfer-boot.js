@@ -224,7 +224,7 @@
       if (!segs.length) return [];
       // Finalized private recordings are served through an exact allowlist.
       // Keep them out of stagedMap: automatic staging cleanup must not delete them.
-      if (segs.every(function (s) { return /\/files\/recordings\//.test(s.path); })) return segs;
+      if (segs.every(function (s) { return /^content:\/\//.test(s.path) || /\/files\/recordings\//.test(s.path); })) return segs;
       var root = mediaRoot(sid, take);
       if (!root) return Promise.resolve(segs);
       var nat = nativeApi();
