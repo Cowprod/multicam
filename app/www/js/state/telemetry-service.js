@@ -123,6 +123,11 @@
    * Take. En mode SAF l'URL n'est pas un chemin système : on ne FABRIQUE pas de
    * chiffre, la valeur reste inconnue (null) et l'UI affiche un état neutre. */
   function measureSpace(force) {
+    var activeConfig = global.MultiCamConfig && global.MultiCamConfig.get ? global.MultiCamConfig.get() : null;
+    if (activeConfig && activeConfig.storage && activeConfig.storage.mode === "saf") {
+      S.space = null;
+      return Promise.resolve(null);
+    }
     if (S.space && !force && nowMs() - S.space.atMs < MEASURE_TTL_MS) {
       return Promise.resolve(S.space);
     }
