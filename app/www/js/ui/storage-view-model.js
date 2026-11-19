@@ -208,7 +208,10 @@
     return {
       sessionId: sid, takeNumber: takeNumber, key: key,
       label: "Take " + pad3(takeNumber),
-      open: collapsed[key] === true ? false : (collapsed[key] === false ? true : false),
+      /* A completed Take stays closed by default. Active transfers and errors
+       * open automatically, while an explicit user choice remains reversible. */
+      open: collapsed[key] === true ? false : (collapsed[key] === false ? true : (anyError || (anyActivity && !allDone))),
+      statusIcon: anyError ? "fa-exclamation-circle text-danger" : (allDone ? "fa-check-circle text-success" : ""),
       phase: phase.phase,
       badge: badge,
       openLabel: phase.phase === PHASE_REC ? "Enregistrement en cours" : (phase.phase === PHASE_TRANSFER ? "Réplication en cours" : ""),
