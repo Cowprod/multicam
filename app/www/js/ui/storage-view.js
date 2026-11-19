@@ -158,6 +158,11 @@
     head.appendChild(chev);
     head.appendChild(info);
     head.appendChild(badge);
+    if (take.statusIcon) {
+      var icon = el("i", "fa-solid " + take.statusIcon + " st-take-status-icon");
+      icon.setAttribute("aria-hidden", "true");
+      head.appendChild(icon);
+    }
     root.appendChild(head);
 
     var body = el("div", "st-take-body");
