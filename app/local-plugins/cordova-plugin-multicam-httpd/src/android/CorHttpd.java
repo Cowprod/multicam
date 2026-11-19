@@ -222,7 +222,7 @@ public class CorHttpd extends CordovaPlugin {
 		} else {
 			ws = new WebServer(port, f);
 		}
-		ws.setTakeRouter(new TakeRouterImpl(grants));
+		ws.setTakeRouter(new TakeRouterImpl(grants, cordova.getActivity().getContentResolver()));
 		return ws;
     }
 
@@ -293,9 +293,17 @@ public class CorHttpd extends CordovaPlugin {
             for (int i = 0; i < list.length(); i++) {
                 JSONObject item = list.optJSONObject(i);
                 if (item == null || !TakeRouterImpl.safeRel(item.optString("rel", ""))) return new PluginResult(Status.ERROR, "invalid_file_grant");
-                java.io.File file = new java.io.File(item.optString("path", ""));
-                if (!file.isAbsolute() || !file.isFile() || !file.canRead()) return new PluginResult(Status.ERROR, "missing_grant_file");
-                mapped.put(item.optString("rel"), file.getAbsolutePath());
+                String source = item.optString("path", "");
+                if (source.startsWith("content://")) {
+                    try (android.os.ParcelFileDescriptor fd = cordova.getActivity().getContentResolver().openFileDescriptor(android.net.Uri.parse(source), "r")) {
+                        if (fd == null || fd.getStatSize() <= 0) return new PluginResult(Status.ERROR, "missing_grant_file");
+                    } catch (Exception e) { return new PluginResult(Status.ERROR, "missing_grant_file"); }
+                    mapped.put(item.optString("rel"), source);
+                } else {
+                    java.io.File file = new java.io.File(source);
+                    if (!file.isAbsolute() || !file.isFile() || !file.canRead()) return new PluginResult(Status.ERROR, "missing_grant_file");
+                    mapped.put(item.optString("rel"), file.getAbsolutePath());
+                }
             }
             mapped = java.util.Collections.unmodifiableMap(mapped);
         }
@@ -349,7 +357,11 @@ public class CorHttpd extends CordovaPlugin {
      * session HTTP : le registre `grants` est un ConcurrentHashMap. */
     private static final class TakeRouterImpl implements NanoHTTPD.TakeRouter {
     	private final Map<String, Grant> grants;
-    	TakeRouterImpl(Map<String, Grant> grants) { this.grants = grants; }
+        private final android.content.ContentResolver resolver;
+        TakeRouterImpl(Map<String, Grant> grants, android.content.ContentResolver resolver) {
+            this.grants = grants;
+            this.resolver = resolver;
+        }
 
     	@Override
     	public NanoHTTPD.Response serve(String uri, String method, Properties header,
@@ -388,11 +400,77 @@ public class CorHttpd extends CordovaPlugin {
             if (g.files != null) {
                 String path = g.files.get(rel);
                 if (path == null) return nano.new Response(NanoHTTPD.HTTP_NOTFOUND, NanoHTTPD.MIME_PLAINTEXT, "File not granted.");
+                if (path.startsWith("content://")) return serveSaf(path, method, header, nano);
                 java.io.File file = new java.io.File(path);
                 return nano.serveFile("/" + file.getName(), header, new AndroidFile(file.getParent()), false);
             }
     		return nano.serveFile("/" + rel, header, g.root, false);
     	}
+
+
+        private NanoHTTPD.Response serveSaf(String path, String method, Properties header, NanoHTTPD nano) {
+            if (!"GET".equals(method) && !"HEAD".equals(method))
+                return nano.new Response(NanoHTTPD.HTTP_BADREQUEST, NanoHTTPD.MIME_PLAINTEXT, "Unsupported method");
+            android.os.ParcelFileDescriptor fd = null;
+            try {
+                fd = resolver.openFileDescriptor(android.net.Uri.parse(path), "r");
+                if (fd == null) throw new java.io.FileNotFoundException(path);
+                long length = fd.getStatSize();
+                if (length < 0) throw new IOException("SAF size unknown");
+                String range = header == null ? null : header.getProperty("range");
+                long start = 0, end = length - 1;
+                boolean partial = range != null;
+                if (partial) {
+                    if (!range.startsWith("bytes=") || range.indexOf(',') >= 0) throw new IllegalArgumentException("invalid range");
+                    String spec = range.substring(6);
+                    int dash = spec.indexOf('-');
+                    if (dash < 0) throw new IllegalArgumentException("invalid range");
+                    String left = spec.substring(0, dash), right = spec.substring(dash + 1);
+                    if (left.isEmpty()) {
+                        long suffix = Long.parseLong(right);
+                        if (suffix <= 0) throw new IllegalArgumentException("invalid suffix");
+                        start = Math.max(0, length - suffix);
+                    } else {
+                        start = Long.parseLong(left);
+                        if (!right.isEmpty()) end = Math.min(end, Long.parseLong(right));
+                    }
+                    if (start < 0 || start >= length || end < start) throw new IllegalArgumentException("unsatisfiable");
+                }
+                java.io.InputStream input = new java.io.FileInputStream(fd.getFileDescriptor());
+                if (start > 0) {
+                    long remaining = start;
+                    while (remaining > 0) {
+                        long skipped = input.skip(remaining);
+                        if (skipped <= 0) throw new IOException("SAF seek failed");
+                        remaining -= skipped;
+                    }
+                }
+                // FileInputStream owns the descriptor after handoff to NanoHTTPD.
+                fd = null;
+                NanoHTTPD.Response response = nano.new Response(partial ? NanoHTTPD.HTTP_PARTIALCONTENT : NanoHTTPD.HTTP_OK,
+                    "video/mp4", "HEAD".equals(method) ? null : input);
+                if ("HEAD".equals(method)) input.close();
+                response.addHeader("Content-Length", Long.toString(partial ? end - start + 1 : length));
+                response.addHeader("Accept-Ranges", "bytes");
+                if (partial) response.addHeader("Content-Range", "bytes " + start + "-" + end + "/" + length);
+                return response;
+            } catch (IllegalArgumentException e) {
+                NanoHTTPD.Response response = nano.new Response(NanoHTTPD.HTTP_RANGE_NOT_SATISFIABLE, NanoHTTPD.MIME_PLAINTEXT, "");
+                response.addHeader("Content-Range", "bytes */" + safLength(path));
+                return response;
+            } catch (Exception e) {
+                Log.e(LOGTAG, "SAF HTTP read failed", e);
+                return nano.new Response(NanoHTTPD.HTTP_FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "SAF read failed");
+            } finally {
+                if (fd != null) try { fd.close(); } catch (IOException ignored) {}
+            }
+        }
+
+        private long safLength(String path) {
+            try (android.os.ParcelFileDescriptor fd = resolver.openFileDescriptor(android.net.Uri.parse(path), "r")) {
+                return fd == null ? 0 : Math.max(0, fd.getStatSize());
+            } catch (Exception ignored) { return 0; }
+        }
 
     	private static boolean safeSegment(String s) {
     		return s != null && s.length() > 0 && !".".equals(s) && !"..".equals(s)
