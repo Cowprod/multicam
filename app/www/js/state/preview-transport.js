@@ -485,6 +485,20 @@
     var now = Date.now(), prev = discoveryLastReply[env.from] || 0;
     if (now - prev < 900) return false;
     discoveryLastReply[env.from] = now;
+    if (env.cameraSwitch === "front" || env.cameraSwitch === "rear") {
+      var nativeCamera = global.MultiCamCameraRecord;
+      if (nativeCamera && typeof nativeCamera.switchCameraTo === "function") {
+        return Promise.resolve(nativeCamera.switchCameraTo(env.cameraSwitch)).then(function (result) {
+          return reply({ telemetry: { atMs: Date.now(), cameraSwitchResult: {
+            ok: true, activeCamera: result.confirmed } } });
+        }).catch(function (error) {
+          return reply({ telemetry: { atMs: Date.now(), cameraSwitchResult: {
+            ok: false, message: String(error && error.message || error) } } });
+        });
+      }
+      return reply({ telemetry: { atMs: Date.now(), cameraSwitchResult: {
+        ok: false, message: "Caméra native indisponible" } } });
+    }
     var smp = sampler();
     var hasCamera = !!(global.MultiCamCaptureCapabilities &&
       global.MultiCamCaptureCapabilities.capabilitiesFor);
