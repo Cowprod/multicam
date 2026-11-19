@@ -6,9 +6,9 @@ var fs = require("fs");
 var path = require("path");
 module.exports = function (context) {
   var root = context.opts.projectRoot;
-  var counter = path.join(root, ".multicam-build-number");
+  var counter = path.join(process.env.HOME || root, ".multicam-" + path.basename(root) + "-build-number");
   var output = path.join(root, "www", "js", "build-info.js");
-  var previous = Number(fs.readFileSync(counter, "utf8").trim());
+  var previous = fs.existsSync(counter) ? Number(fs.readFileSync(counter, "utf8").trim()) : 1;
   if (!Number.isSafeInteger(previous) || previous < 0) throw new Error("Invalid MultiCam build counter");
   var next = previous + 1;
   fs.writeFileSync(counter, String(next) + "\n");
