@@ -9,6 +9,7 @@
     <preference name="hostname" value="localhost" />
     <!-- J04 — trafic cleartext Android requis par ws:// LAN, déclaré de façon
          versionnée (hook after_prepare idempotent) — décision 30.10. -->
+    <hook type="before_build" src="hooks/before_build/010-build-number.js" />
     <hook type="after_prepare" src="hooks/after_prepare/010-enable-cleartext.js" />
     <hook type="after_prepare" src="hooks/after_prepare/020-camera-patches.js" />
     <preference name="DisallowOverscroll" value="true" />
