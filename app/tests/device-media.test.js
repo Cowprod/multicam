@@ -6,7 +6,9 @@ const path = require("node:path");
 const window = {};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../www/js/ui/device-media.js"), "utf8"), { window, Date });
 const media = window.MultiCamDeviceMedia;
-module.exports.register = function (t) {
+module.exports.register = function (h) {
+ const t = h.it;
+ h.describe("Device media shared projection", function () {
  t("Storage publishes telemetry without a camera or fabricated preview", () => {
   const v = media.project({deviceId:"storage", roles:["storage"], connected:true, hasCamera:false,
     telemetry:{batteryLevel:71, freeBytes:100, totalBytes:200}, nowMs:10000});
@@ -33,4 +35,5 @@ t("Offline Capture differs from Storage without camera", () => {
   assert.equal(media.project({hasCamera:true,connected:false}).previewStatus,"offline");
   assert.equal(media.project({hasCamera:false,connected:false}).previewStatus,"no_camera");
 });
+ });
 };
