@@ -20,6 +20,8 @@ def patch(path, old, new):
 patch(wrapper, 'opts.camcorderProfile || null]);', 'opts.camcorderProfile || null, opts.safTreeUri || ""]);')
 patch(preview, 'args.isNull(5) ? null : args.getString(5)), callbackContext);',
       'args.isNull(5) ? null : args.getString(5)), args.optString(6, ""), callbackContext);')
+patch(preview, '(this.execArgs.isNull(5) ? null : this.execArgs.getString(5)), this.execCallback);',
+      '(this.execArgs.isNull(5) ? null : this.execArgs.getString(5)), this.execArgs.optString(6, ""), this.execCallback);')
 patch(preview, 'final String camcorderProfile, CallbackContext callbackContext) {',
       'final String camcorderProfile, final String safTreeUri, CallbackContext callbackContext) {')
 patch(preview, 'fragment.startRecord(getFilePath(filename), camera, width, height, quality, withFlash, camcorderProfile);',
