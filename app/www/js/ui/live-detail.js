@@ -825,13 +825,19 @@
     var frame = typeof DISCOVERY.previewProvider === "function"
       ? DISCOVERY.previewProvider(DISCOVERY.peer.deviceId) : null;
     var img = byId("ldImage"), noimg = byId("ldNoImg");
-    var src = frame && frame.jpegBase64 ? "data:image/jpeg;base64," + frame.jpegBase64 : "";
+    var hasCamera = (DISCOVERY.peer.enabledSkills || []).indexOf("capture") >= 0;
+    var projected = global.MultiCamDeviceMedia && global.MultiCamDeviceMedia.project({
+      deviceId: DISCOVERY.peer.deviceId, name: DISCOVERY.peer.name,
+      hasCamera: hasCamera, connected: true, frame: frame
+    });
+    var visible = projected ? projected.image : frame;
+    var src = visible && visible.jpegBase64 ? "data:image/jpeg;base64," + visible.jpegBase64 : "";
     if (img && img.getAttribute("src") !== src) {
       if (src) img.setAttribute("src", src);
       else img.removeAttribute("src");
     }
     if (noimg) noimg.classList.toggle("d-none", !!src);
-    setText("ldPreviewAge", src ? "image reçue" : "en attente du flux");
+    setText("ldPreviewAge", src ? "image reçue" : hasCamera ? "en attente du flux" : "Pas de caméra");
     return frame;
   }
 
