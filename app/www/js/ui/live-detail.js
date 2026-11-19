@@ -802,7 +802,7 @@
           btn.setAttribute("data-camera", target);
           btn.title = "Basculer vers la caméra " + (target === "front" ? "avant" : "arrière");
           btn.appendChild(mkIcon("fa-camera-rotate"));
-          btn.appendChild(textNode(" Changer de caméra"));
+          btn.setAttribute("aria-label", "Changer de caméra");
           camActions.appendChild(btn);
         }
       }
