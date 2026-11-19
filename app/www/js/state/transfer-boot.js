@@ -160,7 +160,7 @@
         return { treeUri: cfg.storage.treeUri, relPath: relFull };
       }
       var b = baseSystemPath();
-      return { dest: b ? (b.replace(/\\/$/, "") + "/" + relFull) : relFull };
+      return { dest: b ? ((b.endsWith("/") ? b.slice(0, -1) : b) + "/" + relFull) : relFull };
     }
 
     /* Segments locaux d'un Take. V1 : le protocole START/J10 publie un seul
