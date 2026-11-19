@@ -62,3 +62,5 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - 19/11/2026 : [Q5/Q6 — OBSERVÉ] L'utilisateur ne peut pas distinguer si les Captures commencent les transferts à des moments différents : la préparation et les transferts sont tous deux très longs, et l'interface ne permet pas de suivre précisément la séquence. Ne pas lui demander d'estimer des timings à l'œil ; instrumenter les étapes et relever des horodatages et débits réels avant diagnostic.
 
 - 19/11/2026 : [VALIDÉ — Q6 contexte] Lors des derniers tests, toutes les tablettes étaient sur le même réseau Wi-Fi ; le Samsung avec SSD USB était le Storage. Aucun débit mesuré ni diagnostic causal à ce stade.
+
+- 19/11/2026 : [AUDIT STATIQUE Q5/Q6 TERMINÉ] Rapport : `docs/AUDIT-STOP-TRANSFERS-20261119.md`. Le badge « Préparation » ne mesure pas une étape technique unique ; plusieurs lectures/écritures complètes sont possibles (SHA source, staging conditionnel, export SAF concurrent, SHA destination). Aucune durée ni cause de lenteur établie sans instrumentation/essai physique. Aucun build ni correctif fonctionnel effectué.
