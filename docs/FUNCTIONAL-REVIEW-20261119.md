@@ -60,3 +60,5 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - 19/11/2026 : [OBSERVÉ — Q5] Après STOP, la phase « Préparation » paraît déjà assez longue. Avant de discuter de correctif ou de régression d'état, analyser précisément ce que fait le système pendant cette phase (Capture, Master, Storage, opérations et durées). Aucune cause établie ; demander un diagnostic instrumenté, ne pas présumer qu'il s'agit seulement d'affichage.
 
 - 19/11/2026 : [Q5/Q6 — OBSERVÉ] L'utilisateur ne peut pas distinguer si les Captures commencent les transferts à des moments différents : la préparation et les transferts sont tous deux très longs, et l'interface ne permet pas de suivre précisément la séquence. Ne pas lui demander d'estimer des timings à l'œil ; instrumenter les étapes et relever des horodatages et débits réels avant diagnostic.
+
+- 19/11/2026 : [VALIDÉ — Q6 contexte] Lors des derniers tests, toutes les tablettes étaient sur le même réseau Wi-Fi ; le Samsung avec SSD USB était le Storage. Aucun débit mesuré ni diagnostic causal à ce stade.
