@@ -1074,10 +1074,10 @@
     try { return bridge.onDiscoveryPreviewFrame(env, entry); }
     catch (e) { emit("DISCOVERY_PREVIEW_FRAME_ERROR " + e); return false; }
   }
-  function requestDiscoveryPreview(host, port, deviceId) {
+  function requestDiscoveryPreview(host, port, deviceId, cameraSwitch) {
     if (!host || !port || !deviceId || deviceId === localDid()) return Promise.resolve(false);
     return connectTo(host, port).then(function (ws) {
-      return sendOn(ws, envelope("discovery_preview_request", "", { to: deviceId }));
+      return sendOn(ws, envelope("discovery_preview_request", "", { to: deviceId, cameraSwitch: cameraSwitch || null }));
     });
   }
 
