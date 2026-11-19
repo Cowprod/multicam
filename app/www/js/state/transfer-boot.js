@@ -143,22 +143,24 @@
       return b ? (b.replace(/\/$/, "") + "/MultiCam/" + sid + "/" + take) : "";
     }
 
-    /* J14-B03 : la destination d'un segment DOIT être unique par Capture. Le
-     * nom de fichier seul (`videoTmp.mp4`) est identique pour toutes les
-     * Captures d'un Take : sans le deviceId source dans le chemin, deux
-     * Captures écrivant vers le même Storage se collisionnent (fichier partagé,
-     * écritures entremêlées, SHA-256 destination ≠ source). L'arborescence
-     * devient Session / Take / <sourceDeviceId> / <segment>. */
-    function destFor(sid, take, sourceDeviceId, rel) {
-      var relFull = "MultiCam/" + sid + "/" + take + "/" + sourceDeviceId + "/" + rel;
-      // Storage writes directly into the selected SAF tree, never into a
-      // private intermediate file or an implicitly chosen public directory.
+    /* Storage layout: MultiCam/<sessionId>/Take_001/Cam_01.mp4.
+     * Capture numbering follows the persisted Take capture order, not discovery
+     * order, so it stays deterministic across reconnects and retries. */
+    function destFor(sid, take, sourceDeviceId, rel, captures) {
+      var ids = Array.isArray(captures) ? captures : [];
+      var index = ids.indexOf(sourceDeviceId);
+      /* Unknown sources must never overwrite an existing camera file. */
+      var camera = index >= 0 ? "Cam_" + ("00" + (index + 1)).slice(-2) + ".mp4" : "";
+      if (!camera || !/^[^\\\\/]+\\.mp4$/i.test(String(rel || ""))) return {};
+      var safeSid = String(sid || "").replace(/[^a-zA-Z0-9_-]/g, "_");
+      if (!safeSid) return {};
+      var relFull = "MultiCam/" + safeSid + "/Take_" + ("000" + Number(take || 0)).slice(-3) + "/" + camera;
       if (cfg.storage && cfg.storage.mode === "saf" && !cfg.storage.treeUri) return {};
       if (cfg.storage && cfg.storage.mode === "saf" && cfg.storage.treeUri) {
         return { treeUri: cfg.storage.treeUri, relPath: relFull };
       }
       var b = baseSystemPath();
-      return { dest: b ? (b.replace(/\/$/, "") + "/" + relFull) : relFull };
+      return { dest: b ? (b.replace(/\\/$/, "") + "/" + relFull) : relFull };
     }
 
     /* Segments locaux d'un Take. V1 : le protocole START/J10 publie un seul
@@ -395,7 +397,10 @@
           };
         },
         paths: {
-          mediaRoot: mediaRoot, destFor: destFor,
+          mediaRoot: mediaRoot,
+          destFor: function (sid, take, sourceDeviceId, rel) {
+            return destFor(sid, take, sourceDeviceId, rel, e.take && e.take.captures);
+          },
           listSegments: listSegments, stageSegments: stageSegments,
           listSegmentsFor: listSegmentsFor, hasTake: hasTake,
           /* J17-A : lecture seule du dossier d'une Capture source. Le listing
