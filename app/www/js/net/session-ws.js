@@ -981,6 +981,9 @@
       case "discovery_preview_frame":
         handleDiscoveryPreviewFrame(env, entry);
         break;
+      case "device_preview_frame":
+        handleDiscoveryPreviewFrame(env, entry);
+        break;
       case "preview_frame":
         handlePreviewFrame(env, entry);
         break;
@@ -1049,7 +1052,7 @@
     if (!env.from || !entry || !serverConn && !entry.ws) return false;
     var reply = function (frame) {
       if (!frame || (typeof frame.jpegBase64 !== "string" && !frame.telemetry)) return false;
-      var response = envelope("discovery_preview_frame", "", {
+      var response = envelope("device_preview_frame", "", {
         schemaVersion: 2, deviceId: localDid(), to: env.from,
         seq: Number.isFinite(frame.seq) ? frame.seq : nowMs(),
         capturedAt: frame.capturedAt || nowMs(), mime: "image/jpeg",
