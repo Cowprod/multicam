@@ -50,3 +50,5 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - 19/11/2026 : priorité critique confirmée : répertoire SSD nommé d'après la session Master ; normaliser les caractères spéciaux pour les noms de session, Take et Capture. La version installée n'applique pas encore cette exigence.
 
 - 19/11/2026 : l'utilisateur confirme que les vidéos doivent porter le nom des Captures dans MultiCam. Suspecte un bug Xiaomi : remontée du nom de modèle Android au lieu du nom personnalisé. À diagnostiquer, sans présumer de la cause.
+
+- 19/11/2026 : [VALIDÉ — Q4A] Normalisation des noms de fichiers : retirer les accents, remplacer espaces et caractères interdits (`/`, `\\`, `:`, etc.) par `_`, conserver la casse. Exemple : `Caméra Église / Plan Général` → `Camera_Eglise_Plan_General.mp4`. Règles de collisions encore à définir.
