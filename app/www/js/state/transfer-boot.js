@@ -393,6 +393,7 @@
         /* J17-A : le serveur média ne peut servir que des chemins réels. En
          * mode SAF les fichiers vivent dans une arborescence DocumentFile :
          * on le dit explicitement au lieu de fabriquer un catalogue vide. */
+        requireDirectSaf: true,
         storageMode: function () { return (cfg.storage && cfg.storage.mode) || "path"; },
         catalogueModel: function () { return catalogueMod(); },
         /* Backoff entre tentatives : absorb les coupures réseau transitoires
