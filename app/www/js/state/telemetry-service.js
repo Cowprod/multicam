@@ -130,6 +130,12 @@
     if (!st || typeof st.systemPath !== "function" || !nat || typeof nat.freeSpace !== "function") {
       return Promise.resolve(null);
     }
+    var config = global.MultiCamConfig;
+    var current = config && typeof config.get === "function" ? config.get() : null;
+    if (current && current.storage && current.storage.mode === "saf") {
+      S.space = null; /* Never report internal storage as selected SAF volume. */
+      return Promise.resolve(null);
+    }
     var path;
     try { path = st.systemPath(st.defaultPath()); } catch (e) { return Promise.resolve(null); }
     if (!path) return Promise.resolve(null);
