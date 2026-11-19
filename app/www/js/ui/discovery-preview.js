@@ -2,7 +2,7 @@
  * No synthetic imagery and no session/REC side effects. */
 (function (global) {
   "use strict";
-  var peers = Object.create(null), bound = false;
+  var peers = Object.create(null), devices = Object.create(null), bound = false;
   var MAX_AGE_MS = 5000;
   function safeId(id) { return String(id || "").replace(/[^a-zA-Z0-9_-]/g, "_"); }
   /* Shared inbox is the only frame store, including the full-size detail. */
@@ -21,7 +21,7 @@
   function pct(n) { return Math.max(0, Math.min(100, Math.round(n))); }
   function updateGauges(el, did) {
     var t = telemetry(did), host = el.querySelector(".discovery-health");
-    var v = global.MultiCamDeviceMedia.project({deviceId: did, telemetry: t, hasCamera: !!peers[did], connected: !!peers[did]});
+    var v = global.MultiCamDeviceMedia.project({deviceId: did, telemetry: t, hasCamera: !!peers[did], connected: !!devices[did]});
     if (!host) return;
     var battery = v.batteryLevel;
     var disk = v.freePercent;
@@ -33,7 +33,7 @@
   }
   function cardMarkup(did) {
     return '<button type="button" class="discovery-preview tile-media border-0 p-0 overflow-hidden position-relative" ' +
-      'data-preview-did="' + safeId(did) + '" aria-label="Agrandir la caméra" ' +
+      'data-preview-did="' + safeId(did) + '" aria-label="Détails de l’appareil" ' +
       'style="width:100%;aspect-ratio:16/9;background:#111827;color:white">' +
       '<img alt="" style="width:100%;height:100%;object-fit:contain;display:none">' +
       '<span class="discovery-preview-status small">En attente du flux</span>' +
@@ -42,7 +42,7 @@
   function paint() {
     document.querySelectorAll(".discovery-preview").forEach(function (el) {
       var did = el.getAttribute("data-preview-did");
-      var v = global.MultiCamDeviceMedia.project({deviceId: did, frame: live(did), telemetry: telemetry(did), hasCamera: !!peers[did], connected: !!peers[did]});
+      var v = global.MultiCamDeviceMedia.project({deviceId: did, frame: live(did), telemetry: telemetry(did), hasCamera: !!peers[did], connected: !!devices[did]});
       var f = v.image;
       updateGauges(el, did);
       var img = el.querySelector("img"), label = el.querySelector("span");
@@ -64,12 +64,14 @@
     if (global.MultiCamLiveDetail && global.MultiCamLiveDetail.isOpen()) global.MultiCamLiveDetail.refresh();
   }
   function refresh(list) {
-    var next = Object.create(null);
+    var next = Object.create(null), all = Object.create(null);
     (list || []).forEach(function (p) {
-      if (p && p.deviceId && (p.enabledSkills || []).indexOf("capture") >= 0)
-        next[safeId(p.deviceId)] = true;
+      if (!p || !p.deviceId) return;
+      all[safeId(p.deviceId)] = true;
+      if ((p.enabledSkills || []).indexOf("capture") >= 0) next[safeId(p.deviceId)] = true;
     });
     peers = next;
+    devices = all;
     paint();
   }
   function bind() {
@@ -79,7 +81,7 @@
       var btn = ev.target.closest && ev.target.closest("[data-preview-did]");
       if (!btn) return;
       var did = btn.getAttribute("data-preview-did");
-      if (!peers[did]) return;
+      if (!devices[did]) return;
       var peer = global.MultiCamNet && global.MultiCamNet.peers().filter(function (p) {
         return safeId(p.deviceId) === did;
       })[0];
