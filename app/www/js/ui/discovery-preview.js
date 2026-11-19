@@ -21,10 +21,10 @@
   function pct(n) { return Math.max(0, Math.min(100, Math.round(n))); }
   function updateGauges(el, did) {
     var t = telemetry(did), host = el.querySelector(".discovery-health");
+    var v = global.MultiCamDeviceMedia.project({deviceId: did, telemetry: t, hasCamera: !!peers[did], connected: !!peers[did]});
     if (!host) return;
-    var battery = t && Number.isFinite(t.batteryLevel) ? pct(t.batteryLevel) : null;
-    var disk = t && Number.isFinite(t.freeBytes) && Number.isFinite(t.totalBytes) && t.totalBytes > 0
-      ? pct(100 * t.freeBytes / t.totalBytes) : null;
+    var battery = v.batteryLevel;
+    var disk = v.freePercent;
     var key = String(battery) + "/" + String(disk) + "/" + !!(t && t.batteryCharging);
     if (host.getAttribute("data-health") === key) return;
     host.setAttribute("data-health", key);
@@ -41,7 +41,9 @@
   }
   function paint() {
     document.querySelectorAll(".discovery-preview").forEach(function (el) {
-      var did = el.getAttribute("data-preview-did"), f = live(did);
+      var did = el.getAttribute("data-preview-did");
+      var v = global.MultiCamDeviceMedia.project({deviceId: did, frame: live(did), telemetry: telemetry(did), hasCamera: !!peers[did], connected: !!peers[did]});
+      var f = v.image;
       updateGauges(el, did);
       var img = el.querySelector("img"), label = el.querySelector("span");
       if (f) {
@@ -56,7 +58,7 @@
         img.removeAttribute("data-seq");
         img.style.display = "none";
         label.style.display = "block";
-        label.textContent = peers[did] ? "En attente du flux" : "Hors ligne";
+        label.textContent = global.MultiCamDeviceMedia.statusLabel(v);
       }
     });
     if (global.MultiCamLiveDetail && global.MultiCamLiveDetail.isOpen()) global.MultiCamLiveDetail.refresh();
