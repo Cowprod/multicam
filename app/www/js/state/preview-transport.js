@@ -490,7 +490,7 @@
       if (nativeCamera && typeof nativeCamera.switchCameraTo === "function") {
         return Promise.resolve(nativeCamera.switchCameraTo(env.cameraSwitch)).then(function (result) {
           return reply({ telemetry: { atMs: Date.now(), cameraSwitchResult: {
-            ok: true, activeCamera: result.confirmed } } });
+            ok: true, activeCamera: String(result.confirmed || "").toLowerCase() } } });
         }).catch(function (error) {
           return reply({ telemetry: { atMs: Date.now(), cameraSwitchResult: {
             ok: false, message: String(error && error.message || error) } } });
