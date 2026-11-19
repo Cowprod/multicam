@@ -185,6 +185,8 @@
 
   function renderHome(cfg) {
     byId("deviceName").textContent = cfg.deviceName;
+    var buildEl = byId("buildLabel");
+    if (buildEl) buildEl.textContent = "Build " + (global.MultiCamBuild && global.MultiCamBuild.number || "inconnue");
     renderSkillBadges(byId("skillBadges"), cfg);
     updateNetStatus(cfg);
 
