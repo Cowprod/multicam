@@ -25,7 +25,7 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 
 ## Questions à traiter, UNE À LA FOIS
 1. [PARTIELLEMENT VALIDÉ] Storage Samsung : déplier automatiquement les Takes ayant des transferts en cours (et montrer leur progression). Takes dont tous les fichiers sont arrivés : repliés automatiquement mais dépliables manuellement, avec une icône Font Awesome `fa-check-circle text-success` en fin de ligne. En cas d'erreur de transfert : Take automatiquement ouvert jusqu'à résolution, icône `fa-exclamation-circle text-danger` en fin de ligne. Cas de transfert partiellement terminé sans erreur encore à préciser ; vérifier l'état réel avant de changer l'UI.
-2. [VALIDÉ] Master : supprimer le bloc « Storage distant ». Aucune distinction entre Storage Linux (ex. caseRouter) et Android : mêmes découverte, liste, sélection et suivi des transferts. Détails des informations affichées (nom, skills, espace libre) à préciser.
+2. [VALIDÉ] Master : supprimer le bloc « Storage distant ». Aucune distinction entre Storage Linux (ex. caseRouter) et Android : mêmes découverte, liste, sélection et suivi des transferts. [VALIDÉ] Les informations de périphérique doivent être portées par UN SEUL MODULE réutilisable : preview/vignette (y compris Storage) et popup, dans tous les contextes : accueil, session, préparation du Take, REC, etc. Le module affiche nom, skills, espace libre du volume de destination (pour Storage), disponibilité. Ne pas dupliquer les rendus ou la logique entre écrans.
 3. Volume Storage : comportement attendu pour SSD SAF, plusieurs destinations, mesure et cas indisponible.
 4. Nommage SSD : nom de session, index des caméras, Take, fichiers multiples et collision.
 5. Transferts : clarifier l'anomalie « Préparation », les appareils concernés et le comportement souhaité.
@@ -40,3 +40,5 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - 19/11/2026 : l'utilisateur valide Take ouvert en cas d'erreur, avec `fa-exclamation-circle text-danger` à droite, jusqu'à résolution.
 
 - 19/11/2026 : l'utilisateur confirme qu'aucune distinction ne doit exister entre Storage Linux et Android côté Master.
+
+- 19/11/2026 : l'utilisateur exige un module unique pour la preview et la popup d'un appareil, Storage compris, réutilisé sur tous les écrans (accueil, session, préparation, REC, etc.).
