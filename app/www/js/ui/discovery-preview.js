@@ -22,7 +22,7 @@
   }
   function pct(n) { return Math.max(0, Math.min(100, Math.round(n))); }
   function batteryIcon(level, charging) {
-    if (charging) return "fa-battery-bolt";
+    if (charging) return "fa-battery-full";
     if (level <= 10) return "fa-battery-empty";
     if (level <= 35) return "fa-battery-quarter";
     if (level <= 60) return "fa-battery-half";
