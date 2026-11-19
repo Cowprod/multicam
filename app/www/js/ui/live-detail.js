@@ -854,6 +854,7 @@
     DISCOVERY = { peer: peer, previewProvider: previewProvider };
     OPEN.deviceId = peer.deviceId;
     bindClose();
+    bindCamera();
     modal.classList.add("ld-discovery");
     setText("ldRecorder", "");
     setText("ldBattery", "");
