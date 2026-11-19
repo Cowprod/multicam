@@ -21,6 +21,14 @@
     return latest || (screen && screen.telemetryForDevice ? screen.telemetryForDevice(did) : null);
   }
   function pct(n) { return Math.max(0, Math.min(100, Math.round(n))); }
+  function batteryIcon(level, charging) {
+    if (charging) return "fa-battery-bolt";
+    if (level <= 10) return "fa-battery-empty";
+    if (level <= 35) return "fa-battery-quarter";
+    if (level <= 60) return "fa-battery-half";
+    if (level <= 85) return "fa-battery-three-quarters";
+    return "fa-battery-full";
+  }
   function updateGauges(el, did) {
     var t = telemetry(did), host = el.querySelector(".discovery-health");
     var v = global.MultiCamDeviceMedia.project({deviceId: did, telemetry: t, hasCamera: !!peers[did], connected: !!devices[did]});
