@@ -529,8 +529,13 @@
   }
   function discoveryFrame(env) {
     if (!discoveryPeer(env.from)) return false;
-    if (env.telemetry && typeof env.telemetry === "object")
-      discoveryTelemetry[env.from] = env.telemetry;
+    if (env.telemetry && typeof env.telemetry === "object") {
+      if (env.telemetry.cameraSwitchResult) {
+        var prior = discoveryTelemetry[env.from] || {};
+        prior.cameraSwitchResult = env.telemetry.cameraSwitchResult;
+        discoveryTelemetry[env.from] = prior;
+      } else discoveryTelemetry[env.from] = env.telemetry;
+    }
     var box = inbox();
     if (!env.jpegBase64) return !!env.telemetry;
     return !!(box && box.acceptDiscovered && box.acceptDiscovered(env));
