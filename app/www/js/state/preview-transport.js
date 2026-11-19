@@ -483,7 +483,7 @@
   function discoveryRequest(env, entry, reply) {
     if (!env || env.to !== S.deviceId || !discoveryPeer(env.from)) return false;
     var now = Date.now(), prev = discoveryLastReply[env.from] || 0;
-    if (now - prev < 900) return false;
+    if (!env.cameraSwitch && now - prev < 900) return false;
     discoveryLastReply[env.from] = now;
     if (env.cameraSwitch === "front" || env.cameraSwitch === "rear") {
       var nativeCamera = global.MultiCamCameraRecord;
@@ -534,7 +534,11 @@
         var prior = discoveryTelemetry[env.from] || {};
         prior.cameraSwitchResult = env.telemetry.cameraSwitchResult;
         discoveryTelemetry[env.from] = prior;
-      } else discoveryTelemetry[env.from] = env.telemetry;
+      } else {
+        var lastResult = discoveryTelemetry[env.from] && discoveryTelemetry[env.from].cameraSwitchResult;
+        discoveryTelemetry[env.from] = env.telemetry;
+        if (lastResult) discoveryTelemetry[env.from].cameraSwitchResult = lastResult;
+      }
     }
     var box = inbox();
     if (!env.jpegBase64) return !!env.telemetry;
