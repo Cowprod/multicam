@@ -771,6 +771,26 @@
       });
           setText("ldName", peer.name || peer.deviceId);
       setText("ldPreviewAge", (peer.enabledSkills || []).indexOf("capture") >= 0 ? "hors session" : "Pas de caméra");
+      var camBox = byId("ldCamBox"), camActions = byId("ldCamActions");
+      var rear = caps && caps.cameras && Array.isArray(caps.cameras.rear) && caps.cameras.rear.length > 0;
+      var front = caps && caps.cameras && Array.isArray(caps.cameras.front) && caps.cameras.front.length > 0;
+      if (camBox) camBox.classList.toggle("d-none", !rear && !front);
+      if (camActions) {
+        camActions.textContent = "";
+        if (rear && front) {
+          ["rear", "front"].forEach(function (camera) {
+            var btn = documentCreate("button", "btn btn-sm btn-secondary");
+            btn.type = "button";
+            btn.setAttribute("data-camera", camera);
+            btn.appendChild(mkIcon(camera === "front" ? "fa-face-smile" : "fa-video"));
+            btn.appendChild(textNode(camera === "front" ? " Avant" : " Arrière"));
+            camActions.appendChild(btn);
+          });
+        }
+      }
+      setText("ldCamState", rear && front ? "Caméras avant et arrière disponibles" :
+        rear ? "Caméra arrière disponible" : front ? "Caméra avant disponible" : "Caméra non mesurée");
+      setText("ldCamNote", rear && front ? "Sélectionner la caméra à activer." : "");
       setText("ldTelemetryAge", telemetry && Number.isFinite(telemetry.atMs)
         ? fmtAge(Math.max(0, Date.now() - telemetry.atMs)) : "aucune télémétrie reçue");
       var bat = byId("ldBattery"), sto = byId("ldStorage");
@@ -801,9 +821,8 @@
     setText("ldStorage", "");
     setText("ldCamState", "");
     setText("ldCamNote", "");
-    ["ldCamBox", "ldIncidents"].forEach(function (id) {
-      var el = byId(id); if (el) el.classList.add("d-none");
-    });
+    var incidents = byId("ldIncidents");
+    if (incidents) incidents.classList.add("d-none");
     var st = byId("ldState");
     if (st) { st.textContent = "Hors session"; st.className = "tile-state st-stopped"; }
     paintDiscoveryTelemetry(peer);
