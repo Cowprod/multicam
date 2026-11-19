@@ -402,6 +402,12 @@
          * valeur par défaut documentée (85). */
       };
       var profile = resolveProfile(opts);
+      var cfgForRecording = global.MultiCamConfig && global.MultiCamConfig.get ? global.MultiCamConfig.get() : {};
+      var storageForRecording = cfgForRecording.storage || {};
+      if (storageForRecording.mode === "saf") {
+        if (!storageForRecording.treeUri) return Promise.reject(new Error("saf_tree_required"));
+        payload.safTreeUri = storageForRecording.treeUri;
+      }
       if (profile) payload.camcorderProfile = profile;   /* absent → plugin choisit */
       state.lastRecOpts = {
         width: size.width,
@@ -498,6 +504,10 @@
         log("CAMERA_REC_STOP_OK atMs=" + atMs + " path=" + (state.videoPath || "—")
           + " previewKept=" + (state.prepared ? 1 : 0));
         var originalPath = state.videoPath;
+        if (originalPath.indexOf("content://") === 0) {
+          resolve({ atMs: atMs, path: originalPath, exported: true, detail: "direct_saf_recording" });
+          return;
+        }
         if (!global.cordova || typeof global.cordova.exec !== "function") {
           resolve({ atMs: atMs, path: originalPath, detail: "stopRecordVideo_ok", exported: false });
           return;
