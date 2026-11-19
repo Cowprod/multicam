@@ -24,7 +24,7 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - Organisation en trois lots, priorités P1/P2 et supposés problèmes Capture non démontrés.
 
 ## Questions à traiter, UNE À LA FOIS
-1. Storage Samsung : comportement précis souhaité pour le dépliage des Takes et leur progression ; vérifier l'état réel avant de changer l'UI.
+1. [PARTIELLEMENT VALIDÉ] Storage Samsung : déplier automatiquement les Takes ayant des transferts en cours (et montrer leur progression). Comportement des autres Takes et possibilité de dépliage manuel encore à préciser ; vérifier l'état réel avant de changer l'UI.
 2. Master : supprimer le bloc Storage distant et définir l'affichage unifié (nom, skills, espace libre).
 3. Volume Storage : comportement attendu pour SSD SAF, plusieurs destinations, mesure et cas indisponible.
 4. Nommage SSD : nom de session, index des caméras, Take, fichiers multiples et collision.
@@ -33,4 +33,5 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 7. Tests et déploiement : critères de validation, éviter des builds répétés.
 
 ## Historique des validations
-- 19/11/2026 : document initial créé ; aucune réponse aux questions ci-dessus encore recueillie dans cette revue.
+- 19/11/2026 : document initial créé.
+- 19/11/2026 : l'utilisateur choisit l'ouverture automatique des Takes ayant des transferts en cours. Les autres comportements restent à préciser.
