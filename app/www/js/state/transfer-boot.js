@@ -703,7 +703,16 @@
         announced[key] = false;
         log("TRANSFER_ANNOUNCE_ERROR " + String((e && e.message) || e));
         return null;
-      }).then(function (r) { notify(); return r; });
+      }).then(function (r) {
+        /* An empty manifest or a native hashing/serving failure is not an
+         * announcement. Allow the next STOP view / recovery scan to retry. */
+        if (r == null) {
+          announced[key] = false;
+          log("TRANSFER_ANNOUNCE_RETRYABLE sessionId=" + v.sid + " take=" + v.takeNumber);
+        }
+        notify();
+        return r;
+      });
     }
 
     function onStartView(v) {
