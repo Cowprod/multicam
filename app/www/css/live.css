@@ -220,3 +220,19 @@
 .discovery-health-bar{display:inline-block;width:18px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden}
 .discovery-health-bar>i{display:block;height:100%;background:#34d399}
 .ld-modal.ld-discovery #ldBattery,.ld-modal.ld-discovery #ldStorage{font-size:.72rem;white-space:nowrap;color:#fff}
+
+/* Discovery overlay: keep all controls inside the preview in landscape. */
+.ld-modal.ld-discovery .modal-dialog{overflow:visible}
+.ld-modal.ld-discovery .modal-dialog>.card-body{padding:.25rem!important}
+.ld-modal.ld-discovery .ld-preview{margin-bottom:0!important;max-height:calc(100dvh - 1.25rem)}
+.ld-modal.ld-discovery .ld-facts,
+.ld-modal.ld-discovery .ld-cam{position:absolute;z-index:6;left:.85rem;right:.85rem;width:auto;background:rgba(0,0,0,.72);border-radius:.5rem;padding:.25rem .45rem;margin:0!important}
+.ld-modal.ld-discovery .ld-facts{bottom:2.8rem;right:auto;max-width:calc(100% - 1.7rem)}
+.ld-modal.ld-discovery .ld-cam{bottom:.55rem;left:auto;right:.75rem;width:auto}
+.ld-modal.ld-discovery .ld-cam-actions{margin-top:0}
+.ld-modal.ld-discovery #ldCamState,.ld-modal.ld-discovery #ldCamNote{display:none}
+.ld-modal.ld-discovery #ldCamActions .btn{min-height:2rem}
+@media (orientation:landscape){
+ .ld-modal.ld-discovery .modal-dialog{max-width:min(96vw,900px);max-height:calc(100dvh - .5rem)}
+ .ld-modal.ld-discovery .ld-preview{max-height:calc(100dvh - 1rem)}
+}
