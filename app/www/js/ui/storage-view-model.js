@@ -182,7 +182,16 @@
     var takeNumber = take.takeNumber || 0;
     var key = sid + "|" + takeNumber;
     var byDevice = indexTransfers(transfersFor(sid, takeNumber), self);
+    /* A restarted Storage may have no live transfer machine yet. Persisted
+     * replication facts are retained in the session and must remain visible. */
+    var persisted = take.summary && take.summary.replications || {};
+    Object.keys(persisted).forEach(function (key) {
+      var item = persisted[key];
+      if (!item || item.storageDeviceId !== self || !item.sourceDeviceId || byDevice[item.sourceDeviceId]) return;
+      byDevice[item.sourceDeviceId] = item;
+    });
     var captures = Array.isArray(take.captures) ? take.captures.slice() : [];
+    Object.keys(byDevice).forEach(function (did) { if (captures.indexOf(did) < 0) captures.push(did); });
 
     var devices = captures.map(function (did) {
       return deviceOf(did, members[did], byDevice[did]);
@@ -250,7 +259,7 @@
     var storageOnly = input.storageOnly !== false;
     function belongs(t) {
       if (!storageOnly || !self) return true;
-      return (t.storages || []).indexOf(self) >= 0;
+      return (t.storages || []).indexOf(self) >= 0 || !!(t.summary && t.summary.replications && Object.keys(t.summary.replications).some(function (key) { return key.indexOf(self) >= 0; }));
     }
 
     var sorted = sessions.map(function (s) {
