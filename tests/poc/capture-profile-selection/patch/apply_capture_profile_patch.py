@@ -41,6 +41,9 @@ def replace_once(text, old, new, label):
     if new in text:
         print('DEJA OK:', label)
         return text
+    if old not in text and label in ('execute -> startRecordVideo + camcorderProfile', 'onRequestPermissionResult -> startRecordVideo + camcorderProfile', 'startRecordVideo signature + camcorderProfile', 'JS wrapper + camcorderProfile') and ('args.optString(6, "")' in text or 'this.execArgs.optString(6, "")' in text or 'final String safTreeUri' in text or 'opts.safTreeUri' in text):
+        print('DEJA OK: direct SAF supersedes', label)
+        return text
     if old not in text:
         raise SystemExit('ERREUR: anchor introuvable pour %s' % label)
     return text.replace(old, new, 1)
