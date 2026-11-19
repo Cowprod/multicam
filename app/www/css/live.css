@@ -236,3 +236,6 @@
  .ld-modal.ld-discovery .modal-dialog{max-width:min(96vw,900px);max-height:calc(100dvh - .5rem)}
  .ld-modal.ld-discovery .ld-preview{max-height:calc(100dvh - 1rem)}
 }
+
+.ld-modal.ld-discovery #ldCamActions .btn{width:2.25rem;height:2.25rem;min-height:0;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(15,23,42,.8);color:#fff;border:1px solid rgba(255,255,255,.65);font-size:1rem}
+.ld-modal.ld-discovery .ld-cam{background:transparent;border:0;padding:0;right:.65rem;bottom:.55rem}
