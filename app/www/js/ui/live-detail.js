@@ -602,10 +602,10 @@
    * un ordre d'un fait. */
   function onCameraClick(ev) {
     var t = ev && ev.target;
-    if (!t || !t.getAttribute) return;
-    var cam = t.getAttribute("data-camera");
-    if (!cam) return;
-    var host = t.closest ? t.closest("#ldCamActions") : null;
+    var button = t && t.closest ? t.closest("button[data-camera]") : null;
+    if (!button) return;
+    var cam = button.getAttribute("data-camera");
+    var host = button.closest ? button.closest("#ldCamActions") : null;
     if (!host) return;
     if (DISCOVERY && DISCOVERY.peer) {
       var peer = DISCOVERY.peer, ep = peer.wsEndpoint || peer.endpoint || "";
