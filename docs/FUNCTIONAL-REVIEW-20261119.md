@@ -24,7 +24,7 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - Organisation en trois lots, priorités P1/P2 et supposés problèmes Capture non démontrés.
 
 ## Questions à traiter, UNE À LA FOIS
-1. [PARTIELLEMENT VALIDÉ] Storage Samsung : déplier automatiquement les Takes ayant des transferts en cours (et montrer leur progression). Takes dont tous les fichiers sont arrivés : repliés automatiquement mais dépliables manuellement, avec une icône Font Awesome `fa-check-circle text-success` en fin de ligne. Comportement en cas de transfert partiellement terminé ou en erreur encore à préciser ; vérifier l'état réel avant de changer l'UI.
+1. [PARTIELLEMENT VALIDÉ] Storage Samsung : déplier automatiquement les Takes ayant des transferts en cours (et montrer leur progression). Takes dont tous les fichiers sont arrivés : repliés automatiquement mais dépliables manuellement, avec une icône Font Awesome `fa-check-circle text-success` en fin de ligne. En cas d'erreur de transfert : Take automatiquement ouvert jusqu'à résolution, icône `fa-exclamation-circle text-danger` en fin de ligne. Cas de transfert partiellement terminé sans erreur encore à préciser ; vérifier l'état réel avant de changer l'UI.
 2. Master : supprimer le bloc Storage distant et définir l'affichage unifié (nom, skills, espace libre).
 3. Volume Storage : comportement attendu pour SSD SAF, plusieurs destinations, mesure et cas indisponible.
 4. Nommage SSD : nom de session, index des caméras, Take, fichiers multiples et collision.
@@ -36,3 +36,5 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - 19/11/2026 : document initial créé.
 - 19/11/2026 : l'utilisateur choisit l'ouverture automatique des Takes ayant des transferts en cours.
 - 19/11/2026 : une fois tous les fichiers arrivés, Take automatiquement fermé mais dépliable ; afficher `fa-check-circle text-success` à droite de sa ligne.
+
+- 19/11/2026 : l'utilisateur valide Take ouvert en cas d'erreur, avec `fa-exclamation-circle text-danger` à droite, jusqu'à résolution.
