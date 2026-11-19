@@ -251,7 +251,7 @@
     if (boot && typeof boot.onChange === "function") {
       boot.onChange(function () {
         if (global.MultiCamNav && global.MultiCamNav.current && global.MultiCamNav.current() !== "storage") return;
-        render();
+        refresh();
       });
     }
   }
