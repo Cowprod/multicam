@@ -768,7 +768,7 @@
         el.setAttribute("aria-label", el.title);
       });
           setText("ldName", peer.name || peer.deviceId);
-      setText("ldPreviewAge", "hors session");
+      setText("ldPreviewAge", (peer.enabledSkills || []).indexOf("capture") >= 0 ? "hors session" : "Pas de caméra");
       setText("ldTelemetryAge", "aucune télémétrie de session");
       var bat = byId("ldBattery"), sto = byId("ldStorage");
       if (bat) {
