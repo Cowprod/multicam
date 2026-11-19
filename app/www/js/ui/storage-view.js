@@ -133,7 +133,14 @@
   }
 
   function toggle(key) {
-    state.collapsed[key] = !state.collapsed[key];
+    /* An unset override is not necessarily closed: active Takes auto-open.
+     * Toggle the actual projected state, not the undefined override. */
+    var pv = view(), current = null;
+    (pv.sessions || []).forEach(function (s) {
+      if (s.sessionId === key) current = s.open;
+      (s.takes || []).forEach(function (t) { if (t.key === key) current = t.open; });
+    });
+    state.collapsed[key] = current === true;
     render();
   }
 
