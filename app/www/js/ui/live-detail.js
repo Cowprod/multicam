@@ -803,16 +803,20 @@
         : "GPS : position non mesurée";
       setText("ldRecorder", gpsText);
       var bat = byId("ldBattery"), sto = byId("ldStorage");
-      if (bat) {
-        bat.textContent = telemetry && Number.isFinite(telemetry.batteryLevel)
-          ? "Batterie " + Math.round(telemetry.batteryLevel) + "%" + (telemetry.batteryCharging ? " · charge" : "")
-          : "Batterie : non mesurée";
+      function gauge(el, icon, value, title) {
+        if (!el) return;
+        el.textContent = "";
+        if (!Number.isFinite(value)) { el.title = title + " : non mesuré"; return; }
+        var pct = Math.max(0, Math.min(100, Math.round(value)));
+        el.title = title + " : " + pct + "%";
+        el.innerHTML = '<span class="discovery-health-item"><i class="fa-solid ' + icon +
+          '"></i> ' + pct + '%<b class="discovery-health-bar"><i style="width:' + pct + '%"></i></b></span>';
       }
-      if (sto) {
-        sto.textContent = telemetry && Number.isFinite(telemetry.freeBytes)
-          ? "Libre " + fmtBytes(telemetry.freeBytes) + (Number.isFinite(telemetry.totalBytes) ? " / " + fmtBytes(telemetry.totalBytes) : "")
-          : "Stockage : non mesuré";
-      }
+      gauge(bat, "fa-battery-half", telemetry && telemetry.batteryLevel, "Batterie");
+      var freePct = telemetry && Number.isFinite(telemetry.freeBytes) &&
+        Number.isFinite(telemetry.totalBytes) && telemetry.totalBytes > 0
+          ? telemetry.freeBytes / telemetry.totalBytes * 100 : null;
+      gauge(sto, "fa-hard-drive", freePct, "Stockage libre");
     }
   function openDiscovered(peer, previewProvider) {
     if (!peer || !peer.deviceId) return null;
