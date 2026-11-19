@@ -38,8 +38,14 @@
     var key = String(battery) + "/" + String(disk) + "/" + !!(t && t.batteryCharging);
     if (host.getAttribute("data-health") === key) return;
     host.setAttribute("data-health", key);
-    host.innerHTML = (battery === null ? "" : '<span title="Batterie : ' + battery + '%" class="discovery-health-item"><i class="fa-solid fa-battery-half"></i> ' + battery + '%<b class="discovery-health-bar"><i style="width:' + battery + '%"></i></b></span>')
-      + (disk === null ? "" : '<span title="Stockage libre : ' + disk + '%" class="discovery-health-item"><i class="fa-solid fa-hard-drive"></i> ' + disk + '%<b class="discovery-health-bar"><i style="width:' + disk + '%"></i></b></span>');
+    function color(n) { return n <= 20 ? "text-danger" : n <= 40 ? "text-warning" : "text-success"; }
+    host.innerHTML = (battery === null ? "" :
+      '<span title="Batterie ' + battery + '%" class="discovery-health-item ' + color(battery) +
+      '"><i class="fa-solid ' + batteryIcon(battery, false) + '"></i>' +
+      (t && t.batteryCharging ? '<i class="fa-solid fa-bolt"></i>' : '') + '</span>') +
+      (disk === null ? "" :
+      '<span title="Stockage libre ' + disk + '%" class="discovery-health-item ' + color(disk) +
+      '"><i class="fa-solid fa-hard-drive"></i></span>');
   }
   function cardMarkup(did) {
     return '<button type="button" class="discovery-preview tile-media border-0 p-0 overflow-hidden position-relative" ' +
