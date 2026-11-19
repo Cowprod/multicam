@@ -746,6 +746,42 @@
   /* Pre-session device detail uses the SAME existing modal shell as session detail.
    * It does not fabricate a session slot, telemetry or recording state. */
   var DISCOVERY = null;
+  function paintDiscoveryTelemetry(peer) {
+      var telemetry = global.MultiCamSessionScreen && global.MultiCamSessionScreen.telemetryForDevice
+        ? global.MultiCamSessionScreen.telemetryForDevice(peer.deviceId) : null;
+      var caps = telemetry && telemetry.capabilities;
+      var cameraKnown = caps && caps.cameras &&
+        ((caps.cameras.rear || []).length || (caps.cameras.front || []).length);
+      var indicators = [
+        ["ldSkillVideo", "Caméra", caps ? !!cameraKnown : null],
+        ["ldSkillAudio", "Microphone", caps && typeof caps.audioMic === "boolean" ? caps.audioMic : null],
+        ["ldSkillGps", "GPS matériel", caps && typeof caps.gpsFeature === "boolean" ? caps.gpsFeature : null]
+      ];
+      indicators.forEach(function (entry) {
+        var el = byId(entry[0]); if (!el) return;
+        var available = entry[2];
+        el.className = "modal-icon " + (available === true ? "on" : "off");
+        if (available === null) el.className += " unknown";
+        el.title = entry[1] + (available === true ? " : disponible selon télémétrie"
+          : available === false ? " : indisponible selon télémétrie"
+          : " : télémétrie indisponible");
+        el.setAttribute("aria-label", el.title);
+      });
+          setText("ldName", peer.name || peer.deviceId);
+      setText("ldPreviewAge", "hors session");
+      setText("ldTelemetryAge", "aucune télémétrie de session");
+      var bat = byId("ldBattery"), sto = byId("ldStorage");
+      if (bat) {
+        bat.textContent = telemetry && Number.isFinite(telemetry.batteryLevel)
+          ? "Batterie " + Math.round(telemetry.batteryLevel) + "%" + (telemetry.batteryCharging ? " · charge" : "")
+          : "Batterie : non mesurée";
+      }
+      if (sto) {
+        sto.textContent = telemetry && Number.isFinite(telemetry.freeBytes)
+          ? "Libre " + fmtBytes(telemetry.freeBytes) + (Number.isFinite(telemetry.totalBytes) ? " / " + fmtBytes(telemetry.totalBytes) : "")
+          : "Stockage : non mesuré";
+      }
+    }
   function openDiscovered(peer, previewProvider) {
     if (!peer || !peer.deviceId) return null;
     var modal = byId("liveDetailModal");
@@ -767,40 +803,7 @@
     });
     var st = byId("ldState");
     if (st) { st.textContent = "Hors session"; st.className = "tile-state st-stopped"; }
-    var telemetry = global.MultiCamSessionScreen && global.MultiCamSessionScreen.telemetryForDevice
-      ? global.MultiCamSessionScreen.telemetryForDevice(peer.deviceId) : null;
-    var caps = telemetry && telemetry.capabilities;
-    var cameraKnown = caps && caps.cameras &&
-      ((caps.cameras.rear || []).length || (caps.cameras.front || []).length);
-    var indicators = [
-      ["ldSkillVideo", "Caméra", caps ? !!cameraKnown : null],
-      ["ldSkillAudio", "Microphone", caps && typeof caps.audioMic === "boolean" ? caps.audioMic : null],
-      ["ldSkillGps", "GPS matériel", caps && typeof caps.gpsFeature === "boolean" ? caps.gpsFeature : null]
-    ];
-    indicators.forEach(function (entry) {
-      var el = byId(entry[0]); if (!el) return;
-      var available = entry[2];
-      el.className = "modal-icon " + (available === true ? "on" : "off");
-      if (available === null) el.className += " unknown";
-      el.title = entry[1] + (available === true ? " : disponible selon télémétrie"
-        : available === false ? " : indisponible selon télémétrie"
-        : " : télémétrie indisponible");
-      el.setAttribute("aria-label", el.title);
-    });
-        setText("ldName", peer.name || peer.deviceId);
-    setText("ldPreviewAge", "hors session");
-    setText("ldTelemetryAge", "aucune télémétrie de session");
-    var bat = byId("ldBattery"), sto = byId("ldStorage");
-    if (bat) {
-      bat.textContent = telemetry && Number.isFinite(telemetry.batteryLevel)
-        ? "Batterie " + Math.round(telemetry.batteryLevel) + "%" + (telemetry.batteryCharging ? " · charge" : "")
-        : "Batterie : non mesurée";
-    }
-    if (sto) {
-      sto.textContent = telemetry && Number.isFinite(telemetry.freeBytes)
-        ? "Libre " + fmtBytes(telemetry.freeBytes) + (Number.isFinite(telemetry.totalBytes) ? " / " + fmtBytes(telemetry.totalBytes) : "")
-        : "Stockage : non mesuré";
-    }
+    paintDiscoveryTelemetry(peer);
     var net = byId("ldNetwork");
     if (net) {
       var endpoint = peer.wsEndpoint || peer.endpoint || "";
@@ -818,6 +821,7 @@
   }
   function refreshDiscovered() {
     if (!DISCOVERY) return null;
+    paintDiscoveryTelemetry(DISCOVERY.peer);
     var frame = typeof DISCOVERY.previewProvider === "function"
       ? DISCOVERY.previewProvider(DISCOVERY.peer.deviceId) : null;
     var img = byId("ldImage"), noimg = byId("ldNoImg");
