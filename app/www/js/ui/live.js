@@ -245,6 +245,13 @@
     var worstIcon = icons.filter(function (i) { return i.level === "warn"; })[0] || null;
     /* Le device local n'a JAMAIS d'image réseau : sa source visuelle est la
      * preview native du fond. On ne fabrique donc pas de data-URL pour lui. */
+    var projected = global.MultiCamDeviceMedia && global.MultiCamDeviceMedia.project({
+      deviceId: slot.deviceId, name: slot.deviceName, hasCamera: true,
+      connected: state !== "DECONNECTED", frame: slot.lastFrame,
+      telemetry: t, nowMs: now
+    });
+    /* REC retains its last image on disconnect/STOP; the shared projection
+     * supplies health and freshness without changing that established rule. */
     var hasNetFrame = !isLocal && !!slot.lastFrame && !!slot.lastFrame.jpegBase64;
     return {
       key: slot.deviceId + "@" + slot.take,
