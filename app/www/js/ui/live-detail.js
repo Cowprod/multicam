@@ -829,7 +829,16 @@
         el.innerHTML = '<span class="discovery-health-item"><i class="fa-solid ' + icon +
           '"></i> ' + pct + '%<b class="discovery-health-bar"><i style="width:' + pct + '%"></i></b></span>';
       }
-      gauge(bat, "fa-battery-half", telemetry && telemetry.batteryLevel, "Batterie");
+      var batteryLevel = telemetry && telemetry.batteryLevel;
+      var batteryIcon = !Number.isFinite(batteryLevel) ? "fa-battery-empty" :
+        batteryLevel <= 10 ? "fa-battery-empty" : batteryLevel <= 35 ? "fa-battery-quarter" :
+        batteryLevel <= 60 ? "fa-battery-half" : batteryLevel <= 85 ? "fa-battery-three-quarters" : "fa-battery-full";
+      gauge(bat, batteryIcon, batteryLevel, "Batterie");
+      if (bat && telemetry && telemetry.batteryCharging && Number.isFinite(batteryLevel)) {
+        var bolt = documentCreate("i", "fa-solid fa-bolt");
+        bat.appendChild(bolt);
+        bat.title += " · en charge";
+      }
       var freePct = telemetry && Number.isFinite(telemetry.freeBytes) &&
         Number.isFinite(telemetry.totalBytes) && telemetry.totalBytes > 0
           ? telemetry.freeBytes / telemetry.totalBytes * 100 : null;
