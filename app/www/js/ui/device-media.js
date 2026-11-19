@@ -10,7 +10,8 @@
     var now = finite(input.nowMs) ? input.nowMs : Date.now();
     var t = input.telemetry || null, f = input.frame || null;
     var hasCamera = !!input.hasCamera;
-    var frameAgeMs = f && finite(f.receivedAt) ? Math.max(0, now - f.receivedAt) : null;
+    var frameReceivedAt = f && (finite(f.receivedAt) ? f.receivedAt : finite(f.capturedAt) ? f.capturedAt : null);
+    var frameAgeMs = frameReceivedAt !== null ? Math.max(0, now - frameReceivedAt) : null;
     var image = hasCamera && f && typeof f.jpegBase64 === "string" &&
       f.jpegBase64.length > 0 && frameAgeMs !== null && frameAgeMs <= MAX_FRAME_AGE_MS ? f : null;
     var battery = t && finite(t.batteryLevel) ? Math.max(0, Math.min(100, Math.round(t.batteryLevel))) : null;
