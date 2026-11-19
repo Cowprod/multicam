@@ -607,6 +607,20 @@
     if (!cam) return;
     var host = t.closest ? t.closest("#ldCamActions") : null;
     if (!host) return;
+    if (DISCOVERY && DISCOVERY.peer) {
+      var peer = DISCOVERY.peer, ep = peer.wsEndpoint || peer.endpoint || "";
+      var match = /^(?:ws:\/\/)?([^:/]+):(\d+)$/.exec(ep);
+      var transport = global.MultiCamSessionWs;
+      if (!match || !transport || !transport.requestDiscoveryPreview) {
+        setText("ldCamNote", "Connexion caméra indisponible");
+        return;
+      }
+      setText("ldCamNote", "Bascule demandée…");
+      Promise.resolve(transport.requestDiscoveryPreview(match[1], Number(match[2]), peer.deviceId, cam))
+        .then(function (sent) { if (!sent) setText("ldCamNote", "Commande non transmise"); },
+          function (err) { setText("ldCamNote", "Erreur réseau : " + String(err)); });
+      return;
+    }
     var svc = global.MultiCamCameraSwitchService;
     if (!svc || typeof svc.requestSwitchRemote !== "function") {
       setText("ldCamNote", "Changement de caméra indisponible sur ce device.");
@@ -793,7 +807,9 @@
       }
       setText("ldCamState", rear && front ? "Caméras avant et arrière disponibles" :
         rear ? "Caméra arrière disponible" : front ? "Caméra avant disponible" : "Caméra non mesurée");
-      setText("ldCamNote", rear && front ? "Sélectionner la caméra à activer." : "");
+      var result = telemetry && telemetry.cameraSwitchResult;
+      setText("ldCamNote", result ? (result.ok ? "Caméra : " + result.activeCamera :
+        "Bascule refusée : " + result.message) : "");
       setText("ldTelemetryAge", telemetry && Number.isFinite(telemetry.atMs)
         ? fmtAge(Math.max(0, Date.now() - telemetry.atMs)) : "aucune télémétrie reçue");
       var pos = telemetry && telemetry.position;
