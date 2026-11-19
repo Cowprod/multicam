@@ -170,8 +170,7 @@
         var meta = global.MultiCamConfig.skillMeta[s] || { icon: "fa-question", label: s };
         return '<span class="cap"><i class="fa-solid ' + meta.icon + ' me-1"></i>' + meta.label + "</span>";
       }).join("") || '<span class="cap off">aucune skill active</span>';
-      var previewCard = preview && p.enabledSkills.indexOf("capture") >= 0
-        ? preview.cardMarkup(p.deviceId) : "";
+      var previewCard = preview ? preview.cardMarkup(p.deviceId) : "";
       return '<article class="live-tile discovery-device-card">'
         + (previewCard || '<div class="discovery-preview-placeholder"><i class="fa-solid fa-mobile-screen"></i></div>')
         + '<div class="tile-info">'
