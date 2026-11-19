@@ -11,7 +11,8 @@ module.exports = function (context) {
     'camera-patches/apply_capture_capabilities_patch.py',
     'camera-patches/apply_video_permission_patch.py',
     'camera-patches/apply_camera_switch_patch.py',
-    'camera-patches/apply_recording_path_patch.py'
+    'camera-patches/apply_recording_path_patch.py',
+    'camera-patches/apply_direct_saf_recording_patch.py'
   ];
   for (const script of scripts) {
     execFileSync('python3', [path.resolve(root, script), root], { cwd: root, stdio: 'inherit' });
