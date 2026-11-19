@@ -273,6 +273,7 @@
       /* J09-06 — supervision. `icons` alimente la ligne d'icônes de la vignette,
        * `incidents` le détail de la vue détaillée : les deux lisent la MÊME
        * structure, donc ils ne peuvent pas diverger. */
+      sharedDevice: projected || null,
       hasTelemetry: hasTelemetry,
       telemetryAt: telemetryAt,
       telemetryAgeMs: hasTelemetry ? Math.max(0, now - telemetryAt) : null,
