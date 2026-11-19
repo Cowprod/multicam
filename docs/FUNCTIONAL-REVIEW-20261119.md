@@ -54,3 +54,5 @@ Ce document conserve les constats et demandes exprimés par l'utilisateur. **Ne 
 - 19/11/2026 : [VALIDÉ — Q4A] Normalisation des noms de fichiers : retirer les accents, remplacer espaces et caractères interdits (`/`, `\\`, `:`, etc.) par `_`, conserver la casse. Exemple : `Caméra Église / Plan Général` → `Camera_Eglise_Plan_General.mp4`. Règles de collisions encore à définir.
 
 - 19/11/2026 : [VALIDÉ — Q4B] En cas de noms de Capture identiques après normalisation, éviter tout écrasement en ajoutant un suffixe numérique seulement en cas de collision : `Camera_principale.mp4`, `Camera_principale_2.mp4`, etc. Modalités de stabilité des suffixes entre transferts/reprises à préciser techniquement.
+
+- 19/11/2026 : [Q4C — À VÉRIFIER] L'utilisateur ignore si les Takes sont personnalisables et leur nom par défaut. Demande de reprendre sur le SSD exactement le nom affiché sur le Master (après normalisation). Vérifier dans le code les possibilités de renommage, valeur par défaut, persistance historique et collisions avant toute décision d'implémentation. Ne pas considérer le schéma `Take_001` comme validé.
