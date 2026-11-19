@@ -16,7 +16,9 @@
   }
   function telemetry(did) {
     var screen = global.MultiCamSessionScreen;
-    return screen && screen.telemetryForDevice ? screen.telemetryForDevice(did) : null;
+    var discovery = global.MultiCamDiscoveryTelemetry;
+    var latest = discovery && discovery.get ? discovery.get(did) : null;
+    return latest || (screen && screen.telemetryForDevice ? screen.telemetryForDevice(did) : null);
   }
   function pct(n) { return Math.max(0, Math.min(100, Math.round(n))); }
   function updateGauges(el, did) {
@@ -119,7 +121,7 @@
       var list = global.MultiCamNet && global.MultiCamNet.peers ? global.MultiCamNet.peers() : [];
       list.forEach(function (p) {
         var did = safeId(p.deviceId);
-        if (!peers[did] || !visible[did] || pending[did]) return;
+        if (!devices[did] || !visible[did] || pending[did]) return;
         var ep = p.wsEndpoint || "";
         var match = /^(?:ws:\/\/)?([^:/]+):(\d+)$/.exec(ep);
         if (!match) return;
