@@ -49,6 +49,15 @@
 
   function baseName(p) {
     var s = String(p || "");
+    // SAF document IDs encode the full provider path; use only the MP4 name
+    // as the HTTP grant key and the Storage destination filename.
+    if (s.indexOf("content://") === 0) {
+      try {
+        s = decodeURIComponent(s.split("?")[0]);
+        s = s.slice(s.lastIndexOf("/") + 1);
+        s = s.slice(s.lastIndexOf(":") + 1);
+      } catch (e) { return ""; }
+    }
     var i = s.lastIndexOf("/");
     return i >= 0 ? s.slice(i + 1) : s;
   }
@@ -142,6 +151,9 @@
      * devient Session / Take / <sourceDeviceId> / <segment>. */
     function destFor(sid, take, sourceDeviceId, rel) {
       var relFull = "MultiCam/" + sid + "/" + take + "/" + sourceDeviceId + "/" + rel;
+      // Storage writes directly into the selected SAF tree, never into a
+      // private intermediate file or an implicitly chosen public directory.
+      if (cfg.storage && cfg.storage.mode === "saf" && !cfg.storage.treeUri) return {};
       if (cfg.storage && cfg.storage.mode === "saf" && cfg.storage.treeUri) {
         return { treeUri: cfg.storage.treeUri, relPath: relFull };
       }
@@ -160,7 +172,9 @@
       var info = (v && v.stopStates && self) ? v.stopStates[self] : null;
       var path = (info && info.path) || (v && v.localStopInfo && v.localStopInfo.path) || "";
       if (!path) return [];
-      return [{ rel: baseName(path), segmentIndex: 0, path: path }];
+      var name = baseName(path);
+      if (!name || !/^[^\\/]+\\.mp4$/i.test(name)) return [];
+      return [{ rel: name, segmentIndex: 0, path: path }];
     }
 
     /* STAGING : le recorder écrit directement dans files/recordings, et
